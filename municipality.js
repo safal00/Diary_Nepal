@@ -1,11 +1,10 @@
 const params = new URLSearchParams(window.location.search);
-const province = params.get("p")?.trim();
-const district = params.get("d")?.trim();
-const local = params.get("l")?.trim();
+const province = params.get("p")?.trim().toLowerCase();
+const district = params.get("d")?.trim().toLowerCase();
+const local = params.get("l")?.trim().toLowerCase();
 
 document.getElementById("title").innerText = `${local}, ${district}, ${province}`;
 
-// Google Sheet IDs
 const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI";
 const OFFICES_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Offices`;
 const OFFICIALS_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Officials`;
@@ -94,47 +93,40 @@ function addMarkers(offices, officials) {
   }
 }
 
-// Parse Google Sheets JSON safely
-function parseSheetJSON(sheetText) {
+// Header-based parsing to avoid column index issues
+function parseSheetJSONByHeader(sheetText) {
   const json = JSON.parse(sheetText.substring(47).slice(0, -2));
-  return json.table.rows.map(r => {
-    const c = r.c;
-    return {
-      Province: c[0]?.v || "",
-      District: c[1]?.v || "",
-      LocalLevel: c[2]?.v || "",
-      OfficeType: c[4]?.v || "",
-      OfficeName: c[5]?.v || c[3]?.v || "",
-      Name: c[4]?.v || "",
-      Designation: c[5]?.v || "",
-      Phone: c[6]?.v || "",
-      Email: c[7]?.v || "",
-      Address: c[8]?.v || "",
-      Lat: c[9]?.v || null,
-      Lng: c[10]?.v || null
-    };
+  const rows = json.table.rows;
+  const cols = json.table.cols.map(c => c.label);
+
+  return rows.map(r => {
+    const rowObj = {};
+    cols.forEach((col, i) => {
+      rowObj[col] = r.c[i]?.v || "";
+    });
+    return rowObj;
   });
 }
 
 // Fetch Offices
 fetch(OFFICES_URL)
   .then(res => res.text())
-  .then(text => {
-    const allRows = parseSheetJSON(text);
+  .then(sheetText => {
+    const allRows = parseSheetJSONByHeader(sheetText);
     console.log("All office rows:", allRows);
 
     officeData = allRows.filter(r =>
-      r.Province.trim().toLowerCase() === province.trim().toLowerCase() &&
-      r.District.trim().toLowerCase() === district.trim().toLowerCase() &&
-      r.LocalLevel.trim().toLowerCase() === local.trim().toLowerCase()
+      (r.Province || "").trim().toLowerCase() === province &&
+      (r.District || "").trim().toLowerCase() === district &&
+      (r["Local Level"] || "").trim().toLowerCase() === local
     ).map(r => ({
-      officeType: r.OfficeType,
-      officeName: r.OfficeName,
+      officeType: r["Office Type"],
+      officeName: r["Office Name"],
       phone: r.Phone,
       email: r.Email,
       address: r.Address,
-      lat: r.Lat,
-      lng: r.Lng,
+      lat: r.Lat || null,
+      lng: r.Lng || null,
       type: 'office'
     }));
 
@@ -145,22 +137,22 @@ fetch(OFFICES_URL)
 // Fetch Officials
 fetch(OFFICIALS_URL)
   .then(res => res.text())
-  .then(text => {
-    const allRows = parseSheetJSON(text);
+  .then(sheetText => {
+    const allRows = parseSheetJSONByHeader(sheetText);
     console.log("All official rows:", allRows);
 
     officialData = allRows.filter(r =>
-      r.Province.trim().toLowerCase() === province.trim().toLowerCase() &&
-      r.District.trim().toLowerCase() === district.trim().toLowerCase() &&
-      r.LocalLevel.trim().toLowerCase() === local.trim().toLowerCase()
+      (r.Province || "").trim().toLowerCase() === province &&
+      (r.District || "").trim().toLowerCase() === district &&
+      (r["Local Level"] || "").trim().toLowerCase() === local
     ).map(r => ({
-      officeName: r.OfficeName,
+      officeName: r["Office Name"],
       name: r.Name,
       designation: r.Designation,
       phone: r.Phone,
       email: r.Email,
-      lat: r.Lat,
-      lng: r.Lng,
+      lat: r.Lat || null,
+      lng: r.Lng || null,
       type: 'official'
     }));
 
