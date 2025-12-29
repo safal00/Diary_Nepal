@@ -13,7 +13,7 @@ let officeData = [];
 let officialData = [];
 let map, markers = [];
 
-// Initialize Leaflet map
+// Initialize map
 function initMap() {
   map = L.map('map').setView([26.5, 87.5], 8);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -53,12 +53,11 @@ function displayOfficials(data) {
   });
 }
 
-// Add markers to map
+// Add markers
 function addMarkers(offices, officials) {
   markers.forEach(m => map.removeLayer(m));
   markers = [];
 
-  // Office markers
   offices.forEach(o => {
     if (o.lat && o.lng) {
       const marker = L.marker([o.lat, o.lng])
@@ -68,7 +67,6 @@ function addMarkers(offices, officials) {
     }
   });
 
-  // Officials markers (blue)
   const blueIcon = L.icon({
     iconUrl: 'https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-blue.png',
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
@@ -93,7 +91,7 @@ function addMarkers(offices, officials) {
   }
 }
 
-// Header-based parsing to avoid column index issues
+// Parse Google Sheets JSON using headers
 function parseSheetJSONByHeader(sheetText) {
   const json = JSON.parse(sheetText.substring(47).slice(0, -2));
   const rows = json.table.rows;
@@ -113,8 +111,6 @@ fetch(OFFICES_URL)
   .then(res => res.text())
   .then(sheetText => {
     const allRows = parseSheetJSONByHeader(sheetText);
-    console.log("All office rows:", allRows);
-
     officeData = allRows.filter(r =>
       (r.Province || "").trim().toLowerCase() === province &&
       (r.District || "").trim().toLowerCase() === district &&
@@ -139,8 +135,6 @@ fetch(OFFICIALS_URL)
   .then(res => res.text())
   .then(sheetText => {
     const allRows = parseSheetJSONByHeader(sheetText);
-    console.log("All official rows:", allRows);
-
     officialData = allRows.filter(r =>
       (r.Province || "").trim().toLowerCase() === province &&
       (r.District || "").trim().toLowerCase() === district &&
@@ -155,12 +149,6 @@ fetch(OFFICIALS_URL)
       lng: r.Lng || null,
       type: 'official'
     }));
-
-    console.log("Filtered officials:", officialData);
-
-    if (officialData.length === 0) {
-      console.warn("No officials found! Check spelling and spaces in sheet vs URL.");
-    }
 
     displayOfficials(officialData);
     addMarkers(officeData, officialData);
