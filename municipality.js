@@ -24,6 +24,25 @@ function initMap() {
   }).addTo(map);
 }
 
+// Parse Google Sheets JSON using headers
+function parseSheetJSON(sheetText) {
+  const json = JSON.parse(sheetText.substring(47).slice(0, -2));
+  const rows = json.table.rows;
+  const cols = json.table.cols.map(c => c.label);
+  console.log("Sheet headers:", cols);
+
+  const parsed = rows.map(r => {
+    const rowObj = {};
+    cols.forEach((col, i) => {
+      rowObj[col] = r.c[i]?.v || "";
+    });
+    return rowObj;
+  });
+
+  console.log("Parsed sheet rows:", parsed);
+  return parsed;
+}
+
 // Display offices
 function displayOffices(data) {
   console.log("Displaying offices:", data);
@@ -58,7 +77,7 @@ function displayOfficials(data) {
   });
 }
 
-// Add markers
+// Add markers to map
 function addMarkers(offices, officials) {
   console.log("Adding markers for offices:", offices);
   console.log("Adding markers for officials:", officials);
@@ -99,29 +118,13 @@ function addMarkers(offices, officials) {
   }
 }
 
-// Parse Google Sheets JSON using headers
-function parseSheetJSONByHeader(sheetText) {
-  const json = JSON.parse(sheetText.substring(47).slice(0, -2));
-  const rows = json.table.rows;
-  const cols = json.table.cols.map(c => c.label);
+// Fetch Offices first
+initMap();
 
-  const parsed = rows.map(r => {
-    const rowObj = {};
-    cols.forEach((col, i) => {
-      rowObj[col] = r.c[i]?.v || "";
-    });
-    return rowObj;
-  });
-
-  console.log("Parsed sheet rows:", parsed);
-  return parsed;
-}
-
-// Fetch Offices
 fetch(OFFICES_URL)
   .then(res => res.text())
   .then(sheetText => {
-    const allRows = parseSheetJSONByHeader(sheetText);
+    const allRows = parseSheetJSON(sheetText);
     officeData = allRows.filter(r =>
       (r.Province || "").trim().toLowerCase() === province &&
       (r.District || "").trim().toLowerCase() === district &&
@@ -139,36 +142,39 @@ fetch(OFFICES_URL)
 
     console.log("Filtered offices:", officeData);
     displayOffices(officeData);
-    initMap();
-  });
+  })
+  .then(() => {
+    // Fetch Officials next
+    return fetch(OFFICIALS_URL)
+      .then(res => res.text())
+      .then(sheetText => {
+        const allRows = parseSheetJSON(sheetText);
 
-// Fetch Officials
-fetch(OFFICIALS_URL)
-  .then(res => res.text())
-  .then(sheetText => {
-    const allRows = parseSheetJSONByHeader(sheetText);
-    console.log("All official rows:", allRows);
+        officialData = allRows.filter(r =>
+          (r.Province || "").trim().toLowerCase() === province &&
+          (r.District || "").trim().toLowerCase() === district &&
+          (r["Local Level"] || "").trim().toLowerCase() === local
+        ).map(r => ({
+          officeName: r["Office Name"],
+          name: r.Name,
+          designation: r.Designation,
+          phone: r.Phone,
+          email: r.Email,
+          lat: r.Lat || null,
+          lng: r.Lng || null,
+          type: 'official'
+        }));
 
-    officialData = allRows.filter(r =>
-      (r.Province || "").trim().toLowerCase() === province &&
-      (r.District || "").trim().toLowerCase() === district &&
-      (r["Local Level"] || "").trim().toLowerCase() === local
-    ).map(r => ({
-      officeName: r["Office Name"],
-      name: r.Name,
-      designation: r.Designation,
-      phone: r.Phone,
-      email: r.Email,
-      lat: r.Lat || null,
-      lng: r.Lng || null,
-      type: 'official'
-    }));
+        console.log("Filtered officials:", officialData);
 
-    console.log("Filtered officials:", officialData);
+        displayOfficials(officialData);
 
-    displayOfficials(officialData);
-    addMarkers(officeData, officialData);
-    initSearch();
+        // Add all markers after both are loaded
+        addMarkers(officeData, officialData);
+
+        // Initialize search
+        initSearch();
+      });
   });
 
 // Fuse.js search
