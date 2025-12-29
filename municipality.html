@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Municipality Contacts</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<!-- Fuse.js -->
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.min.js"></script>
+
+</head>
+<body>
+
+<header>
+  <h1>Diary Nepal</h1>
+  <p id="title"></p>
+</header>
+
+<main class="container">
+  <div class="search-box">
+    <input type="text" id="searchBox" placeholder="Search offices or officials...">
+  </div>
+
+  <section>
+    <h2>Offices</h2>
+    <div id="offices"></div>
+  </section>
+
+  <section>
+    <h2>Officials</h2>
+    <div id="officials"></div>
+  </section>
+
+  <section>
+    <h2>Map</h2>
+    <div id="map"></div>
+  </section>
+</main>
+
+<footer>
+  <p>© 2025 Diary Nepal | Data from official sources</p>
+</footer>
+
+<script src="municipality.js"></script>
+</body>
+</html>

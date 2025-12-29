@@ -1,0 +1,77 @@
+/* General */
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  background: #f9f9f9;
+  color: #333;
+}
+
+header {
+  background-color: #004aad;
+  color: white;
+  text-align: center;
+  padding: 20px 0;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2em;
+}
+
+header p {
+  margin: 5px 0 0 0;
+  font-weight: 400;
+}
+
+footer {
+  text-align: center;
+  padding: 10px 0;
+  background: #222;
+  color: white;
+}
+
+.container {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+
+.selection-box, .search-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.selection-box select, .selection-box button, .search-box input {
+  flex: 1 1 200px;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 1em;
+}
+
+.selection-box button {
+  background-color: #004aad;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.selection-box button:hover {
+  background-color: #003080;
+}
+
+.contact {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background: white;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+#map {
+  height: 400px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
