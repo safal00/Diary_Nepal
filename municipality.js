@@ -9,7 +9,7 @@ document.getElementById("title").innerText = `${local}, ${district}, ${province}
 
 const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI";
 const OFFICES_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Offices`;
-const OFFICIALS_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Officials`;
+const OFFICIALS_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Official`;
 
 let officeData = [];
 let officialData = [];
@@ -115,6 +115,8 @@ function addMarkers(offices, officials) {
   if (markers.length) {
     const group = L.featureGroup(markers);
     map.fitBounds(group.getBounds().pad(0.2));
+  } else {
+    console.warn("No markers with valid coordinates to fit bounds.");
   }
 }
 
@@ -155,7 +157,7 @@ fetch(OFFICES_URL)
           (r.District || "").trim().toLowerCase() === district &&
           (r["Local Level"] || "").trim().toLowerCase() === local
         ).map(r => ({
-          officeName: r["Office Name"],
+          officeName: r["Office Name"],      // hardcoded exact column
           name: r.Name,
           designation: r.Designation,
           phone: r.Phone,
