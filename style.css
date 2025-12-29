@@ -1,4 +1,4 @@
-/* General */
+/* ---------------- General ---------------- */
 body {
   font-family: 'Roboto', sans-serif;
   margin: 0;
@@ -36,14 +36,18 @@ footer {
   padding: 0 20px;
 }
 
-.selection-box, .search-box {
+/* ---------------- Selection + Search ---------------- */
+.selection-box,
+.search-box {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 20px;
 }
 
-.selection-box select, .selection-box button, .search-box input {
+.selection-box select,
+.selection-box button,
+.search-box input {
   flex: 1 1 200px;
   padding: 10px;
   border-radius: 5px;
@@ -56,10 +60,33 @@ footer {
   color: white;
   border: none;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 .selection-box button:hover {
   background-color: #003080;
+}
+
+/* ---------------- Office Type Filters ---------------- */
+#officeTypeFilters {
+  margin-top: 10px;
+}
+
+#officeTypeFilters label {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 15px;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+
+#officeTypeFilters input {
+  margin-right: 5px;
+}
+
+/* ---------------- Contacts ---------------- */
+.contacts-section {
+  margin-top: 20px;
 }
 
 .contact {
@@ -68,10 +95,34 @@ footer {
   background: white;
   padding: 15px;
   margin-bottom: 15px;
+  transition: box-shadow 0.3s;
 }
 
+.contact:hover {
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.contact.office {
+  border-left: 5px solid #004aad;
+}
+
+.contact.official {
+  border-left: 5px solid #ff8800;
+}
+
+/* ---------------- Map ---------------- */
 #map {
   height: 400px;
   border-radius: 10px;
   border: 1px solid #ccc;
+  margin-bottom: 20px;
+}
+
+/* ---------------- Responsive ---------------- */
+@media (max-width: 600px) {
+  .selection-box,
+  .search-box,
+  #officeTypeFilters {
+    flex-direction: column;
+  }
 }

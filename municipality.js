@@ -1,3 +1,7 @@
+const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI";
+const OFFICES_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Offices`;
+const OFFICIALS_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Official`;
+
 const params = new URLSearchParams(window.location.search);
 const province = params.get("p")?.trim().toLowerCase();
 const district = params.get("d")?.trim().toLowerCase();
@@ -5,11 +9,7 @@ const local = params.get("l")?.trim().toLowerCase();
 
 console.log("URL Params:", { province, district, local });
 
-document.getElementById("title").innerText = `${local}, ${district}, ${province}`;
-
-const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI";
-const OFFICES_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Offices`;
-const OFFICIALS_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Official`;
+document.getElementById("title").innerText = `${local || "All"}, ${district || "All"}, ${province || "All"}`;
 
 let officeData = [];
 let officialData = [];
@@ -17,35 +17,28 @@ let map, markers = [];
 
 // Initialize map
 function initMap() {
-  console.log("Initializing map...");
   map = L.map('map').setView([26.5, 87.5], 8);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 }
 
-// Parse Google Sheets JSON using headers
+// Parse Google Sheets JSON
 function parseSheetJSON(sheetText) {
   const json = JSON.parse(sheetText.substring(47).slice(0, -2));
-  const rows = json.table.rows;
   const cols = json.table.cols.map(c => c.label);
-  console.log("Sheet headers:", cols);
-
-  const parsed = rows.map(r => {
-    const rowObj = {};
+  const rows = json.table.rows.map(r => {
+    const obj = {};
     cols.forEach((col, i) => {
-      rowObj[col] = r.c[i]?.v || "";
+      obj[col] = r.c[i]?.v || "";
     });
-    return rowObj;
+    return obj;
   });
-
-  console.log("Parsed sheet rows:", parsed);
-  return parsed;
+  return rows;
 }
 
 // Display offices
 function displayOffices(data) {
-  console.log("Displaying offices:", data);
   const div = document.getElementById("offices");
   div.innerHTML = "";
   if (!data.length) div.innerHTML = "<p>No offices found.</p>";
@@ -62,7 +55,6 @@ function displayOffices(data) {
 
 // Display officials
 function displayOfficials(data) {
-  console.log("Displaying officials:", data);
   const div = document.getElementById("officials");
   div.innerHTML = "";
   if (!data.length) div.innerHTML = "<p>No officials found.</p>";
@@ -77,11 +69,8 @@ function displayOfficials(data) {
   });
 }
 
-// Add markers to map
+// Add markers
 function addMarkers(offices, officials) {
-  console.log("Adding markers for offices:", offices);
-  console.log("Adding markers for officials:", officials);
-
   markers.forEach(m => map.removeLayer(m));
   markers = [];
 
@@ -115,22 +104,55 @@ function addMarkers(offices, officials) {
   if (markers.length) {
     const group = L.featureGroup(markers);
     map.fitBounds(group.getBounds().pad(0.2));
-  } else {
-    console.warn("No markers with valid coordinates to fit bounds.");
   }
 }
 
-// Fetch Offices first
+// Generate office type filters
+function generateOfficeTypeFilters() {
+  const allTypes = [...new Set(officeData.map(o => o.officeType).filter(Boolean))];
+  const container = document.getElementById("officeTypeFilters");
+  container.innerHTML = "<strong>Filter by Office Type:</strong><br>";
+  allTypes.forEach(type => {
+    const id = `type-${type.replace(/\s+/g, "")}`;
+    container.innerHTML += `<label>
+      <input type="checkbox" value="${type}" id="${id}" checked> ${type}
+    </label><br>`;
+  });
+}
+
+// Apply filters & search
+function applyFilters() {
+  const searchQuery = document.getElementById("searchBox").value.trim();
+  const selectedTypes = Array.from(document.querySelectorAll("#officeTypeFilters input:checked")).map(cb => cb.value);
+
+  let filteredOffices = officeData.filter(o => selectedTypes.includes(o.officeType));
+  let filteredOfficials = officialData; // can also match officeType if needed
+
+  if (searchQuery) {
+    const fuse = new Fuse([...filteredOffices, ...filteredOfficials], {
+      keys: ['officeType','officeName','name','designation','phone','email'],
+      threshold: 0.3
+    });
+    const results = fuse.search(searchQuery).map(r => r.item);
+    filteredOffices = results.filter(r => r.type === 'office');
+    filteredOfficials = results.filter(r => r.type === 'official');
+  }
+
+  displayOffices(filteredOffices);
+  displayOfficials(filteredOfficials);
+  addMarkers(filteredOffices, filteredOfficials);
+}
+
+// Fetch offices and officials
 initMap();
 
 fetch(OFFICES_URL)
   .then(res => res.text())
   .then(sheetText => {
-    const allRows = parseSheetJSON(sheetText);
-    officeData = allRows.filter(r =>
-      (r.Province || "").trim().toLowerCase() === province &&
-      (r.District || "").trim().toLowerCase() === district &&
-      (r["Local Level"] || "").trim().toLowerCase() === local
+    officeData = parseSheetJSON(sheetText).filter(r =>
+      (!province || (r.Province || "").trim().toLowerCase() === province) &&
+      (!district || (r.District || "").trim().toLowerCase() === district) &&
+      (!local || (r["Local Level"] || "").trim().toLowerCase() === local)
     ).map(r => ({
       officeType: r["Office Type"],
       officeName: r["Office Name"],
@@ -141,73 +163,30 @@ fetch(OFFICES_URL)
       lng: r.Lng || null,
       type: 'office'
     }));
-
-    console.log("Filtered offices:", officeData);
     displayOffices(officeData);
+    generateOfficeTypeFilters();
   })
-  .then(() => {
-    // Fetch Officials next
-    return fetch(OFFICIALS_URL)
-      .then(res => res.text())
-      .then(sheetText => {
-        const allRows = parseSheetJSON(sheetText);
-
-        officialData = allRows.filter(r =>
-          (r.Province || "").trim().toLowerCase() === province &&
-          (r.District || "").trim().toLowerCase() === district &&
-          (r["Local Level"] || "").trim().toLowerCase() === local
-        ).map(r => ({
-          officeName: r["Office Name"],      // hardcoded exact column
-          name: r.Name,
-          designation: r.Designation,
-          phone: r.Phone,
-          email: r.Email,
-          lat: r.Lat || null,
-          lng: r.Lng || null,
-          type: 'official'
-        }));
-
-        console.log("Filtered officials:", officialData);
-
-        displayOfficials(officialData);
-
-        // Add all markers after both are loaded
-        addMarkers(officeData, officialData);
-
-        // Initialize search
-        initSearch();
-      });
-  });
-
-// Fuse.js search
-function initSearch() {
-  const allData = [
-    ...officeData.map(o => ({ ...o, type: 'office' })),
-    ...officialData.map(o => ({
-      officeName: o.officeName,
-      officeType: "",
-      name: o.name,
-      designation: o.designation,
-      phone: o.phone,
-      email: o.email,
+  .then(() => fetch(OFFICIALS_URL))
+  .then(res => res.text())
+  .then(sheetText => {
+    officialData = parseSheetJSON(sheetText).filter(r =>
+      (!province || (r.Province || "").trim().toLowerCase() === province) &&
+      (!district || (r.District || "").trim().toLowerCase() === district) &&
+      (!local || (r["Local Level"] || "").trim().toLowerCase() === local)
+    ).map(r => ({
+      officeName: r["Office Name"],
+      name: r.Name,
+      designation: r.Designation,
+      phone: r.Phone,
+      email: r.Email,
+      lat: r.Lat || null,
+      lng: r.Lng || null,
       type: 'official'
-    }))
-  ];
+    }));
+    displayOfficials(officialData);
 
-  const fuse = new Fuse(allData, {
-    keys: ['officeType','officeName','name','designation','phone','email'],
-    threshold: 0.3
+    addMarkers(officeData, officialData);
+
+    document.getElementById("searchBox").addEventListener("input", applyFilters);
+    document.getElementById("officeTypeFilters").addEventListener("change", applyFilters);
   });
-
-  document.getElementById("searchBox").addEventListener("input", e => {
-    const query = e.target.value.trim();
-    const results = query ? fuse.search(query).map(r => r.item) : allData;
-
-    const officeResults = results.filter(r => r.type === 'office');
-    const officialResults = results.filter(r => r.type === 'official');
-
-    displayOffices(officeResults);
-    displayOfficials(officialResults);
-    addMarkers(officeResults, officialResults);
-  });
-}
