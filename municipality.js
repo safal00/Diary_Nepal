@@ -1,7 +1,7 @@
 const params = new URLSearchParams(window.location.search);
-const province = params.get("p");
-const district = params.get("d");
-const local = params.get("l");
+const province = params.get("p")?.trim();
+const district = params.get("d")?.trim();
+const local = params.get("l")?.trim();
 
 document.getElementById("title").innerText = `${local}, ${district}, ${province}`;
 
@@ -14,9 +14,9 @@ let officeData = [];
 let officialData = [];
 let map, markers = [];
 
-// Initialize Leaflet map
+// Initialize map
 function initMap() {
-  map = L.map('map').setView([26.5, 87.5], 8); // center on Nepal
+  map = L.map('map').setView([26.5, 87.5], 8);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
@@ -24,15 +24,11 @@ function initMap() {
 
 // Display offices
 function displayOffices(data) {
-  const officesDiv = document.getElementById("offices");
-  officesDiv.innerHTML = "";
-  if (data.length === 0) {
-    officesDiv.innerHTML = "<p>No offices found.</p>";
-    return;
-  }
-
+  const div = document.getElementById("offices");
+  div.innerHTML = "";
+  if (!data.length) div.innerHTML = "<p>No offices found.</p>";
   data.forEach(o => {
-    officesDiv.innerHTML += `<div class="contact">
+    div.innerHTML += `<div class="contact">
       <strong>${o.officeType}</strong><br>
       ${o.officeName ? "Name: " + o.officeName + "<br>" : ""}
       ${o.phone ? "Phone: " + o.phone + "<br>" : ""}
@@ -44,30 +40,27 @@ function displayOffices(data) {
 
 // Display officials
 function displayOfficials(data) {
-  const officialsDiv = document.getElementById("officials");
-  officialsDiv.innerHTML = "";
-  if (data.length === 0) {
-    officialsDiv.innerHTML = "<p>No officials found.</p>";
-    return;
-  }
-
-  data.forEach(r => {
-    officialsDiv.innerHTML += `<div class="contact">
-      <strong>${r.officeName}</strong><br>
-      ${r.name ? "Name: " + r.name + "<br>" : ""}
-      ${r.designation ? "Designation: " + r.designation + "<br>" : ""}
-      ${r.phone ? "Phone: " + r.phone + "<br>" : ""}
-      ${r.email ? "Email: " + r.email : ""}
+  const div = document.getElementById("officials");
+  div.innerHTML = "";
+  if (!data.length) div.innerHTML = "<p>No officials found.</p>";
+  data.forEach(o => {
+    div.innerHTML += `<div class="contact">
+      <strong>${o.officeName}</strong><br>
+      ${o.name ? "Name: " + o.name + "<br>" : ""}
+      ${o.designation ? "Designation: " + o.designation + "<br>" : ""}
+      ${o.phone ? "Phone: " + o.phone + "<br>" : ""}
+      ${o.email ? "Email: " + o.email + "<br>" : ""}
     </div>`;
   });
 }
 
-// Add map markers
-function addMarkers(data) {
+// Add markers for map (offices and optional officials)
+function addMarkers(offices, officials) {
   markers.forEach(m => map.removeLayer(m));
   markers = [];
 
-  data.forEach(o => {
+  // Office markers
+  offices.forEach(o => {
     if (o.lat && o.lng) {
       const marker = L.marker([o.lat, o.lng])
         .bindPopup(`<strong>${o.officeName || o.officeType}</strong><br>${o.address || ""}`);
@@ -76,7 +69,26 @@ function addMarkers(data) {
     }
   });
 
-  if (markers.length > 0) {
+  // Official markers (blue)
+  const blueIcon = L.icon({
+    iconUrl: 'https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-blue.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  });
+
+  officials.forEach(o => {
+    if (o.lat && o.lng) {
+      const marker = L.marker([o.lat, o.lng], {icon: blueIcon})
+        .bindPopup(`<strong>${o.name}</strong><br>${o.designation || ""}<br>${o.officeName}`);
+      marker.addTo(map);
+      markers.push(marker);
+    }
+  });
+
+  if (markers.length) {
     const group = L.featureGroup(markers);
     map.fitBounds(group.getBounds().pad(0.2));
   }
@@ -88,25 +100,25 @@ fetch(OFFICES_URL)
   .then(text => {
     const json = JSON.parse(text.substring(47).slice(0, -2));
     const rows = json.table.rows.filter(r =>
-      r.c[0]?.v === province &&
-      r.c[1]?.v === district &&
-      r.c[2]?.v === local
+      r.c[0]?.v?.trim() === province &&
+      r.c[1]?.v?.trim() === district &&
+      r.c[2]?.v?.trim() === local
     );
 
     officeData = rows.map(r => ({
-      officeType: r.c[4] ? r.c[4].v : "",       // Office Type
-      officeName: r.c[5] ? r.c[5].v : "",       // Office Name
-      phone: r.c[6] ? r.c[6].v : "",
-      email: r.c[7] ? r.c[7].v : "",
-      address: r.c[8] ? r.c[8].v : "",
-      lat: r.c[9] ? r.c[9].v : null,
-      lng: r.c[10] ? r.c[10].v : null,
+      officeType: r.c[4]?.v || "",
+      officeName: r.c[5]?.v || "",
+      phone: r.c[6]?.v || "",
+      email: r.c[7]?.v || "",
+      address: r.c[8]?.v || "",
+      lat: r.c[9]?.v || null,
+      lng: r.c[10]?.v || null,
       type: 'office'
     }));
 
     displayOffices(officeData);
     initMap();
-    addMarkers(officeData);
+    // markers added after fetching officials
   });
 
 // Fetch officials
@@ -115,23 +127,28 @@ fetch(OFFICIALS_URL)
   .then(text => {
     const json = JSON.parse(text.substring(47).slice(0, -2));
     const rows = json.table.rows.filter(r =>
-      r.c[0]?.v === province &&
-      r.c[1]?.v === district &&
-      r.c[2]?.v === local
+      r.c[0]?.v?.trim() === province &&
+      r.c[1]?.v?.trim() === district &&
+      r.c[2]?.v?.trim() === local
     );
 
     officialData = rows.map(r => ({
-      officeName: r.c[3] ? r.c[3].v : "",   // Office Name
-      name: r.c[4] ? r.c[4].v : "",         // Official Name
-      designation: r.c[5] ? r.c[5].v : "",
-      phone: r.c[6] ? r.c[6].v : "",
-      email: r.c[7] ? r.c[7].v : "",
+      officeName: r.c[3]?.v || "",
+      name: r.c[4]?.v || "",
+      designation: r.c[5]?.v || "",
+      phone: r.c[6]?.v || "",
+      email: r.c[7]?.v || "",
+      lat: r.c[8]?.v || null,
+      lng: r.c[9]?.v || null,
       type: 'official'
     }));
 
     displayOfficials(officialData);
 
-    // Initialize search after both offices and officials loaded
+    // Add markers for offices + officials
+    addMarkers(officeData, officialData);
+
+    // Initialize search
     initSearch();
   });
 
@@ -164,6 +181,6 @@ function initSearch() {
 
     displayOffices(officeResults);
     displayOfficials(officialResults);
-    addMarkers(officeResults); // map only shows offices
+    addMarkers(officeResults, officialResults);
   });
 }
