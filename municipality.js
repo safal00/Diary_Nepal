@@ -5,71 +5,22 @@ const local = params.get("l");
 
 document.getElementById("title").innerText = `${local}, ${district}, ${province}`;
 
+// Google Sheet IDs
 const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI";
 const OFFICES_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=offices`;
 const OFFICIALS_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=officials`;
 
 let officeData = [];
+let officialData = [];
 let map, markers = [];
 
+// Initialize map
 function initMap() {
-  map = L.map('map').setView([26.5, 87.5], 8);
+  map = L.map('map').setView([26.5, 87.5], 8); // center on Nepal
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 }
-
-// Load offices
-fetch(OFFICES_URL)
-  .then(res => res.text())
-  .then(text => {
-    const json = JSON.parse(text.substring(47).slice(0, -2));
-    const rows = json.table.rows.filter(r =>
-      r.c[0]?.v === province &&
-      r.c[1]?.v === district &&
-      r.c[2]?.v === local
-    );
-
-    officeData = rows.map(r => ({
-      officeType: r.c[4]?.v || "",
-      officeName: r.c[5]?.v || "",
-      phone: r.c[6]?.v || "",
-      email: r.c[7]?.v || "",
-      address: r.c[8]?.v || "",
-      lat: r.c[9]?.v || null,
-      lng: r.c[10]?.v || null
-    }));
-
-    displayOffices(officeData);
-    initMap();
-    addMarkers(officeData);
-    initSearch();
-  });
-
-// Load officials
-fetch(OFFICIALS_URL)
-  .then(res => res.text())
-  .then(text => {
-    const json = JSON.parse(text.substring(47).slice(0, -2));
-    const rows = json.table.rows.filter(r =>
-      r.c[0]?.v === province &&
-      r.c[1]?.v === district &&
-      r.c[2]?.v === local
-    );
-
-    const officialsDiv = document.getElementById("officials");
-    if (rows.length === 0) officialsDiv.innerHTML = "<p>No officials found.</p>";
-
-    rows.forEach(r => {
-      officialsDiv.innerHTML += `<div class="contact">
-        <strong>${r.c[4]?.v || "Official"}</strong><br>
-        ${r.c[5]?.v ? "Name: " + r.c[5].v + "<br>" : ""}
-        ${r.c[6]?.v ? "Designation: " + r.c[6].v + "<br>" : ""}
-        ${r.c[7]?.v ? "Phone: " + r.c[7].v + "<br>" : ""}
-        ${r.c[8]?.v ? "Email: " + r.c[8].v : ""}
-      </div>`;
-    });
-  });
 
 // Display offices
 function displayOffices(data) {
@@ -88,7 +39,24 @@ function displayOffices(data) {
   });
 }
 
-// Add markers
+// Display officials
+function displayOfficials(data) {
+  const officialsDiv = document.getElementById("officials");
+  officialsDiv.innerHTML = "";
+  if (data.length === 0) officialsDiv.innerHTML = "<p>No officials found.</p>";
+
+  data.forEach(r => {
+    officialsDiv.innerHTML += `<div class="contact">
+      <strong>${r.officeType}</strong><br>
+      ${r.officeName ? "Name: " + r.officeName + "<br>" : ""}
+      ${r.designation ? "Designation: " + r.designation + "<br>" : ""}
+      ${r.phone ? "Phone: " + r.phone + "<br>" : ""}
+      ${r.email ? "Email: " + r.email : ""}
+    </div>`;
+  });
+}
+
+// Add markers to map
 function addMarkers(data) {
   markers.forEach(m => map.removeLayer(m));
   markers = [];
@@ -108,22 +76,76 @@ function addMarkers(data) {
   }
 }
 
+// Fetch offices
+fetch(OFFICES_URL)
+  .then(res => res.text())
+  .then(text => {
+    const json = JSON.parse(text.substring(47).slice(0, -2));
+    const rows = json.table.rows.filter(r =>
+      r.c[0]?.v === province &&
+      r.c[1]?.v === district &&
+      r.c[2]?.v === local
+    );
+
+    officeData = rows.map(r => ({
+      officeType: r.c[3]?.v || "",  // Office Name / Type
+      officeName: r.c[4]?.v || "",  // Name
+      phone: r.c[6]?.v || "",
+      email: r.c[7]?.v || "",
+      address: r.c[8]?.v || "",
+      lat: r.c[9]?.v || null,
+      lng: r.c[10]?.v || null,
+      type: 'office'
+    }));
+
+    displayOffices(officeData);
+    initMap();
+    addMarkers(officeData);
+  });
+
+// Fetch officials
+fetch(OFFICIALS_URL)
+  .then(res => res.text())
+  .then(text => {
+    const json = JSON.parse(text.substring(47).slice(0, -2));
+    const rows = json.table.rows.filter(r =>
+      r.c[0]?.v === province &&
+      r.c[1]?.v === district &&
+      r.c[2]?.v === local
+    );
+
+    officialData = rows.map(r => ({
+      officeType: r.c[3]?.v || "",
+      officeName: r.c[4]?.v || "",  // Name
+      designation: r.c[5]?.v || "",
+      phone: r.c[6]?.v || "",
+      email: r.c[7]?.v || "",
+      type: 'official'
+    }));
+
+    displayOfficials(officialData);
+
+    // Initialize search after both offices and officials loaded
+    initSearch();
+  });
+
 // Fuse.js search
 function initSearch() {
-  const fuse = new Fuse(officeData, {
-    keys: ['officeType', 'officeName', 'address', 'phone'],
+  const allData = [...officeData, ...officialData];
+  const fuse = new Fuse(allData, {
+    keys: ['officeType','officeName','designation','phone','email'],
     threshold: 0.3
   });
 
   document.getElementById("searchBox").addEventListener("input", e => {
     const query = e.target.value.trim();
-    if (!query) {
-      displayOffices(officeData);
-      addMarkers(officeData);
-    } else {
-      const results = fuse.search(query).map(r => r.item);
-      displayOffices(results);
-      addMarkers(results);
-    }
+    const results = query ? fuse.search(query).map(r => r.item) : allData;
+
+    const officeResults = results.filter(r => r.type === 'office');
+    const officialResults = results.filter(r => r.type === 'official');
+
+    displayOffices(officeResults);
+    displayOfficials(officialResults);
+    addMarkers(officeResults);  // map only shows offices
   });
 }
