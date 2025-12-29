@@ -3,6 +3,8 @@ const province = params.get("p")?.trim().toLowerCase();
 const district = params.get("d")?.trim().toLowerCase();
 const local = params.get("l")?.trim().toLowerCase();
 
+console.log("URL Params:", { province, district, local });
+
 document.getElementById("title").innerText = `${local}, ${district}, ${province}`;
 
 const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI";
@@ -15,6 +17,7 @@ let map, markers = [];
 
 // Initialize map
 function initMap() {
+  console.log("Initializing map...");
   map = L.map('map').setView([26.5, 87.5], 8);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
@@ -23,6 +26,7 @@ function initMap() {
 
 // Display offices
 function displayOffices(data) {
+  console.log("Displaying offices:", data);
   const div = document.getElementById("offices");
   div.innerHTML = "";
   if (!data.length) div.innerHTML = "<p>No offices found.</p>";
@@ -39,6 +43,7 @@ function displayOffices(data) {
 
 // Display officials
 function displayOfficials(data) {
+  console.log("Displaying officials:", data);
   const div = document.getElementById("officials");
   div.innerHTML = "";
   if (!data.length) div.innerHTML = "<p>No officials found.</p>";
@@ -55,6 +60,9 @@ function displayOfficials(data) {
 
 // Add markers
 function addMarkers(offices, officials) {
+  console.log("Adding markers for offices:", offices);
+  console.log("Adding markers for officials:", officials);
+
   markers.forEach(m => map.removeLayer(m));
   markers = [];
 
@@ -97,13 +105,16 @@ function parseSheetJSONByHeader(sheetText) {
   const rows = json.table.rows;
   const cols = json.table.cols.map(c => c.label);
 
-  return rows.map(r => {
+  const parsed = rows.map(r => {
     const rowObj = {};
     cols.forEach((col, i) => {
       rowObj[col] = r.c[i]?.v || "";
     });
     return rowObj;
   });
+
+  console.log("Parsed sheet rows:", parsed);
+  return parsed;
 }
 
 // Fetch Offices
@@ -126,6 +137,7 @@ fetch(OFFICES_URL)
       type: 'office'
     }));
 
+    console.log("Filtered offices:", officeData);
     displayOffices(officeData);
     initMap();
   });
@@ -135,6 +147,8 @@ fetch(OFFICIALS_URL)
   .then(res => res.text())
   .then(sheetText => {
     const allRows = parseSheetJSONByHeader(sheetText);
+    console.log("All official rows:", allRows);
+
     officialData = allRows.filter(r =>
       (r.Province || "").trim().toLowerCase() === province &&
       (r.District || "").trim().toLowerCase() === district &&
@@ -149,6 +163,8 @@ fetch(OFFICIALS_URL)
       lng: r.Lng || null,
       type: 'official'
     }));
+
+    console.log("Filtered officials:", officialData);
 
     displayOfficials(officialData);
     addMarkers(officeData, officialData);
