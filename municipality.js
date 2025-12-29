@@ -14,7 +14,7 @@ let officeData = [];
 let officialData = [];
 let map, markers = [];
 
-// Initialize map
+// Initialize Leaflet map
 function initMap() {
   map = L.map('map').setView([26.5, 87.5], 8);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -54,12 +54,12 @@ function displayOfficials(data) {
   });
 }
 
-// Add markers for map (offices and optional officials)
+// Add markers to map
 function addMarkers(offices, officials) {
   markers.forEach(m => map.removeLayer(m));
   markers = [];
 
-  // Office markers
+  // Office markers (default)
   offices.forEach(o => {
     if (o.lat && o.lng) {
       const marker = L.marker([o.lat, o.lng])
@@ -69,7 +69,7 @@ function addMarkers(offices, officials) {
     }
   });
 
-  // Official markers (blue)
+  // Officials markers (blue)
   const blueIcon = L.icon({
     iconUrl: 'https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-blue.png',
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
@@ -94,61 +94,74 @@ function addMarkers(offices, officials) {
   }
 }
 
-// Fetch offices
+// Parse Google Sheets JSON safely
+function parseSheetJSON(sheetText) {
+  const json = JSON.parse(sheetText.substring(47).slice(0, -2));
+  return json.table.rows.map(r => {
+    const c = r.c;
+    return {
+      Province: c[0]?.v || "",
+      District: c[1]?.v || "",
+      LocalLevel: c[2]?.v || "",
+      OfficeType: c[4]?.v || "",
+      OfficeName: c[5]?.v || c[3]?.v || "",
+      Name: c[4]?.v || "",
+      Designation: c[5]?.v || "",
+      Phone: c[6]?.v || "",
+      Email: c[7]?.v || "",
+      Address: c[8]?.v || "",
+      Lat: c[9]?.v || null,
+      Lng: c[10]?.v || null
+    };
+  });
+}
+
+// Fetch Offices
 fetch(OFFICES_URL)
   .then(res => res.text())
   .then(text => {
-    const json = JSON.parse(text.substring(47).slice(0, -2));
-    const rows = json.table.rows.filter(r =>
-      r.c[0]?.v?.trim() === province &&
-      r.c[1]?.v?.trim() === district &&
-      r.c[2]?.v?.trim() === local
-    );
-
-    officeData = rows.map(r => ({
-      officeType: r.c[4]?.v || "",
-      officeName: r.c[5]?.v || "",
-      phone: r.c[6]?.v || "",
-      email: r.c[7]?.v || "",
-      address: r.c[8]?.v || "",
-      lat: r.c[9]?.v || null,
-      lng: r.c[10]?.v || null,
+    officeData = parseSheetJSON(text).filter(r =>
+      r.Province.trim() === province &&
+      r.District.trim() === district &&
+      r.LocalLevel.trim() === local
+    ).map(r => ({
+      officeType: r.OfficeType,
+      officeName: r.OfficeName,
+      phone: r.Phone,
+      email: r.Email,
+      address: r.Address,
+      lat: r.Lat,
+      lng: r.Lng,
       type: 'office'
     }));
 
     displayOffices(officeData);
     initMap();
-    // markers added after fetching officials
   });
 
-// Fetch officials
+// Fetch Officials
 fetch(OFFICIALS_URL)
   .then(res => res.text())
   .then(text => {
-    const json = JSON.parse(text.substring(47).slice(0, -2));
-    const rows = json.table.rows.filter(r =>
-      r.c[0]?.v?.trim() === province &&
-      r.c[1]?.v?.trim() === district &&
-      r.c[2]?.v?.trim() === local
-    );
-
-    officialData = rows.map(r => ({
-      officeName: r.c[3]?.v || "",
-      name: r.c[4]?.v || "",
-      designation: r.c[5]?.v || "",
-      phone: r.c[6]?.v || "",
-      email: r.c[7]?.v || "",
-      lat: r.c[8]?.v || null,
-      lng: r.c[9]?.v || null,
+    officialData = parseSheetJSON(text).filter(r =>
+      r.Province.trim() === province &&
+      r.District.trim() === district &&
+      r.LocalLevel.trim() === local
+    ).map(r => ({
+      officeName: r.OfficeName,
+      name: r.Name,
+      designation: r.Designation,
+      phone: r.Phone,
+      email: r.Email,
+      lat: r.Lat,
+      lng: r.Lng,
       type: 'official'
     }));
 
+    console.log("Officials loaded:", officialData);
+
     displayOfficials(officialData);
-
-    // Add markers for offices + officials
     addMarkers(officeData, officialData);
-
-    // Initialize search
     initSearch();
   });
 
