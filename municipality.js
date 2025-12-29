@@ -7,14 +7,14 @@ document.getElementById("title").innerText = `${local}, ${district}, ${province}
 
 // Google Sheet IDs
 const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI";
-const OFFICES_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=offices`;
-const OFFICIALS_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=officials`;
+const OFFICES_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Offices`;
+const OFFICIALS_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Officials`;
 
 let officeData = [];
 let officialData = [];
 let map, markers = [];
 
-// Initialize map
+// Initialize Leaflet map
 function initMap() {
   map = L.map('map').setView([26.5, 87.5], 8); // center on Nepal
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -26,7 +26,10 @@ function initMap() {
 function displayOffices(data) {
   const officesDiv = document.getElementById("offices");
   officesDiv.innerHTML = "";
-  if (data.length === 0) officesDiv.innerHTML = "<p>No offices found.</p>";
+  if (data.length === 0) {
+    officesDiv.innerHTML = "<p>No offices found.</p>";
+    return;
+  }
 
   data.forEach(o => {
     officesDiv.innerHTML += `<div class="contact">
@@ -43,12 +46,15 @@ function displayOffices(data) {
 function displayOfficials(data) {
   const officialsDiv = document.getElementById("officials");
   officialsDiv.innerHTML = "";
-  if (data.length === 0) officialsDiv.innerHTML = "<p>No officials found.</p>";
+  if (data.length === 0) {
+    officialsDiv.innerHTML = "<p>No officials found.</p>";
+    return;
+  }
 
   data.forEach(r => {
     officialsDiv.innerHTML += `<div class="contact">
-      <strong>${r.officeType}</strong><br>
-      ${r.officeName ? "Name: " + r.officeName + "<br>" : ""}
+      <strong>${r.officeName}</strong><br>
+      ${r.name ? "Name: " + r.name + "<br>" : ""}
       ${r.designation ? "Designation: " + r.designation + "<br>" : ""}
       ${r.phone ? "Phone: " + r.phone + "<br>" : ""}
       ${r.email ? "Email: " + r.email : ""}
@@ -56,7 +62,7 @@ function displayOfficials(data) {
   });
 }
 
-// Add markers to map
+// Add map markers
 function addMarkers(data) {
   markers.forEach(m => map.removeLayer(m));
   markers = [];
@@ -88,13 +94,13 @@ fetch(OFFICES_URL)
     );
 
     officeData = rows.map(r => ({
-      officeType: r.c[3]?.v || "",  // Office Name / Type
-      officeName: r.c[4]?.v || "",  // Name
-      phone: r.c[6]?.v || "",
-      email: r.c[7]?.v || "",
-      address: r.c[8]?.v || "",
-      lat: r.c[9]?.v || null,
-      lng: r.c[10]?.v || null,
+      officeType: r.c[4] ? r.c[4].v : "",       // Office Type
+      officeName: r.c[5] ? r.c[5].v : "",       // Office Name
+      phone: r.c[6] ? r.c[6].v : "",
+      email: r.c[7] ? r.c[7].v : "",
+      address: r.c[8] ? r.c[8].v : "",
+      lat: r.c[9] ? r.c[9].v : null,
+      lng: r.c[10] ? r.c[10].v : null,
       type: 'office'
     }));
 
@@ -115,11 +121,11 @@ fetch(OFFICIALS_URL)
     );
 
     officialData = rows.map(r => ({
-      officeType: r.c[3]?.v || "",
-      officeName: r.c[4]?.v || "",  // Name
-      designation: r.c[5]?.v || "",
-      phone: r.c[6]?.v || "",
-      email: r.c[7]?.v || "",
+      officeName: r.c[3] ? r.c[3].v : "",   // Office Name
+      name: r.c[4] ? r.c[4].v : "",         // Official Name
+      designation: r.c[5] ? r.c[5].v : "",
+      phone: r.c[6] ? r.c[6].v : "",
+      email: r.c[7] ? r.c[7].v : "",
       type: 'official'
     }));
 
@@ -131,9 +137,21 @@ fetch(OFFICIALS_URL)
 
 // Fuse.js search
 function initSearch() {
-  const allData = [...officeData, ...officialData];
+  const allData = [
+    ...officeData.map(o => ({ ...o, type: 'office' })),
+    ...officialData.map(o => ({
+      officeName: o.officeName,
+      officeType: "",
+      name: o.name,
+      designation: o.designation,
+      phone: o.phone,
+      email: o.email,
+      type: 'official'
+    }))
+  ];
+
   const fuse = new Fuse(allData, {
-    keys: ['officeType','officeName','designation','phone','email'],
+    keys: ['officeType','officeName','name','designation','phone','email'],
     threshold: 0.3
   });
 
@@ -146,6 +164,6 @@ function initSearch() {
 
     displayOffices(officeResults);
     displayOfficials(officialResults);
-    addMarkers(officeResults);  // map only shows offices
+    addMarkers(officeResults); // map only shows offices
   });
 }
