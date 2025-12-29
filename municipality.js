@@ -59,7 +59,7 @@ function addMarkers(offices, officials) {
   markers.forEach(m => map.removeLayer(m));
   markers = [];
 
-  // Office markers (default)
+  // Office markers
   offices.forEach(o => {
     if (o.lat && o.lng) {
       const marker = L.marker([o.lat, o.lng])
@@ -120,10 +120,13 @@ function parseSheetJSON(sheetText) {
 fetch(OFFICES_URL)
   .then(res => res.text())
   .then(text => {
-    officeData = parseSheetJSON(text).filter(r =>
-      r.Province.trim() === province &&
-      r.District.trim() === district &&
-      r.LocalLevel.trim() === local
+    const allRows = parseSheetJSON(text);
+    console.log("All office rows:", allRows);
+
+    officeData = allRows.filter(r =>
+      r.Province.trim().toLowerCase() === province.trim().toLowerCase() &&
+      r.District.trim().toLowerCase() === district.trim().toLowerCase() &&
+      r.LocalLevel.trim().toLowerCase() === local.trim().toLowerCase()
     ).map(r => ({
       officeType: r.OfficeType,
       officeName: r.OfficeName,
@@ -143,10 +146,13 @@ fetch(OFFICES_URL)
 fetch(OFFICIALS_URL)
   .then(res => res.text())
   .then(text => {
-    officialData = parseSheetJSON(text).filter(r =>
-      r.Province.trim() === province &&
-      r.District.trim() === district &&
-      r.LocalLevel.trim() === local
+    const allRows = parseSheetJSON(text);
+    console.log("All official rows:", allRows);
+
+    officialData = allRows.filter(r =>
+      r.Province.trim().toLowerCase() === province.trim().toLowerCase() &&
+      r.District.trim().toLowerCase() === district.trim().toLowerCase() &&
+      r.LocalLevel.trim().toLowerCase() === local.trim().toLowerCase()
     ).map(r => ({
       officeName: r.OfficeName,
       name: r.Name,
@@ -158,7 +164,11 @@ fetch(OFFICIALS_URL)
       type: 'official'
     }));
 
-    console.log("Officials loaded:", officialData);
+    console.log("Filtered officials:", officialData);
+
+    if (officialData.length === 0) {
+      console.warn("No officials found! Check spelling and spaces in sheet vs URL.");
+    }
 
     displayOfficials(officialData);
     addMarkers(officeData, officialData);
