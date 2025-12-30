@@ -81,6 +81,9 @@ function initFilters() {
     console.log("Search button clicked:", nameFilter.value);
     applyFilters();
   };
+
+  // Optional: live search
+  nameFilter.oninput = applyFilters;
 }
 
 // ------------------ Populate Dropdown ------------------
@@ -140,12 +143,14 @@ function renderResults(data) {
   data.forEach((r, index) => {
     const row = document.createElement("tr");
 
-    HEADERS.forEach(field => {
+    HEADERS.forEach((field, i) => {
       const cell = document.createElement("td");
       cell.textContent = r[field] || "-";
-      // Add minimum width for readability
+
+      // Optional min-width for readability
       if (field === "Phone") cell.style.minWidth = "120px";
-      if (field === "Province" || field === "District" || field === "Local Level") cell.style.minWidth = "150px";
+      if (["Province", "District", "Local Level"].includes(field)) cell.style.minWidth = "150px";
+
       row.appendChild(cell);
     });
 
@@ -158,6 +163,6 @@ function renderResults(data) {
     if (r["Website"]) websiteCell.innerHTML = `<a href="${r["Website"]}" target="_blank">${r["Website"]}</a>`;
 
     resultsTableBody.appendChild(row);
-    console.log(`Rendered row ${index+1}:`, r);
+    console.log(`Rendered row ${index + 1}:`, r);
   });
 }
