@@ -3,32 +3,58 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Diary Nepal</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<title>Diary Nepal - Home</title>
+<link href="style.css" rel="stylesheet">
+<style>
+.button-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 40px;
+  margin-bottom: 40px;
+}
+
+.button-container button {
+  padding: 15px 30px;
+  background-color: #004aad;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.button-container button:hover {
+  background-color: #003080;
+}
+</style>
 </head>
 <body>
 
 <header>
   <h1>Diary Nepal</h1>
-  <p>Your directory of municipalities, offices, police stations, and blood banks</p>
-
-  <!-- Nav Tabs will render dynamically -->
-  <div id="navTabs"></div>
+  <p>Welcome! Select a directory below:</p>
 </header>
 
 <main class="container">
-  <p>Welcome to Diary Nepal. Use the tabs above to browse municipalities, police offices, or blood banks.</p>
+  <div class="button-container">
+    <button onclick="location.href='municipality_offices.html'">Municipality Offices</button>
+    <button onclick="location.href='police.html'">Police</button>
+    <button onclick="location.href='bloodbank.html'">Blood Bank</button>
+  </div>
+
+  <section style="text-align:center; margin-top:50px;">
+    <h2>About Us</h2>
+    <p>This section will include more details about Diary Nepal in the future.</p>
+  </section>
 </main>
 
 <footer>
   <p>© 2025 Diary Nepal | Data from official sources</p>
 </footer>
-
-<script src="nav.js"></script>
-<script>
-  renderNavTabs("navTabs");
-</script>
 
 </body>
 </html>
