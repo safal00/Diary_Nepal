@@ -6,16 +6,39 @@
 <title>Municipality Offices - Diary Nepal</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<style>
+/* Table styling */
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.results-table th, .results-table td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: left;
+}
+
+.results-table th {
+  background-color: #004aad;
+  color: white;
+}
+
+.results-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+</style>
 </head>
 <body>
 
 <header>
   <h1>Municipality Offices</h1>
-  <p>Browse municipalities and local offices by Province, District, or Local Level</p>
+  <p>Browse offices by Province, District, or Local Level</p>
 
   <div class="nav-tabs">
     <button onclick="goTab('index')">Home</button>
-    <button onclick="goTab('Municipality_offices')">Municipality Offices</button>
+    <button onclick="goTab('municipality_offices')">Municipality Offices</button>
     <button onclick="goTab('police')">Police</button>
     <button onclick="goTab('bloodbank')">Blood Bank</button>
   </div>
@@ -41,11 +64,15 @@
     <table class="results-table">
       <thead>
         <tr>
-          <th>Local Level</th>
-          <th>Local Type</th>
-          <th>Ward</th>
-          <th>District</th>
           <th>Province</th>
+          <th>District</th>
+          <th>Local Level</th>
+          <th>Ward</th>
+          <th>Office Type</th>
+          <th>Office Name</th>
+          <th>Phone</th>
+          <th>Email</th>
+          <th>Address</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -60,7 +87,7 @@
 
 <script>
 const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI";
-const SHEET_NAME = "admin_mapping";
+const SHEET_NAME = "offices";
 
 const provinceFilter = document.getElementById("provinceFilter");
 const districtFilter = document.getElementById("districtFilter");
@@ -132,17 +159,21 @@ function applyFilters() {
 function renderResults(data) {
   resultsTableBody.innerHTML = "";
   if(!data.length) {
-    resultsTableBody.innerHTML = `<tr><td colspan="5">No results found.</td></tr>`;
+    resultsTableBody.innerHTML = `<tr><td colspan="9">No results found.</td></tr>`;
     return;
   }
   data.forEach(r=>{
     const row = document.createElement("tr");
     row.innerHTML = `
+      <td>${r.Province || "-"}</td>
+      <td>${r.District || "-"}</td>
       <td>${r["Local Level"] || "-"}</td>
-      <td>${r["Local Type"] || "-"}</td>
-      <td>${r["Ward"] || "-"}</td>
-      <td>${r["District"] || "-"}</td>
-      <td>${r["Province"] || "-"}</td>
+      <td>${r.Ward || "-"}</td>
+      <td>${r["Office Type"] || "-"}</td>
+      <td>${r["Office Name"] || "-"}</td>
+      <td>${r.Phone || "-"}</td>
+      <td>${r.Email || "-"}</td>
+      <td>${r.Address || "-"}</td>
     `;
     resultsTableBody.appendChild(row);
   });
