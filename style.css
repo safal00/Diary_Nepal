@@ -13,8 +13,15 @@ header {
   padding: 20px 10px;
 }
 
-header h1 { margin: 0; font-size: 2em; }
-header p { margin: 5px 0 15px 0; font-weight: 400; }
+header h1 {
+  margin: 0;
+  font-size: 2em;
+}
+
+header p {
+  margin: 5px 0 15px 0;
+  font-weight: 400;
+}
 
 /* ---------------- NAV TABS ---------------- */
 .nav-tabs {
@@ -36,7 +43,9 @@ header p { margin: 5px 0 15px 0; font-weight: 400; }
   transition: background-color 0.3s;
 }
 
-.nav-tabs button:hover { background-color: #cc6b00; }
+.nav-tabs button:hover {
+  background-color: #cc6b00;
+}
 
 /* ---------------- SEARCH ---------------- */
 .search-box {
@@ -66,15 +75,11 @@ header p { margin: 5px 0 15px 0; font-weight: 400; }
   transition: background-color 0.3s;
 }
 
-.search-box button:hover { background-color: #cc6b00; }
-
-/* ---------------- Selection Boxes ---------------- */
-.container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 0 15px;
+.search-box button:hover {
+  background-color: #cc6b00;
 }
 
+/* ---------------- Selection Boxes ---------------- */
 .selection-box {
   display: flex;
   flex-wrap: wrap;
@@ -100,21 +105,22 @@ header p { margin: 5px 0 15px 0; font-weight: 400; }
   transition: background-color 0.3s;
 }
 
-.selection-box button:hover { background-color: #003080; }
+.selection-box button:hover {
+  background-color: #003080;
+}
 
 /* ---------------- Table Styling ---------------- */
 .contacts-section {
+  width: 100%;
   overflow-x: auto;
-  width: 100%;   /* full width */
-  margin: 0;
-  padding: 0 10px;
+  margin-bottom: 30px;
 }
 
 .results-table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: auto;
-  min-width: 700px;
+  table-layout: auto; /* allows flexible column widths */
+  min-width: 700px; /* ensures table doesn't shrink too much on mobile */
 }
 
 .results-table th,
@@ -123,9 +129,7 @@ header p { margin: 5px 0 15px 0; font-weight: 400; }
   padding: 10px 8px;
   text-align: left;
   vertical-align: top;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  white-space: normal;
+  word-break: break-word;
 }
 
 .results-table th {
@@ -138,11 +142,14 @@ header p { margin: 5px 0 15px 0; font-weight: 400; }
   background-color: #f2f2f2;
 }
 
-/* Optional max-widths for long columns */
-.results-table th:nth-child(5),
-.results-table td:nth-child(5) { max-width: 300px; } /* Office Name */
-.results-table th:nth-child(7),
-.results-table td:nth-child(7) { max-width: 250px; } /* Website */
+.results-table td a {
+  color: #004aad;
+  text-decoration: none;
+}
+
+.results-table td a:hover {
+  text-decoration: underline;
+}
 
 /* ---------------- Footer ---------------- */
 footer {
@@ -154,24 +161,42 @@ footer {
 }
 
 /* ---------------- Responsive ---------------- */
-@media (max-width: 800px) {
-  .selection-box,
-  .search-box,
-  .nav-tabs {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .selection-box select,
-  .selection-box button,
+@media (max-width: 900px) {
   .search-box input,
-  .search-box button {
+  .search-box button,
+  .selection-box select,
+  .selection-box button {
     flex: 1 1 100%;
   }
+}
 
+@media (max-width: 700px) {
   .results-table th,
   .results-table td {
+    padding: 6px 4px;
     font-size: 0.85em;
-    padding: 6px;
+  }
+
+  .results-table {
+    min-width: unset;
+  }
+}
+
+@media (max-width: 500px) {
+  .results-table th,
+  .results-table td {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .results-table tr {
+    margin-bottom: 15px;
+    display: block;
+    border-bottom: 2px solid #ccc;
+  }
+
+  .results-table th {
+    display: none; /* hide header on very small screens */
   }
 }
