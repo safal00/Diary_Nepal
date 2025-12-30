@@ -40,8 +40,8 @@ fetch(url)
       const json = JSON.parse(text.substring(47).slice(0, -2));
       console.log(`Raw rows fetched: ${json.table.rows.length}`);
 
-      // Map rows using manual HEADERS
-      allRows = json.table.rows.map(r => {
+      // Skip the first row (header row) and map rows using manual HEADERS
+      allRows = json.table.rows.slice(1).map(r => {
         const obj = {};
         HEADERS.forEach((h, i) => obj[h] = r.c[i]?.v || "");
         return obj;
@@ -132,7 +132,7 @@ function renderResults(data) {
   resultsTableBody.innerHTML = "";
 
   if (!data.length) {
-    resultsTableBody.innerHTML = `<tr><td colspan="8">No results found.</td></tr>`;
+    resultsTableBody.innerHTML = `<tr><td colspan="${HEADERS.length}">No results found.</td></tr>`;
     console.warn("No matching results found.");
     return;
   }
@@ -143,21 +143,19 @@ function renderResults(data) {
     HEADERS.forEach(field => {
       const cell = document.createElement("td");
       cell.textContent = r[field] || "-";
-      if(field === "Phone") cell.style.minWidth = "120px";
+      // Add minimum width for readability
+      if (field === "Phone") cell.style.minWidth = "120px";
+      if (field === "Province" || field === "District" || field === "Local Level") cell.style.minWidth = "150px";
       row.appendChild(cell);
     });
 
     // Make Email clickable
     const emailCell = row.children[6];
-    if (r["Email"]) {
-      emailCell.innerHTML = `<a href="mailto:${r["Email"]}">${r["Email"]}</a>`;
-    }
+    if (r["Email"]) emailCell.innerHTML = `<a href="mailto:${r["Email"]}">${r["Email"]}</a>`;
 
     // Make Website clickable
     const websiteCell = row.children[7];
-    if (r["Website"]) {
-      websiteCell.innerHTML = `<a href="${r["Website"]}" target="_blank">${r["Website"]}</a>`;
-    }
+    if (r["Website"]) websiteCell.innerHTML = `<a href="${r["Website"]}" target="_blank">${r["Website"]}</a>`;
 
     resultsTableBody.appendChild(row);
     console.log(`Rendered row ${index+1}:`, r);
