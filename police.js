@@ -12,7 +12,19 @@ const resultsTableBody = document.querySelector("#results tbody");
 
 let allRows = [];
 
-console.log("📌 Police Directory Script Started");
+// ------------------ Force headers manually ------------------
+const HEADERS = [
+  "Province",
+  "District",
+  "Local Level",
+  "Office Type",
+  "Office Name",
+  "Phone",
+  "Email",
+  "Website"
+];
+
+console.log("📌 Police Directory Script Started (Manual Headers)");
 
 // ------------------ Fetch Google Sheet ------------------
 const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${SHEET_GID}`;
@@ -26,16 +38,18 @@ fetch(url)
   .then(text => {
     try {
       const json = JSON.parse(text.substring(47).slice(0, -2));
-      const headers = json.table.cols.map(c => c.label);
-      console.log("Sheet headers:", headers);
+      console.log(`Raw rows fetched: ${json.table.rows.length}`);
 
+      // Map rows using manual HEADERS
       allRows = json.table.rows.map(r => {
         const obj = {};
-        headers.forEach((h, i) => obj[h] = r.c[i]?.v || "");
+        HEADERS.forEach((h, i) => obj[h] = r.c[i]?.v || "");
         return obj;
       });
 
-      console.log(`✅ Loaded ${allRows.length} rows from Google Sheet`);
+      console.log(`✅ Loaded ${allRows.length} rows with forced headers:`);
+      console.table(allRows);
+
       initFilters();
       applyFilters();
     } catch (err) {
@@ -126,33 +140,24 @@ function renderResults(data) {
   data.forEach((r, index) => {
     const row = document.createElement("tr");
 
-    ["Province","District","Local Level","Office Type","Office Name","Phone"].forEach(field => {
+    HEADERS.forEach(field => {
       const cell = document.createElement("td");
       cell.textContent = r[field] || "-";
       if(field === "Phone") cell.style.minWidth = "120px";
       row.appendChild(cell);
     });
 
-    // Email
-    const emailCell = document.createElement("td");
+    // Make Email clickable
+    const emailCell = row.children[6];
     if (r["Email"]) {
-      const a = document.createElement("a");
-      a.href = `mailto:${r["Email"]}`;
-      a.textContent = r["Email"];
-      emailCell.appendChild(a);
-    } else emailCell.textContent = "-";
-    row.appendChild(emailCell);
+      emailCell.innerHTML = `<a href="mailto:${r["Email"]}">${r["Email"]}</a>`;
+    }
 
-    // Website
-    const websiteCell = document.createElement("td");
+    // Make Website clickable
+    const websiteCell = row.children[7];
     if (r["Website"]) {
-      const a = document.createElement("a");
-      a.href = r["Website"];
-      a.textContent = r["Website"];
-      a.target = "_blank";
-      websiteCell.appendChild(a);
-    } else websiteCell.textContent = "-";
-    row.appendChild(websiteCell);
+      websiteCell.innerHTML = `<a href="${r["Website"]}" target="_blank">${r["Website"]}</a>`;
+    }
 
     resultsTableBody.appendChild(row);
     console.log(`Rendered row ${index+1}:`, r);
