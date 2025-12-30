@@ -12,7 +12,7 @@ const resultsTableBody = document.querySelector("#results tbody");
 
 let allRows = [];
 
-// Fetch Google Sheet
+// Fetch Google Sheet data
 const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
 fetch(url)
   .then(res => res.text())
@@ -48,9 +48,10 @@ function initFilters() {
 
   localFilter.onchange = applyFilters;
   searchBtn.onclick = applyFilters;
+  nameFilter.oninput = applyFilters;
 }
 
-// Populate a dropdown
+// Populate dropdown
 function populateSelect(select, values) {
   select.innerHTML = `<option value="">All</option>`;
   values.forEach(v => select.innerHTML += `<option value="${v}">${v}</option>`);
@@ -93,38 +94,22 @@ function renderResults(data) {
   resultsTableBody.innerHTML = "";
 
   if (!data.length) {
-    resultsTableBody.innerHTML = `<tr><td colspan="6">No results found.</td></tr>`;
+    resultsTableBody.innerHTML = `<tr><td colspan="7">No results found.</td></tr>`;
     return;
   }
 
   data.forEach(r => {
     const row = document.createElement("tr");
 
-    const nameCell = document.createElement("td");
-    nameCell.textContent = r["Office Name"] || "-";
-    row.appendChild(nameCell);
-
-    const typeCell = document.createElement("td");
-    typeCell.textContent = r["Office Type"] || "-";
-    row.appendChild(typeCell);
-
-    const phoneCell = document.createElement("td");
-    phoneCell.textContent = r["Phone"] || "-";
-    row.appendChild(phoneCell);
-
-    const websiteCell = document.createElement("td");
-    if (r["Website"]) {
-      const a = document.createElement("a");
-      a.href = r["Website"].startsWith("http") ? r["Website"] : `https://${r["Website"]}`;
-      a.textContent = r["Website"];
-      a.target = "_blank";
-      websiteCell.appendChild(a);
-    } else websiteCell.textContent = "-";
-    row.appendChild(websiteCell);
-
-    const locationCell = document.createElement("td");
-    locationCell.textContent = `${r["Local Level"]}, ${r["District"]}, ${r["Province"]}`;
-    row.appendChild(locationCell);
+    row.innerHTML = `
+      <td>${r["Province"] || "-"}</td>
+      <td>${r["District"] || "-"}</td>
+      <td>${r["Local Level"] || "-"}</td>
+      <td>${r["Office Type"] || "-"}</td>
+      <td>${r["Office Name"] || "-"}</td>
+      <td>${r["Phone"] || "-"}</td>
+      <td>${r["Website"] ? `<a href="${r["Website"].startsWith('http') ? r["Website"] : 'https://' + r["Website"]}" target="_blank">${r["Website"]}</a>` : "-"}</td>
+    `;
 
     resultsTableBody.appendChild(row);
   });
