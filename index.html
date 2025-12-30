@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Diary Nepal</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -12,68 +11,31 @@
 
 <header>
   <h1>Diary Nepal</h1>
-  <p>Your directory of municipalities, offices, police stations, and blood banks</p>
+  <p>Your directory of municipalities, police stations, offices, and blood banks</p>
 
-  <!-- TAB NAVIGATION -->
   <div class="nav-tabs">
-    <button onclick="goTab('Home')">Home</button>
-    <button onclick="goTab('Municipality')">Municipality</button>
-    <button onclick="goTab('Police')">Police</button>
-    <button onclick="goTab('Blood Bank')">Blood Bank</button>
+    <button onclick="goTab('Municipality_offices')">Municipality Offices</button>
+    <button onclick="goTab('police')">Police</button>
+    <button onclick="goTab('bloodbank')">Blood Bank</button>
+    <button onclick="goTab('about')">About</button>
   </div>
 </header>
 
 <main class="container">
-
-  <!-- GLOBAL SEARCH -->
-  <div class="search-box">
-    <input
-      type="text"
-      id="globalSearch"
-      placeholder="Search by name or location..."
-    >
-    <button onclick="searchAll()">Search</button>
-  </div>
-
-  <!-- LOCATION FILTERS -->
-  <div class="selection-box">
-    <label for="province">Province:</label>
-    <select id="province"></select>
-
-    <label for="district">District:</label>
-    <select id="district"></select>
-
-    <label for="local">Local Level:</label>
-    <select id="local"></select>
-
-    <button onclick="goToLocal()">View Contacts</button>
-  </div>
-
+  <section>
+    <h2>Welcome to Diary Nepal</h2>
+    <p>This website provides information about municipalities, offices, police stations, and blood banks across Nepal. Use the navigation above to browse by category.</p>
+  </section>
 </main>
 
 <footer>
   <p>© 2025 Diary Nepal | Data from official sources</p>
 </footer>
 
-<script src="script.js"></script>
 <script>
-/* ---------------- Navigation Tabs ---------------- */
 function goTab(tab) {
-  if(tab === 'Home') {
-    window.location.href = 'index.html';
-  } else {
-    window.location.href = `list.html?type=${encodeURIComponent(tab)}`;
-  }
-}
-
-/* ---------------- Global Search ---------------- */
-function searchAll() {
-  const q = document.getElementById("globalSearch").value.trim();
-  if (!q) {
-    alert("Please enter something to search");
-    return;
-  }
-  window.location.href = `list.html?search=${encodeURIComponent(q)}`;
+  if(tab === 'about') return alert('About section will be added later.');
+  window.location.href = `${tab}.html`;
 }
 </script>
 
