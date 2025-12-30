@@ -135,4 +135,28 @@ function renderResults(data) {
 
     const typeCell = document.createElement("td");
     typeCell.textContent = r["Local Type"] || r["Office Type"] || "-";
-    row.appendChild(type
+    row.appendChild(typeCell);
+
+    const phoneCell = document.createElement("td");
+    phoneCell.textContent = r["Phone"] || "-";
+    row.appendChild(phoneCell);
+
+    const websiteCell = document.createElement("td");
+    if (r["Email"] || r["Website"]) {
+      const a = document.createElement("a");
+      a.href = r["Website"]?.startsWith("http") ? r["Website"] : "#";
+      a.target = "_blank";
+      a.textContent = r["Email"] || r["Website"];
+      websiteCell.appendChild(a);
+    } else {
+      websiteCell.textContent = "-";
+    }
+    row.appendChild(websiteCell);
+
+    const locationCell = document.createElement("td");
+    locationCell.textContent = `${r["Local Level"] || ""}, ${r.District || ""}, ${r.Province || ""}`;
+    row.appendChild(locationCell);
+
+    resultsTableBody.appendChild(row);
+  });
+}
