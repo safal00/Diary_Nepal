@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blood Banks - Diary Nepal</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+.results-table { width:100%; border-collapse: collapse; margin-top:20px; }
+.results-table th, .results-table td { border:1px solid #ccc; padding:10px; text-align:left; }
+.results-table th { background-color:#004aad; color:white; }
+.results-table tr:nth-child(even) { background-color:#f2f2f2; }
+</style>
+</head>
+<body>
+
+<header>
+<h1>Blood Banks</h1>
+<p>Browse blood banks by Province, District, or Local Level</p>
+<div class="nav-tabs">
+  <button onclick="goTab('index')">Home</button>
+  <button onclick="goTab('municipality_offices')">Municipality Offices</button>
+  <button onclick="goTab('police')">Police</button>
+  <button onclick="goTab('bloodbank')">Blood Bank</button>
+</div>
+</header>
+
+<main class="container">
+
+<div class="search-box">
+<input type="text" id="globalSearch" placeholder="Search by name or location...">
+<button onclick="applyFilters()">Search</button>
+</div>
+
+<div class="selection-box">
+<select id="provinceFilter"><option value="">All Provinces</option></select>
+<select id="districtFilter"><option value="">All Districts</option></select>
+<select id="localFilter"><option value="">All Local Levels</option></select>
+</div>
+
+<div id="results" class="contacts-section">
+<table class="results-table">
+<thead>
+<tr>
+<th>Province</th>
+<th>District</th>
+<th>Local Level</th>
+<th>Office Type</th>
+<th>Office Name</th>
+<th>Phone</th>
+<th>Website</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+</main>
+
+<footer>
+<p>© 2025 Diary Nepal | Data from official sources</p>
+</footer>
+
+<script>
+const SHEET_ID="1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI";
+const SHEET_NAME="Blood Bank";
+
+const provinceFilter=document.getElementById("provinceFilter");
+const districtFilter=document.getElementById("districtFilter");
+const localFilter=document.getElementById("localFilter");
+const nameFilter=document.getElementById("globalSearch");
+const resultsTableBody=document.querySelector("#results tbody");
+
+let allRows=[];
+
+fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`)
+.then(res=>res.text())
+.then(text=>{
+  const json=JSON.parse(text.substring(47).slice(0,-2));
+  const headers=json.table.cols.map(c=>c.label);
+  allRows=json.table.rows.map(r=>{
+    const obj={};
+    headers.forEach((h,i)=>obj[h]=r.c[i]?.v||"");
+    return obj;
+  });
+  initFilters();
+  applyFilters();
+});
+
+function initFilters(){
+  populateSelect(provinceFilter,getUnique("Province"));
+  provinceFilter.onchange=()=>{
+    populateSelect(districtFilter,getUnique("District","Province",provinceFilter.value));
+    localFilter.innerHTML=`<option value="">All Local Levels</option>`;
+    applyFilters();
+  };
+  districtFilter.onchange=()=>{
+    populateSelect(localFilter,getUnique("Local Level",["Province","District"],[provinceFilter.value,districtFilter.value]));
+    applyFilters();
+  };
+  localFilter.onchange=applyFilters;
+  nameFilter.oninput=applyFilters;
+}
+
+function populateSelect(select,values){
+  select.innerHTML=`<option value="">All</option>`;
+  values.forEach(v=>select.innerHTML+=`<option value="${v}">${v}</option>`);
+}
+
+function getUnique(field,filterField,filterValue){
+  return [...new Set(allRows.filter(r=>{
+    if(!filterField) return true;
+    if(Array.isArray(filterField)) return filterField.every((f,i)=>r[f]===filterValue[i]);
+    return r[filterField]===filterValue;
+  }).map(r=>r[field]).filter(Boolean))].sort();
+}
+
+function applyFilters(){
+  let data=allRows;
+  if(provinceFilter.value) data=data.filter(r=>r.Province===provinceFilter.value);
+  if(districtFilter.value) data=data.filter(r=>r.District===districtFilter.value);
+  if(localFilter.value) data=data.filter(r=>r["Local Level"]===localFilter.value);
+  if(nameFilter.value){
+    const q=nameFilter.value.toLowerCase();
+    data=data.filter(r=>Object.values(r).join(" ").toLowerCase().includes(q));
+  }
+  renderResults(data);
+}
+
+function renderResults(data){
+  resultsTableBody.innerHTML="";
+  if(!data.length){ resultsTableBody.innerHTML=`<tr><td colspan="7">No results found.</td></tr>`; return;}
+  data.forEach(r=>{
+    const row=document.createElement("tr");
+    row.innerHTML=`
+      <td>${r.Province||"-"}</td>
+      <td>${r.District||"-"}</td>
+      <td>${r["Local Level"]||"-"}</td>
+      <td>${r["Office Type"]||"-"}</td>
+      <td>${r["Office Name"]||"-"}</td>
+      <td>${r.Phone||"-"}</td>
+      <td>${r.Website?`<a href="${r.Website}" target="_blank">${r.Website}</a>`:"-"}</td>
+    `;
+    resultsTableBody.appendChild(row);
+  });
+}
+
+function goTab(tab){window.location.href=`${tab}.html`;}
+</script>
+
+</body>
+</html>
