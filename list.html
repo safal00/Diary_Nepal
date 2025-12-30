@@ -3,79 +3,57 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Directory Results | Diary Nepal</title>
+<title>Diary Nepal - Directory</title>
 
-<!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 
 <style>
-/* Tab/category buttons */
-.category-nav {
+/* Tab-style navigation */
+.nav-tabs {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 10px;
   margin: 15px 0;
 }
-.category-nav button {
-  padding: 8px 12px;
+.nav-tabs button {
+  padding: 10px 15px;
   border: none;
   border-radius: 5px;
   background-color: #004aad;
   color: white;
   cursor: pointer;
   font-weight: bold;
+  transition: background-color 0.3s;
 }
-.category-nav button:hover {
+.nav-tabs button:hover {
   background-color: #003080;
 }
 
-/* Home button */
-.home-btn {
-  margin-bottom: 15px;
-  padding: 8px 12px;
-  background-color: #004aad;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+/* Search + filter box */
+.search-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
 }
-.home-btn:hover {
-  background-color: #003080;
-}
-
-/* Filters */
-.selection-box input[type="text"] {
+.search-box input {
   flex: 1 1 200px;
-  padding: 8px;
+  padding: 10px;
   border-radius: 5px;
   border: 1px solid #ccc;
 }
-.selection-box button {
-  padding: 8px 12px;
-  background-color: #004aad;
-  color: white;
+.search-box button {
+  padding: 10px 15px;
   border: none;
   border-radius: 5px;
-  cursor: pointer;
-}
-.selection-box button:hover {
-  background-color: #003080;
-}
-
-/* Table */
-.results-table table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
-}
-.results-table th, .results-table td {
-  padding: 10px;
-  border: 1px solid #ccc;
-  text-align: left;
-}
-.results-table th {
   background-color: #004aad;
   color: white;
+  cursor: pointer;
+}
+.search-box button:hover {
+  background-color: #003080;
 }
 </style>
 </head>
@@ -83,51 +61,45 @@
 
 <header>
   <h1 id="pageTitle">Directory</h1>
-  <button onclick="goHome()" class="home-btn">🏠 Home</button>
+  <p id="pageSubtitle"></p>
+
+  <!-- Tab Navigation -->
+  <div class="nav-tabs">
+    <button onclick="goTab('Home')">Home</button>
+    <button onclick="goTab('Municipality')">Municipality</button>
+    <button onclick="goTab('Police')">Police</button>
+    <button onclick="goTab('Blood Bank')">Blood Bank</button>
+  </div>
 </header>
 
 <main class="container">
 
-  <!-- CATEGORY BUTTONS -->
-  <div class="category-nav">
-    <button onclick="goCategory('Municipality')">Municipality</button>
-    <button onclick="goCategory('Police')">Police</button>
-    <button onclick="goCategory('Blood Bank')">Blood Bank</button>
+  <!-- GLOBAL SEARCH -->
+  <div class="search-box">
+    <input type="text" id="globalSearch" placeholder="Search by name or location...">
+    <button onclick="searchAll()">Search</button>
   </div>
 
   <!-- FILTERS -->
   <div class="selection-box">
+    <label for="provinceFilter">Province:</label>
     <select id="provinceFilter">
       <option value="">All Provinces</option>
     </select>
 
+    <label for="districtFilter">District:</label>
     <select id="districtFilter">
       <option value="">All Districts</option>
     </select>
 
+    <label for="localFilter">Local Level:</label>
     <select id="localFilter">
       <option value="">All Local Levels</option>
     </select>
-
-    <input type="text" id="nameFilter" placeholder="Search by name">
-    <button onclick="applyFilters()">Filter</button>
   </div>
 
-  <!-- RESULTS TABLE -->
-  <div class="results-table">
-    <table id="results">
-      <thead>
-        <tr>
-          <th>Name / Office</th>
-          <th>Type</th>
-          <th>Phone</th>
-          <th>Website / Email</th>
-          <th>Location</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+  <!-- RESULTS -->
+  <div id="results" class="contacts-section"></div>
 
 </main>
 
@@ -137,12 +109,18 @@
 
 <script src="list.js"></script>
 <script>
-function goHome() {
-  window.location.href = "index.html";
+function goTab(tab) {
+  if(tab === 'Home') {
+    window.location.href = 'index.html';
+  } else {
+    window.location.href = `list.html?type=${encodeURIComponent(tab)}`;
+  }
 }
 
-function goCategory(type) {
-  window.location.href = `list.html?type=${encodeURIComponent(type)}`;
+function searchAll() {
+  const q = document.getElementById("globalSearch").value.trim();
+  if (!q) return alert("Please enter something to search");
+  window.location.href = `list.html?search=${encodeURIComponent(q)}`;
 }
 </script>
 
