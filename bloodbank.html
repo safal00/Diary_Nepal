@@ -3,21 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Blood Banks</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<title>Diary Nepal - Blood Banks</title>
+<link href="style.css" rel="stylesheet">
 </head>
 <body>
 
 <header>
-  <h1>Blood Banks</h1>
+  <h1>Diary Nepal</h1>
+  <p>Directory of Blood Banks</p>
   <div id="navTabs"></div>
 </header>
 
 <main class="container">
+
   <div class="search-box">
     <input type="text" id="globalSearch" placeholder="Search by name or location...">
-    <button onclick="applyFilters()">Search</button>
+    <button id="searchBtn">Search</button>
   </div>
 
   <div class="selection-box">
@@ -30,18 +31,17 @@
     <table class="results-table">
       <thead>
         <tr>
-          <th>Province</th>
-          <th>District</th>
-          <th>Local Level</th>
-          <th>Office Type</th>
           <th>Office Name</th>
+          <th>Office Type</th>
           <th>Phone</th>
           <th>Website</th>
+          <th>Location</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
   </div>
+
 </main>
 
 <footer>
@@ -51,8 +51,5 @@
 <script src="google.js"></script>
 <script src="nav.js"></script>
 <script src="bloodbank.js"></script>
-<script>
-  renderNavTabs("navTabs");
-</script>
 </body>
 </html>

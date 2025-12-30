@@ -1,4 +1,5 @@
 // nav.js
+
 const NAV_TABS = [
   { name: "Home", href: "index.html" },
   { name: "Municipality Offices", href: "municipality_offices.html" },
@@ -6,6 +7,7 @@ const NAV_TABS = [
   { name: "Blood Bank", href: "bloodbank.html" }
 ];
 
+// Render tabs dynamically on any page
 function renderNavTabs(containerId) {
   const container = document.getElementById(containerId);
   container.innerHTML = "";

@@ -1,7 +1,5 @@
-const SHEET_NAME = "Office"; // Google Sheet tab for Municipality Offices
-const SHEET_HEADERS = googleSheets[SHEET_NAME]; // from google.js
-
-const params = new URLSearchParams(window.location.search);
+const SHEET_NAME = "Police"; // Police sheet tab
+const SHEET_HEADERS = googleSheets[SHEET_NAME];
 
 const provinceFilter = document.getElementById("provinceFilter");
 const districtFilter = document.getElementById("districtFilter");
@@ -27,7 +25,6 @@ fetch(`${GOOGLE_SHEET_BASE_URL}?sheet=${SHEET_NAME}`)
     applyFilters();
   });
 
-// Initialize filters
 function initFilters() {
   populateSelect(provinceFilter, getUnique("Province"));
   provinceFilter.onchange = () => {
@@ -36,85 +33,85 @@ function initFilters() {
     applyFilters();
   };
   districtFilter.onchange = () => {
-    populateSelect(localFilter, getUnique("Local Level", ["Province", "District"], [provinceFilter.value, districtFilter.value]));
+    populateSelect(localFilter, getUnique("Local Level", ["Province","District"], [provinceFilter.value,districtFilter.value]));
     applyFilters();
   };
   localFilter.onchange = applyFilters;
   searchBtn.onclick = applyFilters;
 }
 
-// Populate dropdown
 function populateSelect(select, values) {
   select.innerHTML = `<option value="">All</option>`;
   values.forEach(v => select.innerHTML += `<option value="${v}">${v}</option>`);
 }
 
-// Get unique values
 function getUnique(field, filterField, filterValue) {
   return [...new Set(
     allRows
       .filter(r => {
         if (!filterField) return true;
-        if (Array.isArray(filterField)) {
-          return filterField.every((f, i) => r[f] === filterValue[i]);
-        }
+        if (Array.isArray(filterField)) return filterField.every((f,i) => r[f]===filterValue[i]);
         return r[filterField] === filterValue;
       })
-      .map(r => r[field])
+      .map(r=>r[field])
       .filter(Boolean)
   )].sort();
 }
 
-// Apply filters
 function applyFilters() {
   let data = allRows;
-  if (provinceFilter.value) data = data.filter(r => r["Province"] === provinceFilter.value);
-  if (districtFilter.value) data = data.filter(r => r["District"] === districtFilter.value);
-  if (localFilter.value) data = data.filter(r => r["Local Level"] === localFilter.value);
-  if (nameFilter.value) {
+  if (provinceFilter.value) data = data.filter(r=>r["Province"]===provinceFilter.value);
+  if (districtFilter.value) data = data.filter(r=>r["District"]===districtFilter.value);
+  if (localFilter.value) data = data.filter(r=>r["Local Level"]===localFilter.value);
+  if (nameFilter.value){
     const q = nameFilter.value.toLowerCase();
-    data = data.filter(r => Object.values(r).join(" ").toLowerCase().includes(q));
+    data = data.filter(r=>Object.values(r).join(" ").toLowerCase().includes(q));
   }
   renderResults(data);
 }
 
-// Render results in table
-function renderResults(data) {
-  resultsTableBody.innerHTML = "";
-  if (!data.length) {
-    resultsTableBody.innerHTML = `<tr><td colspan="6">No results found.</td></tr>`;
+function renderResults(data){
+  resultsTableBody.innerHTML="";
+  if(!data.length){
+    resultsTableBody.innerHTML=`<tr><td colspan="6">No results found.</td></tr>`;
     return;
   }
-  data.forEach(r => {
-    const row = document.createElement("tr");
+  data.forEach(r=>{
+    const row=document.createElement("tr");
 
-    const nameCell = document.createElement("td");
-    nameCell.textContent = r["Office Name"] || "-";
+    const nameCell=document.createElement("td");
+    nameCell.textContent=r["Office Name"]||"-";
     row.appendChild(nameCell);
 
-    const typeCell = document.createElement("td");
-    typeCell.textContent = r["Office Type"] || "-";
+    const typeCell=document.createElement("td");
+    typeCell.textContent=r["Office Type"]||"-";
     row.appendChild(typeCell);
 
-    const phoneCell = document.createElement("td");
-    phoneCell.textContent = r["Phone"] || "-";
+    const phoneCell=document.createElement("td");
+    phoneCell.textContent=r["Phone"]||"-";
     row.appendChild(phoneCell);
 
-    const emailCell = document.createElement("td");
-    if (r["Email"]) {
-      const a = document.createElement("a");
-      a.href = `mailto:${r["Email"]}`;
-      a.textContent = r["Email"];
+    const emailCell=document.createElement("td");
+    if(r["Email"]){
+      const a=document.createElement("a");
+      a.href=`mailto:${r["Email"]}`;
+      a.textContent=r["Email"];
       emailCell.appendChild(a);
-    } else emailCell.textContent = "-";
+    } else emailCell.textContent="-";
     row.appendChild(emailCell);
 
-    const addressCell = document.createElement("td");
-    addressCell.textContent = r["Address"] || "-";
-    row.appendChild(addressCell);
+    const websiteCell=document.createElement("td");
+    if(r["Website"]){
+      const a=document.createElement("a");
+      a.href=r["Website"].startsWith("http")?r["Website"]:"#";
+      a.target="_blank";
+      a.textContent=r["Website"];
+      websiteCell.appendChild(a);
+    } else websiteCell.textContent="-";
+    row.appendChild(websiteCell);
 
-    const locationCell = document.createElement("td");
-    locationCell.textContent = `${r["Local Level"]}, ${r["District"]}, ${r["Province"]}`;
+    const locationCell=document.createElement("td");
+    locationCell.textContent=`${r["Local Level"]}, ${r["District"]}, ${r["Province"]}`;
     row.appendChild(locationCell);
 
     resultsTableBody.appendChild(row);
