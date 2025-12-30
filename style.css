@@ -13,15 +13,8 @@ header {
   padding: 20px 10px;
 }
 
-header h1 {
-  margin: 0;
-  font-size: 2em;
-}
-
-header p {
-  margin: 5px 0 15px 0;
-  font-weight: 400;
-}
+header h1 { margin: 0; font-size: 2em; }
+header p { margin: 5px 0 15px 0; font-weight: 400; }
 
 /* ---------------- NAV TABS ---------------- */
 .nav-tabs {
@@ -43,9 +36,7 @@ header p {
   transition: background-color 0.3s;
 }
 
-.nav-tabs button:hover {
-  background-color: #cc6b00;
-}
+.nav-tabs button:hover { background-color: #cc6b00; }
 
 /* ---------------- SEARCH ---------------- */
 .search-box {
@@ -75,14 +66,11 @@ header p {
   transition: background-color 0.3s;
 }
 
-.search-box button:hover {
-  background-color: #cc6b00;
-}
+.search-box button:hover { background-color: #cc6b00; }
 
 /* ---------------- Selection Boxes ---------------- */
 .container {
-  width: 100%;           /* allow table to expand full width */
-  max-width: 100%;
+  max-width: 900px;
   margin: 0 auto;
   padding: 0 15px;
 }
@@ -93,10 +81,6 @@ header p {
   gap: 10px;
   margin-bottom: 30px;
   justify-content: center;
-}
-
-.selection-box label {
-  align-self: center;
 }
 
 .selection-box select,
@@ -116,23 +100,21 @@ header p {
   transition: background-color 0.3s;
 }
 
-.selection-box button:hover {
-  background-color: #003080;
-}
+.selection-box button:hover { background-color: #003080; }
 
 /* ---------------- Table Styling ---------------- */
 .contacts-section {
-  overflow-x: auto;       /* horizontal scroll if table is wider than screen */
-  width: 100%;
+  overflow-x: auto;
+  width: 100%;   /* full width */
   margin: 0;
-  padding: 0 0px;
+  padding: 0 10px;
 }
 
 .results-table {
-  width: 100%;            /* full width of container */
+  width: 100%;
   border-collapse: collapse;
-  table-layout: auto;      /* dynamic column widths based on content */
-  min-width: 700px;       /* allow scroll if too wide */
+  table-layout: auto;
+  min-width: 700px;
 }
 
 .results-table th,
@@ -156,16 +138,11 @@ header p {
   background-color: #f2f2f2;
 }
 
-/* Optional: limit max width for very long columns */
+/* Optional max-widths for long columns */
 .results-table th:nth-child(5),
-.results-table td:nth-child(5) { /* Office Name */
-  max-width: 300px;
-}
-
+.results-table td:nth-child(5) { max-width: 300px; } /* Office Name */
 .results-table th:nth-child(7),
-.results-table td:nth-child(7) { /* Website */
-  max-width: 250px;
-}
+.results-table td:nth-child(7) { max-width: 250px; } /* Website */
 
 /* ---------------- Footer ---------------- */
 footer {
@@ -192,7 +169,6 @@ footer {
     flex: 1 1 100%;
   }
 
-  /* Reduce table font size on small screens */
   .results-table th,
   .results-table td {
     font-size: 0.85em;
