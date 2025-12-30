@@ -11,32 +11,23 @@
 
 <header>
   <h1>Diary Nepal</h1>
-  <p>Your directory of municipalities, police stations, offices, and blood banks</p>
+  <p>Your directory of municipalities, offices, police stations, and blood banks</p>
 
-  <div class="nav-tabs">
-    <button onclick="goTab('Municipality_offices')">Municipality Offices</button>
-    <button onclick="goTab('police')">Police</button>
-    <button onclick="goTab('bloodbank')">Blood Bank</button>
-    <button onclick="goTab('about')">About</button>
-  </div>
+  <!-- Nav Tabs will render dynamically -->
+  <div id="navTabs"></div>
 </header>
 
 <main class="container">
-  <section>
-    <h2>Welcome to Diary Nepal</h2>
-    <p>This website provides information about municipalities, offices, police stations, and blood banks across Nepal. Use the navigation above to browse by category.</p>
-  </section>
+  <p>Welcome to Diary Nepal. Use the tabs above to browse municipalities, police offices, or blood banks.</p>
 </main>
 
 <footer>
   <p>© 2025 Diary Nepal | Data from official sources</p>
 </footer>
 
+<script src="nav.js"></script>
 <script>
-function goTab(tab) {
-  if(tab === 'about') return alert('About section will be added later.');
-  window.location.href = `${tab}.html`;
-}
+  renderNavTabs("navTabs");
 </script>
 
 </body>
