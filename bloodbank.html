@@ -4,13 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Blood Banks - Diary Nepal</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link href="style.css" rel="stylesheet">
 <style>
+  /* Home button */
   .home-button { display:flex; justify-content:center; margin-bottom:15px; }
   .home-button button { padding:10px 20px; border:none; border-radius:5px; background-color:#004aad; color:white; font-weight:bold; cursor:pointer; transition:0.3s; }
   .home-button button:hover { background-color:#003080; }
 
+  /* Table styling */
   .results-table { width:100%; border-collapse:collapse; table-layout:auto; margin-top:20px; }
   .results-table th, .results-table td { border:1px solid #ccc; padding:10px 8px; text-align:left; vertical-align:top; word-break:break-word; }
   .results-table th { background-color:#004aad; color:white; font-weight:bold; }
@@ -69,107 +70,8 @@
   <p>© 2025 Diary Nepal | Data from official sources</p>
 </footer>
 
-<script>
-const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI";
-const SHEET_NAME = "Blood Bank";
-
-const provinceFilter = document.getElementById("provinceFilter");
-const districtFilter = document.getElementById("districtFilter");
-const localFilter = document.getElementById("localFilter");
-const nameFilter = document.getElementById("globalSearch");
-const searchBtn = document.getElementById("searchBtn");
-const resultsTableBody = document.querySelector("#results tbody");
-
-let allRows = [];
-
-// Fetch Google Sheet data
-fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`)
-.then(res => res.text())
-.then(text => {
-  const json = JSON.parse(text.substring(47).slice(0,-2));
-  const headers = json.table.cols.map(c => c.label);
-  allRows = json.table.rows.map(r => {
-    const obj = {};
-    headers.forEach((h,i) => obj[h] = r.c[i]?.v || "");
-    return obj;
-  });
-  initFilters();
-  applyFilters();
-})
-.catch(err => console.error("Error fetching sheet:", err));
-
-// Initialize filters
-function initFilters() {
-  populateSelect(provinceFilter,getUnique("Province"));
-  provinceFilter.onchange = () => {
-    populateSelect(districtFilter,getUnique("District","Province",provinceFilter.value));
-    localFilter.innerHTML = `<option value="">All Local Levels</option>`;
-    applyFilters();
-  };
-  districtFilter.onchange = () => {
-    populateSelect(localFilter,getUnique("Local Level",["Province","District"],[provinceFilter.value,districtFilter.value]));
-    applyFilters();
-  };
-  localFilter.onchange = applyFilters;
-  searchBtn.onclick = applyFilters;
-  nameFilter.oninput = applyFilters;
-}
-
-// Populate dropdown
-function populateSelect(select,values) {
-  select.innerHTML = `<option value="">All</option>`;
-  values.forEach(v => select.innerHTML += `<option value="${v}">${v}</option>`);
-}
-
-// Get unique values for filters
-function getUnique(field,filterField,filterValue){
-  return [...new Set(
-    allRows.filter(r=>{
-      if(!filterField) return true;
-      if(Array.isArray(filterField)) return filterField.every((f,i)=>r[f]===filterValue[i]);
-      return r[filterField]===filterValue;
-    }).map(r=>r[field]).filter(Boolean)
-  )].sort();
-}
-
-// Apply filters
-function applyFilters(){
-  let data = allRows;
-  if(provinceFilter.value) data = data.filter(r => r.Province === provinceFilter.value);
-  if(districtFilter.value) data = data.filter(r => r.District === districtFilter.value);
-  if(localFilter.value) data = data.filter(r => r["Local Level"] === localFilter.value);
-  if(nameFilter.value){
-    const q = nameFilter.value.toLowerCase();
-    data = data.filter(r => Object.values(r).join(" ").toLowerCase().includes(q));
-  }
-  renderResults(data);
-}
-
-// Render results
-function renderResults(data){
-  resultsTableBody.innerHTML = "";
-  if(!data.length){
-    resultsTableBody.innerHTML = `<tr><td colspan="7">No results found.</td></tr>`;
-    return;
-  }
-  data.forEach(r=>{
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${r.Province||"-"}</td>
-      <td>${r.District||"-"}</td>
-      <td>${r["Local Level"]||"-"}</td>
-      <td>${r["Office Type"]||"-"}</td>
-      <td>${r["Office Name"]||"-"}</td>
-      <td>${r.Phone||"-"}</td>
-      <td>${r.Website ? `<a href="${r.Website.startsWith('http') ? r.Website : 'https://' + r.Website}" target="_blank">${r.Website}</a>` : "-"}</td>
-    `;
-    resultsTableBody.appendChild(row);
-  });
-}
-
-// Simple navigation
-function goTab(tab) { window.location.href = `${tab}.html`; }
-</script>
+<!-- Use our separate JS file -->
+<script src="bloodbank.js"></script>
 
 </body>
 </html>
