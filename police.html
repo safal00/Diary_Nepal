@@ -6,25 +6,10 @@
 <title>Diary Nepal - Police Offices</title>
 <link href="style.css" rel="stylesheet">
 <style>
-/* ---------------- Home Button ---------------- */
-.home-button {
-  display:flex;
-  justify-content:center;
-  margin-bottom:15px;
-}
-.home-button button {
-  padding:10px 20px;
-  border:none;
-  border-radius:5px;
-  background-color:#004aad;
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
-  transition:0.3s;
-}
+.home-button { display:flex; justify-content:center; margin-bottom:15px; }
+.home-button button { padding:10px 20px; border:none; border-radius:5px; background-color:#004aad; color:white; font-weight:bold; cursor:pointer; transition:0.3s; }
 .home-button button:hover { background-color:#003080; }
 
-/* ---------------- Table Styling ---------------- */
 .results-table { width:100%; border-collapse:collapse; table-layout:auto; }
 .results-table th, .results-table td { border:1px solid #ccc; padding:10px 8px; text-align:left; vertical-align:top; word-break:break-word; }
 .results-table th { background-color:#004aad; color:white; font-weight:bold; }
@@ -40,7 +25,6 @@
   <h1>Diary Nepal</h1>
   <p>Directory of Police Offices</p>
 
-  <!-- HOME BUTTON -->
   <div class="home-button">
     <button onclick="location.href='index.html'">Home</button>
   </div>
@@ -48,30 +32,29 @@
 
 <main class="container">
 
-  <!-- GLOBAL SEARCH -->
   <div class="search-box">
     <input type="text" id="globalSearch" placeholder="Search by name or location...">
     <button id="searchBtn">Search</button>
   </div>
 
-  <!-- FILTERS -->
   <div class="selection-box">
     <select id="provinceFilter"><option value="">All Provinces</option></select>
     <select id="districtFilter"><option value="">All Districts</option></select>
     <select id="localFilter"><option value="">All Local Levels</option></select>
   </div>
 
-  <!-- RESULTS -->
   <div id="results" class="contacts-section">
     <table class="results-table">
       <thead>
         <tr>
-          <th>Office Name</th>
+          <th>Province</th>
+          <th>District</th>
+          <th>Local Level</th>
           <th>Office Type</th>
+          <th>Office Name</th>
           <th>Phone</th>
           <th>Email</th>
           <th>Website</th>
-          <th>Location</th>
         </tr>
       </thead>
       <tbody></tbody>

@@ -1,8 +1,8 @@
-// Google Sheet info
-const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI"; // same Sheet ID
-const SHEET_NAME = "Police"; // exact tab name
+// ------------------ Google Sheet info ------------------
+const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI"; // your Sheet ID
+const SHEET_GID = "1971990937"; // Google Sheet GID for Police tab
 
-// DOM elements
+// ------------------ DOM Elements ------------------
 const provinceFilter = document.getElementById("provinceFilter");
 const districtFilter = document.getElementById("districtFilter");
 const localFilter = document.getElementById("localFilter");
@@ -12,8 +12,10 @@ const resultsTableBody = document.querySelector("#results tbody");
 
 let allRows = [];
 
-// Fetch Google Sheet
-const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+// ------------------ Fetch Google Sheet ------------------
+// Fetch by GID instead of tab name
+const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${SHEET_GID}`;
+
 fetch(url)
   .then(res => res.text())
   .then(text => {
@@ -31,7 +33,7 @@ fetch(url)
   })
   .catch(err => console.error("Error fetching Google Sheet:", err));
 
-// Initialize dropdowns
+// ------------------ Initialize Dropdowns ------------------
 function initFilters() {
   populateSelect(provinceFilter, getUnique("Province"));
 
@@ -50,13 +52,13 @@ function initFilters() {
   searchBtn.onclick = applyFilters;
 }
 
-// Populate a dropdown
+// ------------------ Populate Dropdown ------------------
 function populateSelect(select, values) {
   select.innerHTML = `<option value="">All</option>`;
   values.forEach(v => select.innerHTML += `<option value="${v}">${v}</option>`);
 }
 
-// Get unique values
+// ------------------ Get Unique Values ------------------
 function getUnique(field, filterField, filterValue) {
   return [...new Set(
     allRows
@@ -72,7 +74,7 @@ function getUnique(field, filterField, filterValue) {
   )].sort();
 }
 
-// Apply filters and search
+// ------------------ Apply Filters & Search ------------------
 function applyFilters() {
   let data = allRows;
 
@@ -88,31 +90,26 @@ function applyFilters() {
   renderResults(data);
 }
 
-// Render table
+// ------------------ Render Table ------------------
 function renderResults(data) {
   resultsTableBody.innerHTML = "";
 
   if (!data.length) {
-    resultsTableBody.innerHTML = `<tr><td colspan="6">No results found.</td></tr>`;
+    resultsTableBody.innerHTML = `<tr><td colspan="8">No results found.</td></tr>`;
     return;
   }
 
   data.forEach(r => {
     const row = document.createElement("tr");
 
-    const nameCell = document.createElement("td");
-    nameCell.textContent = r["Office Name"] || "-";
-    row.appendChild(nameCell);
+    ["Province","District","Local Level","Office Type","Office Name","Phone"].forEach(field => {
+      const cell = document.createElement("td");
+      cell.textContent = r[field] || "-";
+      if(field === "Phone") cell.style.minWidth = "120px";
+      row.appendChild(cell);
+    });
 
-    const typeCell = document.createElement("td");
-    typeCell.textContent = r["Office Type"] || "-";
-    row.appendChild(typeCell);
-
-    const phoneCell = document.createElement("td");
-    phoneCell.style.minWidth = "120px";
-    phoneCell.textContent = r["Phone"] || "-";
-    row.appendChild(phoneCell);
-
+    // Email
     const emailCell = document.createElement("td");
     if (r["Email"]) {
       const a = document.createElement("a");
@@ -122,6 +119,7 @@ function renderResults(data) {
     } else emailCell.textContent = "-";
     row.appendChild(emailCell);
 
+    // Website
     const websiteCell = document.createElement("td");
     if (r["Website"]) {
       const a = document.createElement("a");
@@ -131,10 +129,6 @@ function renderResults(data) {
       websiteCell.appendChild(a);
     } else websiteCell.textContent = "-";
     row.appendChild(websiteCell);
-
-    const locationCell = document.createElement("td");
-    locationCell.textContent = `${r["Local Level"]}, ${r["District"]}, ${r["Province"]}`;
-    row.appendChild(locationCell);
 
     resultsTableBody.appendChild(row);
   });
