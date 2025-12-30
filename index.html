@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Diary Nepal</title>
 
-<!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -13,13 +12,14 @@
 
 <header>
   <h1>Diary Nepal</h1>
-  <p>Your directory of municipalities, offices, and officials</p>
+  <p>Your directory of municipalities, offices, police stations, and blood banks</p>
 
-  <!-- CATEGORY BUTTONS -->
-  <div class="category-nav">
-    <button onclick="goCategory('Office')">Offices</button>
-    <button onclick="goCategory('Police')">Police</button>
-    <button onclick="goCategory('Blood Bank')">Blood Bank</button>
+  <!-- TAB NAVIGATION -->
+  <div class="nav-tabs">
+    <button onclick="goTab('Home')">Home</button>
+    <button onclick="goTab('Municipality')">Municipality</button>
+    <button onclick="goTab('Police')">Police</button>
+    <button onclick="goTab('Blood Bank')">Blood Bank</button>
   </div>
 </header>
 
@@ -30,12 +30,12 @@
     <input
       type="text"
       id="globalSearch"
-      placeholder="Search police station, office, blood bank..."
+      placeholder="Search by name or location..."
     >
     <button onclick="searchAll()">Search</button>
   </div>
 
-  <!-- EXISTING LOCATION SELECTION (UNCHANGED) -->
+  <!-- LOCATION FILTERS -->
   <div class="selection-box">
     <label for="province">Province:</label>
     <select id="province"></select>
@@ -56,12 +56,17 @@
 </footer>
 
 <script src="script.js"></script>
-
 <script>
-function goCategory(type) {
-  window.location.href = `list.html?type=${encodeURIComponent(type)}`;
+/* ---------------- Navigation Tabs ---------------- */
+function goTab(tab) {
+  if(tab === 'Home') {
+    window.location.href = 'index.html';
+  } else {
+    window.location.href = `list.html?type=${encodeURIComponent(tab)}`;
+  }
 }
 
+/* ---------------- Global Search ---------------- */
 function searchAll() {
   const q = document.getElementById("globalSearch").value.trim();
   if (!q) {

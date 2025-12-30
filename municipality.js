@@ -7,15 +7,13 @@ const province = params.get("p")?.trim().toLowerCase();
 const district = params.get("d")?.trim().toLowerCase();
 const local = params.get("l")?.trim().toLowerCase();
 
-console.log("URL Params:", { province, district, local });
-
 document.getElementById("title").innerText = `${local || "All"}, ${district || "All"}, ${province || "All"}`;
 
 let officeData = [];
 let officialData = [];
 let map, markers = [];
 
-// Initialize map
+/* ---------- Initialize Map ---------- */
 function initMap() {
   map = L.map('map').setView([26.5, 87.5], 8);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -23,78 +21,93 @@ function initMap() {
   }).addTo(map);
 }
 
-// Parse Google Sheets JSON
+/* ---------- Parse Sheet JSON ---------- */
 function parseSheetJSON(sheetText) {
   const json = JSON.parse(sheetText.substring(47).slice(0, -2));
   const cols = json.table.cols.map(c => c.label);
-  const rows = json.table.rows.map(r => {
+  return json.table.rows.map(r => {
     const obj = {};
-    cols.forEach((col, i) => {
-      obj[col] = r.c[i]?.v || "";
-    });
+    cols.forEach((col, i) => { obj[col] = r.c[i]?.v || ""; });
     return obj;
   });
-  return rows;
 }
 
-// Display offices
+/* ---------- Display Offices in Table ---------- */
 function displayOffices(data) {
-  const div = document.getElementById("offices");
-  div.innerHTML = "";
-  if (!data.length) div.innerHTML = "<p>No offices found.</p>";
+  const tbody = document.querySelector("#officesTable tbody");
+  tbody.innerHTML = "";
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="5">No offices found.</td></tr>`;
+    return;
+  }
   data.forEach(o => {
-    div.innerHTML += `<div class="contact">
-      <strong>${o.officeType}</strong><br>
-      ${o.officeName ? "Name: " + o.officeName + "<br>" : ""}
-      ${o.phone ? "Phone: " + o.phone + "<br>" : ""}
-      ${o.email ? "Email: " + o.email + "<br>" : ""}
-      ${o.address ? "Address: " + o.address : ""}
-    </div>`;
+    tbody.innerHTML += `
+      <tr>
+        <td>${o.officeType}</td>
+        <td>${o.officeName}</td>
+        <td>${o.phone || "-"}</td>
+        <td>${o.email || "-"}</td>
+        <td>${o.address || "-"}</td>
+      </tr>
+    `;
   });
 }
 
-// Display officials
+/* ---------- Display Officials in Table ---------- */
 function displayOfficials(data) {
-  const div = document.getElementById("officials");
-  div.innerHTML = "";
-  if (!data.length) div.innerHTML = "<p>No officials found.</p>";
+  const tbody = document.querySelector("#officialsTable tbody");
+  tbody.innerHTML = "";
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="5">No officials found.</td></tr>`;
+    return;
+  }
   data.forEach(o => {
-    div.innerHTML += `<div class="contact">
-      <strong>${o.officeName}</strong><br>
-      ${o.name ? "Name: " + o.name + "<br>" : ""}
-      ${o.designation ? "Designation: " + o.designation + "<br>" : ""}
-      ${o.phone ? "Phone: " + o.phone + "<br>" : ""}
-      ${o.email ? "Email: " + o.email + "<br>" : ""}
-    </div>`;
+    tbody.innerHTML += `
+      <tr>
+        <td>${o.officeName || "-"}</td>
+        <td>${o.name || "-"}</td>
+        <td>${o.designation || "-"}</td>
+        <td>${o.phone || "-"}</td>
+        <td>${o.email || "-"}</td>
+      </tr>
+    `;
   });
 }
 
-// Add markers
+/* ---------- Add Markers ---------- */
 function addMarkers(offices, officials) {
   markers.forEach(m => map.removeLayer(m));
   markers = [];
 
+  const colorMap = { "Municipality Office": "red", "Police": "blue", "Health Post": "green" };
+
   offices.forEach(o => {
     if (o.lat && o.lng) {
-      const marker = L.marker([o.lat, o.lng])
+      const icon = L.icon({
+        iconUrl: `https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-${colorMap[o.officeType] || 'orange'}.png`,
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
+      const marker = L.marker([o.lat, o.lng], { icon })
         .bindPopup(`<strong>${o.officeName || o.officeType}</strong><br>${o.address || ""}`);
       marker.addTo(map);
       markers.push(marker);
     }
   });
 
-  const blueIcon = L.icon({
-    iconUrl: 'https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-blue.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
-  });
-
   officials.forEach(o => {
     if (o.lat && o.lng) {
-      const marker = L.marker([o.lat, o.lng], {icon: blueIcon})
+      const marker = L.marker([o.lat, o.lng], { icon: L.icon({
+        iconUrl: 'https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-blue.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      })})
         .bindPopup(`<strong>${o.name}</strong><br>${o.designation || ""}<br>${o.officeName}`);
       marker.addTo(map);
       markers.push(marker);
@@ -107,26 +120,24 @@ function addMarkers(offices, officials) {
   }
 }
 
-// Generate office type filters
+/* ---------- Generate Office Type Filters ---------- */
 function generateOfficeTypeFilters() {
-  const allTypes = [...new Set(officeData.map(o => o.officeType).filter(Boolean))];
+  const types = [...new Set(officeData.map(o => o.officeType).filter(Boolean))];
   const container = document.getElementById("officeTypeFilters");
-  container.innerHTML = "<strong>Filter by Office Type:</strong><br>";
-  allTypes.forEach(type => {
-    const id = `type-${type.replace(/\s+/g, "")}`;
-    container.innerHTML += `<label>
-      <input type="checkbox" value="${type}" id="${id}" checked> ${type}
-    </label><br>`;
+  container.innerHTML = "<strong>Filter by Type:</strong><br>";
+  types.forEach(t => {
+    const id = `type-${t.replace(/\s+/g, "")}`;
+    container.innerHTML += `<label><input type="checkbox" value="${t}" id="${id}" checked> ${t}</label><br>`;
   });
 }
 
-// Apply filters & search
+/* ---------- Apply Filters & Search ---------- */
 function applyFilters() {
-  const searchQuery = document.getElementById("searchBox").value.trim();
+  const searchQuery = document.getElementById("searchBox").value.trim().toLowerCase();
   const selectedTypes = Array.from(document.querySelectorAll("#officeTypeFilters input:checked")).map(cb => cb.value);
 
   let filteredOffices = officeData.filter(o => selectedTypes.includes(o.officeType));
-  let filteredOfficials = officialData; // can also match officeType if needed
+  let filteredOfficials = officialData;
 
   if (searchQuery) {
     const fuse = new Fuse([...filteredOffices, ...filteredOfficials], {
@@ -143,48 +154,53 @@ function applyFilters() {
   addMarkers(filteredOffices, filteredOfficials);
 }
 
-// Fetch offices and officials
+/* ---------- Fetch Data ---------- */
 initMap();
 
 fetch(OFFICES_URL)
   .then(res => res.text())
   .then(sheetText => {
-    officeData = parseSheetJSON(sheetText).filter(r =>
-      (!province || (r.Province || "").trim().toLowerCase() === province) &&
-      (!district || (r.District || "").trim().toLowerCase() === district) &&
-      (!local || (r["Local Level"] || "").trim().toLowerCase() === local)
-    ).map(r => ({
-      officeType: r["Office Type"],
-      officeName: r["Office Name"],
-      phone: r.Phone,
-      email: r.Email,
-      address: r.Address,
-      lat: r.Lat || null,
-      lng: r.Lng || null,
-      type: 'office'
-    }));
+    officeData = parseSheetJSON(sheetText)
+      .filter(r =>
+        (!province || (r.Province || "").trim().toLowerCase() === province) &&
+        (!district || (r.District || "").trim().toLowerCase() === district) &&
+        (!local || (r["Local Level"] || "").trim().toLowerCase() === local)
+      )
+      .map(r => ({
+        officeType: r["Office Type"],
+        officeName: r["Office Name"],
+        phone: r.Phone,
+        email: r.Email,
+        address: r.Address,
+        lat: r.Lat || null,
+        lng: r.Lng || null,
+        type: 'office'
+      }));
+
     displayOffices(officeData);
     generateOfficeTypeFilters();
   })
   .then(() => fetch(OFFICIALS_URL))
   .then(res => res.text())
   .then(sheetText => {
-    officialData = parseSheetJSON(sheetText).filter(r =>
-      (!province || (r.Province || "").trim().toLowerCase() === province) &&
-      (!district || (r.District || "").trim().toLowerCase() === district) &&
-      (!local || (r["Local Level"] || "").trim().toLowerCase() === local)
-    ).map(r => ({
-      officeName: r["Office Name"],
-      name: r.Name,
-      designation: r.Designation,
-      phone: r.Phone,
-      email: r.Email,
-      lat: r.Lat || null,
-      lng: r.Lng || null,
-      type: 'official'
-    }));
-    displayOfficials(officialData);
+    officialData = parseSheetJSON(sheetText)
+      .filter(r =>
+        (!province || (r.Province || "").trim().toLowerCase() === province) &&
+        (!district || (r.District || "").trim().toLowerCase() === district) &&
+        (!local || (r["Local Level"] || "").trim().toLowerCase() === local)
+      )
+      .map(r => ({
+        officeName: r["Office Name"],
+        name: r.Name,
+        designation: r.Designation,
+        phone: r.Phone,
+        email: r.Email,
+        lat: r.Lat || null,
+        lng: r.Lng || null,
+        type: 'official'
+      }));
 
+    displayOfficials(officialData);
     addMarkers(officeData, officialData);
 
     document.getElementById("searchBox").addEventListener("input", applyFilters);

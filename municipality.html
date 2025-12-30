@@ -11,28 +11,62 @@
 <body>
 
 <header>
-  <h1 id="title">Contacts</h1>
+  <div class="header-top">
+    <h1 id="title">Contacts</h1>
+    <nav class="tabs">
+      <button onclick="goHome()">Home</button>
+      <button onclick="goCategory('Office')">Offices</button>
+      <button onclick="goCategory('Police')">Police</button>
+      <button onclick="goCategory('Blood Bank')">Blood Bank</button>
+    </nav>
+  </div>
 </header>
 
 <main class="container">
+
   <div class="filter-box">
-    <label for="searchBox">Search:</label>
     <input type="text" id="searchBox" placeholder="Search offices or officials..." />
+    <button onclick="clearSearch()">Clear</button>
 
     <div id="officeTypeFilters">
-      <!-- Office type checkboxes added dynamically -->
+      <!-- Office type checkboxes dynamically added -->
     </div>
   </div>
 
-  <div id="map" style="height:400px; margin-bottom:20px;"></div>
+  <div id="map"></div>
 
-  <div id="offices" class="contacts-section">
+  <div class="contacts-section">
     <h2>Offices</h2>
+    <table id="officesTable" class="contacts-table">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Email</th>
+          <th>Address</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
 
-  <div id="officials" class="contacts-section">
+  <div class="contacts-section">
     <h2>Officials</h2>
+    <table id="officialsTable" class="contacts-table">
+      <thead>
+        <tr>
+          <th>Office</th>
+          <th>Name</th>
+          <th>Designation</th>
+          <th>Phone</th>
+          <th>Email</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
+
 </main>
 
 <footer>
@@ -42,5 +76,10 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.min.js"></script>
 <script src="municipality.js"></script>
+<script>
+function goHome() { window.location.href = 'index.html'; }
+function goCategory(type) { window.location.href = `list.html?type=${encodeURIComponent(type)}`; }
+function clearSearch() { document.getElementById("searchBox").value = ''; document.getElementById("searchBox").dispatchEvent(new Event('input')); }
+</script>
 </body>
 </html>

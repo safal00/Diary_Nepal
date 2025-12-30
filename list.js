@@ -3,7 +3,7 @@ const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI";
 const SHEETS = {
   "Police": "Police",
   "Blood Bank": "Blood Bank",
-  "Office": "Officials"
+  "Municipality": "Officials"
 };
 
 const params = new URLSearchParams(window.location.search);
@@ -16,7 +16,8 @@ const pageSubtitle = document.getElementById("pageSubtitle");
 const provinceFilter = document.getElementById("provinceFilter");
 const districtFilter = document.getElementById("districtFilter");
 const localFilter = document.getElementById("localFilter");
-const resultsDiv = document.getElementById("results");
+const nameFilter = document.getElementById("nameFilter");
+const resultsTableBody = document.querySelector("#results tbody");
 
 let allRows = [];
 
@@ -32,6 +33,9 @@ if (type) {
 /* ---------- Load Sheet ---------- */
 if (type && SHEETS[type]) {
   loadSheet(SHEETS[type]);
+} else if (searchQuery) {
+  // optional: implement global search across all sheets if needed
+  pageSubtitle.innerText = `Search results for "${searchQuery}"`;
 } else {
   pageSubtitle.innerText = "Invalid category";
 }
@@ -43,17 +47,20 @@ function loadSheet(sheetName) {
     .then(res => res.text())
     .then(text => {
       const json = JSON.parse(text.substring(47).slice(0, -2));
-      allRows = json.table.rows.map(r => ({
-        province: r.c[0]?.v || "",
-        district: r.c[1]?.v || "",
-        local: r.c[2]?.v || "",
-        officeType: r.c[3]?.v || "",
-        name: r.c[4]?.v || "",
-        phone: r.c[5]?.v || "",
-        website: r.c[6]?.v || "",
-        lat: r.c[7]?.v || "",
-        lng: r.c[8]?.v || ""
-      }));
+      allRows = json.table.rows.map(r => {
+        // For different sheets, map fields safely
+        return {
+          province: r.c[0]?.v || "",
+          district: r.c[1]?.v || "",
+          local: r.c[2]?.v || "",
+          officeType: r.c[3]?.v || r.c[4]?.v || "", // Office Type or Local Type fallback
+          name: r.c[4]?.v || r.c[5]?.v || "",
+          phone: r.c[5]?.v || r.c[6]?.v || "",
+          website: r.c[6]?.v || r.c[7]?.v || r.c[8]?.v || "",
+          lat: r.c[7]?.v || r.c[8]?.v || "",
+          lng: r.c[8]?.v || r.c[9]?.v || ""
+        };
+      });
 
       initFilters();
       applyFilters();
@@ -83,6 +90,7 @@ function initFilters() {
   };
 
   localFilter.onchange = applyFilters;
+  nameFilter.oninput = applyFilters;
 }
 
 function populateSelect(select, values) {
@@ -120,6 +128,11 @@ function applyFilters() {
   if (localFilter.value)
     data = data.filter(r => r.local === localFilter.value);
 
+  if (nameFilter.value)
+    data = data.filter(r =>
+      r.name.toLowerCase().includes(nameFilter.value.toLowerCase())
+    );
+
   if (searchQuery)
     data = data.filter(r =>
       Object.values(r).join(" ").toLowerCase().includes(searchQuery.toLowerCase())
@@ -129,22 +142,44 @@ function applyFilters() {
 }
 
 function renderResults(data) {
-  resultsDiv.innerHTML = "";
+  resultsTableBody.innerHTML = "";
 
   if (!data.length) {
-    resultsDiv.innerHTML = "<p>No results found.</p>";
+    resultsTableBody.innerHTML = `<tr><td colspan="5">No results found.</td></tr>`;
     return;
   }
 
   data.forEach(r => {
-    resultsDiv.innerHTML += `
-      <div class="contact office">
-        <h3>${r.name}</h3>
-        <p><strong>Type:</strong> ${r.officeType}</p>
-        <p><strong>Phone:</strong> ${r.phone}</p>
-        ${r.website ? `<p><a href="${r.website}" target="_blank">Website</a></p>` : ""}
-        <p>${r.local}, ${r.district}, ${r.province}</p>
-      </div>
-    `;
+    const row = document.createElement("tr");
+
+    const nameCell = document.createElement("td");
+    nameCell.textContent = r.name || r.officeType || "-";
+    row.appendChild(nameCell);
+
+    const typeCell = document.createElement("td");
+    typeCell.textContent = r.officeType || "-";
+    row.appendChild(typeCell);
+
+    const phoneCell = document.createElement("td");
+    phoneCell.textContent = r.phone || "-";
+    row.appendChild(phoneCell);
+
+    const websiteCell = document.createElement("td");
+    if (r.website) {
+      const a = document.createElement("a");
+      a.href = r.website.startsWith("http") ? r.website : "#";
+      a.target = "_blank";
+      a.textContent = r.website;
+      websiteCell.appendChild(a);
+    } else {
+      websiteCell.textContent = "-";
+    }
+    row.appendChild(websiteCell);
+
+    const locationCell = document.createElement("td");
+    locationCell.textContent = `${r.local}, ${r.district}, ${r.province}`;
+    row.appendChild(locationCell);
+
+    resultsTableBody.appendChild(row);
   });
 }
