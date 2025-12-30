@@ -13,15 +13,8 @@ header {
   padding: 20px 10px;
 }
 
-header h1 {
-  margin: 0;
-  font-size: 2em;
-}
-
-header p {
-  margin: 5px 0 15px 0;
-  font-weight: 400;
-}
+header h1 { margin: 0; font-size: 2em; }
+header p { margin: 5px 0 15px 0; font-weight: 400; }
 
 /* ---------------- NAV TABS ---------------- */
 .nav-tabs {
@@ -43,9 +36,7 @@ header p {
   transition: background-color 0.3s;
 }
 
-.nav-tabs button:hover {
-  background-color: #cc6b00;
-}
+.nav-tabs button:hover { background-color: #cc6b00; }
 
 /* ---------------- SEARCH ---------------- */
 .search-box {
@@ -75,11 +66,15 @@ header p {
   transition: background-color 0.3s;
 }
 
-.search-box button:hover {
-  background-color: #cc6b00;
-}
+.search-box button:hover { background-color: #cc6b00; }
 
 /* ---------------- Selection Boxes ---------------- */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
 .selection-box {
   display: flex;
   flex-wrap: wrap;
@@ -105,22 +100,20 @@ header p {
   transition: background-color 0.3s;
 }
 
-.selection-box button:hover {
-  background-color: #003080;
-}
+.selection-box button:hover { background-color: #003080; }
 
 /* ---------------- Table Styling ---------------- */
 .contacts-section {
   width: 100%;
-  overflow-x: auto;
-  margin-bottom: 30px;
+  overflow-x: auto; /* horizontal scroll for small screens */
+  margin: 0;
+  padding: 0 10px;
 }
 
 .results-table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: auto; /* allows flexible column widths */
-  min-width: 700px; /* ensures table doesn't shrink too much on mobile */
+  table-layout: auto; /* auto-fit columns based on content */
 }
 
 .results-table th,
@@ -129,7 +122,9 @@ header p {
   padding: 10px 8px;
   text-align: left;
   vertical-align: top;
-  word-break: break-word;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 
 .results-table th {
@@ -151,6 +146,21 @@ header p {
   text-decoration: underline;
 }
 
+/* Optional min-widths to prevent extreme shrink */
+.results-table th:nth-child(1),
+.results-table td:nth-child(1),
+.results-table th:nth-child(2),
+.results-table td:nth-child(2),
+.results-table th:nth-child(3),
+.results-table td:nth-child(3) {
+  min-width: 120px;
+}
+
+.results-table th:nth-child(5),
+.results-table td:nth-child(5) { min-width: 180px; } /* Office Name */
+.results-table th:nth-child(7),
+.results-table td:nth-child(7) { min-width: 150px; } /* Website */
+
 /* ---------------- Footer ---------------- */
 footer {
   text-align: center;
@@ -161,28 +171,33 @@ footer {
 }
 
 /* ---------------- Responsive ---------------- */
+@media (max-width: 1200px) {
+  .container { max-width: 100%; padding: 0 10px; }
+}
+
 @media (max-width: 900px) {
-  .search-box input,
-  .search-box button,
+  .selection-box,
+  .search-box,
+  .nav-tabs {
+    flex-direction: column;
+    gap: 8px;
+  }
+
   .selection-box select,
-  .selection-box button {
+  .selection-box button,
+  .search-box input,
+  .search-box button {
     flex: 1 1 100%;
   }
-}
 
-@media (max-width: 700px) {
   .results-table th,
   .results-table td {
-    padding: 6px 4px;
     font-size: 0.85em;
-  }
-
-  .results-table {
-    min-width: unset;
+    padding: 6px;
   }
 }
 
-@media (max-width: 500px) {
+@media (max-width: 600px) {
   .results-table th,
   .results-table td {
     display: block;
@@ -191,12 +206,10 @@ footer {
   }
 
   .results-table tr {
-    margin-bottom: 15px;
     display: block;
+    margin-bottom: 15px;
     border-bottom: 2px solid #ccc;
   }
 
-  .results-table th {
-    display: none; /* hide header on very small screens */
-  }
+  .results-table th { display: none; }
 }
