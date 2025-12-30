@@ -1,6 +1,6 @@
 // Google Sheet info
-const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI"; // replace with your sheet ID
-const SHEET_NAME = "Police"; // tab name in the sheet
+const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI"; // same Sheet ID
+const SHEET_NAME = "Police"; // exact tab name
 
 // DOM elements
 const provinceFilter = document.getElementById("provinceFilter");
@@ -31,7 +31,7 @@ fetch(url)
   })
   .catch(err => console.error("Error fetching Google Sheet:", err));
 
-// Initialize filters
+// Initialize dropdowns
 function initFilters() {
   populateSelect(provinceFilter, getUnique("Province"));
 
@@ -93,7 +93,7 @@ function renderResults(data) {
   resultsTableBody.innerHTML = "";
 
   if (!data.length) {
-    resultsTableBody.innerHTML = `<tr><td colspan="7">No results found.</td></tr>`;
+    resultsTableBody.innerHTML = `<tr><td colspan="6">No results found.</td></tr>`;
     return;
   }
 
@@ -109,6 +109,7 @@ function renderResults(data) {
     row.appendChild(typeCell);
 
     const phoneCell = document.createElement("td");
+    phoneCell.style.minWidth = "120px";
     phoneCell.textContent = r["Phone"] || "-";
     row.appendChild(phoneCell);
 
@@ -124,7 +125,7 @@ function renderResults(data) {
     const websiteCell = document.createElement("td");
     if (r["Website"]) {
       const a = document.createElement("a");
-      a.href = r["Website"].startsWith("http") ? r["Website"] : `https://${r["Website"]}`;
+      a.href = r["Website"];
       a.textContent = r["Website"];
       a.target = "_blank";
       websiteCell.appendChild(a);
