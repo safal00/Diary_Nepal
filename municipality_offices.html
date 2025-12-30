@@ -5,6 +5,65 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Diary Nepal - Municipality Offices</title>
 <link href="style.css" rel="stylesheet">
+<style>
+/* ---------------- Home Button ---------------- */
+.home-button {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.home-button button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #004aad;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.home-button button:hover {
+  background-color: #003080;
+}
+
+/* ---------------- Table Styling ---------------- */
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto; /* dynamic column width */
+}
+
+.results-table th, .results-table td {
+  border: 1px solid #ccc;
+  padding: 10px 8px;
+  text-align: left;
+  vertical-align: top;
+  word-break: break-word;
+}
+
+.results-table th {
+  background-color: #004aad;
+  color: white;
+  font-weight: bold;
+}
+
+.results-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.contacts-section {
+  overflow-x: auto; /* horizontal scroll on small screens */
+}
+
+@media (max-width: 800px) {
+  .results-table th, .results-table td {
+    padding: 8px 6px;
+    font-size: 0.9em;
+  }
+}
+</style>
 </head>
 <body>
 
@@ -12,8 +71,10 @@
   <h1>Diary Nepal</h1>
   <p>Directory of Municipality Offices</p>
 
-  <!-- NAVIGATION -->
-  <div id="navTabs"></div>
+  <!-- HOME BUTTON -->
+  <div class="home-button">
+    <button onclick="location.href='index.html'">Home</button>
+  </div>
 </header>
 
 <main class="container">
@@ -54,8 +115,6 @@
   <p>© 2025 Diary Nepal | Data from official sources</p>
 </footer>
 
-<script src="google.js"></script>
-<script src="nav.js"></script>
 <script src="municipality.js"></script>
 </body>
 </html>

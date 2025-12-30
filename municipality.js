@@ -1,7 +1,5 @@
-// municipality.js
-
 // Google Sheet info
-const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI"; // replace with your sheet ID
+const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI"; // your sheet ID
 const SHEET_NAME = "offices"; // tab name in the sheet
 
 // DOM elements
@@ -36,7 +34,7 @@ fetch(url)
 // Initialize dropdowns
 function initFilters() {
   populateSelect(provinceFilter, getUnique("Province"));
-  
+
   provinceFilter.onchange = () => {
     populateSelect(districtFilter, getUnique("District", "Province", provinceFilter.value));
     localFilter.innerHTML = `<option value="">All Local Levels</option>`;
@@ -111,6 +109,7 @@ function renderResults(data) {
     row.appendChild(typeCell);
 
     const phoneCell = document.createElement("td");
+    phoneCell.style.minWidth = "120px";
     phoneCell.textContent = r["Phone"] || "-";
     row.appendChild(phoneCell);
 
@@ -124,6 +123,7 @@ function renderResults(data) {
     row.appendChild(emailCell);
 
     const addressCell = document.createElement("td");
+    addressCell.style.minWidth = "200px";
     addressCell.textContent = r["Address"] || "-";
     row.appendChild(addressCell);
 
