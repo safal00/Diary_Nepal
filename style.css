@@ -81,7 +81,7 @@ header p {
 
 /* ---------------- Selection Boxes ---------------- */
 .container {
-  max-width: 900px;
+  max-width: 950px;
   margin: 0 auto;
   padding: 0 15px;
 }
@@ -119,6 +119,56 @@ header p {
   background-color: #003080;
 }
 
+/* ---------------- Table Styling ---------------- */
+.contacts-section {
+  overflow-x: auto; /* scrollable if too wide */
+  margin-bottom: 30px;
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* columns follow CSS widths */
+  min-width: 700px; /* allow horizontal scroll if necessary */
+}
+
+.results-table th,
+.results-table td {
+  border: 1px solid #ccc;
+  padding: 10px 8px;
+  text-align: left;
+  vertical-align: top;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+.results-table th {
+  background-color: #004aad;
+  color: white;
+  font-weight: bold;
+}
+
+.results-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+/* Set reasonable widths for columns */
+.results-table th:nth-child(1),
+.results-table td:nth-child(1) { width: 100px; } /* Province */
+.results-table th:nth-child(2),
+.results-table td:nth-child(2) { width: 120px; } /* District */
+.results-table th:nth-child(3),
+.results-table td:nth-child(3) { width: 140px; } /* Local Level */
+.results-table th:nth-child(4),
+.results-table td:nth-child(4) { width: 120px; } /* Office Type */
+.results-table th:nth-child(5),
+.results-table td:nth-child(5) { width: 200px; } /* Office Name */
+.results-table th:nth-child(6),
+.results-table td:nth-child(6) { width: 120px; } /* Phone */
+.results-table th:nth-child(7),
+.results-table td:nth-child(7) { width: 200px; } /* Website */
+
 /* ---------------- Footer ---------------- */
 footer {
   text-align: center;
@@ -129,7 +179,7 @@ footer {
 }
 
 /* ---------------- Responsive ---------------- */
-@media (max-width: 600px) {
+@media (max-width: 800px) {
   .selection-box,
   .search-box,
   .nav-tabs {
@@ -142,5 +192,12 @@ footer {
   .search-box input,
   .search-box button {
     flex: 1 1 100%;
+  }
+
+  /* Reduce table font size on small screens */
+  .results-table th,
+  .results-table td {
+    font-size: 0.85em;
+    padding: 6px;
   }
 }
