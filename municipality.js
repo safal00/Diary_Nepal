@@ -1,10 +1,10 @@
 // municipality.js
 
-// Get sheet info from google.js
-const sheetInfo = GOOGLE_SHEETS["Municipality Offices"];
-const SHEET_ID = sheetInfo.id;
-const SHEET_NAME = sheetInfo.name;
+// Google Sheet info
+const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI"; // replace with your sheet ID
+const SHEET_NAME = "offices"; // tab name in the sheet
 
+// DOM elements
 const provinceFilter = document.getElementById("provinceFilter");
 const districtFilter = document.getElementById("districtFilter");
 const localFilter = document.getElementById("localFilter");
@@ -14,7 +14,7 @@ const resultsTableBody = document.querySelector("#results tbody");
 
 let allRows = [];
 
-// Fetch data from Google Sheet
+// Fetch Google Sheet
 const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
 fetch(url)
   .then(res => res.text())
@@ -33,7 +33,7 @@ fetch(url)
   })
   .catch(err => console.error("Error fetching Google Sheet:", err));
 
-// Initialize dropdown filters
+// Initialize dropdowns
 function initFilters() {
   populateSelect(provinceFilter, getUnique("Province"));
   
@@ -58,7 +58,7 @@ function populateSelect(select, values) {
   values.forEach(v => select.innerHTML += `<option value="${v}">${v}</option>`);
 }
 
-// Get unique values for a field, optionally filtered
+// Get unique values
 function getUnique(field, filterField, filterValue) {
   return [...new Set(
     allRows
@@ -74,7 +74,7 @@ function getUnique(field, filterField, filterValue) {
   )].sort();
 }
 
-// Apply all filters and search
+// Apply filters and search
 function applyFilters() {
   let data = allRows;
 
@@ -90,7 +90,7 @@ function applyFilters() {
   renderResults(data);
 }
 
-// Render results table
+// Render table
 function renderResults(data) {
   resultsTableBody.innerHTML = "";
 
@@ -120,9 +120,7 @@ function renderResults(data) {
       a.href = `mailto:${r["Email"]}`;
       a.textContent = r["Email"];
       emailCell.appendChild(a);
-    } else {
-      emailCell.textContent = "-";
-    }
+    } else emailCell.textContent = "-";
     row.appendChild(emailCell);
 
     const addressCell = document.createElement("td");
