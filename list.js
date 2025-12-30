@@ -16,8 +16,8 @@ const pageSubtitle = document.getElementById("pageSubtitle");
 const provinceFilter = document.getElementById("provinceFilter");
 const districtFilter = document.getElementById("districtFilter");
 const localFilter = document.getElementById("localFilter");
-const nameFilter = document.getElementById("nameFilter");
 const resultsTableBody = document.querySelector("#results tbody");
+const nameFilter = document.getElementById("globalSearch");
 
 let allRows = [];
 
@@ -25,19 +25,19 @@ let allRows = [];
 if (type) {
   pageTitle.innerText = `${type} Directory`;
   pageSubtitle.innerText = "Browse by location";
-} else {
+} else if (searchQuery) {
   pageTitle.innerText = "Search Results";
   pageSubtitle.innerText = `"${searchQuery}"`;
+} else {
+  pageTitle.innerText = "Directory";
+  pageSubtitle.innerText = "";
 }
 
 /* ---------- Load Sheet ---------- */
 if (type && SHEETS[type]) {
   loadSheet(SHEETS[type]);
 } else if (searchQuery) {
-  // optional: implement global search across all sheets if needed
   pageSubtitle.innerText = `Search results for "${searchQuery}"`;
-} else {
-  pageSubtitle.innerText = "Invalid category";
 }
 
 function loadSheet(sheetName) {
@@ -47,20 +47,17 @@ function loadSheet(sheetName) {
     .then(res => res.text())
     .then(text => {
       const json = JSON.parse(text.substring(47).slice(0, -2));
-      allRows = json.table.rows.map(r => {
-        // For different sheets, map fields safely
-        return {
-          province: r.c[0]?.v || "",
-          district: r.c[1]?.v || "",
-          local: r.c[2]?.v || "",
-          officeType: r.c[3]?.v || r.c[4]?.v || "", // Office Type or Local Type fallback
-          name: r.c[4]?.v || r.c[5]?.v || "",
-          phone: r.c[5]?.v || r.c[6]?.v || "",
-          website: r.c[6]?.v || r.c[7]?.v || r.c[8]?.v || "",
-          lat: r.c[7]?.v || r.c[8]?.v || "",
-          lng: r.c[8]?.v || r.c[9]?.v || ""
-        };
-      });
+      allRows = json.table.rows.map(r => ({
+        province: r.c[0]?.v || "",
+        district: r.c[1]?.v || "",
+        local: r.c[2]?.v || "",
+        officeType: r.c[3]?.v || r.c[4]?.v || "",
+        name: r.c[4]?.v || r.c[5]?.v || "",
+        phone: r.c[5]?.v || r.c[6]?.v || "",
+        website: r.c[6]?.v || r.c[7]?.v || "",
+        lat: r.c[7]?.v || "",
+        lng: r.c[8]?.v || ""
+      }));
 
       initFilters();
       applyFilters();
@@ -78,14 +75,7 @@ function initFilters() {
   };
 
   districtFilter.onchange = () => {
-    populateSelect(
-      localFilter,
-      getUnique(
-        "local",
-        ["province", "district"],
-        [provinceFilter.value, districtFilter.value]
-      )
-    );
+    populateSelect(localFilter, getUnique("local", ["province","district"], [provinceFilter.value,districtFilter.value]));
     applyFilters();
   };
 
@@ -95,9 +85,7 @@ function initFilters() {
 
 function populateSelect(select, values) {
   select.innerHTML = `<option value="">All</option>`;
-  values.forEach(v => {
-    select.innerHTML += `<option value="${v}">${v}</option>`;
-  });
+  values.forEach(v => select.innerHTML += `<option value="${v}">${v}</option>`);
 }
 
 function getUnique(field, filterField, filterValue) {
@@ -106,7 +94,7 @@ function getUnique(field, filterField, filterValue) {
       .filter(r => {
         if (!filterField) return true;
         if (Array.isArray(filterField)) {
-          return filterField.every((f, i) => r[f] === filterValue[i]);
+          return filterField.every((f,i) => r[f] === filterValue[i]);
         }
         return r[filterField] === filterValue;
       })
@@ -115,32 +103,20 @@ function getUnique(field, filterField, filterValue) {
   )].sort();
 }
 
-/* ---------- Render ---------- */
+/* ---------- Apply Filters ---------- */
 function applyFilters() {
   let data = allRows;
 
-  if (provinceFilter.value)
-    data = data.filter(r => r.province === provinceFilter.value);
-
-  if (districtFilter.value)
-    data = data.filter(r => r.district === districtFilter.value);
-
-  if (localFilter.value)
-    data = data.filter(r => r.local === localFilter.value);
-
-  if (nameFilter.value)
-    data = data.filter(r =>
-      r.name.toLowerCase().includes(nameFilter.value.toLowerCase())
-    );
-
-  if (searchQuery)
-    data = data.filter(r =>
-      Object.values(r).join(" ").toLowerCase().includes(searchQuery.toLowerCase())
-    );
+  if (provinceFilter.value) data = data.filter(r => r.province === provinceFilter.value);
+  if (districtFilter.value) data = data.filter(r => r.district === districtFilter.value);
+  if (localFilter.value) data = data.filter(r => r.local === localFilter.value);
+  if (nameFilter.value) data = data.filter(r => r.name.toLowerCase().includes(nameFilter.value.toLowerCase()));
+  if (searchQuery) data = data.filter(r => Object.values(r).join(" ").toLowerCase().includes(searchQuery.toLowerCase()));
 
   renderResults(data);
 }
 
+/* ---------- Render Table ---------- */
 function renderResults(data) {
   resultsTableBody.innerHTML = "";
 

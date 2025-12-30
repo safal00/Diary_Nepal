@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Diary Nepal - Directory</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 
@@ -32,28 +31,56 @@
 }
 
 /* Search + filter box */
-.search-box {
+.search-box,
+.selection-box {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 20px;
 }
-.search-box input {
+.search-box input,
+.selection-box select,
+.search-box button {
   flex: 1 1 200px;
   padding: 10px;
   border-radius: 5px;
   border: 1px solid #ccc;
+  font-size: 1em;
 }
 .search-box button {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
   background-color: #004aad;
   color: white;
+  border: none;
   cursor: pointer;
 }
 .search-box button:hover {
   background-color: #003080;
+}
+
+/* Table styling */
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.results-table th, .results-table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+.results-table th {
+  background-color: #004aad;
+  color: white;
+}
+.results-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .search-box, .selection-box, .nav-tabs {
+    flex-direction: column;
+    gap: 5px;
+  }
 }
 </style>
 </head>
@@ -77,29 +104,39 @@
   <!-- GLOBAL SEARCH -->
   <div class="search-box">
     <input type="text" id="globalSearch" placeholder="Search by name or location...">
-    <button onclick="searchAll()">Search</button>
+    <button onclick="applyFilters()">Search</button>
   </div>
 
   <!-- FILTERS -->
   <div class="selection-box">
-    <label for="provinceFilter">Province:</label>
     <select id="provinceFilter">
       <option value="">All Provinces</option>
     </select>
 
-    <label for="districtFilter">District:</label>
     <select id="districtFilter">
       <option value="">All Districts</option>
     </select>
 
-    <label for="localFilter">Local Level:</label>
     <select id="localFilter">
       <option value="">All Local Levels</option>
     </select>
   </div>
 
-  <!-- RESULTS -->
-  <div id="results" class="contacts-section"></div>
+  <!-- RESULTS TABLE -->
+  <div id="results" class="contacts-section">
+    <table class="results-table">
+      <thead>
+        <tr>
+          <th>Name / Office</th>
+          <th>Type</th>
+          <th>Phone</th>
+          <th>Website</th>
+          <th>Location</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
 </main>
 
@@ -116,13 +153,6 @@ function goTab(tab) {
     window.location.href = `list.html?type=${encodeURIComponent(tab)}`;
   }
 }
-
-function searchAll() {
-  const q = document.getElementById("globalSearch").value.trim();
-  if (!q) return alert("Please enter something to search");
-  window.location.href = `list.html?search=${encodeURIComponent(q)}`;
-}
 </script>
-
 </body>
 </html>
