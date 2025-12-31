@@ -135,7 +135,10 @@ function renderResults(data) {
   resultsTableBody.innerHTML = "";
 
   if (!data.length) {
-    resultsTableBody.innerHTML = `<tr><td colspan="${HEADERS.length}">No results found.</td></tr>`;
+    resultsTableBody.innerHTML = `
+      <tr>
+        <td colspan="${HEADERS.length}">No results found.</td>
+      </tr>`;
     console.warn("No matching results found.");
     return;
   }
@@ -145,22 +148,58 @@ function renderResults(data) {
 
     HEADERS.forEach((field, i) => {
       const cell = document.createElement("td");
-      cell.textContent = r[field] || "-";
 
-      // Optional min-width for readability
-      if (field === "Phone") cell.style.minWidth = "120px";
-      if (["Province", "District", "Local Level"].includes(field)) cell.style.minWidth = "150px";
+      /* ---------------- PHONE COLUMN ---------------- */
+      if (field === "Phone" && r[field]) {
+        const formattedPhone = r[field].toString().trim();
+        const telPhone = formattedPhone.replace(/[^\d+]/g, "");
+
+        cell.innerHTML = `
+          <div class="phone-cell">
+            <span class="phone-text">${formattedPhone}</span>
+            <a href="tel:${telPhone}" class="call-btn" title="Call">📞</a>
+            <button class="copy-btn" title="Copy phone">📋</button>
+          </div>
+        `;
+
+        // Copy formatted phone exactly
+        const copyBtn = cell.querySelector(".copy-btn");
+        copyBtn.addEventListener("click", () => {
+          navigator.clipboard.writeText(formattedPhone)
+            .then(() => {
+              copyBtn.textContent = "✅";
+              setTimeout(() => (copyBtn.textContent = "📋"), 1000);
+            })
+            .catch(err => console.error("Copy failed:", err));
+        });
+
+      } else {
+        cell.textContent = r[field] || "-";
+      }
+
+      // Optional min-widths
+      if (field === "Phone") cell.style.minWidth = "140px";
+      if (["Province", "District", "Local Level"].includes(field)) {
+        cell.style.minWidth = "150px";
+      }
 
       row.appendChild(cell);
     });
 
-    // Make Email clickable
+    /* ---------------- EMAIL ---------------- */
     const emailCell = row.children[6];
-    if (r["Email"]) emailCell.innerHTML = `<a href="mailto:${r["Email"]}">${r["Email"]}</a>`;
+    if (r["Email"]) {
+      emailCell.innerHTML = `<a href="mailto:${r["Email"]}">${r["Email"]}</a>`;
+    }
 
-    // Make Website clickable
+    /* ---------------- WEBSITE ---------------- */
     const websiteCell = row.children[7];
-    if (r["Website"]) websiteCell.innerHTML = `<a href="${r["Website"]}" target="_blank">${r["Website"]}</a>`;
+    if (r["Website"]) {
+      websiteCell.innerHTML = `
+        <a href="${r["Website"]}" target="_blank" rel="noopener">
+          ${r["Website"]}
+        </a>`;
+    }
 
     resultsTableBody.appendChild(row);
     console.log(`Rendered row ${index + 1}:`, r);
