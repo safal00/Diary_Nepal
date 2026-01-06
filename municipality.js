@@ -1,17 +1,16 @@
-// ------------------ Google Sheet Info ------------------
+// ---------------- Google Sheet Info ----------------
 const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI";
-const SHEET_GID = "1826911797";
+const SHEET_GID = "1826911797"; // from your sheet URL
 
-// ------------------ DOM Elements ------------------
-const searchInput = document.getElementById("globalSearch");
+// DOM Elements
+const resultsTableBody = document.querySelector("#results tbody");
+const nameFilter = document.getElementById("globalSearch");
 const searchBtn = document.getElementById("searchBtn");
-const resultsTableBody = document.getElementById("results");
 
 let allRows = [];
 
-// ------------------ Fetch Google Sheet ------------------
+// ---------------- Fetch Sheet ----------------
 const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${SHEET_GID}`;
-
 fetch(url)
   .then(res => res.text())
   .then(text => {
@@ -26,23 +25,20 @@ fetch(url)
 
     renderResults(allRows);
   })
-  .catch(err => console.error("❌ Error fetching Google Sheet:", err));
+  .catch(err => console.error("Error fetching Google Sheet:", err));
 
-// ------------------ Search ------------------
-searchBtn.onclick = applySearch;
-searchInput.oninput = applySearch;
-
-function applySearch() {
-  const q = searchInput.value.toLowerCase();
-
+// ---------------- Apply Search ----------------
+searchBtn.onclick = () => {
+  const q = nameFilter.value.toLowerCase();
   const filtered = allRows.filter(r =>
     Object.values(r).join(" ").toLowerCase().includes(q)
   );
-
   renderResults(filtered);
-}
+};
 
-// ------------------ Render Table ------------------
+nameFilter.oninput = () => searchBtn.onclick();
+
+// ---------------- Render Table ----------------
 function renderResults(data) {
   resultsTableBody.innerHTML = "";
 
@@ -63,14 +59,12 @@ function renderResults(data) {
     // Office Name
     row.innerHTML += `<td>${r["Office Name"] || "-"}</td>`;
 
-    // Email
+    // Email (clickable)
     row.innerHTML += `<td>${
-      r["Email"]
-        ? `<a href="mailto:${r["Email"]}">${r["Email"]}</a>`
-        : "-"
+      r["Email"] ? `<a href="mailto:${r["Email"]}">${r["Email"]}</a>` : "-"
     }</td>`;
 
-    // Website
+    // Website (clickable)
     if (r["Website"]) {
       const raw = r["Website"].trim();
       const url = raw.startsWith("http") ? raw : `https://${raw}`;
@@ -79,10 +73,13 @@ function renderResults(data) {
       row.innerHTML += `<td>-</td>`;
     }
 
-    // Phone
+    // Phone (click-to-call)
     if (r["Phone"]) {
-      const tel = r["Phone"].replace(/[^0-9+]/g, "");
-      row.innerHTML += `<td><a href="tel:${tel}">${r["Phone"]}</a></td>`;
+      const phoneText = r["Phone"].toString().trim();
+      const tel = phoneText.replace(/[^0-9+]/g, "");
+      row.innerHTML += tel
+        ? `<td><a href="tel:${tel}">${phoneText}</a></td>`
+        : `<td>${phoneText}</td>`;
     } else {
       row.innerHTML += `<td>-</td>`;
     }
