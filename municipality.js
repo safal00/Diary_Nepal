@@ -1,19 +1,20 @@
-// Google Sheet info
-const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI"; // your sheet ID
-const SHEET_NAME = "offices"; // tab name in the sheet
+// ------------------ Google Sheet Info ------------------
+const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI";
+const SHEET_NAME = "offices";
 
-// DOM elements
+// ------------------ DOM Elements ------------------
 const provinceFilter = document.getElementById("provinceFilter");
 const districtFilter = document.getElementById("districtFilter");
 const localFilter = document.getElementById("localFilter");
 const nameFilter = document.getElementById("globalSearch");
 const searchBtn = document.getElementById("searchBtn");
-const resultsTableBody = document.querySelector("#results tbody");
+const resultsTableBody = document.getElementById("results");
 
 let allRows = [];
 
-// Fetch Google Sheet
+// ------------------ Fetch Google Sheet ------------------
 const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+
 fetch(url)
   .then(res => res.text())
   .then(text => {
@@ -29,9 +30,9 @@ fetch(url)
     initFilters();
     applyFilters();
   })
-  .catch(err => console.error("Error fetching Google Sheet:", err));
+  .catch(err => console.error("❌ Error fetching sheet:", err));
 
-// Initialize dropdowns
+// ------------------ Initialize Filters ------------------
 function initFilters() {
   populateSelect(provinceFilter, getUnique("Province"));
 
@@ -42,21 +43,29 @@ function initFilters() {
   };
 
   districtFilter.onchange = () => {
-    populateSelect(localFilter, getUnique("Local Level", ["Province", "District"], [provinceFilter.value, districtFilter.value]));
+    populateSelect(
+      localFilter,
+      getUnique(
+        "Local Level",
+        ["Province", "District"],
+        [provinceFilter.value, districtFilter.value]
+      )
+    );
     applyFilters();
   };
 
   localFilter.onchange = applyFilters;
   searchBtn.onclick = applyFilters;
+  nameFilter.oninput = applyFilters;
 }
 
-// Populate a dropdown
+// ------------------ Populate Select ------------------
 function populateSelect(select, values) {
   select.innerHTML = `<option value="">All</option>`;
   values.forEach(v => select.innerHTML += `<option value="${v}">${v}</option>`);
 }
 
-// Get unique values
+// ------------------ Get Unique Values ------------------
 function getUnique(field, filterField, filterValue) {
   return [...new Set(
     allRows
@@ -72,7 +81,7 @@ function getUnique(field, filterField, filterValue) {
   )].sort();
 }
 
-// Apply filters and search
+// ------------------ Apply Filters ------------------
 function applyFilters() {
   let data = allRows;
 
@@ -82,54 +91,48 @@ function applyFilters() {
 
   if (nameFilter.value) {
     const q = nameFilter.value.toLowerCase();
-    data = data.filter(r => Object.values(r).join(" ").toLowerCase().includes(q));
+    data = data.filter(r =>
+      r["Office Name"].toLowerCase().includes(q)
+    );
   }
 
   renderResults(data);
 }
 
-// Render table
+// ------------------ Render Results ------------------
 function renderResults(data) {
   resultsTableBody.innerHTML = "";
 
   if (!data.length) {
-    resultsTableBody.innerHTML = `<tr><td colspan="6">No results found.</td></tr>`;
+    resultsTableBody.innerHTML = `<tr><td colspan="4">No results found.</td></tr>`;
     return;
   }
 
   data.forEach(r => {
     const row = document.createElement("tr");
 
-    const nameCell = document.createElement("td");
-    nameCell.textContent = r["Office Name"] || "-";
-    row.appendChild(nameCell);
+    // Office Name
+    row.innerHTML += `<td>${r["Office Name"] || "-"}</td>`;
 
-    const typeCell = document.createElement("td");
-    typeCell.textContent = r["Office Type"] || "-";
-    row.appendChild(typeCell);
+    // Email (clickable)
+    row.innerHTML += `<td>${
+      r["Email"] ? `<a href="mailto:${r["Email"]}">${r["Email"]}</a>` : "-"
+    }</td>`;
 
-    const phoneCell = document.createElement("td");
-    phoneCell.style.minWidth = "120px";
-    phoneCell.textContent = r["Phone"] || "-";
-    row.appendChild(phoneCell);
+    // Website (clickable)
+    if (r["Website"]) {
+      const raw = r["Website"].trim();
+      const url = raw.startsWith("http") ? raw : `https://${raw}`;
+      row.innerHTML += `<td><a href="${url}" target="_blank">${raw}</a></td>`;
+    } else {
+      row.innerHTML += `<td>-</td>`;
+    }
 
-    const emailCell = document.createElement("td");
-    if (r["Email"]) {
-      const a = document.createElement("a");
-      a.href = `mailto:${r["Email"]}`;
-      a.textContent = r["Email"];
-      emailCell.appendChild(a);
-    } else emailCell.textContent = "-";
-    row.appendChild(emailCell);
-
-    const addressCell = document.createElement("td");
-    addressCell.style.minWidth = "200px";
-    addressCell.textContent = r["Address"] || "-";
-    row.appendChild(addressCell);
-
-    const locationCell = document.createElement("td");
-    locationCell.textContent = `${r["Local Level"]}, ${r["District"]}, ${r["Province"]}`;
-    row.appendChild(locationCell);
+    // Phone (click-to-call)
+    const phone = r["Phone"] ? r["Phone"].replace(/\s+/g, "") : "";
+    row.innerHTML += `<td>${
+      phone ? `<a href="tel:${phone}">${r["Phone"]}</a>` : "-"
+    }</td>`;
 
     resultsTableBody.appendChild(row);
   });
