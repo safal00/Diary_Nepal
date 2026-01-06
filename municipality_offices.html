@@ -4,7 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Diary Nepal - Municipality Offices</title>
+
 <link href="style.css" rel="stylesheet">
+
 <style>
 /* ---------------- Home Button ---------------- */
 .home-button {
@@ -32,10 +34,11 @@
 .results-table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: auto; /* dynamic column width */
+  table-layout: auto;
 }
 
-.results-table th, .results-table td {
+.results-table th,
+.results-table td {
   border: 1px solid #ccc;
   padding: 10px 8px;
   text-align: left;
@@ -53,25 +56,35 @@
   background-color: #f2f2f2;
 }
 
+.results-table a {
+  color: #004aad;
+  text-decoration: none;
+}
+
+.results-table a:hover {
+  text-decoration: underline;
+}
+
 .contacts-section {
-  overflow-x: auto; /* horizontal scroll on small screens */
+  overflow-x: auto;
 }
 
 @media (max-width: 800px) {
-  .results-table th, .results-table td {
+  .results-table th,
+  .results-table td {
     padding: 8px 6px;
     font-size: 0.9em;
   }
 }
 </style>
 </head>
+
 <body>
 
 <header>
   <h1>Diary Nepal</h1>
   <p>Directory of Municipality Offices</p>
 
-  <!-- HOME BUTTON -->
   <div class="home-button">
     <button onclick="location.href='index.html'">Home</button>
   </div>
@@ -79,35 +92,32 @@
 
 <main class="container">
 
-  <!-- GLOBAL SEARCH -->
+  <!-- SEARCH ONLY -->
   <div class="search-box">
-    <input type="text" id="globalSearch" placeholder="Search by name or location...">
+    <input
+      type="text"
+      id="globalSearch"
+      placeholder="Search municipality office..."
+    >
     <button id="searchBtn">Search</button>
   </div>
 
-  <!-- FILTERS -->
-  <div class="selection-box">
-    <select id="provinceFilter"><option value="">All Provinces</option></select>
-    <select id="districtFilter"><option value="">All Districts</option></select>
-    <select id="localFilter"><option value="">All Local Levels</option></select>
-  </div>
-</main>
-
   <!-- RESULTS -->
-  <div id="results" class="contacts-section">
+  <div class="contacts-section">
     <table class="results-table">
       <thead>
         <tr>
           <th>Office Name</th>
           <th>Email</th>
           <th>Website</th>
-          <th>Phone</th>          
+          <th>Phone</th>
         </tr>
       </thead>
-      <tbody></tbody>
+      <tbody id="results"></tbody>
     </table>
   </div>
 
+</main>
 
 <footer>
   <p>© 2025 Diary Nepal | Data from official sources</p>

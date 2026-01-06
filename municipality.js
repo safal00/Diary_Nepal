@@ -1,12 +1,9 @@
 // ------------------ Google Sheet Info ------------------
 const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI";
-const SHEET_NAME = "offices";
+const SHEET_NAME = "offices"; // tab name
 
 // ------------------ DOM Elements ------------------
-const provinceFilter = document.getElementById("provinceFilter");
-const districtFilter = document.getElementById("districtFilter");
-const localFilter = document.getElementById("localFilter");
-const nameFilter = document.getElementById("globalSearch");
+const searchInput = document.getElementById("globalSearch");
 const searchBtn = document.getElementById("searchBtn");
 const resultsTableBody = document.getElementById("results");
 
@@ -27,79 +24,25 @@ fetch(url)
       return obj;
     });
 
-    initFilters();
-    applyFilters();
+    renderResults(allRows);
   })
-  .catch(err => console.error("❌ Error fetching sheet:", err));
+  .catch(err => console.error("❌ Error fetching Google Sheet:", err));
 
-// ------------------ Initialize Filters ------------------
-function initFilters() {
-  populateSelect(provinceFilter, getUnique("Province"));
+// ------------------ Search ------------------
+searchBtn.onclick = applySearch;
+searchInput.oninput = applySearch;
 
-  provinceFilter.onchange = () => {
-    populateSelect(districtFilter, getUnique("District", "Province", provinceFilter.value));
-    localFilter.innerHTML = `<option value="">All Local Levels</option>`;
-    applyFilters();
-  };
+function applySearch() {
+  const q = searchInput.value.toLowerCase();
 
-  districtFilter.onchange = () => {
-    populateSelect(
-      localFilter,
-      getUnique(
-        "Local Level",
-        ["Province", "District"],
-        [provinceFilter.value, districtFilter.value]
-      )
-    );
-    applyFilters();
-  };
+  const filtered = allRows.filter(r =>
+    Object.values(r).join(" ").toLowerCase().includes(q)
+  );
 
-  localFilter.onchange = applyFilters;
-  searchBtn.onclick = applyFilters;
-  nameFilter.oninput = applyFilters;
+  renderResults(filtered);
 }
 
-// ------------------ Populate Select ------------------
-function populateSelect(select, values) {
-  select.innerHTML = `<option value="">All</option>`;
-  values.forEach(v => select.innerHTML += `<option value="${v}">${v}</option>`);
-}
-
-// ------------------ Get Unique Values ------------------
-function getUnique(field, filterField, filterValue) {
-  return [...new Set(
-    allRows
-      .filter(r => {
-        if (!filterField) return true;
-        if (Array.isArray(filterField)) {
-          return filterField.every((f, i) => r[f] === filterValue[i]);
-        }
-        return r[filterField] === filterValue;
-      })
-      .map(r => r[field])
-      .filter(Boolean)
-  )].sort();
-}
-
-// ------------------ Apply Filters ------------------
-function applyFilters() {
-  let data = allRows;
-
-  if (provinceFilter.value) data = data.filter(r => r["Province"] === provinceFilter.value);
-  if (districtFilter.value) data = data.filter(r => r["District"] === districtFilter.value);
-  if (localFilter.value) data = data.filter(r => r["Local Level"] === localFilter.value);
-
-  if (nameFilter.value) {
-    const q = nameFilter.value.toLowerCase();
-    data = data.filter(r =>
-      r["Office Name"].toLowerCase().includes(q)
-    );
-  }
-
-  renderResults(data);
-}
-
-// ------------------ Render Results ------------------
+// ------------------ Render Table ------------------
 function renderResults(data) {
   resultsTableBody.innerHTML = "";
 
@@ -116,7 +59,9 @@ function renderResults(data) {
 
     // Email (clickable)
     row.innerHTML += `<td>${
-      r["Email"] ? `<a href="mailto:${r["Email"]}">${r["Email"]}</a>` : "-"
+      r["Email"]
+        ? `<a href="mailto:${r["Email"]}">${r["Email"]}</a>`
+        : "-"
     }</td>`;
 
     // Website (clickable)
@@ -129,10 +74,12 @@ function renderResults(data) {
     }
 
     // Phone (click-to-call)
-    const phone = r["Phone"] ? r["Phone"].replace(/\s+/g, "") : "";
-    row.innerHTML += `<td>${
-      phone ? `<a href="tel:${phone}">${r["Phone"]}</a>` : "-"
-    }</td>`;
+    if (r["Phone"]) {
+      const tel = r["Phone"].replace(/[^0-9+]/g, "");
+      row.innerHTML += `<td><a href="tel:${tel}">${r["Phone"]}</a></td>`;
+    } else {
+      row.innerHTML += `<td>-</td>`;
+    }
 
     resultsTableBody.appendChild(row);
   });
