@@ -1,6 +1,6 @@
 // ------------------ Google Sheet Info ------------------
 const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI";
-const SHEET_NAME = "offices"; // tab name
+const SHEET_GID = "1826911797";
 
 // ------------------ DOM Elements ------------------
 const searchInput = document.getElementById("globalSearch");
@@ -10,7 +10,7 @@ const resultsTableBody = document.getElementById("results");
 let allRows = [];
 
 // ------------------ Fetch Google Sheet ------------------
-const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${SHEET_GID}`;
 
 fetch(url)
   .then(res => res.text())
@@ -47,24 +47,30 @@ function renderResults(data) {
   resultsTableBody.innerHTML = "";
 
   if (!data.length) {
-    resultsTableBody.innerHTML = `<tr><td colspan="4">No results found.</td></tr>`;
+    resultsTableBody.innerHTML = `<tr><td colspan="6">No results found.</td></tr>`;
     return;
   }
 
   data.forEach(r => {
     const row = document.createElement("tr");
 
+    // Province
+    row.innerHTML += `<td>${r["Province"] || "-"}</td>`;
+
+    // District
+    row.innerHTML += `<td>${r["District"] || "-"}</td>`;
+
     // Office Name
     row.innerHTML += `<td>${r["Office Name"] || "-"}</td>`;
 
-    // Email (clickable)
+    // Email
     row.innerHTML += `<td>${
       r["Email"]
         ? `<a href="mailto:${r["Email"]}">${r["Email"]}</a>`
         : "-"
     }</td>`;
 
-    // Website (clickable)
+    // Website
     if (r["Website"]) {
       const raw = r["Website"].trim();
       const url = raw.startsWith("http") ? raw : `https://${raw}`;
@@ -73,7 +79,7 @@ function renderResults(data) {
       row.innerHTML += `<td>-</td>`;
     }
 
-    // Phone (click-to-call)
+    // Phone
     if (r["Phone"]) {
       const tel = r["Phone"].replace(/[^0-9+]/g, "");
       row.innerHTML += `<td><a href="tel:${tel}">${r["Phone"]}</a></td>`;
