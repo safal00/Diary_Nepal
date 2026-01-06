@@ -153,12 +153,6 @@ function renderResults(data) {
       row.appendChild(cell);
     });
 
-    // Make Website clickable
-    const websiteCell = row.children[6];
-    if (r["Website"]) {
-      const rawUrl = r["Website"].toString().trim();
-      websiteCell.innerHTML = `<a href="${rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`}" target="_blank">${rawUrl}</a>`;
-    }
 
     resultsTableBody.appendChild(row);
     console.log(`Rendered row ${index+1}:`, r);
