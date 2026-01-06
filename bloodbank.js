@@ -17,11 +17,9 @@ const HEADERS = [
   "Province",
   "District",
   "Local Level",
-  "Office Type",
   "Office Name",
   "Phone",
-  "Website"
-];
+  ];
 
 console.log("📌 Blood Bank Directory Script Started (Manual Headers)");
 
