@@ -2,7 +2,6 @@
 const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI"; 
 const SHEET_GID = "1193335365"; // HealthCare tab GID
 
-
 // ------------------ DOM Elements ------------------
 const provinceFilter = document.getElementById("provinceFilter");
 const districtFilter = document.getElementById("districtFilter");
@@ -36,7 +35,8 @@ fetch(url)
   .then(text => {
     const json = JSON.parse(text.substring(47).slice(0, -2));
 
-    allRows = json.table.rows.map(r => ({
+    // ------------------ SKIP HEADER ROW ------------------
+    allRows = json.table.rows.slice(1).map(r => ({
       "Province": r.c[0]?.v ?? "",
       "District": r.c[1]?.v ?? "",
       "Local Level": r.c[2]?.v ?? "",
