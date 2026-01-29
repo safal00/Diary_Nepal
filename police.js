@@ -12,90 +12,88 @@ const resultsTableBody = document.querySelector("#results tbody");
 
 let allRows = [];
 
-// ------------------ Force headers manually ------------------
+// ------------------ Column Order (LOCKED) ------------------
 const HEADERS = [
   "Province",
   "District",
   "Local Level",
-  "Office Type",
+  "Office Level",
   "Office Name",
-  "Phone",
   "Email",
-  "Website"
+  "Website",
+  "Phone"
 ];
 
-console.log("📌 Police Directory Script Started (Manual Headers)");
+console.log("🚓 Police Directory script loaded");
 
 // ------------------ Fetch Google Sheet ------------------
 const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${SHEET_GID}`;
-console.log("Fetching Google Sheet from:", url);
 
 fetch(url)
-  .then(res => {
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    return res.text();
-  })
+  .then(res => res.text())
   .then(text => {
-    try {
-      const json = JSON.parse(text.substring(47).slice(0, -2));
-      console.log(`Raw rows fetched: ${json.table.rows.length}`);
+    const json = JSON.parse(text.substring(47).slice(0, -2));
 
-      // Skip the first row (header row) and map rows using manual HEADERS
-      allRows = json.table.rows.slice(1).map(r => {
-        const obj = {};
-        HEADERS.forEach((h, i) => obj[h] = r.c[i]?.v || "");
-        return obj;
-      });
+    allRows = json.table.rows.map(r => ({
+      "Province": r.c[0]?.v ?? "",
+      "District": r.c[1]?.v ?? "",
+      "Local Level": r.c[2]?.v ?? "",
+      "Office Level": r.c[3]?.v ?? "",
+      "Office Name": r.c[4]?.v ?? "",
+      "Email": r.c[5]?.v ?? "",
+      "Website": r.c[6]?.v ?? "",
+      "Phone": r.c[7]?.v ?? ""
+    }))
+    .map(row => {
+      Object.keys(row).forEach(k => row[k] = row[k].toString().trim());
+      return row;
+    })
+    .filter(r => r["Province"] || r["District"] || r["Local Level"] || r["Office Name"] || r["Phone"]);
 
-      console.log(`✅ Loaded ${allRows.length} rows with forced headers:`);
-      console.table(allRows);
-
-      initFilters();
-      applyFilters();
-    } catch (err) {
-      console.error("❌ Error parsing Google Sheet JSON:", err);
-    }
+    console.log(`✅ Loaded ${allRows.length} police offices`);
+    initFilters();
+    applyFilters();
   })
-  .catch(err => console.error("❌ Error fetching Google Sheet:", err));
+  .catch(err => console.error("❌ Error loading police sheet:", err));
 
-// ------------------ Initialize Filters ------------------
+// ------------------ Filters ------------------
 function initFilters() {
-  console.log("Initializing filters...");
   populateSelect(provinceFilter, getUnique("Province"));
+
   provinceFilter.onchange = () => {
-    console.log("Province changed:", provinceFilter.value);
-    populateSelect(districtFilter, getUnique("District", "Province", provinceFilter.value));
+    populateSelect(
+      districtFilter,
+      getUnique("District", "Province", provinceFilter.value)
+    );
     localFilter.innerHTML = `<option value="">All Local Levels</option>`;
     applyFilters();
   };
+
   districtFilter.onchange = () => {
-    console.log("District changed:", districtFilter.value);
-    populateSelect(localFilter, getUnique("Local Level", ["Province", "District"], [provinceFilter.value, districtFilter.value]));
-    applyFilters();
-  };
-  localFilter.onchange = () => {
-    console.log("Local Level changed:", localFilter.value);
-    applyFilters();
-  };
-  searchBtn.onclick = () => {
-    console.log("Search button clicked:", nameFilter.value);
+    populateSelect(
+      localFilter,
+      getUnique(
+        "Local Level",
+        ["Province", "District"],
+        [provinceFilter.value, districtFilter.value]
+      )
+    );
     applyFilters();
   };
 
-  // Optional: live search
+  localFilter.onchange = applyFilters;
+  searchBtn.onclick = applyFilters;
   nameFilter.oninput = applyFilters;
 }
 
-// ------------------ Populate Dropdown ------------------
+// ------------------ Helpers ------------------
 function populateSelect(select, values) {
   select.innerHTML = `<option value="">All</option>`;
   values.forEach(v => select.innerHTML += `<option value="${v}">${v}</option>`);
-  console.log(`Populated select with ${values.length} options`);
 }
 
-// ------------------ Get Unique Values ------------------
 function getUnique(field, filterField, filterValue) {
-  const uniqueValues = [...new Set(
+  return [...new Set(
     allRows
       .filter(r => {
         if (!filterField) return true;
@@ -105,28 +103,30 @@ function getUnique(field, filterField, filterValue) {
         return r[filterField] === filterValue;
       })
       .map(r => r[field])
-      .filter(Boolean)
+      .filter(v => v && v !== "-")
   )].sort();
-
-  console.log(`Unique values for ${field}:`, uniqueValues);
-  return uniqueValues;
 }
 
-// ------------------ Apply Filters & Search ------------------
+// ------------------ Apply Filters ------------------
 function applyFilters() {
-  console.log("Applying filters...");
   let data = allRows;
 
-  if (provinceFilter.value) data = data.filter(r => r["Province"] === provinceFilter.value);
-  if (districtFilter.value) data = data.filter(r => r["District"] === districtFilter.value);
-  if (localFilter.value) data = data.filter(r => r["Local Level"] === localFilter.value);
+  if (provinceFilter.value)
+    data = data.filter(r => r["Province"] === provinceFilter.value);
+
+  if (districtFilter.value)
+    data = data.filter(r => r["District"] === districtFilter.value);
+
+  if (localFilter.value)
+    data = data.filter(r => r["Local Level"] === localFilter.value);
 
   if (nameFilter.value) {
     const q = nameFilter.value.toLowerCase();
-    data = data.filter(r => Object.values(r).join(" ").toLowerCase().includes(q));
+    data = data.filter(r =>
+      Object.values(r).join(" ").toLowerCase().includes(q)
+    );
   }
 
-  console.log(`Filtered rows: ${data.length}`);
   renderResults(data);
 }
 
@@ -135,73 +135,43 @@ function renderResults(data) {
   resultsTableBody.innerHTML = "";
 
   if (!data.length) {
-    resultsTableBody.innerHTML = `
-      <tr>
-        <td colspan="${HEADERS.length}">No results found.</td>
-      </tr>`;
-    console.warn("No matching results found.");
+    resultsTableBody.innerHTML =
+      `<tr><td colspan="${HEADERS.length}">No results found.</td></tr>`;
     return;
   }
 
-  data.forEach((r, index) => {
-    const row = document.createElement("tr");
+  data.forEach(r => {
+    const tr = document.createElement("tr");
 
-    HEADERS.forEach((field, i) => {
-      const cell = document.createElement("td");
+    HEADERS.forEach(field => {
+      const td = document.createElement("td");
+      const value = r[field];
 
-      /* ---------------- PHONE COLUMN ---------------- */
-      if (field === "Phone" && r[field]) {
-        const formattedPhone = r[field].toString().trim();
-        const telPhone = formattedPhone.replace(/[^\d+]/g, "");
-
-        cell.innerHTML = `
-          <div class="phone-cell">
-            <span class="phone-text">${formattedPhone}</span>
-            <a href="tel:${telPhone}" class="call-btn" title="Call">📞</a>
-            <button class="copy-btn" title="Copy phone">📋</button>
-          </div>
-        `;
-
-        // Copy formatted phone exactly
-        const copyBtn = cell.querySelector(".copy-btn");
-        copyBtn.addEventListener("click", () => {
-          navigator.clipboard.writeText(formattedPhone)
-            .then(() => {
-              copyBtn.textContent = "✅";
-              setTimeout(() => (copyBtn.textContent = "📋"), 1000);
-            })
-            .catch(err => console.error("Copy failed:", err));
-        });
-
-      } else {
-        cell.textContent = r[field] || "-";
+      // 📞 Phone
+      if (field === "Phone" && value && value !== "-") {
+        const clean = value.replace(/[^0-9+]/g, "");
+        td.innerHTML = `📞 <a href="tel:${clean}">${value}</a>`;
       }
 
-      // Optional min-widths
-      if (field === "Phone") cell.style.minWidth = "140px";
-      if (["Province", "District", "Local Level"].includes(field)) {
-        cell.style.minWidth = "150px";
+      // ✉️ Email
+      else if (field === "Email" && value && value !== "-") {
+        td.innerHTML = `✉️ <a href="mailto:${value}">${value}</a>`;
       }
 
-      row.appendChild(cell);
+      // 🌐 Website
+      else if (field === "Website" && value && value !== "-") {
+        const link = value.startsWith("http") ? value : `https://${value}`;
+        td.innerHTML = `🌐 <a href="${link}" target="_blank" rel="noopener">Website</a>`;
+      }
+
+      // Text / Empty
+      else {
+        td.textContent = value || "—";
+      }
+
+      tr.appendChild(td);
     });
 
-    /* ---------------- EMAIL ---------------- */
-    const emailCell = row.children[6];
-    if (r["Email"]) {
-      emailCell.innerHTML = `<a href="mailto:${r["Email"]}">${r["Email"]}</a>`;
-    }
-
-    /* ---------------- WEBSITE ---------------- */
-    const websiteCell = row.children[7];
-    if (r["Website"]) {
-      websiteCell.innerHTML = `
-        <a href="${r["Website"]}" target="_blank" rel="noopener">
-          ${r["Website"]}
-        </a>`;
-    }
-
-    resultsTableBody.appendChild(row);
-    console.log(`Rendered row ${index + 1}:`, r);
+    resultsTableBody.appendChild(tr);
   });
 }
