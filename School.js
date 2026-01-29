@@ -18,7 +18,7 @@ const HEADERS = [
   "Province",
   "District",
   "Local Level",
-  "School & College Name",
+  "School Name",
   "Email",
   "Phone",
   "Website"
