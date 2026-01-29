@@ -1,6 +1,6 @@
 // ------------------ Google Sheet info ------------------
 const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI";
-const SHEET_GID = "378293569"; // Hospital/Clinic tab GID
+const SHEET_GID = "378293569"; // Hospital / Clinic tab GID
 
 // ------------------ DOM Elements ------------------
 const provinceFilter = document.getElementById("provinceFilter");
@@ -23,7 +23,7 @@ const HEADERS = [
   "Phone number"
 ];
 
-console.log("🏥 Hospital Directory loaded");
+console.log("🏥 Hospital directory script loaded");
 
 // ------------------ Fetch Google Sheet ------------------
 const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${SHEET_GID}`;
@@ -34,20 +34,27 @@ fetch(url)
     const json = JSON.parse(text.substring(47).slice(0, -2));
 
     allRows = json.table.rows.map(r => ({
-      "Province": r.c[0]?.v?.toString().trim() || "",
-      "District": r.c[1]?.v?.toString().trim() || "",
-      "Local Level": r.c[2]?.v?.toString().trim() || "",
-      "Hospital/Clinic Name": r.c[3]?.v?.toString().trim() || "",
-      "Email": r.c[4]?.v?.toString().trim() || "",
-      "Website": r.c[5]?.v?.toString().trim() || "",
-      "Phone number": r.c[6]?.v?.toString().trim() || ""
-    }));
+      "Province": r.c[0]?.v ?? "",
+      "District": r.c[1]?.v ?? "",
+      "Local Level": r.c[2]?.v ?? "",
+      "Hospital/Clinic Name": r.c[3]?.v ?? "",
+      "Email": r.c[4]?.v ?? "",
+      "Website": r.c[5]?.v ?? "",
+      "Phone number": r.c[6]?.v ?? ""
+    }))
+    // Trim all values
+    .map(row => {
+      Object.keys(row).forEach(k => row[k] = row[k].toString().trim());
+      return row;
+    })
+    // Remove completely empty rows
+    .filter(r => r["Province"] || r["District"] || r["Local Level"] || r["Hospital/Clinic Name"] || r["Phone number"]);
 
     console.log(`✅ Loaded ${allRows.length} hospitals / clinics`);
     initFilters();
     applyFilters();
   })
-  .catch(err => console.error("❌ Error loading hospital sheet:", err));
+  .catch(err => console.error("❌ Error loading hospital data:", err));
 
 // ------------------ Filters ------------------
 function initFilters() {
@@ -155,13 +162,13 @@ function renderResults(data) {
 
       // 🌐 Website
       else if (field === "Website" && value && value !== "-") {
-        const site = value.startsWith("http") ? value : `https://${value}`;
-        td.innerHTML = `🌐 <a href="${site}" target="_blank" rel="noopener">Website</a>`;
+        const link = value.startsWith("http") ? value : `https://${value}`;
+        td.innerHTML = `🌐 <a href="${link}" target="_blank" rel="noopener">Website</a>`;
       }
 
-      // Empty
+      // Text / Empty
       else {
-        td.textContent = "—";
+        td.textContent = value || "—";
       }
 
       tr.appendChild(td);
