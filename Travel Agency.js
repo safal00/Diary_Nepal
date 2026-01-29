@@ -22,7 +22,8 @@ fetch(url)
   .then(text => {
     const json = JSON.parse(text.substring(47).slice(0, -2));
 
-    allRows = json.table.rows.map(r => ({
+    // ------------------ Skip the first row (header row) ------------------
+    allRows = json.table.rows.slice(1).map(r => ({
       "Travel Agency Name": r.c[0]?.v ?? "",
       "Location": r.c[1]?.v ?? "",
       "Email": r.c[2]?.v ?? "",
