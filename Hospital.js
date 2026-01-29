@@ -1,5 +1,5 @@
 // ------------------ Google Sheet info ------------------
-const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI"; 
+const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI";
 const SHEET_GID = "378293569"; // Hospital/Clinic tab GID
 
 // ------------------ DOM Elements ------------------
@@ -82,7 +82,9 @@ function initFilters() {
 // ------------------ Helpers ------------------
 function populateSelect(select, values) {
   select.innerHTML = `<option value="">All</option>`;
-  values.forEach(v => select.innerHTML += `<option value="${v}">${v}</option>`);
+  values.forEach(v => {
+    select.innerHTML += `<option value="${v}">${v}</option>`;
+  });
 }
 
 function getUnique(field, filterField, filterValue) {
@@ -96,7 +98,7 @@ function getUnique(field, filterField, filterValue) {
         return r[filterField] === filterValue;
       })
       .map(r => r[field])
-      .filter(Boolean)
+      .filter(v => v && v !== "-")
   )].sort();
 }
 
@@ -141,24 +143,25 @@ function renderResults(data) {
       const value = r[field];
 
       // 📞 Phone
-      if (field === "Phone number" && value) {
-        td.innerHTML = `<a href="tel:${value}">📞 ${value}</a>`;
+      if (field === "Phone number" && value && value !== "-") {
+        const clean = value.replace(/[^0-9+]/g, "");
+        td.innerHTML = `📞 <a href="tel:${clean}">${value}</a>`;
       }
 
       // ✉️ Email
-      else if (field === "Email" && value) {
-        td.innerHTML = `<a href="mailto:${value}">✉️ ${value}</a>`;
+      else if (field === "Email" && value && value !== "-") {
+        td.innerHTML = `✉️ <a href="mailto:${value}">${value}</a>`;
       }
 
       // 🌐 Website
-      else if (field === "Website" && value) {
-        const url = value.startsWith("http") ? value : `https://${value}`;
-        td.innerHTML = `<a href="${url}" target="_blank">🌐 Website</a>`;
+      else if (field === "Website" && value && value !== "-") {
+        const site = value.startsWith("http") ? value : `https://${value}`;
+        td.innerHTML = `🌐 <a href="${site}" target="_blank" rel="noopener">Website</a>`;
       }
 
-      // Text
+      // Empty
       else {
-        td.textContent = value;
+        td.textContent = "—";
       }
 
       tr.appendChild(td);
