@@ -17,7 +17,7 @@ const HEADERS = [
   "Province",
   "District",
   "Local Level",
-  "Hotel Name",
+  "Health Care Name",
   "Address",
   "Category",
   "Email",
