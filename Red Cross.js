@@ -2,8 +2,6 @@
 const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI"; 
 const SHEET_GID = "1869459718"; // Red Cross tab GID
 
-
-
 // ------------------ DOM Elements ------------------
 const provinceFilter = document.getElementById("provinceFilter");
 const districtFilter = document.getElementById("districtFilter");
@@ -146,7 +144,7 @@ function renderResults(data) {
         td.innerHTML = `<a href="tel:${value}" title="Call">📞 ${value}</a>`;
       }
 
-      // ✉️ Email → clickable with actual email
+      // ✉️ Email → clickable with real email from sheet
       else if (field === "Email" && value) {
         td.innerHTML = `<a href="mailto:${value}">✉️ ${value}</a>`;
       }
@@ -157,7 +155,7 @@ function renderResults(data) {
         td.innerHTML = `<a href="${url}" target="_blank">🌐 Website</a>`;
       }
 
-      // Office Name (just show text, no modification)
+      // All other columns (Office Name, Province, District, Local Level)
       else {
         td.textContent = value || "—";
       }
