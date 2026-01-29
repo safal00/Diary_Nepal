@@ -3,6 +3,7 @@ const SHEET_ID = "1wXNfEA5Hqnw3pnMduzDZajEMXkTCBRizQLIiLSsk1yI";
 const SHEET_GID = "1869459718"; // Red Cross tab GID
 
 
+
 // ------------------ DOM Elements ------------------
 const provinceFilter = document.getElementById("provinceFilter");
 const districtFilter = document.getElementById("districtFilter");
@@ -138,19 +139,27 @@ function renderResults(data) {
 
     HEADERS.forEach(field => {
       const td = document.createElement("td");
+      const value = r[field] || "";
 
-      if (field === "Phone" && r[field]) {
-        td.innerHTML = `<a href="tel:${r[field]}" title="Call">📞 ${r[field]}</a>`;
+      // 📞 Phone → clickable call link
+      if (field === "Phone" && value) {
+        td.innerHTML = `<a href="tel:${value}" title="Call">📞 ${value}</a>`;
       }
-      else if (field === "Email" && r[field]) {
-        td.innerHTML = `<a href="mailto:${r[field]}">✉️ Email</a>`;
+
+      // ✉️ Email → clickable with actual email
+      else if (field === "Email" && value) {
+        td.innerHTML = `<a href="mailto:${value}">✉️ ${value}</a>`;
       }
-      else if (field === "Website" && r[field]) {
-        const url = r[field].startsWith("http") ? r[field] : `https://${r[field]}`;
+
+      // 🌐 Website → clickable if present
+      else if (field === "Website" && value) {
+        const url = value.startsWith("http") ? value : `https://${value}`;
         td.innerHTML = `<a href="${url}" target="_blank">🌐 Website</a>`;
       }
+
+      // Office Name (just show text, no modification)
       else {
-        td.textContent = r[field] || "—";
+        td.textContent = value || "—";
       }
 
       tr.appendChild(td);
