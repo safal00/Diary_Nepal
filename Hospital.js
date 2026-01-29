@@ -12,7 +12,7 @@ const resultsTableBody = document.querySelector("#results tbody");
 
 let allRows = [];
 
-// ------------------ Force headers manually ------------------
+// ------------------ Column Order (LOCKED) ------------------
 const HEADERS = [
   "Province",
   "District",
@@ -23,82 +23,70 @@ const HEADERS = [
   "Phone number"
 ];
 
-console.log("📌 Hospital Directory Script Started (Manual Headers)");
+console.log("🏥 Hospital Directory loaded");
 
 // ------------------ Fetch Google Sheet ------------------
 const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${SHEET_GID}`;
-console.log("Fetching Google Sheet from:", url);
 
 fetch(url)
-  .then(res => {
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    return res.text();
-  })
+  .then(res => res.text())
   .then(text => {
-    try {
-      const json = JSON.parse(text.substring(47).slice(0, -2));
-      console.log(`Raw rows fetched: ${json.table.rows.length}`);
+    const json = JSON.parse(text.substring(47).slice(0, -2));
 
-      // Map rows using forced HEADERS
-      allRows = json.table.rows.slice(1).map(r => {
-        const obj = {};
-        HEADERS.forEach((h, i) => obj[h] = r.c[i]?.v || "");
-        return obj;
-      });
+    allRows = json.table.rows.map(r => ({
+      "Province": r.c[0]?.v?.toString().trim() || "",
+      "District": r.c[1]?.v?.toString().trim() || "",
+      "Local Level": r.c[2]?.v?.toString().trim() || "",
+      "Hospital/Clinic Name": r.c[3]?.v?.toString().trim() || "",
+      "Email": r.c[4]?.v?.toString().trim() || "",
+      "Website": r.c[5]?.v?.toString().trim() || "",
+      "Phone number": r.c[6]?.v?.toString().trim() || ""
+    }));
 
-      console.log(`✅ Loaded ${allRows.length} rows:`);
-      console.table(allRows);
-
-      initFilters();
-      applyFilters();
-    } catch (err) {
-      console.error("❌ Error parsing Google Sheet JSON:", err);
-    }
+    console.log(`✅ Loaded ${allRows.length} hospitals / clinics`);
+    initFilters();
+    applyFilters();
   })
-  .catch(err => console.error("❌ Error fetching Google Sheet:", err));
+  .catch(err => console.error("❌ Error loading hospital sheet:", err));
 
-// ------------------ Initialize Filters ------------------
+// ------------------ Filters ------------------
 function initFilters() {
-  console.log("Initializing filters...");
   populateSelect(provinceFilter, getUnique("Province"));
 
   provinceFilter.onchange = () => {
-    console.log("Province changed:", provinceFilter.value);
-    populateSelect(districtFilter, getUnique("District", "Province", provinceFilter.value));
+    populateSelect(
+      districtFilter,
+      getUnique("District", "Province", provinceFilter.value)
+    );
     localFilter.innerHTML = `<option value="">All Local Levels</option>`;
     applyFilters();
   };
 
   districtFilter.onchange = () => {
-    console.log("District changed:", districtFilter.value);
-    populateSelect(localFilter, getUnique("Local Level", ["Province", "District"], [provinceFilter.value, districtFilter.value]));
+    populateSelect(
+      localFilter,
+      getUnique(
+        "Local Level",
+        ["Province", "District"],
+        [provinceFilter.value, districtFilter.value]
+      )
+    );
     applyFilters();
   };
 
-  localFilter.onchange = () => {
-    console.log("Local Level changed:", localFilter.value);
-    applyFilters();
-  };
-
-  searchBtn.onclick = () => {
-    console.log("Search button clicked:", nameFilter.value);
-    applyFilters();
-  };
-
-  // Optional live search
+  localFilter.onchange = applyFilters;
+  searchBtn.onclick = applyFilters;
   nameFilter.oninput = applyFilters;
 }
 
-// ------------------ Populate Dropdown ------------------
+// ------------------ Helpers ------------------
 function populateSelect(select, values) {
   select.innerHTML = `<option value="">All</option>`;
   values.forEach(v => select.innerHTML += `<option value="${v}">${v}</option>`);
-  console.log(`Populated select with ${values.length} options`);
 }
 
-// ------------------ Get Unique Values ------------------
 function getUnique(field, filterField, filterValue) {
-  const uniqueValues = [...new Set(
+  return [...new Set(
     allRows
       .filter(r => {
         if (!filterField) return true;
@@ -110,26 +98,28 @@ function getUnique(field, filterField, filterValue) {
       .map(r => r[field])
       .filter(Boolean)
   )].sort();
-
-  console.log(`Unique values for ${field}:`, uniqueValues);
-  return uniqueValues;
 }
 
-// ------------------ Apply Filters & Search ------------------
+// ------------------ Apply Filters ------------------
 function applyFilters() {
-  console.log("Applying filters...");
   let data = allRows;
 
-  if (provinceFilter.value) data = data.filter(r => r["Province"] === provinceFilter.value);
-  if (districtFilter.value) data = data.filter(r => r["District"] === districtFilter.value);
-  if (localFilter.value) data = data.filter(r => r["Local Level"] === localFilter.value);
+  if (provinceFilter.value)
+    data = data.filter(r => r["Province"] === provinceFilter.value);
+
+  if (districtFilter.value)
+    data = data.filter(r => r["District"] === districtFilter.value);
+
+  if (localFilter.value)
+    data = data.filter(r => r["Local Level"] === localFilter.value);
 
   if (nameFilter.value) {
     const q = nameFilter.value.toLowerCase();
-    data = data.filter(r => Object.values(r).join(" ").toLowerCase().includes(q));
+    data = data.filter(r =>
+      Object.values(r).join(" ").toLowerCase().includes(q)
+    );
   }
 
-  console.log(`Filtered rows: ${data.length}`);
   renderResults(data);
 }
 
@@ -138,34 +128,42 @@ function renderResults(data) {
   resultsTableBody.innerHTML = "";
 
   if (!data.length) {
-    resultsTableBody.innerHTML = `<tr><td colspan="${HEADERS.length}">No results found.</td></tr>`;
-    console.warn("No matching results found.");
+    resultsTableBody.innerHTML =
+      `<tr><td colspan="${HEADERS.length}">No results found.</td></tr>`;
     return;
   }
 
-  data.forEach((r, index) => {
-    const row = document.createElement("tr");
+  data.forEach(r => {
+    const tr = document.createElement("tr");
 
-    HEADERS.forEach((field, i) => {
-      const cell = document.createElement("td");
-      cell.textContent = r[field] || "-";
+    HEADERS.forEach(field => {
+      const td = document.createElement("td");
+      const value = r[field];
 
-      // Optional min-width for readability
-      if (["Province","District","Local Level"].includes(field)) cell.style.minWidth = "150px";
-      if (field === "Phone number") cell.style.minWidth = "120px";
+      // 📞 Phone
+      if (field === "Phone number" && value) {
+        td.innerHTML = `<a href="tel:${value}">📞 ${value}</a>`;
+      }
 
-      row.appendChild(cell);
+      // ✉️ Email
+      else if (field === "Email" && value) {
+        td.innerHTML = `<a href="mailto:${value}">✉️ ${value}</a>`;
+      }
+
+      // 🌐 Website
+      else if (field === "Website" && value) {
+        const url = value.startsWith("http") ? value : `https://${value}`;
+        td.innerHTML = `<a href="${url}" target="_blank">🌐 Website</a>`;
+      }
+
+      // Text
+      else {
+        td.textContent = value;
+      }
+
+      tr.appendChild(td);
     });
 
-    // Make Email clickable
-    const emailIndex = HEADERS.indexOf("Email");
-    if (r["Email"]) row.children[emailIndex].innerHTML = `<a href="mailto:${r["Email"]}">${r["Email"]}</a>`;
-
-    // Make Website clickable
-    const websiteIndex = HEADERS.indexOf("Website");
-    if (r["Website"]) row.children[websiteIndex].innerHTML = `<a href="${r["Website"]}" target="_blank">${r["Website"]}</a>`;
-
-    resultsTableBody.appendChild(row);
-    console.log(`Rendered row ${index+1}:`, r);
+    resultsTableBody.appendChild(tr);
   });
 }
