@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Government Institutions - Diary Nepal</title>
+
+  <!-- Shared Styles -->
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* Home Button */
+    .home-button {
+      display: flex;
+      justify-content: center;
+      margin: 15px 0;
+    }
+
+    .home-button button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background-color: #004aad;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+
+    .home-button button:hover {
+      background-color: #003080;
+    }
+
+    /* Table */
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: auto;
+    }
+
+    .results-table th,
+    .results-table td {
+      border: 1px solid #ccc;
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+      word-break: break-word;
+    }
+
+    .results-table th {
+      background-color: #004aad;
+      color: white;
+    }
+
+    .results-table tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    .contacts-section {
+      overflow-x: auto;
+    }
+
+    @media (max-width: 800px) {
+      .results-table th,
+      .results-table td {
+        font-size: 0.9em;
+        padding: 8px 6px;
+      }
+    }
+
+    /* Search box styling */
+    .search-box {
+      display: flex;
+      justify-content: center;
+      margin: 10px 0;
+      gap: 10px;
+    }
+
+    .search-box input {
+      padding: 8px;
+      width: 250px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .search-box button {
+      padding: 8px 12px;
+      border: none;
+      background-color: #004aad;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .search-box button:hover {
+      background-color: #003080;
+    }
+
+    /* Filters */
+    .selection-box {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .selection-box select {
+      padding: 6px 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      min-width: 150px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Government Institutions</h1>
+  <p>Browse government offices by Province, District, or Local Level</p>
+
+  <!-- HOME -->
+  <div class="home-button">
+    <button onclick="location.href='index.html'">Home</button>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- SEARCH -->
+  <div class="search-box">
+    <input type="text" id="globalSearch" placeholder="Search office, location, email, phone...">
+    <button id="searchBtn">Search</button>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="selection-box">
+    <select id="provinceFilter">
+      <option value="">All Provinces</option>
+    </select>
+    <select id="districtFilter">
+      <option value="">All Districts</option>
+    </select>
+    <select id="localFilter">
+      <option value="">All Local Levels</option>
+    </select>
+  </div>
+
+</main>
+
+<!-- RESULTS -->
+<div id="results" class="contacts-section">
+  <table class="results-table">
+    <thead>
+      <tr>
+        <th>Province</th>
+        <th>District</th>
+        <th>Local</th>
+        <th>Government Body</th>
+        <th>Office Name</th>
+        <th>Location</th>
+        <th>Email</th>
+        <th>Website</th>
+        <th>Phone</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<footer>
+  <p>© 2025 Diary Nepal | Data from official sources</p>
+</footer>
+
+<!-- Government JS -->
+<script src="Government Institution.js"></script>
+
+</body>
+</html>
