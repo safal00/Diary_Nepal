@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health Care Facilities - Diary Nepal</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .home-button { display:flex; justify-content:center; margin:15px 0; }
+    .home-button button { padding:10px 20px; border:none; border-radius:5px; background-color:#004aad; color:white; cursor:pointer; font-weight:bold; transition:0.3s; }
+    .home-button button:hover { background-color:#003080; }
+
+    .results-table { width:100%; border-collapse:collapse; table-layout:auto; }
+    .results-table th, .results-table td { border:1px solid #ccc; padding:10px 8px; text-align:left; vertical-align:top; word-break:break-word; }
+    .results-table th { background-color:#004aad; color:white; }
+    .results-table tr:nth-child(even) { background-color:#f2f2f2; }
+    .contacts-section { overflow-x:auto; }
+
+    @media (max-width: 800px) { .results-table th, .results-table td { font-size:0.9em; padding:8px 6px; } }
+
+    .search-box { display:flex; justify-content:center; margin:10px 0; gap:10px; }
+    .search-box input { padding:8px; width:250px; border-radius:4px; border:1px solid #ccc; }
+    .search-box button { padding:8px 12px; border:none; background-color:#004aad; color:white; border-radius:4px; cursor:pointer; font-weight:bold; }
+    .search-box button:hover { background-color:#003080; }
+
+    .selection-box { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-bottom:20px; }
+    .selection-box select { padding:6px 10px; border-radius:4px; border:1px solid #ccc; min-width:150px; }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Health Care Facilities</h1>
+  <p>Browse health care facilities by Province, District, or Local Level</p>
+
+  <div class="home-button">
+    <button onclick="location.href='index.html'">Home</button>
+  </div>
+</header>
+
+<main class="container">
+
+  <div class="search-box">
+    <input type="text" id="globalSearch" placeholder="Search facility, location, email, phone...">
+    <button id="searchBtn">Search</button>
+  </div>
+
+  <div class="selection-box">
+    <select id="provinceFilter"><option value="">All Provinces</option></select>
+    <select id="districtFilter"><option value="">All Districts</option></select>
+    <select id="localFilter"><option value="">All Local Levels</option></select>
+  </div>
+
+</main>
+
+<div id="results" class="contacts-section">
+  <table class="results-table">
+    <thead>
+      <tr>
+        <th>Province</th>
+        <th>District</th>
+        <th>Local Level</th>
+        <th>Hotel Name</th>
+        <th>Address</th>
+        <th>Category</th>
+        <th>Email</th>
+        <th>Website</th>
+        <th>Phone</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<footer>
+  <p>© 2025 Diary Nepal | Data from official sources</p>
+</footer>
+
+<script src="Health Care.js"></script>
+
+</body>
+</html>
