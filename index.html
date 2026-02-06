@@ -4,67 +4,151 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Diary Nepal - Home</title>
-<link href="style.css" rel="stylesheet">
+
 <style>
-.button-container {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 15px;
-  margin-top: 40px;
-  margin-bottom: 40px;
-}
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f4f6f9;
+    color: #333;
+  }
 
-.button-container button {
-  padding: 15px 30px;
-  background-color: #004aad;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1.1em;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
+  header {
+    background: #004aad;
+    color: white;
+    padding: 30px 20px;
+    text-align: center;
+  }
 
-.button-container button:hover {
-  background-color: #003080;
-}
+  header h1 {
+    margin: 0;
+    font-size: 2.3em;
+  }
+
+  header p {
+    margin-top: 8px;
+    opacity: 0.95;
+  }
+
+  /* Layout */
+  .layout {
+    display: flex;
+    max-width: 1300px;
+    margin: auto;
+    padding: 30px 20px;
+    gap: 30px;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 300px;
+    min-width: 260px;
+  }
+
+  .directory-card {
+    background: white;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    font-weight: 600;
+    color: #004aad;
+  }
+
+  .directory-card:hover {
+    background: #f0f5ff;
+    transform: translateX(5px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+  }
+
+  /* Main content */
+  .content {
+    flex: 1;
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+  }
+
+  .content h2 {
+    color: #004aad;
+    margin-top: 0;
+  }
+
+  footer {
+    background: #1e1e1e;
+    color: #ccc;
+    text-align: center;
+    padding: 20px;
+    font-size: 0.9em;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .layout {
+      flex-direction: column;
+    }
+
+    .sidebar {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .directory-card {
+      margin-bottom: 0;
+      text-align: center;
+    }
+  }
 </style>
 </head>
+
 <body>
 
 <header>
   <h1>Diary Nepal</h1>
-  <p>Welcome! Select a directory below:</p>
+  <p>Select a directory from the left</p>
 </header>
 
-<main class="container">
-  <div class="button-container">
-	<button onclick="location.href='Bloodbank.html'">Blood Bank</button>
-	<button onclick="location.href='Ambulance.html'">Ambulance</button>
-	<button onclick="location.href='Red Cross.html'">Red Cross</button>
-	<button onclick="location.href='Hospital.html'">Hospital</button>
-    <button onclick="location.href='municipality_offices.html'">Municipality Offices</button>
-	<button onclick="location.href='Government Institution.html'">Government Institution</button>
-	<button onclick="location.href='Financial Institution.html'">Financial Institution</button>
-	<button onclick="location.href='police.html'">Police</button>
-	<button onclick="location.href='Health Care.html'">Health Care</button>
-	<button onclick="location.href='Travel Agency.html'">Travel Agency</button>
-	<button onclick="location.href='Airlines.html'">Airlines</button>
-	<button onclick="location.href='School.html'">Schools</button>
-	<button onclick="location.href='Broker Office.html'">Broker Office</button>	
-	
-  </div>
+<div class="layout">
 
-  <section style="text-align:center; margin-top:50px;">
-    <h2>About Us</h2>
-    <p>This section will include more details about Diary Nepal in the future.</p>
-  </section>
-</main>
+  <!-- Left Directory -->
+  <aside class="sidebar">
+    <div class="directory-card" onclick="location.href='Bloodbank.html'">Blood Bank</div>
+    <div class="directory-card" onclick="location.href='Ambulance.html'">Ambulance</div>
+    <div class="directory-card" onclick="location.href='Red Cross.html'">Red Cross</div>
+    <div class="directory-card" onclick="location.href='Hospital.html'">Hospital</div>
+    <div class="directory-card" onclick="location.href='municipality_offices.html'">Municipality Offices</div>
+    <div class="directory-card" onclick="location.href='Government Institution.html'">Government Institution</div>
+    <div class="directory-card" onclick="location.href='Financial Institution.html'">Financial Institution</div>
+    <div class="directory-card" onclick="location.href='police.html'">Police</div>
+    <div class="directory-card" onclick="location.href='Health Care.html'">Health Care</div>
+    <div class="directory-card" onclick="location.href='Travel Agency.html'">Travel Agency</div>
+    <div class="directory-card" onclick="location.href='Airlines.html'">Airlines</div>
+    <div class="directory-card" onclick="location.href='School.html'">Schools</div>
+    <div class="directory-card" onclick="location.href='Broker Office.html'">Broker Office</div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="content">
+    <h2>About Diary Nepal</h2>
+    <p>
+      Diary Nepal is a centralized directory providing quick access to essential
+      services and institutions across Nepal.
+    </p>
+    <p>
+      Use the directory on the left to browse services such as healthcare,
+      emergency services, government institutions, and more.
+    </p>
+  </main>
+
+</div>
 
 <footer>
-  <p>© 2025 Diary Nepal | Data from official sources</p>
+  © 2025 Diary Nepal | Data from official sources
 </footer>
 
 </body>
