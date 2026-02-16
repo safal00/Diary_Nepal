@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VAT Calculator - Diary Nepal</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .home-button { display:flex; justify-content:center; margin:15px 0; }
+    .home-button button { padding:10px 20px; border:none; border-radius:5px; background-color:#004aad; color:white; cursor:pointer; font-weight:bold; transition:0.3s; }
+    .home-button button:hover { background-color:#003080; }
+
+    .calculator-container {
+      max-width:600px;
+      margin:30px auto;
+      background:white;
+      padding:30px;
+      border-radius:12px;
+      box-shadow:0 6px 15px rgba(0,0,0,0.08);
+    }
+
+    .calculator-container h2 {
+      text-align:center;
+      color:#004aad;
+      margin-bottom:20px;
+    }
+
+    .form-group {
+      margin-bottom:15px;
+    }
+
+    .form-group label {
+      font-weight:bold;
+      display:block;
+      margin-bottom:5px;
+    }
+
+    .form-group input, .form-group select {
+      width:100%;
+      padding:10px;
+      border-radius:6px;
+      border:1px solid #ccc;
+      font-size:1em;
+    }
+
+    .button-group {
+      display:flex;
+      gap:10px;
+      margin-top:20px;
+    }
+
+    .button-group button {
+      flex:1;
+      padding:10px;
+      border:none;
+      border-radius:6px;
+      background-color:#004aad;
+      color:white;
+      font-weight:bold;
+      cursor:pointer;
+      transition:0.3s;
+    }
+
+    .button-group button:hover {
+      background-color:#003080;
+    }
+
+    .result-box {
+      margin-top:25px;
+      padding:15px;
+      background:#f4f6f9;
+      border-radius:8px;
+      font-size:1.1em;
+    }
+
+    .result-box span {
+      font-weight:bold;
+      color:#004aad;
+    }
+
+    @media (max-width:600px) {
+      .calculator-container {
+        margin:15px;
+        padding:20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>VAT Calculator</h1>
+  <p>Calculate VAT amount instantly</p>
+
+  <div class="home-button">
+    <button onclick="location.href='index.html'">Home</button>
+  </div>
+</header>
+
+<main>
+
+  <div class="calculator-container">
+    <h2>VAT Calculation Tool</h2>
+
+    <div class="form-group">
+      <label for="amount">Amount (NPR)</label>
+      <input type="number" id="amount" placeholder="Enter amount">
+    </div>
+
+    <div class="form-group">
+      <label for="vatRate">VAT Percentage</label>
+      <select id="vatRate">
+        <option value="13">13% (Nepal Standard VAT)</option>
+        <option value="15">15%</option>
+        <option value="10">10%</option>
+        <option value="5">5%</option>
+      </select>
+    </div>
+
+    <div class="button-group">
+      <button onclick="calculateVAT('add')">Add VAT</button>
+      <button onclick="calculateVAT('remove')">Remove VAT</button>
+    </div>
+
+    <div class="result-box">
+      <p>Net Amount: <span id="netAmount">0.00</span></p>
+      <p>VAT Amount: <span id="vatAmount">0.00</span></p>
+      <p>Gross Amount: <span id="grossAmount">0.00</span></p>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p>© 2025 Diary Nepal | VAT Calculator Tool</p>
+</footer>
+
+<script>
+function calculateVAT(type) {
+  let amount = parseFloat(document.getElementById('amount').value);
+  let rate = parseFloat(document.getElementById('vatRate').value) / 100;
+
+  if (isNaN(amount) || amount <= 0) {
+    alert("Please enter a valid amount.");
+    return;
+  }
+
+  let net, vat, gross;
+
+  if (type === "add") {
+    net = amount;
+    vat = amount * rate;
+    gross = net + vat;
+  } else {
+    gross = amount;
+    net = gross / (1 + rate);
+    vat = gross - net;
+  }
+
+  document.getElementById('netAmount').innerText = net.toFixed(2);
+  document.getElementById('vatAmount').innerText = vat.toFixed(2);
+  document.getElementById('grossAmount').innerText = gross.toFixed(2);
+}
+</script>
+
+</body>
+</html>
