@@ -2,162 +2,230 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Delivery Challan</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delivery Challan - Diary Nepal</title>
+
+<link rel="stylesheet" href="style.css">
+
 <style>
-body{
-    font-family: Arial, sans-serif;
-    background:#f4f6f9;
-    padding:30px;
+header{
+  text-align:center;
+  padding:20px;
+  background:#004aad;
+  color:white;
 }
+header h1{
+  margin:0;
+}
+header p{
+  margin:5px 0 0;
+}
+
 .container{
-    max-width:1000px;
-    margin:auto;
-    background:#fff;
-    padding:30px;
-    border-radius:8px;
-    box-shadow:0 0 10px rgba(0,0,0,0.05);
+  max-width:1100px;
+  margin:auto;
+  padding:20px;
 }
-h1{
-    text-align:center;
-    letter-spacing:3px;
+
+.top-buttons{
+  display:flex;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:15px;
 }
-.company{
-    text-align:center;
-    margin-bottom:20px;
+
+input, button{
+  padding:8px 10px;
+  font-size:1em;
+  border-radius:4px;
+  border:1px solid #ccc;
 }
-.flex{
-    display:flex;
-    justify-content:space-between;
-    margin-bottom:15px;
-}
-input{
-    border:none;
-    border-bottom:1px dashed #aaa;
-    outline:none;
-}
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:20px;
-}
-th,td{
-    border:1px solid #ddd;
-    padding:8px;
-    text-align:center;
-}
-th{
-    background:#f0f0f0;
-}
-td input{
-    width:100%;
-    border:none;
-    text-align:center;
-}
-.total-box{
-    margin-top:20px;
-    text-align:right;
-    font-size:18px;
-    font-weight:bold;
-}
+
 button{
-    padding:8px 15px;
-    border:none;
-    color:#fff;
-    cursor:pointer;
-    border-radius:4px;
+  background:#004aad;
+  color:white;
+  cursor:pointer;
+  font-weight:bold;
+  transition:0.3s;
 }
-.add-btn{ background:#28a745; }
-.print-btn{ background:#007bff; }
+
+button:hover{
+  background:#003080;
+}
+
+.challan-info{
+  display:flex;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:15px;
+  margin-top:15px;
+}
+
+.company-box{
+  text-align:center;
+  margin-top:20px;
+}
+
+.results-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
+}
+
+.results-table th,
+.results-table td{
+  border:1px solid #ccc;
+  padding:10px 8px;
+  text-align:center;
+  vertical-align:top;
+}
+
+.results-table th{
+  background:#004aad;
+  color:white;
+}
+
+.results-table tr:nth-child(even){
+  background:#f2f2f2;
+}
+
+.total-box{
+  margin-top:20px;
+  text-align:right;
+  font-size:18px;
+  font-weight:bold;
+}
+
+footer{
+  text-align:center;
+  padding:15px;
+  margin-top:30px;
+  background:#f2f2f2;
+}
+
+@media(max-width:800px){
+  .challan-info{
+    flex-direction:column;
+  }
+  .results-table th,
+  .results-table td{
+    font-size:0.9em;
+    padding:6px 4px;
+  }
+}
+
 @media print{
-    button{ display:none; }
-    body{ background:#fff; }
+  button, header, footer{
+    display:none;
+  }
 }
 </style>
 </head>
+
 <body>
 
-<div class="container">
+<header>
+  <h1>Delivery Challan</h1>
+  <p>Neupane Print Solutions Pvt. Ltd</p>
+</header>
 
-    <div style="display:flex; justify-content:space-between;">
-        <button class="add-btn" onclick="addRow()">+ Add Item</button>
-        <button class="print-btn" onclick="window.print()">Print Challan</button>
+<main class="container">
+
+  <div class="top-buttons">
+    <button onclick="addRow()">+ Add Item</button>
+    <button onclick="window.print()">Print Challan</button>
+  </div>
+
+  <div class="company-box">
+    <strong>Lalitpur Sankhamul -11</strong><br>
+    Tel: 015269589
+  </div>
+
+  <div class="challan-info">
+    <div>
+      Challan No:
+      <input type="text" value="001">
     </div>
-
-    <h1>DELIVERY CHALLAN</h1>
-    <div class="company">
-        <strong>Neupane Print Solutions Pvt.Ltd</strong><br>
-        Lalitpur Sankhamul -11 | Tel: 015269589
+    <div>
+      Date:
+      <input type="date">
     </div>
+  </div>
 
-    <div class="flex">
-        <div>Challan No: <input type="text" value="001"></div>
-        <div>Date: <input type="date"></div>
+  <div class="challan-info">
+    <div>
+      Buyer's Detail:
+      <input type="text" placeholder="Name / Company">
     </div>
-
-    <div class="flex">
-        <div>Buyer's Detail: <input type="text" placeholder="Name / Company"></div>
-        <div>Phone: <input type="text" placeholder="Contact Number"></div>
+    <div>
+      Phone:
+      <input type="text" placeholder="Contact Number">
     </div>
+  </div>
 
-    <table id="challanTable">
-        <thead>
-            <tr>
-                <th>S.N.</th>
-                <th>Description of Goods</th>
-                <th>Quantity</th>
-                <th>Rate</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>1</td>
-                <td><input type="text" placeholder="Enter item description"></td>
-                <td><input type="number" value="0" oninput="calculate(this)"></td>
-                <td><input type="number" value="0" oninput="calculate(this)"></td>
-                <td class="rowTotal">0.00</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <div class="total-box">
-        Grand Total: Rs. <span id="grandTotal">0.00</span>
-    </div>
-
-</div>
-
-<script>
-function calculate(el){
-    let row = el.parentElement.parentElement;
-    let qty = parseFloat(row.children[2].children[0].value) || 0;
-    let rate = parseFloat(row.children[3].children[0].value) || 0;
-    let total = qty * rate;
-    row.querySelector(".rowTotal").innerText = total.toFixed(2);
-
-    updateGrandTotal();
-}
-
-function updateGrandTotal(){
-    let totals = document.querySelectorAll(".rowTotal");
-    let grand = 0;
-    totals.forEach(t=>{
-        grand += parseFloat(t.innerText) || 0;
-    });
-    document.getElementById("grandTotal").innerText = grand.toFixed(2);
-}
-
-function addRow(){
-    let table = document.getElementById("challanTable").getElementsByTagName('tbody')[0];
-    let rowCount = table.rows.length + 1;
-
-    let row = table.insertRow();
-    row.innerHTML = `
-        <td>${rowCount}</td>
+  <table class="results-table" id="challanTable">
+    <thead>
+      <tr>
+        <th>S.N.</th>
+        <th>Description of Goods</th>
+        <th>Quantity</th>
+        <th>Rate</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
         <td><input type="text" placeholder="Enter item description"></td>
         <td><input type="number" value="0" oninput="calculate(this)"></td>
         <td><input type="number" value="0" oninput="calculate(this)"></td>
         <td class="rowTotal">0.00</td>
-    `;
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="total-box">
+    Grand Total: Rs. <span id="grandTotal">0.00</span>
+  </div>
+
+</main>
+
+<footer>
+  <p>© 2026 Diary Nepal | Delivery System</p>
+</footer>
+
+<script>
+function calculate(el){
+  let row = el.parentElement.parentElement;
+  let qty = parseFloat(row.children[2].children[0].value) || 0;
+  let rate = parseFloat(row.children[3].children[0].value) || 0;
+  let total = qty * rate;
+  row.querySelector(".rowTotal").innerText = total.toFixed(2);
+  updateGrandTotal();
+}
+
+function updateGrandTotal(){
+  let totals = document.querySelectorAll(".rowTotal");
+  let grand = 0;
+  totals.forEach(t=>{
+    grand += parseFloat(t.innerText) || 0;
+  });
+  document.getElementById("grandTotal").innerText = grand.toFixed(2);
+}
+
+function addRow(){
+  let table = document.getElementById("challanTable").getElementsByTagName('tbody')[0];
+  let rowCount = table.rows.length + 1;
+
+  let row = table.insertRow();
+  row.innerHTML = `
+    <td>${rowCount}</td>
+    <td><input type="text" placeholder="Enter item description"></td>
+    <td><input type="number" value="0" oninput="calculate(this)"></td>
+    <td><input type="number" value="0" oninput="calculate(this)"></td>
+    <td class="rowTotal">0.00</td>
+  `;
 }
 </script>
 
