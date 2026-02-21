@@ -3,69 +3,142 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<script src="https://cdn.tailwindcss.com"></script>
-
 <title>Diary Nepal VAT Calculator</title>
+
+<style>
+*{box-sizing:border-box;font-family:Inter,Arial}
+body{
+margin:0;
+background:radial-gradient(circle at 20% 20%,#1e3a8a20,transparent),
+linear-gradient(135deg,#0f172a,#0b1c3d);
+color:#fff;
+}
+
+.container{
+max-width:1200px;
+margin:auto;
+padding:40px 20px;
+}
+
+.header{text-align:center;margin-bottom:40px;}
+.logo{
+width:48px;height:48px;background:#f59e0b;border-radius:12px;
+display:inline-flex;align-items:center;justify-content:center;
+font-weight:bold;font-size:22px;margin-right:12px;
+}
+.title{display:flex;align-items:center;justify-content:center;}
+.subtitle{color:#94a3b8;margin-top:10px}
+
+.badges{
+display:flex;justify-content:center;gap:12px;margin-top:20px;
+}
+.badge{
+padding:8px 14px;border-radius:20px;background:#0f172a;
+border:1px solid #1e293b;font-size:13px;color:#cbd5e1;
+}
+
+.grid{
+display:grid;
+grid-template-columns:2fr 1fr;
+gap:30px;
+margin-top:40px;
+}
+
+.card{
+background:#0f172a;
+border-radius:20px;
+padding:28px;
+border:1px solid #1e293b;
+box-shadow:0 10px 40px rgba(0,0,0,.4);
+}
+
+.mode{
+display:flex;gap:10px;margin:20px 0;
+}
+.mode button{
+flex:1;padding:14px;border-radius:12px;border:none;
+background:#1e293b;color:#94a3b8;cursor:pointer;font-weight:600;
+}
+.mode .active{
+background:linear-gradient(90deg,#f59e0b,#fb923c);
+color:#fff;
+}
+
+input{
+width:100%;padding:16px;border-radius:12px;border:1px solid #1e293b;
+background:#020617;color:white;font-size:18px;
+}
+
+.calcBtn{
+width:100%;margin-top:18px;padding:16px;border:none;
+border-radius:14px;background:linear-gradient(90deg,#f59e0b,#fb923c);
+font-size:18px;color:white;font-weight:700;cursor:pointer;
+}
+
+.result{
+margin-top:25px;background:#020617;padding:20px;border-radius:14px;
+}
+.row{display:flex;justify-content:space-between;margin:10px 0;}
+.total{font-size:24px;color:#f59e0b;font-weight:800;}
+
+.historyItem{
+background:#020617;padding:16px;border-radius:14px;
+margin-bottom:14px;border:1px solid #1e293b;
+}
+.clear{
+width:100%;padding:12px;border:none;border-radius:12px;
+background:#ef4444;color:white;margin-top:10px;cursor:pointer;
+}
+</style>
 </head>
 
-<body class="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white min-h-screen">
+<body>
 
-<div class="max-w-6xl mx-auto px-6 py-12">
+<div class="container">
 
-<!-- Header -->
-<div class="text-center mb-12">
-<div class="flex justify-center items-center gap-3">
-<div class="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center text-xl font-bold">₹</div>
-<div class="text-left">
-<h1 class="text-2xl font-bold">Diary Nepal</h1>
-<p class="text-amber-400 text-sm">भ्याट क्यालकुलेटर</p>
+<div class="header">
+<div class="title">
+<div class="logo">₹</div>
+<div>
+<h2>Diary Nepal</h2>
+<div style="color:#f59e0b;font-size:14px">भ्याट क्यालकुलेटर</div>
+</div>
+</div>
+<div class="subtitle">नेपालको विश्वसनीय भ्याट गणना उपकरण</div>
+
+<div class="badges">
+<div class="badge">१३% VAT Rate</div>
+<div class="badge">१००% सही</div>
+<div class="badge">छिटो गणना</div>
 </div>
 </div>
 
-<p class="text-slate-400 mt-4">नेपालको विश्वसनीय भ्याट गणना उपकरण</p>
+<div class="grid">
 
-<div class="flex justify-center gap-3 mt-4">
-<span class="px-4 py-1 bg-slate-800 rounded-full text-sm border border-slate-700">१३% VAT Rate</span>
-<span class="px-4 py-1 bg-slate-800 rounded-full text-sm border border-slate-700">१००% सही</span>
-<span class="px-4 py-1 bg-slate-800 rounded-full text-sm border border-slate-700">छिटो गणना</span>
+<div class="card">
+<h3>भ्याट क्यालकुलेटर</h3>
+
+<div class="mode">
+<button id="addBtn" class="active" onclick="setMode('add')">↑ VAT थप्नुहोस्</button>
+<button id="removeBtn" onclick="setMode('remove')">↓ VAT हटाउनुहोस्</button>
+</div>
+
+<input id="amount" placeholder="रकम (NPR)">
+
+<button class="calcBtn" onclick="calculate()">गणना गर्नुहोस्</button>
+
+<div class="result" id="result" style="display:none">
+<div class="row"><span>मूल रकम</span><span id="net"></span></div>
+<div class="row"><span>VAT (13%)</span><span id="vat"></span></div>
+<hr>
+<div class="row total"><span>कुल रकम</span><span id="total"></span></div>
 </div>
 </div>
 
-<div class="grid lg:grid-cols-3 gap-8">
-
-<!-- Calculator -->
-<div class="lg:col-span-2 bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-2xl p-8">
-
-<h3 class="font-semibold mb-4">भ्याट क्यालकुलेटर</h3>
-
-<div class="flex gap-3 mb-5">
-<button id="addBtn" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 font-semibold" onclick="setMode('add')">↑ VAT थप्नुहोस्</button>
-<button id="removeBtn" class="flex-1 py-3 rounded-xl bg-slate-700 text-slate-300" onclick="setMode('remove')">↓ VAT हटाउनुहोस्</button>
-</div>
-
-<input id="amount" placeholder="रकम" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-4 mb-4 text-lg">
-
-<button onclick="calculate()" class="w-full py-4 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 font-bold text-lg">गणना गर्नुहोस्</button>
-
-<div id="result" class="mt-6 bg-slate-950 rounded-xl p-6 hidden">
-<div class="flex justify-between mb-2"><span>मूल रकम</span><span id="net"></span></div>
-<div class="flex justify-between mb-2"><span>VAT (13%)</span><span id="vat"></span></div>
-<hr class="border-slate-700 my-2">
-<div class="flex justify-between text-xl font-bold text-amber-400"><span>कुल रकम</span><span id="total"></span></div>
-</div>
-
-</div>
-
-<!-- History -->
-<div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-2xl p-6">
-
-<h3 class="font-semibold mb-4">गणना इतिहास</h3>
-
-<button onclick="clearHistory()" class="w-full mb-4 bg-red-500 py-2 rounded-lg">इतिहास हटाउनुहोस्</button>
-
-<div id="history" class="space-y-3"></div>
-
+<div class="card">
+<h3>गणना इतिहास</h3>
+<div id="history"></div>
+<button class="clear" onclick="clearHistory()">इतिहास हटाउनुहोस्</button>
 </div>
 
 </div>
@@ -73,47 +146,43 @@
 
 <script>
 let mode="add";let history=[];
-
 function setMode(m){
 mode=m;
-addBtn.classList.toggle("bg-gradient-to-r",m==="add");
-addBtn.classList.toggle("from-amber-400",m==="add");
-addBtn.classList.toggle("to-orange-500",m==="add");
-
-removeBtn.classList.toggle("bg-gradient-to-r",m==="remove");
-removeBtn.classList.toggle("from-amber-400",m==="remove");
-removeBtn.classList.toggle("to-orange-500",m==="remove");
+addBtn.classList.remove("active");
+removeBtn.classList.remove("active");
+m==="add"?addBtn.classList.add("active"):removeBtn.classList.add("active");
 }
 
 function calculate(){
 let amt=parseFloat(amount.value);
 if(!amt)return alert("रकम हाल्नुहोस्");
-
 let net,vat,total;
-
 if(mode==="add"){net=amt;vat=amt*.13;total=net+vat;}
 else{total=amt;net=amt/1.13;vat=total-net;}
-
-result.classList.remove("hidden");
-net.innerText="NPR "+net.toFixed(2);
-vat.innerText="NPR "+vat.toFixed(2);
-total.innerText="NPR "+total.toFixed(2);
-
-history.unshift({net,vat,total});
-if(history.length>5)history.pop();
+netText(net,vat,total);
+history.unshift({net,vat,total,time:new Date().toLocaleTimeString()});
+if(history.length>6)history.pop();
 render();
 }
 
+function netText(n,v,t){
+result.style.display="block";
+net.innerText="NPR "+n.toFixed(2);
+vat.innerText="NPR "+v.toFixed(2);
+total.innerText="NPR "+t.toFixed(2);
+}
+
 function render(){
-history.innerHTML="";
+historyBox="";
 history.forEach(h=>{
-history.innerHTML+=`
-<div class="bg-slate-950 p-4 rounded-xl border border-slate-700">
-<div class="flex justify-between"><span>मूल</span><span>NPR ${h.net.toFixed(2)}</span></div>
-<div class="flex justify-between"><span>VAT</span><span>NPR ${h.vat.toFixed(2)}</span></div>
-<div class="flex justify-between font-bold text-emerald-400"><span>कुल</span><span>NPR ${h.total.toFixed(2)}</span></div>
+historyBox+=`<div class="historyItem">
+मूल: NPR ${h.net.toFixed(2)}<br>
+VAT: NPR ${h.vat.toFixed(2)}<br>
+कुल: NPR ${h.total.toFixed(2)}<br>
+<small>${h.time}</small>
 </div>`;
 });
+history.innerHTML=historyBox;
 }
 
 function clearHistory(){history=[];render();}
