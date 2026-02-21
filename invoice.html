@@ -3,59 +3,76 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Universal Invoice Generator</title>
+<title>Professional Invoice Generator - Diary Nepal</title>
 
 <style>
 body{
-  font-family:Arial, sans-serif;
   margin:0;
+  font-family:Arial, sans-serif;
   background:#f4f6f9;
 }
 
 header{
   background:#004aad;
   color:white;
-  text-align:center;
   padding:15px;
+}
+
+.header-inner{
+  max-width:1100px;
+  margin:auto;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.header-inner button{
+  background:white;
+  color:#004aad;
+  border:none;
+  padding:8px 15px;
+  border-radius:5px;
+  font-weight:bold;
+  cursor:pointer;
 }
 
 .container{
   max-width:1100px;
-  margin:auto;
+  margin:20px auto;
   background:white;
-  padding:20px;
+  padding:25px;
 }
 
 .top-section{
   display:flex;
   justify-content:space-between;
   flex-wrap:wrap;
-  gap:15px;
+  gap:20px;
 }
 
-.logo-box img{
+.logo img{
   max-height:100px;
 }
 
 input, select{
-  padding:8px;
+  padding:7px;
   border:1px solid #ccc;
   border-radius:4px;
-  margin:5px 0;
+  margin:4px 0;
   width:100%;
 }
 
-button{
-  padding:8px 15px;
-  border:none;
-  border-radius:4px;
+button.action{
   background:#004aad;
   color:white;
+  border:none;
+  padding:8px 15px;
+  border-radius:4px;
   cursor:pointer;
   font-weight:bold;
 }
 
-button:hover{
+button.action:hover{
   background:#003080;
 }
 
@@ -70,7 +87,7 @@ button:hover{
   display:flex;
   justify-content:space-between;
   flex-wrap:wrap;
-  gap:15px;
+  gap:20px;
 }
 
 table{
@@ -79,7 +96,7 @@ table{
   margin-top:20px;
 }
 
-th,td{
+th, td{
   border:1px solid #ccc;
   padding:10px;
   text-align:center;
@@ -94,27 +111,37 @@ tr:nth-child(even){
   background:#f2f2f2;
 }
 
-.total-box{
-  text-align:right;
-  font-size:18px;
-  margin-top:15px;
-  font-weight:bold;
+.total-section{
+  margin-top:20px;
+  width:350px;
+  margin-left:auto;
 }
 
-.controls{
+.total-section div{
   display:flex;
   justify-content:space-between;
-  margin-bottom:15px;
-  flex-wrap:wrap;
-  gap:10px;
+  margin-bottom:5px;
+}
+
+.signature{
+  margin-top:60px;
+  text-align:right;
+}
+
+.no-print{
+  margin-top:15px;
 }
 
 @media print{
-  .controls, header, .no-print{
-    display:none;
-  }
   body{
     background:white;
+  }
+  header, .no-print{
+    display:none;
+  }
+  th{
+    background:white !important;
+    color:black !important;
   }
 }
 </style>
@@ -123,86 +150,105 @@ tr:nth-child(even){
 <body>
 
 <header>
-  <h2>Universal Invoice Generator</h2>
+  <div class="header-inner">
+    <button onclick="location.href='index.html'">← Home</button>
+    <h2>Invoice Generator</h2>
+    <div></div>
+  </div>
 </header>
 
 <div class="container">
 
-<div class="controls no-print">
-  <button onclick="addRow()">+ Add Item</button>
-  <button onclick="window.print()">Print / Save PDF</button>
-</div>
-
 <div class="top-section">
+
   <div style="flex:1">
-    <label>Invoice Type</label>
     <select id="invoiceType" onchange="updateTitle()">
-      <option>Invoice</option>
-      <option>Tax Invoice</option>
-      <option>Delivery Challan</option>
-      <option>Proforma Invoice</option>
+      <option>INVOICE</option>
+      <option>TAX INVOICE</option>
+      <option>PROFORMA INVOICE</option>
+      <option>DELIVERY CHALLAN</option>
     </select>
 
-    <label>Company Name</label>
-    <input type="text" placeholder="Your Company Name">
-
-    <label>Company Address</label>
-    <input type="text" placeholder="Company Address">
-
-    <label>Phone / Email</label>
-    <input type="text" placeholder="Contact details">
+    <input type="text" id="companyName" placeholder="Company Name">
+    <input type="text" id="companyAddress" placeholder="Company Address">
+    <input type="text" id="companyContact" placeholder="Phone / Email / PAN">
   </div>
 
-  <div class="logo-box">
-    <label class="no-print">Upload Logo</label>
-    <input type="file" accept="image/*" onchange="loadLogo(event)" class="no-print">
+  <div class="logo">
+    <input type="file" accept="image/*" onchange="loadLogo(event)">
     <img id="logoPreview">
   </div>
+
 </div>
 
-<div class="invoice-title" id="invoiceTitle">Invoice</div>
+<div class="invoice-title" id="invoiceTitle">INVOICE</div>
 
 <div class="flex">
   <div>
-    Invoice No: <input type="text" placeholder="INV-001">
+    Invoice No:<br>
+    <input type="text" placeholder="INV-001">
   </div>
   <div>
-    Date: <input type="date">
+    Date:<br>
+    <input type="date">
   </div>
 </div>
 
-<div class="flex">
-  <div>
-    Bill To: <input type="text" placeholder="Customer Name">
-  </div>
-  <div>
-    Phone: <input type="text" placeholder="Customer Contact">
-  </div>
+<div style="margin-top:15px;">
+  <strong>Bill To:</strong><br>
+  <input type="text" placeholder="Customer Name">
+  <input type="text" placeholder="Customer Address">
+  <input type="text" placeholder="Customer Contact">
 </div>
 
 <table id="invoiceTable">
-  <thead>
-    <tr>
-      <th>S.N.</th>
-      <th>Description</th>
-      <th>Qty</th>
-      <th>Rate</th>
-      <th>Total</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>1</td>
-      <td><input type="text" placeholder="Item description"></td>
-      <td><input type="number" value="0" oninput="calculate(this)"></td>
-      <td><input type="number" value="0" oninput="calculate(this)"></td>
-      <td class="rowTotal">0.00</td>
-    </tr>
-  </tbody>
+<thead>
+<tr>
+<th>SN</th>
+<th>Description</th>
+<th>Qty</th>
+<th>Rate</th>
+<th>Total</th>
+<th class="no-print">Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><input type="text"></td>
+<td><input type="number" value="0" oninput="calculate(this)"></td>
+<td><input type="number" value="0" oninput="calculate(this)"></td>
+<td class="rowTotal">0.00</td>
+<td class="no-print"><button onclick="deleteRow(this)">X</button></td>
+</tr>
+</tbody>
 </table>
 
-<div class="total-box">
-  Grand Total: Rs. <span id="grandTotal">0.00</span>
+<div class="no-print">
+<button class="action" onclick="addRow()">+ Add Item</button>
+<button class="action" onclick="window.print()">Print / Save PDF</button>
+</div>
+
+<div class="total-section">
+<div><span>Subtotal:</span><span id="subtotal">0.00</span></div>
+<div>
+<span>Discount:</span>
+<span><input type="number" id="discount" value="0" oninput="updateTotals()"></span>
+</div>
+<div>
+<span>VAT %:</span>
+<span><input type="number" id="vat" value="13" oninput="updateTotals()"></span>
+</div>
+<div><strong>Grand Total:</strong><strong id="grandTotal">0.00</strong></div>
+</div>
+
+<div style="margin-top:15px;">
+<strong>Amount in Words:</strong><br>
+<span id="amountWords"></span>
+</div>
+
+<div class="signature">
+Authorized Signature
 </div>
 
 </div>
@@ -210,47 +256,71 @@ tr:nth-child(even){
 <script>
 function updateTitle(){
   document.getElementById("invoiceTitle").innerText =
-    document.getElementById("invoiceType").value;
+  document.getElementById("invoiceType").value;
 }
 
 function calculate(el){
   let row = el.parentElement.parentElement;
-  let qty = parseFloat(row.children[2].children[0].value) || 0;
-  let rate = parseFloat(row.children[3].children[0].value) || 0;
-  let total = qty * rate;
+  let qty = parseFloat(row.children[2].children[0].value)||0;
+  let rate = parseFloat(row.children[3].children[0].value)||0;
+  let total = qty*rate;
   row.querySelector(".rowTotal").innerText = total.toFixed(2);
-  updateGrandTotal();
+  updateTotals();
 }
 
-function updateGrandTotal(){
+function updateTotals(){
   let totals = document.querySelectorAll(".rowTotal");
-  let grand = 0;
-  totals.forEach(t=>{
-    grand += parseFloat(t.innerText) || 0;
-  });
-  document.getElementById("grandTotal").innerText = grand.toFixed(2);
+  let subtotal=0;
+  totals.forEach(t=> subtotal+=parseFloat(t.innerText)||0);
+  document.getElementById("subtotal").innerText=subtotal.toFixed(2);
+
+  let discount=parseFloat(document.getElementById("discount").value)||0;
+  let vat=parseFloat(document.getElementById("vat").value)||0;
+
+  let afterDiscount=subtotal-discount;
+  let vatAmount=(afterDiscount*vat)/100;
+  let grand=afterDiscount+vatAmount;
+
+  document.getElementById("grandTotal").innerText=grand.toFixed(2);
+  document.getElementById("amountWords").innerText=numberToWords(Math.round(grand))+" only";
 }
 
 function addRow(){
-  let table = document.getElementById("invoiceTable").getElementsByTagName('tbody')[0];
-  let rowCount = table.rows.length + 1;
-
-  let row = table.insertRow();
-  row.innerHTML = `
-    <td>${rowCount}</td>
-    <td><input type="text" placeholder="Item description"></td>
-    <td><input type="number" value="0" oninput="calculate(this)"></td>
-    <td><input type="number" value="0" oninput="calculate(this)"></td>
-    <td class="rowTotal">0.00</td>
+  let table=document.getElementById("invoiceTable").getElementsByTagName('tbody')[0];
+  let rowCount=table.rows.length+1;
+  let row=table.insertRow();
+  row.innerHTML=`
+  <td>${rowCount}</td>
+  <td><input type="text"></td>
+  <td><input type="number" value="0" oninput="calculate(this)"></td>
+  <td><input type="number" value="0" oninput="calculate(this)"></td>
+  <td class="rowTotal">0.00</td>
+  <td class="no-print"><button onclick="deleteRow(this)">X</button></td>
   `;
 }
 
+function deleteRow(btn){
+  btn.parentElement.parentElement.remove();
+  updateTotals();
+}
+
 function loadLogo(event){
-  const reader = new FileReader();
-  reader.onload = function(){
-    document.getElementById("logoPreview").src = reader.result;
+  const reader=new FileReader();
+  reader.onload=function(){
+    document.getElementById("logoPreview").src=reader.result;
   }
   reader.readAsDataURL(event.target.files[0]);
+}
+
+function numberToWords(num){
+  const a=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten",
+  "Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
+  const b=["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
+  if(num<20) return a[num];
+  if(num<100) return b[Math.floor(num/10)]+" "+a[num%10];
+  if(num<1000) return a[Math.floor(num/100)]+" Hundred "+numberToWords(num%100);
+  if(num<1000000) return numberToWords(Math.floor(num/1000))+" Thousand "+numberToWords(num%1000);
+  return num;
 }
 </script>
 
