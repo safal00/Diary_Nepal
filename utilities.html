@@ -1,262 +1,169 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Professional Invoice</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diary Nepal - Home</title>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-YQQHMEQWT4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-YQQHMEQWT4');
+</script>
 
 <style>
-body{
-  font-family: Arial, sans-serif;
-  margin:40px;
-  background:#f4f6f8;
-}
-
-.invoice-box{
-  max-width:900px;
-  margin:auto;
-  background:white;
-  padding:30px;
-  box-shadow:0 0 10px rgba(0,0,0,0.15);
-}
-
-.header{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-}
-
-.company-info h2{
-  margin:0;
-}
-
-.logo-preview{
-  max-height:90px;
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:20px;
-}
-
-table th{
-  background:#2c3e50;
-  color:white;
-  padding:10px;
-  text-align:left;
-}
-
-table td{
-  padding:8px;
-  border-bottom:1px solid #ddd;
-}
-
-.totals{
-  margin-top:20px;
-  width:300px;
-  float:right;
-}
-
-.totals div{
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:6px;
-}
-
-.no-print{
-  margin-top:20px;
-}
-
-button{
-  padding:8px 15px;
-  background:#2c3e50;
-  color:white;
-  border:none;
-  cursor:pointer;
-}
-
-/* ---------------- PRINT STYLE ---------------- */
-
-@media print{
-
-  body{
-    background:white;
-    margin:0;
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f4f6f9;
+    color: #333;
   }
 
-  .no-print,
-  input,
-  select,
-  textarea{
-    display:none !important;
+  header {
+    background: #004aad;
+    color: white;
+    padding: 30px 20px;
+    text-align: center;
   }
 
-  .invoice-box{
-    box-shadow:none;
-    padding:0;
+  header h1 {
+    margin: 0;
+    font-size: 2.3em;
   }
 
-  table th{
-    background:white !important;
-    color:black !important;
-    border-bottom:2px solid black;
+  header p {
+    margin-top: 8px;
+    opacity: 0.95;
   }
 
-}
+  /* Layout */
+  .layout {
+    display: flex;
+    max-width: 1300px;
+    margin: auto;
+    padding: 30px 20px;
+    gap: 30px;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 300px;
+    min-width: 260px;
+  }
+
+  .directory-card {
+    background: white;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    font-weight: 600;
+    color: #004aad;
+  }
+
+  .directory-card:hover {
+    background: #f0f5ff;
+    transform: translateX(5px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+  }
+
+  /* Main content */
+  .content {
+    flex: 1;
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+  }
+
+  .content h2 {
+    color: #004aad;
+    margin-top: 0;
+  }
+
+  /* Footer */
+  footer {
+    background: #1e1e1e;
+    color: #ccc;
+    text-align: center;
+    padding: 20px;
+    font-size: 0.9em;
+  }
+
+  footer a {
+    color: #004aad;
+    text-decoration: underline;
+    font-weight: bold;
+    margin-left: 5px;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .layout {
+      flex-direction: column;
+    }
+
+    .sidebar {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .directory-card {
+      margin-bottom: 0;
+      text-align: center;
+    }
+  }
 </style>
 </head>
 
 <body>
 
-<div class="invoice-box">
+<header>
+  <h1>Diary Nepal</h1>
+  <p>Select a directory from the left</p>
+</header>
 
-<div class="header">
-  <div class="company-info">
-    <h2 id="printCompanyName"></h2>
-    <div id="printCompanyAddress"></div>
-    <div id="printCompanyContact"></div>
-  </div>
+<div class="layout">
 
-  <div>
-    <img id="logoPreview" class="logo-preview">
-  </div>
-</div>
+  <!-- Left Directory -->
+  <aside class="sidebar">
+    <div class="directory-card" onclick="location.href='vat-calculator.html'">VAT Calculator</div>
+	<div class="directory-card" onclick="location.href='date-converter.html'">Date Converter</div>
+	
+    <div class="directory-card" onclick="location.href='invoice.html'">Generate Invoice</div>
+	<div class="directory-card" onclick="location.href='quotation.html'">Generate Quotation</div>
+	<div class="directory-card" onclick="location.href='estimated-bill.html'">Estimated Bill</div>
+	<div class="directory-card" onclick="location.href='cash-received.html'">Cash Received</div>
+	<div class="directory-card" onclick="location.href='joborder.html'">Job Order</div>
+  </aside>
 
-<hr>
-
-<h3 id="printInvoiceType"></h3>
-
-<div style="display:flex; justify-content:space-between;">
-  <div>
-    <strong>Bill To:</strong><br>
-    <span id="printCustomerName"></span><br>
-    <span id="printCustomerAddress"></span><br>
-    <span id="printCustomerContact"></span>
-  </div>
-  <div>
-    <strong>Invoice No:</strong> <span id="printInvoiceNo"></span><br>
-    <strong>Date:</strong> <span id="printDate"></span>
-  </div>
-</div>
-
-<table>
-<thead>
-<tr>
-<th>Description</th>
-<th>Qty</th>
-<th>Rate</th>
-<th>Amount</th>
-</tr>
-</thead>
-<tbody id="itemsBody">
-<tr>
-<td><input type="text" class="desc"></td>
-<td><input type="number" class="qty" value="1"></td>
-<td><input type="number" class="rate" value="0"></td>
-<td class="amount">0</td>
-</tr>
-</tbody>
-</table>
-
-<div class="totals">
-<div><strong>Total</strong><strong id="grandTotal">0.00</strong></div>
-</div>
-
-<div style="clear:both;"></div>
-
-<div class="no-print">
-<br><br>
-Company Name: <input type="text" id="companyName"><br><br>
-Address: <input type="text" id="companyAddress"><br><br>
-Phone/Email: <input type="text" id="companyContact"><br><br>
-
-Invoice Type:
-<select id="invoiceType">
-<option>Invoice</option>
-<option>Proforma Invoice</option>
-</select><br><br>
-
-Invoice No: <input type="text" id="invoiceNo"><br><br>
-Date: <input type="date" id="date"><br><br>
-
-Customer Name: <input type="text" id="customerName"><br><br>
-Customer Address: <input type="text" id="customerAddress"><br><br>
-Customer Contact: <input type="text" id="customerContact"><br><br>
-
-Upload Logo: <input type="file" id="logoInput"><br><br>
-
-<button onclick="addItem()">Add Item</button>
-<button onclick="window.print()">Print / Save PDF</button>
-</div>
+  <!-- Main Content -->
+  <main class="content">
+    <h2>About Diary Nepal</h2>
+    <p>
+      Diary Nepal is a centralized directory providing quick access to essential
+      services and institutions across Nepal.
+    </p>
+   
+  </main>
 
 </div>
 
-<script>
-
-document.getElementById("logoInput").addEventListener("change",function(e){
-  const reader=new FileReader();
-  reader.onload=function(){
-    document.getElementById("logoPreview").src=reader.result;
-  }
-  reader.readAsDataURL(e.target.files[0]);
-});
-
-function addItem(){
-  let row=document.createElement("tr");
-  row.innerHTML=`
-    <td><input type="text" class="desc"></td>
-    <td><input type="number" class="qty" value="1"></td>
-    <td><input type="number" class="rate" value="0"></td>
-    <td class="amount">0</td>
-  `;
-  document.getElementById("itemsBody").appendChild(row);
-}
-
-document.addEventListener("input",function(){
-  let total=0;
-
-  document.querySelectorAll("#itemsBody tr").forEach(row=>{
-    let qty=row.querySelector(".qty").value || 0;
-    let rate=row.querySelector(".rate").value || 0;
-    let amount=qty*rate;
-    row.querySelector(".amount").innerText=amount.toFixed(2);
-    total+=amount;
-  });
-
-  document.getElementById("grandTotal").innerText=total.toFixed(2);
-});
-
-window.onbeforeprint=function(){
-
-  document.getElementById("printCompanyName").innerText=
-    document.getElementById("companyName").value;
-
-  document.getElementById("printCompanyAddress").innerText=
-    document.getElementById("companyAddress").value;
-
-  document.getElementById("printCompanyContact").innerText=
-    document.getElementById("companyContact").value;
-
-  document.getElementById("printInvoiceType").innerText=
-    document.getElementById("invoiceType").value;
-
-  document.getElementById("printCustomerName").innerText=
-    document.getElementById("customerName").value;
-
-  document.getElementById("printCustomerAddress").innerText=
-    document.getElementById("customerAddress").value;
-
-  document.getElementById("printCustomerContact").innerText=
-    document.getElementById("customerContact").value;
-
-  document.getElementById("printInvoiceNo").innerText=
-    document.getElementById("invoiceNo").value;
-
-  document.getElementById("printDate").innerText=
-    document.getElementById("date").value;
-};
-
-</script>
+<footer>
+  © 2025 Diary Nepal | Data from official sources
+  <p>
+    Have a question or notice incorrect data? 
+    <a href="feedback.html" target="_blank">Submit Feedback</a>
+  </p>
+</footer>
 
 </body>
 </html>
