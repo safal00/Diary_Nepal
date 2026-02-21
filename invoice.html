@@ -1,84 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Professional Invoice - Diary Nepal</title>
+<title>Professional Invoice</title>
 
 <style>
 body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#f4f6f9;
+  font-family: Arial, sans-serif;
+  margin:40px;
+  background:#f4f6f8;
 }
 
-header{
-  background:#004aad;
-  color:white;
-  padding:15px;
-}
-
-.header-inner{
-  max-width:1100px;
+.invoice-box{
+  max-width:900px;
   margin:auto;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-.header-inner button{
-  background:white;
-  color:#004aad;
-  border:none;
-  padding:8px 15px;
-  border-radius:5px;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-.container{
-  max-width:1100px;
-  margin:20px auto;
   background:white;
   padding:30px;
+  box-shadow:0 0 10px rgba(0,0,0,0.15);
 }
 
-input, select{
-  padding:6px;
-  border:1px solid #ccc;
-  border-radius:4px;
-  margin:4px 0;
-  width:100%;
-}
-
-button.action{
-  background:#004aad;
-  color:white;
-  border:none;
-  padding:8px 15px;
-  border-radius:4px;
-  cursor:pointer;
-  font-weight:bold;
-  margin-top:10px;
-}
-
-.invoice-title{
-  text-align:center;
-  font-size:26px;
-  font-weight:bold;
-  margin:20px 0;
-  letter-spacing:1px;
-}
-
-.top-flex{
+.header{
   display:flex;
   justify-content:space-between;
-  flex-wrap:wrap;
-  gap:20px;
+  align-items:flex-start;
 }
 
-.logo img{
-  max-height:100px;
+.company-info h2{
+  margin:0;
+}
+
+.logo-preview{
+  max-height:90px;
 }
 
 table{
@@ -87,317 +39,223 @@ table{
   margin-top:20px;
 }
 
-th, td{
-  border:1px solid #ccc;
-  padding:10px;
-  text-align:center;
-}
-
-th{
-  background:#004aad;
+table th{
+  background:#2c3e50;
   color:white;
+  padding:10px;
+  text-align:left;
 }
 
-tr:nth-child(even){
-  background:#f2f2f2;
+table td{
+  padding:8px;
+  border-bottom:1px solid #ddd;
 }
 
-.total-section{
-  width:350px;
-  margin-left:auto;
+.totals{
   margin-top:20px;
+  width:300px;
+  float:right;
 }
 
-.total-section div{
+.totals div{
   display:flex;
   justify-content:space-between;
   margin-bottom:6px;
 }
 
-.signature{
-  margin-top:70px;
-  text-align:right;
-}
-
-.print-only{
-  display:none;
-}
-
 .no-print{
-  margin-top:15px;
+  margin-top:20px;
 }
 
-/* PRINT STYLING */
+button{
+  padding:8px 15px;
+  background:#2c3e50;
+  color:white;
+  border:none;
+  cursor:pointer;
+}
+
+/* ---------------- PRINT STYLE ---------------- */
+
 @media print{
 
   body{
     background:white;
-    font-size:14px;
+    margin:0;
   }
 
-  header, .no-print{
+  .no-print,
+  input,
+  select,
+  textarea{
     display:none !important;
   }
 
-  input, select{
-    display:none !important;
+  .invoice-box{
+    box-shadow:none;
+    padding:0;
   }
 
-  th{
+  table th{
     background:white !important;
     color:black !important;
+    border-bottom:2px solid black;
   }
 
-  .print-only{
-    display:block;
-  }
-
-  .print-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    margin-bottom:20px;
-  }
-
-  .print-company{
-    text-align:left;
-  }
-
-  .print-logo img{
-    max-height:100px;
-  }
-
-  .invoice-title{
-    margin-top:10px;
-  }
 }
 </style>
 </head>
 
 <body>
 
-<header>
-  <div class="header-inner">
-    <button onclick="location.href='index.html'">← Home</button>
-    <h2>Invoice Generator</h2>
-    <div></div>
-  </div>
-</header>
+<div class="invoice-box">
 
-<div class="container">
-
-<!-- EDITABLE SECTION -->
-<div class="top-flex no-print">
-  <div style="flex:1">
-    <select id="invoiceType" onchange="updateTitle()">
-      <option>INVOICE</option>
-      <option>TAX INVOICE</option>
-      <option>PROFORMA INVOICE</option>
-      <option>DELIVERY CHALLAN</option>
-    </select>
-
-    <input type="text" id="companyName" placeholder="Company Name">
-    <input type="text" id="companyAddress" placeholder="Company Address">
-    <input type="text" id="companyContact" placeholder="Phone / Email / PAN">
+<div class="header">
+  <div class="company-info">
+    <h2 id="printCompanyName"></h2>
+    <div id="printCompanyAddress"></div>
+    <div id="printCompanyContact"></div>
   </div>
 
-  <div class="logo">
-    <input type="file" accept="image/*" onchange="loadLogo(event)">
-    <img id="logoPreview">
+  <div>
+    <img id="logoPreview" class="logo-preview">
   </div>
 </div>
 
-<div class="invoice-title" id="invoiceTitle">INVOICE</div>
+<hr>
 
-<div class="no-print">
-  <div style="display:flex; justify-content:space-between; gap:20px;">
-    <div>
-      Invoice No:<br>
-      <input type="text" id="invoiceNo" placeholder="INV-001">
-    </div>
-    <div>
-      Date:<br>
-      <input type="date" id="invoiceDate">
-    </div>
-  </div>
+<h3 id="printInvoiceType"></h3>
 
-  <div style="margin-top:10px;">
+<div style="display:flex; justify-content:space-between;">
+  <div>
     <strong>Bill To:</strong><br>
-    <input type="text" id="customerName" placeholder="Customer Name">
-    <input type="text" id="customerAddress" placeholder="Customer Address">
-    <input type="text" id="customerContact" placeholder="Customer Contact">
+    <span id="printCustomerName"></span><br>
+    <span id="printCustomerAddress"></span><br>
+    <span id="printCustomerContact"></span>
+  </div>
+  <div>
+    <strong>Invoice No:</strong> <span id="printInvoiceNo"></span><br>
+    <strong>Date:</strong> <span id="printDate"></span>
   </div>
 </div>
 
-<!-- PRINT HEADER -->
-<div class="print-only">
-  <div class="print-header">
-    <div class="print-company">
-      <h2 id="printCompanyName"></h2>
-      <div id="printCompanyAddress"></div>
-      <div id="printCompanyContact"></div>
-    </div>
-    <div class="print-logo">
-      <img id="printLogo">
-    </div>
-  </div>
-
-  <div style="display:flex; justify-content:space-between; margin-top:15px;">
-    <div>
-      <strong>Bill To:</strong><br>
-      <span id="printCustomerName"></span><br>
-      <span id="printCustomerAddress"></span><br>
-      <span id="printCustomerContact"></span>
-    </div>
-    <div>
-      <strong>Invoice No:</strong> <span id="printInvoiceNo"></span><br>
-      <strong>Date:</strong> <span id="printDate"></span>
-    </div>
-  </div>
-</div>
-
-<table id="invoiceTable">
+<table>
 <thead>
 <tr>
-<th>SN</th>
 <th>Description</th>
 <th>Qty</th>
 <th>Rate</th>
-<th>Total</th>
-<th class="no-print">Action</th>
+<th>Amount</th>
 </tr>
 </thead>
-<tbody>
+<tbody id="itemsBody">
 <tr>
-<td>1</td>
-<td><input type="text"></td>
-<td><input type="number" value="0" oninput="calculate(this)"></td>
-<td><input type="number" value="0" oninput="calculate(this)"></td>
-<td class="rowTotal">0.00</td>
-<td class="no-print"><button onclick="deleteRow(this)">X</button></td>
+<td><input type="text" class="desc"></td>
+<td><input type="number" class="qty" value="1"></td>
+<td><input type="number" class="rate" value="0"></td>
+<td class="amount">0</td>
 </tr>
 </tbody>
 </table>
 
+<div class="totals">
+<div><strong>Total</strong><strong id="grandTotal">0.00</strong></div>
+</div>
+
+<div style="clear:both;"></div>
+
 <div class="no-print">
-<button class="action" onclick="addRow()">+ Add Item</button>
-<button class="action" onclick="window.print()">Print / Save PDF</button>
-</div>
+<br><br>
+Company Name: <input type="text" id="companyName"><br><br>
+Address: <input type="text" id="companyAddress"><br><br>
+Phone/Email: <input type="text" id="companyContact"><br><br>
 
-<div class="total-section">
-<div><span>Subtotal:</span><span id="subtotal">0.00</span></div>
-<div><span>Discount:</span><span><input type="number" id="discount" value="0" oninput="updateTotals()"></span></div>
-<div><span>VAT %:</span><span><input type="number" id="vat" value="13" oninput="updateTotals()"></span></div>
-<div><strong>Grand Total:</strong><strong id="grandTotal">0.00</strong></div>
-</div>
+Invoice Type:
+<select id="invoiceType">
+<option>Invoice</option>
+<option>Proforma Invoice</option>
+</select><br><br>
 
-<div style="margin-top:15px;">
-<strong>Amount in Words:</strong><br>
-<span id="amountWords"></span>
-</div>
+Invoice No: <input type="text" id="invoiceNo"><br><br>
+Date: <input type="date" id="date"><br><br>
 
-<div class="signature">
-Authorized Signature
+Customer Name: <input type="text" id="customerName"><br><br>
+Customer Address: <input type="text" id="customerAddress"><br><br>
+Customer Contact: <input type="text" id="customerContact"><br><br>
+
+Upload Logo: <input type="file" id="logoInput"><br><br>
+
+<button onclick="addItem()">Add Item</button>
+<button onclick="window.print()">Print / Save PDF</button>
 </div>
 
 </div>
 
 <script>
-function updateTitle(){
-  document.getElementById("invoiceTitle").innerText =
-  document.getElementById("invoiceType").value;
-}
 
-function calculate(el){
-  let row = el.parentElement.parentElement;
-  let qty = parseFloat(row.children[2].children[0].value)||0;
-  let rate = parseFloat(row.children[3].children[0].value)||0;
-  let total = qty*rate;
-  row.querySelector(".rowTotal").innerText = total.toFixed(2);
-  updateTotals();
-}
-
-function updateTotals(){
-  let totals=document.querySelectorAll(".rowTotal");
-  let subtotal=0;
-  totals.forEach(t=>subtotal+=parseFloat(t.innerText)||0);
-  document.getElementById("subtotal").innerText=subtotal.toFixed(2);
-
-  let discount=parseFloat(document.getElementById("discount").value)||0;
-  let vat=parseFloat(document.getElementById("vat").value)||0;
-
-  let afterDiscount=subtotal-discount;
-  let vatAmount=(afterDiscount*vat)/100;
-  let grand=afterDiscount+vatAmount;
-
-  document.getElementById("grandTotal").innerText=grand.toFixed(2);
-  document.getElementById("amountWords").innerText=numberToWords(Math.round(grand))+" only";
-}
-
-function addRow(){
-  let table=document.getElementById("invoiceTable").getElementsByTagName('tbody')[0];
-  let rowCount=table.rows.length+1;
-  let row=table.insertRow();
-  row.innerHTML=`
-  <td>${rowCount}</td>
-  <td><input type="text"></td>
-  <td><input type="number" value="0" oninput="calculate(this)"></td>
-  <td><input type="number" value="0" oninput="calculate(this)"></td>
-  <td class="rowTotal">0.00</td>
-  <td class="no-print"><button onclick="deleteRow(this)">X</button></td>
-  `;
-}
-
-function deleteRow(btn){
-  btn.parentElement.parentElement.remove();
-  updateTotals();
-}
-
-function loadLogo(event){
+document.getElementById("logoInput").addEventListener("change",function(e){
   const reader=new FileReader();
   reader.onload=function(){
     document.getElementById("logoPreview").src=reader.result;
-    document.getElementById("printLogo").src=reader.result;
   }
-  reader.readAsDataURL(event.target.files[0]);
+  reader.readAsDataURL(e.target.files[0]);
+});
+
+function addItem(){
+  let row=document.createElement("tr");
+  row.innerHTML=`
+    <td><input type="text" class="desc"></td>
+    <td><input type="number" class="qty" value="1"></td>
+    <td><input type="number" class="rate" value="0"></td>
+    <td class="amount">0</td>
+  `;
+  document.getElementById("itemsBody").appendChild(row);
 }
+
+document.addEventListener("input",function(){
+  let total=0;
+
+  document.querySelectorAll("#itemsBody tr").forEach(row=>{
+    let qty=row.querySelector(".qty").value || 0;
+    let rate=row.querySelector(".rate").value || 0;
+    let amount=qty*rate;
+    row.querySelector(".amount").innerText=amount.toFixed(2);
+    total+=amount;
+  });
+
+  document.getElementById("grandTotal").innerText=total.toFixed(2);
+});
 
 window.onbeforeprint=function(){
+
   document.getElementById("printCompanyName").innerText=
-  document.getElementById("companyName").value;
+    document.getElementById("companyName").value;
 
   document.getElementById("printCompanyAddress").innerText=
-  document.getElementById("companyAddress").value;
+    document.getElementById("companyAddress").value;
 
   document.getElementById("printCompanyContact").innerText=
-  document.getElementById("companyContact").value;
+    document.getElementById("companyContact").value;
+
+  document.getElementById("printInvoiceType").innerText=
+    document.getElementById("invoiceType").value;
 
   document.getElementById("printCustomerName").innerText=
-  document.getElementById("customerName").value;
+    document.getElementById("customerName").value;
 
   document.getElementById("printCustomerAddress").innerText=
-  document.getElementById("customerAddress").value;
+    document.getElementById("customerAddress").value;
 
   document.getElementById("printCustomerContact").innerText=
-  document.getElementById("customerContact").value;
+    document.getElementById("customerContact").value;
 
   document.getElementById("printInvoiceNo").innerText=
-  document.getElementById("invoiceNo").value;
+    document.getElementById("invoiceNo").value;
 
   document.getElementById("printDate").innerText=
-  document.getElementById("invoiceDate").value;
+    document.getElementById("date").value;
 };
 
-function numberToWords(num){
-  const a=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten",
-  "Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
-  const b=["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
-  if(num<20) return a[num];
-  if(num<100) return b[Math.floor(num/10)]+" "+a[num%10];
-  if(num<1000) return a[Math.floor(num/100)]+" Hundred "+numberToWords(num%100);
-  if(num<1000000) return numberToWords(Math.floor(num/1000))+" Thousand "+numberToWords(num%1000);
-  return num;
-}
 </script>
 
 </body>
