@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Delivery Challan</title>
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f9;
+    padding:30px;
+}
+.container{
+    max-width:1000px;
+    margin:auto;
+    background:#fff;
+    padding:30px;
+    border-radius:8px;
+    box-shadow:0 0 10px rgba(0,0,0,0.05);
+}
+h1{
+    text-align:center;
+    letter-spacing:3px;
+}
+.company{
+    text-align:center;
+    margin-bottom:20px;
+}
+.flex{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:15px;
+}
+input{
+    border:none;
+    border-bottom:1px dashed #aaa;
+    outline:none;
+}
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+th,td{
+    border:1px solid #ddd;
+    padding:8px;
+    text-align:center;
+}
+th{
+    background:#f0f0f0;
+}
+td input{
+    width:100%;
+    border:none;
+    text-align:center;
+}
+.total-box{
+    margin-top:20px;
+    text-align:right;
+    font-size:18px;
+    font-weight:bold;
+}
+button{
+    padding:8px 15px;
+    border:none;
+    color:#fff;
+    cursor:pointer;
+    border-radius:4px;
+}
+.add-btn{ background:#28a745; }
+.print-btn{ background:#007bff; }
+@media print{
+    button{ display:none; }
+    body{ background:#fff; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <div style="display:flex; justify-content:space-between;">
+        <button class="add-btn" onclick="addRow()">+ Add Item</button>
+        <button class="print-btn" onclick="window.print()">Print Challan</button>
+    </div>
+
+    <h1>DELIVERY CHALLAN</h1>
+    <div class="company">
+        <strong>Neupane Print Solutions Pvt.Ltd</strong><br>
+        Lalitpur Sankhamul -11 | Tel: 015269589
+    </div>
+
+    <div class="flex">
+        <div>Challan No: <input type="text" value="001"></div>
+        <div>Date: <input type="date"></div>
+    </div>
+
+    <div class="flex">
+        <div>Buyer's Detail: <input type="text" placeholder="Name / Company"></div>
+        <div>Phone: <input type="text" placeholder="Contact Number"></div>
+    </div>
+
+    <table id="challanTable">
+        <thead>
+            <tr>
+                <th>S.N.</th>
+                <th>Description of Goods</th>
+                <th>Quantity</th>
+                <th>Rate</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td><input type="text" placeholder="Enter item description"></td>
+                <td><input type="number" value="0" oninput="calculate(this)"></td>
+                <td><input type="number" value="0" oninput="calculate(this)"></td>
+                <td class="rowTotal">0.00</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="total-box">
+        Grand Total: Rs. <span id="grandTotal">0.00</span>
+    </div>
+
+</div>
+
+<script>
+function calculate(el){
+    let row = el.parentElement.parentElement;
+    let qty = parseFloat(row.children[2].children[0].value) || 0;
+    let rate = parseFloat(row.children[3].children[0].value) || 0;
+    let total = qty * rate;
+    row.querySelector(".rowTotal").innerText = total.toFixed(2);
+
+    updateGrandTotal();
+}
+
+function updateGrandTotal(){
+    let totals = document.querySelectorAll(".rowTotal");
+    let grand = 0;
+    totals.forEach(t=>{
+        grand += parseFloat(t.innerText) || 0;
+    });
+    document.getElementById("grandTotal").innerText = grand.toFixed(2);
+}
+
+function addRow(){
+    let table = document.getElementById("challanTable").getElementsByTagName('tbody')[0];
+    let rowCount = table.rows.length + 1;
+
+    let row = table.insertRow();
+    row.innerHTML = `
+        <td>${rowCount}</td>
+        <td><input type="text" placeholder="Enter item description"></td>
+        <td><input type="number" value="0" oninput="calculate(this)"></td>
+        <td><input type="number" value="0" oninput="calculate(this)"></td>
+        <td class="rowTotal">0.00</td>
+    `;
+}
+</script>
+
+</body>
+</html>
