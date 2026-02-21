@@ -6,116 +6,125 @@
 <title>Diary Nepal VAT Calculator</title>
 
 <style>
-*{box-sizing:border-box;font-family:Inter,Arial}
 body{
 margin:0;
-background:radial-gradient(circle at 20% 20%,#1e3a8a20,transparent),
-linear-gradient(135deg,#0f172a,#0b1c3d);
+font-family:Segoe UI;
+background:linear-gradient(135deg,#0b1c3d,#1a2f55);
 color:#fff;
 }
 
-.container{
+.wrapper{
 max-width:1200px;
 margin:auto;
 padding:40px 20px;
 }
 
-.header{text-align:center;margin-bottom:40px;}
-.logo{
-width:48px;height:48px;background:#f59e0b;border-radius:12px;
-display:inline-flex;align-items:center;justify-content:center;
-font-weight:bold;font-size:22px;margin-right:12px;
-}
-.title{display:flex;align-items:center;justify-content:center;}
-.subtitle{color:#94a3b8;margin-top:10px}
-
-.badges{
-display:flex;justify-content:center;gap:12px;margin-top:20px;
-}
-.badge{
-padding:8px 14px;border-radius:20px;background:#0f172a;
-border:1px solid #1e293b;font-size:13px;color:#cbd5e1;
-}
+.header{text-align:center;margin-bottom:30px;}
+.header h1{margin:0;font-size:32px;}
+.header p{color:#fbbf24;margin-top:5px;}
 
 .grid{
 display:grid;
 grid-template-columns:2fr 1fr;
-gap:30px;
-margin-top:40px;
+gap:25px;
 }
 
 .card{
-background:#0f172a;
-border-radius:20px;
-padding:28px;
-border:1px solid #1e293b;
-box-shadow:0 10px 40px rgba(0,0,0,.4);
+background:rgba(255,255,255,0.05);
+border-radius:16px;
+padding:25px;
+box-shadow:0 10px 30px rgba(0,0,0,.3);
 }
 
 .mode{
-display:flex;gap:10px;margin:20px 0;
+display:flex;
+gap:10px;
+margin-bottom:20px;
 }
+
 .mode button{
-flex:1;padding:14px;border-radius:12px;border:none;
-background:#1e293b;color:#94a3b8;cursor:pointer;font-weight:600;
+flex:1;
+padding:12px;
+border:none;
+border-radius:10px;
+background:#243b63;
+color:#fff;
+cursor:pointer;
 }
+
 .mode .active{
 background:linear-gradient(90deg,#f59e0b,#fb923c);
-color:#fff;
 }
 
 input{
-width:100%;padding:16px;border-radius:12px;border:1px solid #1e293b;
-background:#020617;color:white;font-size:18px;
+width:100%;
+padding:15px;
+border:none;
+border-radius:10px;
+background:#0b1c3d;
+color:white;
+font-size:18px;
+margin:15px 0;
 }
 
 .calcBtn{
-width:100%;margin-top:18px;padding:16px;border:none;
-border-radius:14px;background:linear-gradient(90deg,#f59e0b,#fb923c);
-font-size:18px;color:white;font-weight:700;cursor:pointer;
+width:100%;
+padding:15px;
+border:none;
+border-radius:12px;
+background:linear-gradient(90deg,#f59e0b,#fb923c);
+font-size:18px;
+cursor:pointer;
 }
 
 .result{
-margin-top:25px;background:#020617;padding:20px;border-radius:14px;
+margin-top:20px;
+background:#0b1c3d;
+padding:20px;
+border-radius:12px;
 }
-.row{display:flex;justify-content:space-between;margin:10px 0;}
-.total{font-size:24px;color:#f59e0b;font-weight:800;}
+
+.row{
+display:flex;
+justify-content:space-between;
+margin:8px 0;
+}
+
+.total{font-size:22px;color:#fbbf24;font-weight:bold;}
 
 .historyItem{
-background:#020617;padding:16px;border-radius:14px;
-margin-bottom:14px;border:1px solid #1e293b;
+background:#0b1c3d;
+padding:15px;
+border-radius:10px;
+margin-bottom:12px;
 }
+
 .clear{
-width:100%;padding:12px;border:none;border-radius:12px;
-background:#ef4444;color:white;margin-top:10px;cursor:pointer;
+background:#ef4444;
+margin-top:10px;
+padding:10px;
+border:none;
+border-radius:8px;
+width:100%;
+cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="wrapper">
 
 <div class="header">
-<div class="title">
-<div class="logo">₹</div>
-<div>
-<h2>Diary Nepal</h2>
-<div style="color:#f59e0b;font-size:14px">भ्याट क्यालकुलेटर</div>
-</div>
-</div>
-<div class="subtitle">नेपालको विश्वसनीय भ्याट गणना उपकरण</div>
-
-<div class="badges">
-<div class="badge">१३% VAT Rate</div>
-<div class="badge">१००% सही</div>
-<div class="badge">छिटो गणना</div>
-</div>
+<h1>Diary Nepal</h1>
+<p>नेपालको विश्वसनीय भ्याट गणना उपकरण</p>
 </div>
 
 <div class="grid">
 
+<!-- Calculator -->
 <div class="card">
+
 <h3>भ्याट क्यालकुलेटर</h3>
 
 <div class="mode">
@@ -123,18 +132,20 @@ background:#ef4444;color:white;margin-top:10px;cursor:pointer;
 <button id="removeBtn" onclick="setMode('remove')">↓ VAT हटाउनुहोस्</button>
 </div>
 
-<input id="amount" placeholder="रकम (NPR)">
+<input type="number" id="amount" placeholder="रकम (NPR)">
 
 <button class="calcBtn" onclick="calculate()">गणना गर्नुहोस्</button>
 
-<div class="result" id="result" style="display:none">
+<div class="result" id="result" style="display:none;">
 <div class="row"><span>मूल रकम</span><span id="net"></span></div>
 <div class="row"><span>VAT (13%)</span><span id="vat"></span></div>
 <hr>
 <div class="row total"><span>कुल रकम</span><span id="total"></span></div>
 </div>
+
 </div>
 
+<!-- History -->
 <div class="card">
 <h3>गणना इतिहास</h3>
 <div id="history"></div>
@@ -145,47 +156,62 @@ background:#ef4444;color:white;margin-top:10px;cursor:pointer;
 </div>
 
 <script>
-let mode="add";let history=[];
+let mode="add";
+let history=[];
+
 function setMode(m){
 mode=m;
-addBtn.classList.remove("active");
-removeBtn.classList.remove("active");
-m==="add"?addBtn.classList.add("active"):removeBtn.classList.add("active");
+document.getElementById("addBtn").classList.remove("active");
+document.getElementById("removeBtn").classList.remove("active");
+
+if(m==="add") addBtn.classList.add("active");
+else removeBtn.classList.add("active");
 }
 
 function calculate(){
-let amt=parseFloat(amount.value);
-if(!amt)return alert("रकम हाल्नुहोस्");
+let amt=parseFloat(document.getElementById("amount").value);
+if(!amt) return alert("रकम हाल्नुहोस्");
+
 let net,vat,total;
-if(mode==="add"){net=amt;vat=amt*.13;total=net+vat;}
-else{total=amt;net=amt/1.13;vat=total-net;}
-netText(net,vat,total);
+
+if(mode==="add"){
+net=amt;
+vat=amt*0.13;
+total=net+vat;
+}else{
+total=amt;
+net=amt/1.13;
+vat=total-net;
+}
+
+document.getElementById("net").innerText="NPR "+net.toFixed(2);
+document.getElementById("vat").innerText="NPR "+vat.toFixed(2);
+document.getElementById("total").innerText="NPR "+total.toFixed(2);
+document.getElementById("result").style.display="block";
+
 history.unshift({net,vat,total,time:new Date().toLocaleTimeString()});
-if(history.length>6)history.pop();
-render();
+if(history.length>6) history.pop();
+renderHistory();
 }
 
-function netText(n,v,t){
-result.style.display="block";
-net.innerText="NPR "+n.toFixed(2);
-vat.innerText="NPR "+v.toFixed(2);
-total.innerText="NPR "+t.toFixed(2);
-}
-
-function render(){
-historyBox="";
+function renderHistory(){
+let html="";
 history.forEach(h=>{
-historyBox+=`<div class="historyItem">
+html+=`
+<div class="historyItem">
 मूल: NPR ${h.net.toFixed(2)}<br>
 VAT: NPR ${h.vat.toFixed(2)}<br>
 कुल: NPR ${h.total.toFixed(2)}<br>
 <small>${h.time}</small>
 </div>`;
 });
-history.innerHTML=historyBox;
+document.getElementById("history").innerHTML=html;
 }
 
-function clearHistory(){history=[];render();}
+function clearHistory(){
+history=[];
+renderHistory();
+}
 </script>
 
 </body>
