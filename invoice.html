@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Professional Invoice Generator - Diary Nepal</title>
+<title>Professional Invoice - Diary Nepal</title>
 
 <style>
 body{
@@ -40,22 +40,11 @@ header{
   max-width:1100px;
   margin:20px auto;
   background:white;
-  padding:25px;
-}
-
-.top-section{
-  display:flex;
-  justify-content:space-between;
-  flex-wrap:wrap;
-  gap:20px;
-}
-
-.logo img{
-  max-height:100px;
+  padding:30px;
 }
 
 input, select{
-  padding:7px;
+  padding:6px;
   border:1px solid #ccc;
   border-radius:4px;
   margin:4px 0;
@@ -70,24 +59,26 @@ button.action{
   border-radius:4px;
   cursor:pointer;
   font-weight:bold;
-}
-
-button.action:hover{
-  background:#003080;
+  margin-top:10px;
 }
 
 .invoice-title{
   text-align:center;
-  font-size:28px;
+  font-size:26px;
   font-weight:bold;
   margin:20px 0;
+  letter-spacing:1px;
 }
 
-.flex{
+.top-flex{
   display:flex;
   justify-content:space-between;
   flex-wrap:wrap;
   gap:20px;
+}
+
+.logo img{
+  max-height:100px;
 }
 
 table{
@@ -112,36 +103,72 @@ tr:nth-child(even){
 }
 
 .total-section{
-  margin-top:20px;
   width:350px;
   margin-left:auto;
+  margin-top:20px;
 }
 
 .total-section div{
   display:flex;
   justify-content:space-between;
-  margin-bottom:5px;
+  margin-bottom:6px;
 }
 
 .signature{
-  margin-top:60px;
+  margin-top:70px;
   text-align:right;
+}
+
+.print-only{
+  display:none;
 }
 
 .no-print{
   margin-top:15px;
 }
 
+/* PRINT STYLING */
 @media print{
+
   body{
     background:white;
+    font-size:14px;
   }
+
   header, .no-print{
-    display:none;
+    display:none !important;
   }
+
+  input, select{
+    display:none !important;
+  }
+
   th{
     background:white !important;
     color:black !important;
+  }
+
+  .print-only{
+    display:block;
+  }
+
+  .print-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:20px;
+  }
+
+  .print-company{
+    text-align:left;
+  }
+
+  .print-logo img{
+    max-height:100px;
+  }
+
+  .invoice-title{
+    margin-top:10px;
   }
 }
 </style>
@@ -159,8 +186,8 @@ tr:nth-child(even){
 
 <div class="container">
 
-<div class="top-section">
-
+<!-- EDITABLE SECTION -->
+<div class="top-flex no-print">
   <div style="flex:1">
     <select id="invoiceType" onchange="updateTitle()">
       <option>INVOICE</option>
@@ -178,27 +205,55 @@ tr:nth-child(even){
     <input type="file" accept="image/*" onchange="loadLogo(event)">
     <img id="logoPreview">
   </div>
-
 </div>
 
 <div class="invoice-title" id="invoiceTitle">INVOICE</div>
 
-<div class="flex">
-  <div>
-    Invoice No:<br>
-    <input type="text" placeholder="INV-001">
+<div class="no-print">
+  <div style="display:flex; justify-content:space-between; gap:20px;">
+    <div>
+      Invoice No:<br>
+      <input type="text" id="invoiceNo" placeholder="INV-001">
+    </div>
+    <div>
+      Date:<br>
+      <input type="date" id="invoiceDate">
+    </div>
   </div>
-  <div>
-    Date:<br>
-    <input type="date">
+
+  <div style="margin-top:10px;">
+    <strong>Bill To:</strong><br>
+    <input type="text" id="customerName" placeholder="Customer Name">
+    <input type="text" id="customerAddress" placeholder="Customer Address">
+    <input type="text" id="customerContact" placeholder="Customer Contact">
   </div>
 </div>
 
-<div style="margin-top:15px;">
-  <strong>Bill To:</strong><br>
-  <input type="text" placeholder="Customer Name">
-  <input type="text" placeholder="Customer Address">
-  <input type="text" placeholder="Customer Contact">
+<!-- PRINT HEADER -->
+<div class="print-only">
+  <div class="print-header">
+    <div class="print-company">
+      <h2 id="printCompanyName"></h2>
+      <div id="printCompanyAddress"></div>
+      <div id="printCompanyContact"></div>
+    </div>
+    <div class="print-logo">
+      <img id="printLogo">
+    </div>
+  </div>
+
+  <div style="display:flex; justify-content:space-between; margin-top:15px;">
+    <div>
+      <strong>Bill To:</strong><br>
+      <span id="printCustomerName"></span><br>
+      <span id="printCustomerAddress"></span><br>
+      <span id="printCustomerContact"></span>
+    </div>
+    <div>
+      <strong>Invoice No:</strong> <span id="printInvoiceNo"></span><br>
+      <strong>Date:</strong> <span id="printDate"></span>
+    </div>
+  </div>
 </div>
 
 <table id="invoiceTable">
@@ -231,14 +286,8 @@ tr:nth-child(even){
 
 <div class="total-section">
 <div><span>Subtotal:</span><span id="subtotal">0.00</span></div>
-<div>
-<span>Discount:</span>
-<span><input type="number" id="discount" value="0" oninput="updateTotals()"></span>
-</div>
-<div>
-<span>VAT %:</span>
-<span><input type="number" id="vat" value="13" oninput="updateTotals()"></span>
-</div>
+<div><span>Discount:</span><span><input type="number" id="discount" value="0" oninput="updateTotals()"></span></div>
+<div><span>VAT %:</span><span><input type="number" id="vat" value="13" oninput="updateTotals()"></span></div>
 <div><strong>Grand Total:</strong><strong id="grandTotal">0.00</strong></div>
 </div>
 
@@ -269,9 +318,9 @@ function calculate(el){
 }
 
 function updateTotals(){
-  let totals = document.querySelectorAll(".rowTotal");
+  let totals=document.querySelectorAll(".rowTotal");
   let subtotal=0;
-  totals.forEach(t=> subtotal+=parseFloat(t.innerText)||0);
+  totals.forEach(t=>subtotal+=parseFloat(t.innerText)||0);
   document.getElementById("subtotal").innerText=subtotal.toFixed(2);
 
   let discount=parseFloat(document.getElementById("discount").value)||0;
@@ -308,9 +357,36 @@ function loadLogo(event){
   const reader=new FileReader();
   reader.onload=function(){
     document.getElementById("logoPreview").src=reader.result;
+    document.getElementById("printLogo").src=reader.result;
   }
   reader.readAsDataURL(event.target.files[0]);
 }
+
+window.onbeforeprint=function(){
+  document.getElementById("printCompanyName").innerText=
+  document.getElementById("companyName").value;
+
+  document.getElementById("printCompanyAddress").innerText=
+  document.getElementById("companyAddress").value;
+
+  document.getElementById("printCompanyContact").innerText=
+  document.getElementById("companyContact").value;
+
+  document.getElementById("printCustomerName").innerText=
+  document.getElementById("customerName").value;
+
+  document.getElementById("printCustomerAddress").innerText=
+  document.getElementById("customerAddress").value;
+
+  document.getElementById("printCustomerContact").innerText=
+  document.getElementById("customerContact").value;
+
+  document.getElementById("printInvoiceNo").innerText=
+  document.getElementById("invoiceNo").value;
+
+  document.getElementById("printDate").innerText=
+  document.getElementById("invoiceDate").value;
+};
 
 function numberToWords(num){
   const a=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten",
