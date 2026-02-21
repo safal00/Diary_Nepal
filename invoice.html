@@ -86,7 +86,6 @@ button{
 
   .no-print,
   input,
-  select,
   textarea{
     display:none !important;
   }
@@ -102,6 +101,13 @@ button{
     border-bottom:2px solid black;
   }
 
+  h3{
+    text-align:center;
+    text-transform:uppercase;
+    font-size:22px;
+    margin-top:20px;
+    margin-bottom:20px;
+  }
 }
 </style>
 </head>
@@ -170,11 +176,7 @@ Company Name: <input type="text" id="companyName"><br><br>
 Address: <input type="text" id="companyAddress"><br><br>
 Phone/Email: <input type="text" id="companyContact"><br><br>
 
-Invoice Type:
-<select id="invoiceType">
-<option>Invoice</option>
-<option>Proforma Invoice</option>
-</select><br><br>
+Invoice Type: <input type="text" id="invoiceType" placeholder="e.g. Invoice"><br><br>
 
 Invoice No: <input type="text" id="invoiceNo"><br><br>
 Date: <input type="date" id="date"><br><br>
@@ -193,6 +195,7 @@ Upload Logo: <input type="file" id="logoInput"><br><br>
 
 <script>
 
+// Logo upload
 document.getElementById("logoInput").addEventListener("change",function(e){
   const reader=new FileReader();
   reader.onload=function(){
@@ -201,6 +204,7 @@ document.getElementById("logoInput").addEventListener("change",function(e){
   reader.readAsDataURL(e.target.files[0]);
 });
 
+// Add new item row
 function addItem(){
   let row=document.createElement("tr");
   row.innerHTML=`
@@ -212,9 +216,9 @@ function addItem(){
   document.getElementById("itemsBody").appendChild(row);
 }
 
+// Calculate totals
 document.addEventListener("input",function(){
   let total=0;
-
   document.querySelectorAll("#itemsBody tr").forEach(row=>{
     let qty=row.querySelector(".qty").value || 0;
     let rate=row.querySelector(".rate").value || 0;
@@ -222,12 +226,11 @@ document.addEventListener("input",function(){
     row.querySelector(".amount").innerText=amount.toFixed(2);
     total+=amount;
   });
-
   document.getElementById("grandTotal").innerText=total.toFixed(2);
 });
 
+// Before printing, populate text
 window.onbeforeprint=function(){
-
   document.getElementById("printCompanyName").innerText=
     document.getElementById("companyName").value;
 
