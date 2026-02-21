@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ne">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,59 +8,78 @@
 <style>
 body{
 margin:0;
-font-family:Arial;
-background:linear-gradient(135deg,#0f172a,#1e293b,#0f172a);
-color:white;
+font-family:Segoe UI;
+background:linear-gradient(135deg,#0b1c3d,#1a2f55);
+color:#fff;
 }
 
-.container{
-max-width:1100px;
+.wrapper{
+max-width:1200px;
 margin:auto;
 padding:40px 20px;
-display:grid;
-grid-template-columns:2fr 1fr;
-gap:30px;
 }
 
-h1{text-align:center;}
-.subtitle{text-align:center;color:#f59e0b;margin-bottom:30px;}
+.header{text-align:center;margin-bottom:30px;}
+.header h1{margin:0;font-size:32px;}
+.header p{color:#fbbf24;margin-top:5px;}
+
+.grid{
+display:grid;
+grid-template-columns:2fr 1fr;
+gap:25px;
+}
 
 .card{
 background:rgba(255,255,255,0.05);
-padding:30px;
 border-radius:16px;
-backdrop-filter:blur(10px);
+padding:25px;
+box-shadow:0 10px 30px rgba(0,0,0,.3);
+}
+
+.mode{
+display:flex;
+gap:10px;
+margin-bottom:20px;
+}
+
+.mode button{
+flex:1;
+padding:12px;
+border:none;
+border-radius:10px;
+background:#243b63;
+color:#fff;
+cursor:pointer;
+}
+
+.mode .active{
+background:linear-gradient(90deg,#f59e0b,#fb923c);
 }
 
 input{
 width:100%;
-padding:14px;
-border-radius:10px;
+padding:15px;
 border:none;
-margin-top:10px;
+border-radius:10px;
+background:#0b1c3d;
+color:white;
 font-size:18px;
+margin:15px 0;
 }
 
-button{
+.calcBtn{
 width:100%;
 padding:15px;
-margin-top:15px;
 border:none;
 border-radius:12px;
 background:linear-gradient(90deg,#f59e0b,#fb923c);
-color:white;
-font-size:16px;
+font-size:18px;
 cursor:pointer;
-}
-
-.modeBtns button{
-width:48%;
-margin-top:10px;
 }
 
 .result{
 margin-top:20px;
-background:rgba(0,0,0,0.4);
+background:#0b1c3d;
 padding:20px;
 border-radius:12px;
 }
@@ -71,68 +90,69 @@ justify-content:space-between;
 margin:8px 0;
 }
 
-.total{
-font-size:22px;
-font-weight:bold;
-color:#f59e0b;
-}
-
-.history{
-max-height:500px;
-overflow:auto;
-}
+.total{font-size:22px;color:#fbbf24;font-weight:bold;}
 
 .historyItem{
-background:rgba(255,255,255,0.05);
-padding:12px;
+background:#0b1c3d;
+padding:15px;
 border-radius:10px;
-margin-bottom:10px;
-font-size:14px;
+margin-bottom:12px;
 }
 
-.clearBtn{
+.clear{
 background:#ef4444;
 margin-top:10px;
+padding:10px;
+border:none;
+border-radius:8px;
+width:100%;
+cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
-<h1>Diary Nepal</h1>
-<p class="subtitle">VAT Calculator (13%)</p>
+<div class="wrapper">
 
-<div class="container">
+<div class="header">
+<h1>Diary Nepal</h1>
+<p>नेपालको विश्वसनीय भ्याट गणना उपकरण</p>
+</div>
+
+<div class="grid">
 
 <!-- Calculator -->
 <div class="card">
 
-<label>Amount (NPR)</label>
-<input type="number" id="amount" placeholder="Enter amount">
+<h3>भ्याट क्यालकुलेटर</h3>
 
-<div class="modeBtns">
-<button onclick="setMode('add')">Add VAT</button>
-<button onclick="setMode('remove')">Remove VAT</button>
+<div class="mode">
+<button id="addBtn" class="active" onclick="setMode('add')">↑ VAT थप्नुहोस्</button>
+<button id="removeBtn" onclick="setMode('remove')">↓ VAT हटाउनुहोस्</button>
 </div>
 
-<button onclick="calculate()">Calculate</button>
+<input type="number" id="amount" placeholder="रकम (NPR)">
+
+<button class="calcBtn" onclick="calculate()">गणना गर्नुहोस्</button>
 
 <div class="result" id="result" style="display:none;">
-<div class="row"><span>Net Amount</span><span id="net"></span></div>
-<div class="row"><span>VAT</span><span id="vat"></span></div>
+<div class="row"><span>मूल रकम</span><span id="net"></span></div>
+<div class="row"><span>VAT (13%)</span><span id="vat"></span></div>
 <hr>
-<div class="row total"><span>Total</span><span id="total"></span></div>
+<div class="row total"><span>कुल रकम</span><span id="total"></span></div>
 </div>
 
 </div>
 
 <!-- History -->
 <div class="card">
-<h3>Recent Calculations</h3>
-<div class="history" id="history"></div>
-<button class="clearBtn" onclick="clearHistory()">Clear History</button>
+<h3>गणना इतिहास</h3>
+<div id="history"></div>
+<button class="clear" onclick="clearHistory()">इतिहास हटाउनुहोस्</button>
 </div>
 
+</div>
 </div>
 
 <script>
@@ -141,13 +161,18 @@ let history=[];
 
 function setMode(m){
 mode=m;
+document.getElementById("addBtn").classList.remove("active");
+document.getElementById("removeBtn").classList.remove("active");
+
+if(m==="add") addBtn.classList.add("active");
+else removeBtn.classList.add("active");
 }
 
 function calculate(){
 let amt=parseFloat(document.getElementById("amount").value);
-if(!amt){alert("Enter amount");return;}
+if(!amt) return alert("रकम हाल्नुहोस्");
 
-let vat,net,total;
+let net,vat,total;
 
 if(mode==="add"){
 net=amt;
@@ -164,16 +189,8 @@ document.getElementById("vat").innerText="NPR "+vat.toFixed(2);
 document.getElementById("total").innerText="NPR "+total.toFixed(2);
 document.getElementById("result").style.display="block";
 
-addHistory(net,vat,total);
-}
-
-function addHistory(net,vat,total){
-let item={
-time:new Date().toLocaleTimeString(),
-net,vat,total
-};
-history.unshift(item);
-if(history.length>10)history.pop();
+history.unshift({net,vat,total,time:new Date().toLocaleTimeString()});
+if(history.length>6) history.pop();
 renderHistory();
 }
 
@@ -182,13 +199,13 @@ let html="";
 history.forEach(h=>{
 html+=`
 <div class="historyItem">
-Net: NPR ${h.net.toFixed(2)}<br>
+मूल: NPR ${h.net.toFixed(2)}<br>
 VAT: NPR ${h.vat.toFixed(2)}<br>
-Total: NPR ${h.total.toFixed(2)}<br>
+कुल: NPR ${h.total.toFixed(2)}<br>
 <small>${h.time}</small>
 </div>`;
 });
-document.getElementById("history").innerHTML=html||"No history yet";
+document.getElementById("history").innerHTML=html;
 }
 
 function clearHistory(){
