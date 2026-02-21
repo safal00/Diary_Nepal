@@ -3,121 +3,118 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Delivery Challan - Diary Nepal</title>
-
-<link rel="stylesheet" href="style.css">
+<title>Universal Invoice Generator</title>
 
 <style>
+body{
+  font-family:Arial, sans-serif;
+  margin:0;
+  background:#f4f6f9;
+}
+
 header{
-  text-align:center;
-  padding:20px;
   background:#004aad;
   color:white;
-}
-header h1{
-  margin:0;
-}
-header p{
-  margin:5px 0 0;
+  text-align:center;
+  padding:15px;
 }
 
 .container{
   max-width:1100px;
   margin:auto;
+  background:white;
   padding:20px;
 }
 
-.top-buttons{
+.top-section{
   display:flex;
   justify-content:space-between;
   flex-wrap:wrap;
-  gap:10px;
-  margin-bottom:15px;
+  gap:15px;
 }
 
-input, button{
-  padding:8px 10px;
-  font-size:1em;
-  border-radius:4px;
+.logo-box img{
+  max-height:100px;
+}
+
+input, select{
+  padding:8px;
   border:1px solid #ccc;
+  border-radius:4px;
+  margin:5px 0;
+  width:100%;
 }
 
 button{
+  padding:8px 15px;
+  border:none;
+  border-radius:4px;
   background:#004aad;
   color:white;
   cursor:pointer;
   font-weight:bold;
-  transition:0.3s;
 }
 
 button:hover{
   background:#003080;
 }
 
-.challan-info{
+.invoice-title{
+  text-align:center;
+  font-size:28px;
+  font-weight:bold;
+  margin:20px 0;
+}
+
+.flex{
   display:flex;
   justify-content:space-between;
   flex-wrap:wrap;
   gap:15px;
-  margin-top:15px;
 }
 
-.company-box{
-  text-align:center;
-  margin-top:20px;
-}
-
-.results-table{
+table{
   width:100%;
   border-collapse:collapse;
   margin-top:20px;
 }
 
-.results-table th,
-.results-table td{
+th,td{
   border:1px solid #ccc;
-  padding:10px 8px;
+  padding:10px;
   text-align:center;
-  vertical-align:top;
 }
 
-.results-table th{
+th{
   background:#004aad;
   color:white;
 }
 
-.results-table tr:nth-child(even){
+tr:nth-child(even){
   background:#f2f2f2;
 }
 
 .total-box{
-  margin-top:20px;
   text-align:right;
   font-size:18px;
+  margin-top:15px;
   font-weight:bold;
 }
 
-footer{
-  text-align:center;
-  padding:15px;
-  margin-top:30px;
-  background:#f2f2f2;
-}
-
-@media(max-width:800px){
-  .challan-info{
-    flex-direction:column;
-  }
-  .results-table th,
-  .results-table td{
-    font-size:0.9em;
-    padding:6px 4px;
-  }
+.controls{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:15px;
+  flex-wrap:wrap;
+  gap:10px;
 }
 
 @media print{
-  button, header, footer{
+  .controls, header, .no-print{
     display:none;
+  }
+  body{
+    background:white;
   }
 }
 </style>
@@ -126,76 +123,96 @@ footer{
 <body>
 
 <header>
-  <h1>Delivery Challan</h1>
-  <p>Neupane Print Solutions Pvt. Ltd</p>
+  <h2>Universal Invoice Generator</h2>
 </header>
 
-<main class="container">
+<div class="container">
 
-  <div class="top-buttons">
-    <button onclick="addRow()">+ Add Item</button>
-    <button onclick="window.print()">Print Challan</button>
+<div class="controls no-print">
+  <button onclick="addRow()">+ Add Item</button>
+  <button onclick="window.print()">Print / Save PDF</button>
+</div>
+
+<div class="top-section">
+  <div style="flex:1">
+    <label>Invoice Type</label>
+    <select id="invoiceType" onchange="updateTitle()">
+      <option>Invoice</option>
+      <option>Tax Invoice</option>
+      <option>Delivery Challan</option>
+      <option>Proforma Invoice</option>
+    </select>
+
+    <label>Company Name</label>
+    <input type="text" placeholder="Your Company Name">
+
+    <label>Company Address</label>
+    <input type="text" placeholder="Company Address">
+
+    <label>Phone / Email</label>
+    <input type="text" placeholder="Contact details">
   </div>
 
-  <div class="company-box">
-    <strong>Lalitpur Sankhamul -11</strong><br>
-    Tel: 015269589
+  <div class="logo-box">
+    <label class="no-print">Upload Logo</label>
+    <input type="file" accept="image/*" onchange="loadLogo(event)" class="no-print">
+    <img id="logoPreview">
   </div>
+</div>
 
-  <div class="challan-info">
-    <div>
-      Challan No:
-      <input type="text" value="001">
-    </div>
-    <div>
-      Date:
-      <input type="date">
-    </div>
+<div class="invoice-title" id="invoiceTitle">Invoice</div>
+
+<div class="flex">
+  <div>
+    Invoice No: <input type="text" placeholder="INV-001">
   </div>
-
-  <div class="challan-info">
-    <div>
-      Buyer's Detail:
-      <input type="text" placeholder="Name / Company">
-    </div>
-    <div>
-      Phone:
-      <input type="text" placeholder="Contact Number">
-    </div>
+  <div>
+    Date: <input type="date">
   </div>
+</div>
 
-  <table class="results-table" id="challanTable">
-    <thead>
-      <tr>
-        <th>S.N.</th>
-        <th>Description of Goods</th>
-        <th>Quantity</th>
-        <th>Rate</th>
-        <th>Total</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>1</td>
-        <td><input type="text" placeholder="Enter item description"></td>
-        <td><input type="number" value="0" oninput="calculate(this)"></td>
-        <td><input type="number" value="0" oninput="calculate(this)"></td>
-        <td class="rowTotal">0.00</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div class="total-box">
-    Grand Total: Rs. <span id="grandTotal">0.00</span>
+<div class="flex">
+  <div>
+    Bill To: <input type="text" placeholder="Customer Name">
   </div>
+  <div>
+    Phone: <input type="text" placeholder="Customer Contact">
+  </div>
+</div>
 
-</main>
+<table id="invoiceTable">
+  <thead>
+    <tr>
+      <th>S.N.</th>
+      <th>Description</th>
+      <th>Qty</th>
+      <th>Rate</th>
+      <th>Total</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td><input type="text" placeholder="Item description"></td>
+      <td><input type="number" value="0" oninput="calculate(this)"></td>
+      <td><input type="number" value="0" oninput="calculate(this)"></td>
+      <td class="rowTotal">0.00</td>
+    </tr>
+  </tbody>
+</table>
 
-<footer>
-  <p>© 2026 Diary Nepal | Delivery System</p>
-</footer>
+<div class="total-box">
+  Grand Total: Rs. <span id="grandTotal">0.00</span>
+</div>
+
+</div>
 
 <script>
+function updateTitle(){
+  document.getElementById("invoiceTitle").innerText =
+    document.getElementById("invoiceType").value;
+}
+
 function calculate(el){
   let row = el.parentElement.parentElement;
   let qty = parseFloat(row.children[2].children[0].value) || 0;
@@ -215,17 +232,25 @@ function updateGrandTotal(){
 }
 
 function addRow(){
-  let table = document.getElementById("challanTable").getElementsByTagName('tbody')[0];
+  let table = document.getElementById("invoiceTable").getElementsByTagName('tbody')[0];
   let rowCount = table.rows.length + 1;
 
   let row = table.insertRow();
   row.innerHTML = `
     <td>${rowCount}</td>
-    <td><input type="text" placeholder="Enter item description"></td>
+    <td><input type="text" placeholder="Item description"></td>
     <td><input type="number" value="0" oninput="calculate(this)"></td>
     <td><input type="number" value="0" oninput="calculate(this)"></td>
     <td class="rowTotal">0.00</td>
   `;
+}
+
+function loadLogo(event){
+  const reader = new FileReader();
+  reader.onload = function(){
+    document.getElementById("logoPreview").src = reader.result;
+  }
+  reader.readAsDataURL(event.target.files[0]);
 }
 </script>
 
