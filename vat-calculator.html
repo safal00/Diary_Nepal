@@ -1,1 +1,124 @@
+import { useState } from 'react'
+import { Calculator, Check, RefreshCw, Sparkles, Shield, Clock } from 'lucide-react'
+import VATCalculator from './components/VATCalculator'
+import CalculationHistory from './components/CalculationHistory'
 
+function App() {
+  const [history, setHistory] = useState<Array<{
+    id: string
+    type: 'add' | 'remove'
+    amount: number
+    vat: number
+    total: number
+    timestamp: Date
+  }>>([])
+
+  const addToHistory = (type: 'add' | 'remove', amount: number, vat: number, total: number) => {
+    const entry = {
+      id: Date.now().toString(),
+      type,
+      amount,
+      vat,
+      total,
+      timestamp: new Date()
+    }
+    setHistory(prev => [entry, ...prev].slice(0, 10))
+  }
+
+  const clearHistory = () => setHistory([])
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      {/* Background Pattern */}
+      <div className="fixed inset-0 opacity-5">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `radial-gradient(circle at 25% 25%, #fbbf24 1px, transparent 1px),
+                           radial-gradient(circle at 75% 75%, #fbbf24 1px, transparent 1px)`,
+          backgroundSize: '50px 50px'
+        }}></div>
+      </div>
+
+      <div className="relative z-10 container mx-auto px-4 py-12">
+        {/* Header */}
+        <header className="text-center mb-12">
+          <div className="inline-flex items-center gap-3 mb-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/20">
+              <Calculator className="w-7 h-7 text-white" />
+            </div>
+            <div className="text-left">
+              <h1 className="text-3xl font-bold text-white tracking-tight">Diary Nepal</h1>
+              <p className="text-amber-400 font-medium">VAT Calculator</p>
+            </div>
+          </div>
+          <p className="text-slate-400 max-w-xl mx-auto text-lg">
+            Nepal's trusted VAT calculation tool - Accurate, Fast, Easy
+          </p>
+        </header>
+
+        {/* Features Bar */}
+        <div className="flex flex-wrap justify-center gap-4 mb-12">
+          <div className="flex items-center gap-2 px-4 py-2 bg-slate-800/50 backdrop-blur-sm rounded-full border border-slate-700/50">
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            <span className="text-slate-300 text-sm">13% VAT Rate</span>
+          </div>
+          <div className="flex items-center gap-2 px-4 py-2 bg-slate-800/50 backdrop-blur-sm rounded-full border border-slate-700/50">
+            <Shield className="w-4 h-4 text-emerald-400" />
+            <span className="text-slate-300 text-sm">100% Accurate</span>
+          </div>
+          <div className="flex items-center gap-2 px-4 py-2 bg-slate-800/50 backdrop-blur-sm rounded-full border border-slate-700/50">
+            <Clock className="w-4 h-4 text-blue-400" />
+            <span className="text-slate-300 text-sm">Calculate in seconds</span>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {/* Calculator Section */}
+          <div className="lg:col-span-2">
+            <VATCalculator onCalculate={addToHistory} />
+          </div>
+
+          {/* History Section */}
+          <div className="lg:col-span-1">
+            <CalculationHistory 
+              history={history} 
+              onClear={clearHistory}
+            />
+          </div>
+        </div>
+
+        {/* Info Cards */}
+        <div className="grid md:grid-cols-3 gap-6 mt-16 max-w-4xl mx-auto">
+          <div className="bg-slate-800/30 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50 hover:border-amber-500/30 transition-all duration-300">
+            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center mb-4">
+              <Check className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="text-white font-semibold mb-2">Error-Free</h3>
+            <p className="text-slate-400 text-sm">Zero chance of human error, every calculation accurate</p>
+          </div>
+          <div className="bg-slate-800/30 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50 hover:border-amber-500/30 transition-all duration-300">
+            <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center mb-4">
+              <Clock className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="text-white font-semibold mb-2">Time Saving</h3>
+            <p className="text-slate-400 text-sm">Complete complex calculations in seconds</p>
+          </div>
+          <div className="bg-slate-800/30 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50 hover:border-amber-500/30 transition-all duration-300">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-4">
+              <RefreshCw className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="text-white font-semibold mb-2">Any Time</h3>
+            <p className="text-slate-400 text-sm">Suitable for businesses, shops, offices</p>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <footer className="text-center mt-16 text-slate-500 text-sm">
+          <p>© 2024 Diary Nepal - VAT Calculator | Made with ❤️ for Nepal</p>
+        </footer>
+      </div>
+    </div>
+  )
+}
+
+export default App
