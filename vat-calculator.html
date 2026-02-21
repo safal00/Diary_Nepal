@@ -1,102 +1,264 @@
-<div style="font-family: Arial; background:#f3f4f6; padding:20px;">
-  <div style="max-width:900px;margin:auto;">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diary Nepal VAT Calculator</title>
 
-    <h2 style="text-align:center;color:#2563eb;margin-bottom:0;">Diary Nepal</h2>
-    <p style="text-align:center;color:gray;margin-top:5px;">VAT Calculator</p>
+<style>
+body{
+font-family: Arial, sans-serif;
+background:#f4f6f9;
+margin:0;
+}
 
-    <div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:20px;">
+/* HEADER */
+.header{
+background: linear-gradient(to right,#4f46e5,#0891b2);
+color:white;
+text-align:center;
+padding:25px 10px;
+font-size:22px;
+font-weight:bold;
+}
 
-      <!-- Calculator -->
-      <div style="background:#fff;padding:20px;border-radius:12px;flex:1;box-shadow:0 4px 10px rgba(0,0,0,0.08);">
-        <h3>Calculate VAT</h3>
+/* TOP CARDS */
+.top-cards{
+display:flex;
+flex-wrap:wrap;
+gap:15px;
+padding:20px;
+justify-content:center;
+}
 
-        <div>
-          <button onclick="setMode('add')" id="addBtn" style="padding:8px 12px;border:none;background:#6366f1;color:white;border-radius:6px;">Add VAT</button>
-          <button onclick="setMode('remove')" id="removeBtn" style="padding:8px 12px;border:none;background:#e5e7eb;border-radius:6px;">Remove VAT</button>
-        </div>
+.top-card{
+background:white;
+padding:15px 20px;
+border-radius:10px;
+box-shadow:0 3px 8px rgba(0,0,0,0.08);
+font-weight:600;
+color:#555;
+}
 
-        <label style="display:block;margin-top:15px;font-weight:bold;">Amount *</label>
-        <input type="number" id="amount" placeholder="Rs. 0"
-          style="width:100%;padding:10px;margin-top:6px;border-radius:6px;border:1px solid #ccc;">
+/* MAIN GRID */
+.main{
+display:flex;
+flex-wrap:wrap;
+gap:20px;
+padding:20px;
+}
 
-        <label style="display:block;margin-top:15px;font-weight:bold;">VAT Rate</label>
+.card{
+background:white;
+border-radius:12px;
+padding:20px;
+flex:1;
+min-width:280px;
+box-shadow:0 4px 10px rgba(0,0,0,0.08);
+}
 
-        <div>
-          <button onclick="setRate(5,this)" style="margin-top:5px;">5%</button>
-          <button onclick="setRate(10,this)">10%</button>
-          <button onclick="setRate(13,this)" id="defaultRate" style="background:#6366f1;color:white;">13%</button>
-          <button onclick="setRate(15,this)">15%</button>
-        </div>
+.tabs button{
+padding:8px 12px;
+border:none;
+margin-right:5px;
+border-radius:6px;
+cursor:pointer;
+background:#e5e7eb;
+}
 
-        <button onclick="calculateVAT()"
-          style="width:100%;margin-top:20px;padding:12px;border:none;background:linear-gradient(to right,#6366f1,#10b981);color:white;font-size:16px;border-radius:8px;cursor:pointer;">
-          Calculate
-        </button>
-      </div>
+.active-tab{
+background:#6366f1!important;
+color:white!important;
+}
 
-      <!-- Result -->
-      <div style="background:#fff;padding:20px;border-radius:12px;flex:1;
-      box-shadow:0 4px 10px rgba(0,0,0,0.08);
-      display:flex;align-items:center;justify-content:center;text-align:center;color:gray;font-size:18px;">
-        <div id="result">Enter amount to see results</div>
-      </div>
+input{
+width:100%;
+padding:10px;
+margin-top:8px;
+border-radius:6px;
+border:1px solid #ccc;
+}
 
-    </div>
+.rate-btn{
+margin-top:6px;
+padding:8px 10px;
+border:none;
+border-radius:6px;
+background:#e5e7eb;
+cursor:pointer;
+}
 
-    <!-- Tips -->
-    <div style="background:#fff7ed;border:1px solid #fde68a;padding:15px;margin-top:20px;border-radius:10px;">
-      <b>Quick Tips</b>
-      <ul>
-        <li>Standard VAT rate in Nepal is 13%</li>
-        <li>Add VAT = Base Amount + VAT</li>
-        <li>Remove VAT = Extract VAT from total</li>
-      </ul>
-    </div>
+.rate-active{
+background:#6366f1;
+color:white;
+}
 
-  </div>
+.calc-btn{
+width:100%;
+margin-top:20px;
+padding:12px;
+border:none;
+border-radius:8px;
+font-size:16px;
+color:white;
+cursor:pointer;
+background: linear-gradient(to right,#6366f1,#10b981);
+}
+
+.result{
+display:flex;
+align-items:center;
+justify-content:center;
+height:160px;
+color:gray;
+font-size:18px;
+text-align:center;
+}
+
+/* TIPS */
+.tips{
+background:#fff7ed;
+border:1px solid #fde68a;
+margin:0 20px;
+padding:15px;
+border-radius:10px;
+}
+
+/* BOTTOM CARDS */
+.bottom{
+display:flex;
+flex-wrap:wrap;
+gap:20px;
+padding:20px;
+}
+
+.info{
+flex:1;
+min-width:250px;
+padding:20px;
+border-radius:12px;
+color:white;
+font-weight:bold;
+}
+
+.blue{background:#4f46e5;}
+.green{background:#059669;}
+.orange{background:#f97316;}
+
+.info p{
+font-weight:normal;
+margin-top:8px;
+font-size:14px;
+}
+
+</style>
+</head>
+<body>
+
+<div class="header">
+Diary Nepal<br>
+<span style="font-size:14px;font-weight:normal;">VAT Calculator</span>
+</div>
+
+<div class="top-cards">
+<div class="top-card">🏢 For Businesses</div>
+<div class="top-card">🏪 For Shops</div>
+<div class="top-card">🏬 For Offices</div>
+<div class="top-card">☕ Service Sector</div>
+</div>
+
+<div class="main">
+
+<div class="card">
+<h3>Calculate VAT</h3>
+
+<div class="tabs">
+<button class="active-tab" id="addBtn" onclick="setMode('add',this)">Add VAT</button>
+<button onclick="setMode('remove',this)">Remove VAT</button>
+</div>
+
+<label>Amount *</label>
+<input type="number" id="amount" placeholder="Rs. 0">
+
+<label style="margin-top:10px;display:block;">VAT Rate</label>
+
+<button class="rate-btn rate-active" onclick="setRate(13,this)">13%</button>
+<button class="rate-btn" onclick="setRate(5,this)">5%</button>
+<button class="rate-btn" onclick="setRate(10,this)">10%</button>
+<button class="rate-btn" onclick="setRate(15,this)">15%</button>
+
+<button class="calc-btn" onclick="calculateVAT()">Calculate</button>
+</div>
+
+<div class="card result" id="result">
+Enter amount to see results
+</div>
+
+</div>
+
+<div class="tips">
+<b>Quick Tips</b>
+<ul>
+<li>Standard VAT rate in Nepal is 13%</li>
+<li>Add VAT = Base Amount + VAT</li>
+<li>Remove VAT = Extract VAT from total</li>
+</ul>
+</div>
+
+<div class="bottom">
+<div class="info blue">
+13% Standard Rate
+<p>The standard VAT rate in Nepal is 13%.</p>
+</div>
+
+<div class="info green">
+Accurate Billing
+<p>Correct VAT calculations make billing easier.</p>
+</div>
+
+<div class="info orange">
+Save Time
+<p>This calculator saves time compared to manual calculation.</p>
+</div>
 </div>
 
 <script>
-let rate = 13;
-let mode = "add";
+let rate=13;
+let mode="add";
 
-function setRate(r, el){
-  rate = r;
-  document.querySelectorAll("[onclick^='setRate']").forEach(b=>{
-    b.style.background="#e5e7eb";
-    b.style.color="#000";
-  });
-  el.style.background="#6366f1";
-  el.style.color="#fff";
+function setRate(r,el){
+rate=r;
+document.querySelectorAll(".rate-btn").forEach(b=>b.classList.remove("rate-active"));
+el.classList.add("rate-active");
 }
 
-function setMode(m){
-  mode = m;
-  document.getElementById("addBtn").style.background = m==="add" ? "#6366f1" : "#e5e7eb";
-  document.getElementById("addBtn").style.color = m==="add" ? "#fff" : "#000";
-
-  document.getElementById("removeBtn").style.background = m==="remove" ? "#6366f1" : "#e5e7eb";
-  document.getElementById("removeBtn").style.color = m==="remove" ? "#fff" : "#000";
+function setMode(m,el){
+mode=m;
+document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active-tab"));
+el.classList.add("active-tab");
 }
 
 function calculateVAT(){
-  const amount = parseFloat(document.getElementById("amount").value);
-  if(!amount){
-    document.getElementById("result").innerHTML="Please enter amount";
-    return;
-  }
+const amount=parseFloat(document.getElementById("amount").value);
+if(!amount){
+document.getElementById("result").innerHTML="Please enter amount";
+return;
+}
 
-  let vat,total;
+let vat,total;
 
-  if(mode==="add"){
-    vat = amount*rate/100;
-    total = amount + vat;
-  }else{
-    vat = amount - (amount/(1+rate/100));
-    total = amount - vat;
-  }
+if(mode==="add"){
+vat=amount*rate/100;
+total=amount+vat;
+}else{
+vat=amount-(amount/(1+rate/100));
+total=amount-vat;
+}
 
-  document.getElementById("result").innerHTML =
-    "VAT: Rs " + vat.toFixed(2) + "<br>Total: Rs " + total.toFixed(2);
+document.getElementById("result").innerHTML=
+"VAT: Rs "+vat.toFixed(2)+"<br>Total: Rs "+total.toFixed(2);
 }
 </script>
+
+</body>
+</html>
