@@ -2,174 +2,260 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Delivery Challan</title>
+<title>VAT Calculator</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
 <style>
-body{font-family:Arial,sans-serif;margin:30px;color:#000;background:#fff;}
-.wrapper{max-width:1000px;margin:auto;padding:20px;border:1px solid #ccc;border-radius:8px;}
-.header{text-align:center;font-size:28px;font-weight:700;margin-bottom:20px;color:#1565c0;}
-.top{display:flex;justify-content:space-between;margin-bottom:20px;}
-.box{padding:10px;width:48%;}
-.line{display:flex;justify-content:space-between;margin:5px 0;}
-.fill{flex:1;margin-left:5px;text-transform:capitalize;}
-table{width:100%;border-collapse:collapse;margin-top:15px;}
-th,td{border:1px solid #000;padding:6px;text-align:center;}
-input{width:100%;border:none;text-align:center;text-transform:capitalize;}
-.amount{text-align:right;}
-.total-row td{border:none;}
-.words{margin-top:8px;font-style:italic;}
-.footer{margin-top:20px;display:flex;justify-content:space-between;font-size:14px;}
-.footer input{border:none;border-bottom:1px solid #000;background:transparent;width:200px;}
-.add-remove{margin:10px 0;}
-.add-remove button{padding:8px 12px;margin-right:5px;background:#1565c0;color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
-.add-remove button:hover{background:#0d47a1;}
-@media print{
-  .add-remove,.no-print{display:none;}
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Inter',sans-serif;
+}
+
+body{
+  background:#eef1f5;
+  padding:30px;
+}
+
+/* MAIN CARD */
+.wrapper{
+  max-width:880px;
+  margin:auto;
+  background:#fff;
+  border-radius:12px;
+  box-shadow:0 8px 25px rgba(0,0,0,0.08);
+  overflow:hidden;
+}
+
+/* HEADER */
+.header{
+  background:#1565c0;
+  color:white;
+  padding:18px 22px;
+  font-size:22px;
+  font-weight:700;
+  letter-spacing:.4px;
+}
+
+/* LAYOUT */
+.content{
+  display:flex;
+}
+
+.left,.right{
+  flex:1;
+  padding:22px;
+}
+
+/* vertical divider */
+.right{
+  border-left:1px solid #e5e7eb;
+}
+
+/* INPUT ROW STYLE */
+.field{
+  margin-bottom:18px;
+}
+
+label{
+  font-size:13px;
+  font-weight:600;
+  color:#444;
+}
+
+input, select{
+  width:100%;
+  padding:10px;
+  margin-top:6px;
+  border-radius:6px;
+  border:1px solid #d6dbe1;
+  font-size:15px;
+}
+
+/* BUTTON */
+button{
+  width:100%;
+  padding:13px;
+  margin-top:5px;
+  background:#1565c0;
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  font-weight:600;
+  font-size:15px;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#0d47a1;
+}
+
+/* SUMMARY PANEL */
+.summary-title{
+  font-weight:700;
+  margin-bottom:15px;
+  color:#1565c0;
+}
+
+.line{
+  display:flex;
+  justify-content:space-between;
+  padding:10px 0;
+  border-bottom:1px solid #e5e7eb;
+  font-size:15px;
+}
+
+.line span:last-child{
+  font-weight:600;
+}
+
+.total{
+  display:flex;
+  justify-content:space-between;
+  padding-top:16px;
+  font-size:22px;
+  font-weight:700;
+  color:#1565c0;
+}
+
+/* FOOTER */
+.footer{
+  background:#000;
+  color:#fff;
+  text-align:center;
+  padding:12px;
+  font-size:12px;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+  .content{
+    flex-direction:column;
+  }
+  .right{
+    border-left:none;
+    border-top:1px solid #e5e7eb;
+  }
 }
 </style>
 </head>
+
 <body>
 
 <div class="wrapper">
-<div class="header">DELIVERY CHALLAN</div>
 
-<div class="top">
-<div class="box">
-<div class="line"><span>Company Name:</span><span class="fill" contenteditable></span></div>
-<div class="line"><span>Company Address:</span><span class="fill" contenteditable></span></div>
-<div class="line"><span>Company Phone:</span><span class="fill" contenteditable></span></div>
-</div>
+  <div class="header">VAT Calculator</div>
 
-<div class="box">
-<div class="line"><span>CH No:</span><span class="fill" id="challanNo" contenteditable>CH_001</span></div>
-<div class="line"><span>Date:</span><span class="fill" contenteditable>_ _ / _ _ / _ _ _ _</span></div>
-<div class="line"><span>Buyer Name:</span><span class="fill" contenteditable></span></div>
-<div class="line"><span>Buyer Phone:</span><span class="fill" contenteditable></span></div>
-<div class="line"><span>Buyer Address:</span><span class="fill" contenteditable></span></div>
-<div class="line"><span>Terms:</span><span class="fill" contenteditable></span></div>
-<div class="line"><span>Prepaid By:</span><span class="fill" contenteditable></span></div>
-</div>
-</div>
+  <div class="content">
 
-<div class="add-remove no-print">
-<button onclick="addRow()">Add Row</button>
-<button onclick="removeRow()">Remove Row</button>
-</div>
+    <!-- INPUT -->
+    <div class="left">
 
-<table id="itemTable">
-<thead>
-<tr>
-<th>SN</th>
-<th>Description</th>
-<th>Qty</th>
-<th>Sq.Ft</th>
-<th>Rate</th>
-<th>Amount</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td><input></td>
-<td><input type="number" oninput="calc()"></td>
-<td><input type="number" oninput="calc()"></td>
-<td><input type="number" oninput="calc()"></td>
-<td class="amount">0</td>
-</tr>
-</tbody>
-</table>
+      <div class="field">
+        <label>Amount</label>
+        <input type="number" id="amount">
+      </div>
 
-<table>
-<tr class="total-row">
-<td colspan="4"></td>
-<td><strong>Grand Total</strong></td>
-<td class="amount" id="grandTotal">0</td>
-</tr>
-</table>
-<div class="words">
-Amount in words: <span id="inWords">Zero Only</span>
-</div>
+      <div class="field">
+        <label>Discount</label>
+        <input type="number" id="discount" placeholder="0">
+      </div>
 
-<div class="footer">
-<div>Received By: <input></div>
-<div>Prepared By: <input></div>
-</div>
+      <div class="field">
+        <label>VAT Rate</label>
+        <select id="vatRate">
+          <option value="13">13% (Standard)</option>
+          <option value="5">5%</option>
+          <option value="10">10%</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
 
-<div class="no-print" style="margin-top:15px;text-align:center;">
-<button onclick="printChallan()">Print</button>
-<button onclick="saveAsImage()">Save as Image</button>
-</div>
+      <div class="field">
+        <input type="number" id="customVat" placeholder="Enter custom %" style="display:none">
+      </div>
+
+      <div class="field">
+        <label>Mode</label>
+        <select id="mode">
+          <option value="add">Add VAT</option>
+          <option value="remove">Remove VAT</option>
+        </select>
+      </div>
+
+      <button onclick="calculate()">Calculate</button>
+
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="right">
+
+      <div class="summary-title">Invoice Summary</div>
+
+      <div class="line"><span>Subtotal</span><span id="sub">Rs. 0</span></div>
+      <div class="line"><span>Discount</span><span id="disc">Rs. 0</span></div>
+      <div class="line"><span>Taxable Amount</span><span id="taxable">Rs. 0</span></div>
+      <div class="line"><span>VAT</span><span id="vat">Rs. 0</span></div>
+
+      <div class="total">
+        <span>Grand Total</span>
+        <span id="total">Rs. 0</span>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="footer">
+    © 2025 Data from official sources
+  </div>
+
 </div>
 
 <script>
-let challanCounter=1; // Auto increment
-function nextChallan(){
-  challanCounter++;
-  document.getElementById("challanNo").innerText="CH_"+String(challanCounter).padStart(3,'0');
-}
+const vatRate = document.getElementById("vatRate");
+const customVat = document.getElementById("customVat");
 
-function calc(){
-  let rows=document.querySelectorAll("#itemTable tbody tr");
-  let grand=0;
-  rows.forEach((row,i)=>{
-    row.cells[0].innerText=i+1;
-    let qty=parseFloat(row.cells[2].children[0].value)||0;
-    let sqft=parseFloat(row.cells[3].children[0].value)||0;
-    let rate=parseFloat(row.cells[4].children[0].value)||0;
-    let amt=qty*sqft*rate;
-    row.cells[5].innerText=amt.toFixed(2);
-    grand+=amt;
-  });
-  document.getElementById("grandTotal").innerText=grand.toFixed(2);
-  document.getElementById("inWords").innerText=numberToWords(grand);
-  capitalizeDescriptions();
-}
+vatRate.addEventListener("change",()=>{
+  customVat.style.display = vatRate.value==="custom"?"block":"block":"none";
+});
 
-function capitalizeDescriptions(){
-  document.querySelectorAll("#itemTable tbody tr td:nth-child(2) input").forEach(i=>{
-    if(i.value.length>0)
-      i.value=i.value.charAt(0).toUpperCase()+i.value.slice(1);
-  });
-}
+function calculate(){
 
-function addRow(){
-  let table=document.querySelector("#itemTable tbody");
-  let row=table.rows[0].cloneNode(true);
-  row.querySelectorAll("input").forEach(i=>i.value="");
-  row.cells[5].innerText="0";
-  table.appendChild(row);
-}
+  let amount = parseFloat(document.getElementById("amount").value) || 0;
+  let discount = parseFloat(document.getElementById("discount").value) || 0;
 
-function removeRow(){
-  let table=document.querySelector("#itemTable tbody");
-  if(table.rows.length>1)table.deleteRow(-1);
-  calc();
-}
+  let rate = vatRate.value === "custom"
+      ? parseFloat(customVat.value) || 0
+      : parseFloat(vatRate.value);
 
-function numberToWords(num){
-  if(num==0)return "Zero Only";
-  const a=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten",
-  "Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
-  const b=["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
-  function inWords(n){
-    if(n<20)return a[n];
-    if(n<100)return b[Math.floor(n/10)]+" "+a[n%10];
-    if(n<1000)return a[Math.floor(n/100)]+" Hundred "+inWords(n%100);
-    if(n<100000)return inWords(Math.floor(n/1000))+" Thousand "+inWords(n%1000);
-    return "";
+  rate = rate / 100;
+
+  let subtotal = amount;
+  let taxable = subtotal - discount;
+  if(taxable < 0) taxable = 0;
+
+  let vat = 0;
+  let total = 0;
+
+  if(document.getElementById("mode").value === "add"){
+      vat = taxable * rate;
+      total = taxable + vat;
+  }else{
+      vat = taxable - (taxable / (1 + rate));
+      total = taxable;
+      taxable = total - vat;
   }
-  return inWords(Math.floor(num))+" Only";
-}
 
-function printChallan(){window.print();}
-function saveAsImage(){
-  html2canvas(document.body,{scale:2}).then(canvas=>{
-    let link=document.createElement("a");
-    link.download="DeliveryChallan.png";
-    link.href=canvas.toDataURL("image/png");
-    link.click();
-  });
+  document.getElementById("sub").innerText = "Rs. " + subtotal.toFixed(2);
+  document.getElementById("disc").innerText = "Rs. " + discount.toFixed(2);
+  document.getElementById("taxable").innerText = "Rs. " + taxable.toFixed(2);
+  document.getElementById("vat").innerText = "Rs. " + vat.toFixed(2);
+  document.getElementById("total").innerText = "Rs. " + total.toFixed(2);
 }
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 </body>
 </html>
