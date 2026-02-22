@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+[3:15 PM, 2/22/2026] Canvas Hub: ——-
+[3:15 PM, 2/22/2026] Canvas Hub: <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -21,38 +22,43 @@ body{background:#eef1f5;padding:30px;}
   border-bottom:1px solid #333;
   font-size:14px;
   line-height:1.5;
-  vertical-align:middle;
   background:transparent;
 }
 .table-section table{width:100%;border-collapse:collapse;margin-bottom:15px;}
 .table-section th, .table-section td{border:1px solid #ccd6e0;padding:6px;text-align:center;font-size:14px;}
 .table-section th{background:#f0f4f8;font-weight:700;color:#1565c0;}
 .description{font-size:15px;}
-.add-remove{margin-bottom:15px;}
-.add-remove button{padding:10px 12px;margin-right:5px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
-.add-remove button:hover{background:#0d47a1;}
-.total-section{display:flex;flex-direction:column;justify-content:flex-end;font-size:16px;font-weight:700;margin-bottom:20px;color:#1565c0;}
+.total-section{display:flex;flex-direction:column;justify-content:flex-end;font-size:16px;font-weight:700;margin-bottom:20px;}
 .total-section span{margin-left:0;}
 .words{font-weight:400;font-size:14px;font-style:italic;color:#333;margin-top:4px;}
 .footer{display:flex;justify-content:space-between;font-size:14px;margin-top:30px;}
 .footer div span{font-weight:700;color:#1565c0;}
 .thank-you{margin-top:25px;text-align:center;font-size:14px;font-style:italic;color:#555;}
 .action-buttons{margin-bottom:20px;text-align:right;}
-.action-buttons button{padding:10px 14px;margin-left:8px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
+.action-buttons button, .action-buttons label{
+  padding:8px 12px;
+  margin-left:5px;
+  background:#1565c0;
+  color:white;
+  border:none;
+  border-radius:5px;
+  cursor:pointer;
+  font-weight:600;
+}
 .action-buttons button:hover{background:#0d47a1;}
-.auto-sum-label{margin-left:8px;font-weight:600;color:#1565c0;font-size:14px;}
-/* Hide Add/Remove buttons in print & image capture */
 @media print{
-  .add-remove, .action-buttons, .auto-sum-label{display:none;}
+  .action-buttons{display:none;}
 }
 </style>
 </head>
 <body>
 
 <div class="action-buttons">
+<button onclick="addRow()">Add Row</button>
+<button onclick="removeRow()">Remove Row</button>
+<button onclick="toggleAutoSum()">Auto-Sum: <span id="autoSumStatus">ON</span></button>
 <button onclick="printChallan()">Print</button>
 <button onclick="saveAsImage()">Save as Image</button>
-<label class="auto-sum-label"><input type="checkbox" id="autoSumToggle" checked> Auto Sum</label>
 </div>
 
 <div class="wrapper" id="challanWrapper">
@@ -85,10 +91,6 @@ body{background:#eef1f5;padding:30px;}
 </div>
 
 <div class="table-section">
-<div class="add-remove">
-<button onclick="addRow()">Add Row</button>
-<button onclick="removeRow()">Remove Row</button>
-</div>
 <table id="itemsTable">
 <thead>
 <tr>
@@ -130,15 +132,18 @@ body{background:#eef1f5;padding:30px;}
 </div>
 
 <script>
-// Dynamic row functions
+let autoSum=true;
+
+// Add/Remove row functions
 function addRow(){
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
   const newRow = table.insertRow();
+  const rowCount = table.rows.length;
   for(let i=0;i<7;i++){
     const cell = newRow.insertCell();
-    if(i===0){cell.innerText = 0;}
-    else if(i!==6){cell.contentEditable = true;}
-    else{cell.innerText = 0;}
+    if(i===0) cell.innerText = rowCount;
+    else if(i!==6) cell.contentEditable = true;
+    else cell.innerText = 0;
     if(i===2 || i===4 || i===5) cell.setAttribute('oninput','updateRow(this)');
   }
   updateSerialNumbers();
@@ -147,8 +152,8 @@ function addRow(){
 function removeRow(){
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
   if(table.rows.length>1) table.deleteRow(table.rows.length-1);
-  updateSerialNumbers();
   updateGrandTotal();
+  updateSerialNumbers();
 }
 
 function updateSerialNumbers(){
@@ -158,19 +163,34 @@ function updateSerialNumbers(){
   }
 }
 
+// Square feet conversion (supports feet and inch input like "24x36 in")
+function calculateSqFt(sizeStr, qty){
+  if(!sizeStr) return 0;
+  let s = sizeStr.toLowerCase().replace(/\s+/g,'').split('x');
+  if(s.length!==2) return 0;
+  let w=parseFloat(s[0])||0;
+  let h=parseFloat(s[1])||0;
+  if(sizeStr.includes('in')){ w/=12; h/=12; } // convert inch to feet
+  return w*h*qty;
+}
+
+// Update row
 function updateRow(cell){
-  const autoSum = document.getElementById('autoSumToggle').checked;
   if(!autoSum) return;
   const row = cell.parentElement;
   const qty = parseFloat(row.cells[2].innerText)||0;
-  const sqft = parseFloat(row.cells[4].innerText)||0;
+  const sizeStr = row.cells[3].innerText;
+  const sqft = calculateSqFt(sizeStr, qty);
+  row.cells[4].innerText = sqft.toFixed(2);
   const rate = parseFloat(row.cells[5].innerText)||0;
-  const amount = qty * sqft * rate;
+  const amount = sqft * rate;
   row.cells[6].innerText = amount.toFixed(2);
   updateGrandTotal();
 }
 
+// Update Grand Total
 function updateGrandTotal(){
+  if(!autoSum) return;
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
   let total =0;
   for(let i=0;i<table.rows.length;i++){
@@ -196,21 +216,35 @@ function convertToWords(amount){
   return words + " Rupees";
 }
 
-// Update Prepared By footer when Company Name changes
+// Toggle auto sum
+function toggleAutoSum(){
+  autoSum = !autoSum;
+  document.getElementById('autoSumStatus').innerText = autoSum?"ON":"OFF";
+  if(autoSum) updateAllRows();
+}
+
+// Update all rows
+function updateAllRows(){
+  const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
+  for(let i=0;i<table.rows.length;i++){
+    updateRow(table.rows[i].cells[2]);
+  }
+}
+
+// Update Prepared By
 function updatePreparedBy(){
   const name = document.getElementById('companyName').value;
   document.getElementById('preparedBy').innerText = name;
 }
 
-// Print function
+// Print
 function printChallan(){
   window.print();
 }
 
-// Save as Image function
+// Save as Image
 function saveAsImage(){
-  const wrapper = document.getElementById('challanWrapper');
-  html2canvas(wrapper,{scale:2}).then(canvas=>{
+  html2canvas(document.getElementById('challanWrapper'),{scale:2}).then(canvas=>{
     const link = document.createElement('a');
     link.download = 'DeliveryChallan.png';
     link.href = canvas.toDataURL('image/png');
@@ -218,5 +252,6 @@ function saveAsImage(){
   });
 }
 </script>
+
 </body>
 </html>
