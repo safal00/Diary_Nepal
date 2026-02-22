@@ -1,198 +1,138 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Delivery Challan</title>
-
+<title>डेलिभरी चलान</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-body{
-  font-family: Arial, sans-serif;
-  margin:40px;
-}
-h2{
-  text-align:center;
-  margin-bottom:5px;
-}
-input, select{
-  padding:6px;
-  margin:3px 0;
-}
-table{
-  width:100%;
-  border-collapse: collapse;
-  margin-top:15px;
-}
-table, th, td{
-  border:1px solid #000;
-}
-th, td{
-  padding:8px;
-  text-align:center;
-}
-.add-btn{
-  margin-top:10px;
-  padding:8px 15px;
-  cursor:pointer;
-}
-.total-box{
-  margin-top:15px;
-  text-align:right;
-}
-.signature{
-  margin-top:60px;
-  display:flex;
-  justify-content:space-between;
-}
-.hidden{
-  display:none;
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
+body{background:#eef1f5;padding:30px;}
+.wrapper{max-width:1000px;margin:auto;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.1);padding:25px;}
+.header{text-align:center;font-size:28px;font-weight:700;color:#1565c0;margin-bottom:20px;}
+.top-section{display:flex;justify-content:space-between;margin-bottom:20px;}
+.left, .right{width:48%;}
+.left label, .right label{font-weight:700;font-size:14px;color:#333;}
+.left input, .right input, .left textarea, .right textarea{width:100%;padding:8px;margin-top:4px;margin-bottom:10px;border-radius:5px;border:1px solid #ccd6e0;font-size:14px;}
+.table-section table{width:100%;border-collapse:collapse;margin-bottom:15px;}
+.table-section th, .table-section td{border:1px solid #ccd6e0;padding:10px;text-align:center;font-size:14px;}
+.table-section th{background:#f0f4f8;font-weight:700;color:#1565c0;}
+.add-remove{margin-bottom:15px;}
+.add-remove button{padding:10px 12px;margin-right:5px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
+.add-remove button:hover{background:#0d47a1;}
+.total-section{display:flex;justify-content:flex-end;font-size:16px;font-weight:700;margin-bottom:20px;}
+.total-section span{margin-left:15px;}
+.footer{display:flex;justify-content:space-between;font-size:14px;margin-top:30px;}
+.footer div span{font-weight:700;color:#1565c0;}
 </style>
 </head>
 <body>
 
-<h2>DELIVERY CHALLAN</h2>
+<div class="wrapper">
+<div class="header">डेलिभरी चलान</div>
 
-<!-- Company Details -->
-<b>Company Name:</b><br>
-<input type="text" placeholder="Company Name"><br>
+<div class="top-section">
+<div class="left">
+<label>चलान नम्बर</label>
+<input type="text" id="challanNo" value="CH-001">
+<label>मिति</label>
+<input type="date" id="date" value="">
+<label>ग्राहकको नाम</label>
+<input type="text" id="buyerName">
+<label>ग्राहकको फोन</label>
+<input type="text" id="buyerPhone">
+<label>Terms of Delivery</label>
+<textarea id="terms" rows="3">सामान ग्राहकले जाँच गर्नु पर्नेछ।</textarea>
+</div>
 
-<b>Address:</b><br>
-<input type="text" placeholder="Address"><br>
+<div class="right">
+<label>कम्पनीको नाम</label>
+<input type="text" id="companyName" value="नेपाली प्रिन्ट सोलुसन">
+<label>ठेगाना</label>
+<textarea id="companyAddress" rows="3">काठमाडौं, नेपाल</textarea>
+<label>फोन</label>
+<input type="text" id="companyPhone" value="01-1234567">
+</div>
+</div>
 
-<b>Phone:</b><br>
-<input type="text" placeholder="Phone"><br><br>
-
-<!-- Challan Info -->
-<table>
-<tr>
-<td>Challan No</td>
-<td><input type="text"></td>
-<td>Date (AD)</td>
-<td><input type="date" id="adDate" onchange="convertDate()"></td>
-</tr>
-
-<tr>
-<td>Date (BS)</td>
-<td><input type="text" id="bsDate" readonly></td>
-<td>Terms</td>
-<td><input type="text"></td>
-</tr>
-</table>
-
-<br>
-
-<b>Buyer Details</b><br>
-<input type="text" placeholder="Buyer Name"><br>
-<input type="text" placeholder="Buyer Address"><br>
-<input type="text" placeholder="Buyer Phone"><br>
-
-<br>
-
-<!-- Quantity Mode -->
-<b>Quantity Type:</b>
-<select id="qtyType" onchange="toggleMode()">
-<option value="pcs">Pieces</option>
-<option value="sqft">Square Feet</option>
-<option value="size">Size Based</option>
-</select>
-
-<!-- Item Table -->
-<table id="itemTable">
+<div class="table-section">
+<div class="add-remove">
+<button onclick="addRow()">Add Row</button>
+<button onclick="removeRow()">Remove Row</button>
+</div>
+<table id="itemsTable">
 <thead>
 <tr>
-<th>SN</th>
-<th>Description</th>
-<th>Qty</th>
-<th class="sizeCol hidden">Length</th>
-<th class="sizeCol hidden">Width</th>
+<th>विवरण</th>
+<th>परिमाण (Qty)</th>
+<th>साइज</th>
+<th>Square Feet</th>
 <th>Rate</th>
 <th>Amount</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>1</td>
-<td><input></td>
-<td><input type="number" oninput="calc(this)"></td>
-<td class="sizeCol hidden"><input type="number" oninput="calc(this)"></td>
-<td class="sizeCol hidden"><input type="number" oninput="calc(this)"></td>
-<td><input type="number" oninput="calc(this)"></td>
-<td class="amount">0</td>
+<td contenteditable="true"></td>
+<td contenteditable="true" oninput="updateRow(this)">0</td>
+<td contenteditable="true"></td>
+<td contenteditable="true" oninput="updateRow(this)">0</td>
+<td contenteditable="true" oninput="updateRow(this)">0</td>
+<td>0</td>
 </tr>
 </tbody>
 </table>
-
-<button class="add-btn" onclick="addRow()">+ Add Item</button>
-
-<div class="total-box">
-<b>Total: <span id="grandTotal">0</span></b>
 </div>
 
-<div class="signature">
-<div>Receiver Signature</div>
-<div>Authorized Signature</div>
+<div class="total-section">
+<span>Grand Total: Rs. <span id="grandTotal">0</span></span>
+</div>
+
+<div class="footer">
+<div>Received By: <span id="receivedBy">_</span></div>
+<div>Prepared By: <span id="preparedBy">नेपाली प्रिन्ट सोलुसन</span></div>
+</div>
+
 </div>
 
 <script>
-
-function convertDate(){
-  const ad = document.getElementById('adDate').value;
-  if(ad){
-    const date = new Date(ad);
-    document.getElementById('bsDate').value =
-      (date.getFullYear()+57) + '-' + (date.getMonth()+1) + '-' + date.getDate();
+function addRow(){
+  const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
+  const newRow = table.insertRow();
+  for(let i=0;i<6;i++){
+    const cell = newRow.insertCell();
+    if(i!==5) cell.contentEditable = true;
+    else cell.innerText = 0;
+    if(i===1||i===3||i===4) cell.setAttribute('oninput','updateRow(this)');
   }
 }
 
-function toggleMode(){
-  const type = document.getElementById('qtyType').value;
-  const cols = document.querySelectorAll('.sizeCol');
-
-  cols.forEach(col=>{
-    col.classList.toggle('hidden', type === 'pcs');
-  });
+function removeRow(){
+  const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
+  if(table.rows.length>1) table.deleteRow(table.rows.length-1);
+  updateGrandTotal();
 }
 
-function calc(el){
-  const row = el.closest('tr');
-  const qty = parseFloat(row.cells[2].querySelector('input').value) || 0;
-  const len = row.cells[3].querySelector('input') ? parseFloat(row.cells[3].querySelector('input').value) || 0 : 0;
-  const wid = row.cells[4].querySelector('input') ? parseFloat(row.cells[4].querySelector('input').value) || 0 : 0;
-  const rate = parseFloat(row.cells[row.cells.length-2].querySelector('input').value) || 0;
-  const type = document.getElementById('qtyType').value;
+function updateRow(cell){
+  const row = cell.parentElement;
+  const qty = parseFloat(row.cells[1].innerText)||0;
+  const sqft = parseFloat(row.cells[3].innerText)||0;
+  const rate = parseFloat(row.cells[4].innerText)||0;
+  const amount = qty*sqft*rate;
+  row.cells[5].innerText = amount.toFixed(2);
+  updateGrandTotal();
+}
 
-  let amount = 0;
-
-  if(type === 'sqft' || type === 'size'){
-    amount = qty * len * wid * rate;
-  } else {
-    amount = qty * rate;
+function updateGrandTotal(){
+  const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
+  let total =0;
+  for(let i=0;i<table.rows.length;i++){
+    total += parseFloat(table.rows[i].cells[5].innerText)||0;
   }
-
-  row.querySelector('.amount').innerText = amount.toFixed(2);
-  grandTotal();
-}
-
-function grandTotal(){
-  let total = 0;
-  document.querySelectorAll('.amount').forEach(a=>{
-    total += parseFloat(a.innerText) || 0;
-  });
   document.getElementById('grandTotal').innerText = total.toFixed(2);
 }
 
-function addRow(){
-  const table = document.querySelector('#itemTable tbody');
-  const rowCount = table.rows.length + 1;
-  const newRow = table.rows[0].cloneNode(true);
-
-  newRow.cells[0].innerText = rowCount;
-  newRow.querySelectorAll('input').forEach(i=>i.value='');
-  newRow.querySelector('.amount').innerText='0';
-
-  table.appendChild(newRow);
-}
-
+// Initialize today's date
+document.getElementById('date').valueAsDate = new Date();
 </script>
 
 </body>
