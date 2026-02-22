@@ -2,164 +2,64 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Delivery Challan Editable Version</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<title>Customizable Delivery Table</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
-body{background:#eef1f5;padding:30px;}
-.wrapper{max-width:1000px;margin:auto;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.1);padding:25px;}
-.header{text-align:center;font-size:28px;font-weight:700;color:#1565c0;margin-bottom:20px;}
-.top-section{display:flex;justify-content:space-between;margin-bottom:20px;}
-.left, .right{width:48%;}
-.left label, .right label{font-weight:700;font-size:14px;color:#333;margin-bottom:2px;display:block;}
-.left input, .right input, .left textarea, .right textarea{
-  width:100%;
-  padding:4px 2px;
-  margin-bottom:10px;
-  border:none;
-  border-bottom:1px solid #333;
-  font-size:14px;
-  line-height:1.5;
-  vertical-align:middle;
-  background:transparent;
-}
-.table-section table{width:100%;border-collapse:collapse;margin-bottom:15px;}
-.table-section th, .table-section td{border:1px solid #ccd6e0;padding:6px;text-align:center;font-size:14px;}
-.table-section th{background:#f0f4f8;font-weight:700;color:#1565c0;}
-.description{font-size:15px;}
-.add-remove{margin-bottom:15px;text-align:right;}
-.add-remove button{padding:10px 12px;margin-left:5px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
-.add-remove button:hover{background:#0d47a1;}
-.total-section{display:flex;flex-direction:column;justify-content:flex-end;font-size:16px;font-weight:700;margin-bottom:20px;}
-.total-section span{margin-left:0;}
-.words{font-weight:400;font-size:14px;font-style:italic;color:#333;margin-top:4px;}
-.footer{display:flex;justify-content:space-between;font-size:14px;margin-top:30px;}
-.footer div span{font-weight:700;color:#1565c0;}
-.thank-you{margin-top:25px;text-align:center;font-size:14px;font-style:italic;color:#555;}
-.action-buttons{margin-bottom:20px;text-align:right;}
-.action-buttons button{padding:10px 14px;margin-left:8px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
-.action-buttons button:hover{background:#0d47a1;}
-@media print{
-  .add-remove, .action-buttons{display:none;}
-}
+body{font-family:sans-serif; padding:20px;}
+table{width:100%; border-collapse:collapse; margin-bottom:10px;}
+th, td{border:1px solid #333; padding:5px; text-align:center;}
+th{background:#f0f4f8;}
+.action-buttons button{margin-right:5px; padding:6px 12px; cursor:pointer;}
+.delete-col-btn{margin-left:5px; background:red; color:white; border:none; padding:2px 5px; cursor:pointer;}
 </style>
 </head>
 <body>
 
 <div class="action-buttons">
-<button onclick="printChallan()">Print</button>
-<button onclick="saveAsImage()">Save as Image</button>
-<button onclick="addRow()">Add Row</button>
-<button onclick="removeRow()">Remove Row</button>
-<button onclick="openEditTable()">Edit Table</button>
+  <button onclick="addRow()">Add Row</button>
+  <button onclick="removeRow()">Remove Row</button>
+  <button onclick="printTable()">Print</button>
+  <button onclick="saveTableImage()">Save as Image</button>
 </div>
 
-<div class="wrapper" id="challanWrapper">
-<div class="header">Delivery Challan</div>
-
-<div class="top-section">
-<div class="left">
-<label>Company Name</label>
-<input type="text" id="companyName" oninput="updatePreparedBy()">
-<label>Company Address</label>
-<textarea id="companyAddress" rows="2"></textarea>
-<label>Company Phone</label>
-<input type="text" id="companyPhone">
-</div>
-
-<div class="right">
-<label>Challan Number</label>
-<input type="text" id="challanNo" value="CH_">
-<label>Date</label>
-<input type="text" id="date" placeholder="_ _ / _ _ / _ _ _ _">
-<label>Buyer Name</label>
-<input type="text" id="buyerName">
-<label>Buyer Phone</label>
-<input type="text" id="buyerPhone">
-<label>Terms of Delivery</label>
-<textarea id="terms" rows="2"></textarea>
-<label>Buyer Address</label>
-<textarea id="buyerAddress" rows="2"></textarea>
-</div>
-</div>
-
-<div class="table-section">
 <table id="itemsTable">
 <thead>
-<tr>
-<th>S.No.</th>
-<th>Description</th>
-<th>Qty</th>
-<th>Size</th>
-<th>Square Feet</th>
-<th>Rate</th>
-<th>Amount</th>
+<tr id="tableHeader">
+  <th>S.No <button class="delete-col-btn" onclick="deleteColumn(this)">x</button></th>
+  <th contenteditable="true">Description <button class="delete-col-btn" onclick="deleteColumn(this)">x</button></th>
+  <th contenteditable="true">Qty <button class="delete-col-btn" onclick="deleteColumn(this)">x</button></th>
+  <th contenteditable="true">Size <button class="delete-col-btn" onclick="deleteColumn(this)">x</button></th>
+  <th contenteditable="true">Square Foot <button class="delete-col-btn" onclick="deleteColumn(this)">x</button></th>
+  <th contenteditable="true">Rate <button class="delete-col-btn" onclick="deleteColumn(this)">x</button></th>
+  <th contenteditable="true">Amount <button class="delete-col-btn" onclick="deleteColumn(this)">x</button></th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>1</td>
-<td class="description" contenteditable="true"></td>
-<td contenteditable="true" oninput="updateRow(this)">0</td>
-<td contenteditable="true" oninput="updateRow(this)"></td>
-<td contenteditable="false">0</td>
-<td contenteditable="true" oninput="updateRow(this)">0</td>
-<td>0</td>
+  <td>1</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true" oninput="updateRow(this)">0</td>
+  <td contenteditable="true" oninput="updateRow(this)"></td>
+  <td contenteditable="true" oninput="updateRow(this)">0</td>
+  <td contenteditable="true" oninput="updateRow(this)">0</td>
+  <td>0</td>
 </tr>
 </tbody>
 </table>
-</div>
 
-<div class="total-section">
-<span>Grand Total:</span>
-<span id="grandTotal">0</span>
-<span class="words" id="grandTotalWords">Zero Rupees</span>
-</div>
+<div>Grand Total: <span id="grandTotal">0</span></div>
 
-<div class="footer">
-<div>Received By: <span id="receivedBy">_</span></div>
-<div>Prepared By: <span id="preparedBy" contenteditable="true"></span></div>
-</div>
-
-<div class="thank-you">Thank you for doing business with us!</div>
-</div>
-
-<!-- Edit Table Modal -->
-<div id="editTableModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:9999;">
-  <div style="background:#fff;width:90%;max-width:900px;margin:50px auto;padding:20px;border-radius:10px;position:relative;">
-    <h3>Edit / Customize Table</h3>
-    <table id="editTable" style="width:100%;border-collapse:collapse;margin-bottom:15px;">
-      <thead>
-        <tr>
-          <th>S.No.</th>
-          <th>Description</th>
-          <th>Qty</th>
-          <th>Size / Parts</th>
-          <th>Square Feet / Custom</th>
-          <th>Rate</th>
-          <th>Amount</th>
-          <th>Delete</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <button onclick="saveEditTable()" style="padding:8px 12px;background:#1565c0;color:white;border:none;border-radius:5px;">Save Edits</button>
-    <button onclick="closeEditTable()" style="padding:8px 12px;background:#555;color:white;border:none;border-radius:5px;">Close</button>
-  </div>
-</div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
-// main table functions
 function addRow(){
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
   const newRow = table.insertRow();
-  for(let i=0;i<7;i++){
+  const colCount = document.getElementById('itemsTable').rows[0].cells.length;
+  for(let i=0;i<colCount;i++){
     const cell = newRow.insertCell();
-    if(i===0){cell.innerText = 0;} 
-    else if(i!==6){cell.contentEditable = true;}
+    if(i===0){cell.innerText = table.rows.length;}
+    else if(i!==colCount-1){cell.contentEditable = true;}
     else{cell.innerText = 0;}
-    if(i===2 || i===3 || i===5) cell.setAttribute('oninput','updateRow(this)');
+    if(i>=2 && i<=5) cell.setAttribute('oninput','updateRow(this)');
   }
   updateSerialNumbers();
 }
@@ -167,8 +67,8 @@ function addRow(){
 function removeRow(){
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
   if(table.rows.length>1) table.deleteRow(table.rows.length-1);
-  updateGrandTotal();
   updateSerialNumbers();
+  updateGrandTotal();
 }
 
 function updateSerialNumbers(){
@@ -178,115 +78,81 @@ function updateSerialNumbers(){
   }
 }
 
-function parseSize(sizeText){
+function parseSizeToSqft(sizeText){
   if(!sizeText) return 0;
-  sizeText = sizeText.toLowerCase().replace(/\s/g,'');
-  let match = sizeText.match(/^([\d.]+)x([\d.]+)(in|inch|ft|')?$/);
-  if(!match) return 0;
-  let w = parseFloat(match[1]);
-  let h = parseFloat(match[2]);
-  let unit = match[3];
-  if(unit && (unit==='in' || unit==='inch')) { w=w/12; h=h/12; }
+  sizeText = sizeText.toLowerCase().trim();
+  let inch = sizeText.includes("inch");
+  sizeText = sizeText.replace("inch","").replace("ft","").trim();
+  let parts = sizeText.split('x');
+  if(parts.length!==2) return 0;
+  let w = parseFloat(parts[0]);
+  let h = parseFloat(parts[1]);
+  if(isNaN(w)||isNaN(h)) return 0;
+  if(inch) return (w/12)*(h/12);
   return w*h;
 }
 
 function updateRow(cell){
   const row = cell.parentElement;
-  const qty = parseFloat(row.cells[2].innerText)||0;
-  const sizeText = row.cells[3].innerText;
-  const sqft = parseSize(sizeText)*qty;
-  row.cells[4].innerText = sqft.toFixed(2);
-  const rate = parseFloat(row.cells[5].innerText)||0;
-  const amount = sqft*rate;
-  row.cells[6].innerText = amount.toFixed(2);
+  let colNames = Array.from(document.getElementById('tableHeader').cells).map(c=>c.innerText.toLowerCase());
+  let qtyCol = colNames.indexOf('qty');
+  let sizeCol = colNames.indexOf('size');
+  let sqftCol = colNames.indexOf('square foot');
+  let rateCol = colNames.indexOf('rate');
+  let amountCol = colNames.indexOf('amount');
+
+  let qty = qtyCol>=0 ? parseFloat(row.cells[qtyCol].innerText)||0 : 0;
+  let sizeText = sizeCol>=0 ? row.cells[sizeCol].innerText.trim() : '';
+  let sqft = sqftCol>=0 ? parseSizeToSqft(sizeText)*qty : 0;
+  if(sqftCol>=0) row.cells[sqftCol].innerText = sqft.toFixed(2);
+
+  let rate = rateCol>=0 ? parseFloat(row.cells[rateCol].innerText)||0 : 0;
+  if(amountCol>=0){
+    if(sqftCol>=0){
+      row.cells[amountCol].innerText = (sqft*rate).toFixed(2);
+    }else{
+      row.cells[amountCol].innerText = (qty*rate).toFixed(2);
+    }
+  }
   updateGrandTotal();
 }
 
 function updateGrandTotal(){
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
   let total =0;
+  const colNames = Array.from(document.getElementById('tableHeader').cells).map(c=>c.innerText.toLowerCase());
+  const amountCol = colNames.indexOf('amount');
   for(let i=0;i<table.rows.length;i++){
-    total += parseFloat(table.rows[i].cells[6].innerText)||0;
+    if(amountCol>=0) total += parseFloat(table.rows[i].cells[amountCol].innerText)||0;
   }
   document.getElementById('grandTotal').innerText = total.toFixed(2);
-  document.getElementById('grandTotalWords').innerText = convertToWords(total);
 }
 
-function convertToWords(amount){
-  if(amount===0) return "Zero Rupees";
-  const ones = ["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"];
-  const tens = ["","Ten","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
-  const teens = ["Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
-  let num = Math.floor(amount);
-  let words="";
-  if(num>=1000){words += ones[Math.floor(num/1000)] + " Thousand "; num=num%1000;}
-  if(num>=100){words += ones[Math.floor(num/100)] + " Hundred "; num=num%100;}
-  if(num>=20){words += tens[Math.floor(num/10)]; if(num%10>0) words += " " + ones[num%10];}
-  else if(num>=10){words+=teens[num-10];}
-  else if(num>0){words+=ones[num];}
-  return words + " Rupees";
-}
-
-function updatePreparedBy(){
-  const name = document.getElementById('companyName').value;
-  document.getElementById('preparedBy').innerText = name;
-}
-
-function printChallan(){ window.print(); }
-function saveAsImage(){
-  const wrapper = document.getElementById('challanWrapper');
-  html2canvas(wrapper,{scale:2}).then(canvas=>{
-    const link = document.createElement('a');
-    link.download = 'DeliveryChallan.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-  });
-}
-
-// Edit table functions
-function openEditTable(){
-  const modal = document.getElementById('editTableModal');
-  const editBody = document.getElementById('editTable').getElementsByTagName('tbody')[0];
-  editBody.innerHTML = '';
-  const mainRows = document.getElementById('itemsTable').getElementsByTagName('tbody')[0].rows;
-  for(let i=0;i<mainRows.length;i++){
-    const row = editBody.insertRow();
-    for(let j=0;j<8;j++){
-      const cell = row.insertCell();
-      if(j<7){
-        cell.contentEditable = true;
-        cell.innerText = mainRows[i].cells[j].innerText;
-      } else{
-        cell.innerHTML = '<button onclick="deleteEditRow(this)">Delete</button>';
-      }
-    }
-  }
-  modal.style.display = 'block';
-}
-
-function closeEditTable(){ document.getElementById('editTableModal').style.display='none'; }
-
-function deleteEditRow(btn){
-  const row = btn.parentElement.parentElement;
-  row.parentElement.removeChild(row);
-}
-
-function saveEditTable(){
-  const editRows = document.getElementById('editTable').getElementsByTagName('tbody')[0].rows;
-  const mainBody = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
-  mainBody.innerHTML='';
-  for(let i=0;i<editRows.length;i++){
-    const row = mainBody.insertRow();
-    for(let j=0;j<7;j++){
-      const cell = row.insertCell();
-      cell.contentEditable = (j!==4); // Square Feet auto
-      cell.innerText = editRows[i].cells[j].innerText;
-      if(j===2 || j===3 || j===5) cell.setAttribute('oninput','updateRow(this)');
-    }
+// Delete column function
+function deleteColumn(button){
+  const th = button.parentElement;
+  const index = th.cellIndex;
+  const table = document.getElementById('itemsTable');
+  // Remove th
+  th.remove();
+  // Remove each td in that column
+  for(let i=0;i<table.tBodies[0].rows.length;i++){
+    table.tBodies[0].rows[i].deleteCell(index);
   }
   updateSerialNumbers();
   updateGrandTotal();
-  closeEditTable();
+}
+
+function printTable(){ window.print(); }
+
+function saveTableImage(){
+  const wrapper = document.getElementById('itemsTable');
+  html2canvas(wrapper,{scale:2}).then(canvas=>{
+    const link = document.createElement('a');
+    link.download = 'Table.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
 }
 </script>
 
