@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="ne">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>डेलिभरी चलान</title>
+<title>Delivery Challan</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
@@ -19,38 +19,40 @@ body{background:#eef1f5;padding:30px;}
 .add-remove{margin-bottom:15px;}
 .add-remove button{padding:10px 12px;margin-right:5px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
 .add-remove button:hover{background:#0d47a1;}
-.total-section{display:flex;justify-content:flex-end;font-size:16px;font-weight:700;margin-bottom:20px;}
-.total-section span{margin-left:15px;}
+.total-section{display:flex;justify-content:flex-end;flex-direction:column;font-size:16px;font-weight:700;margin-bottom:20px;}
+.total-section span{margin-left:0;}
+.words{font-weight:400;font-size:14px;font-style:italic;color:#333;margin-top:4px;}
 .footer{display:flex;justify-content:space-between;font-size:14px;margin-top:30px;}
 .footer div span{font-weight:700;color:#1565c0;}
+.thank-you{margin-top:25px;text-align:center;font-size:14px;font-style:italic;color:#555;}
 </style>
 </head>
 <body>
 
 <div class="wrapper">
-<div class="header">डेलिभरी चलान</div>
+<div class="header">Delivery Challan</div>
 
 <div class="top-section">
 <div class="left">
-<label>चलान नम्बर</label>
+<label>Challan Number</label>
 <input type="text" id="challanNo" value="CH-001">
-<label>मिति</label>
-<input type="date" id="date" value="">
-<label>ग्राहकको नाम</label>
-<input type="text" id="buyerName">
-<label>ग्राहकको फोन</label>
-<input type="text" id="buyerPhone">
-<label>Terms of Delivery</label>
-<textarea id="terms" rows="3">सामान ग्राहकले जाँच गर्नु पर्नेछ।</textarea>
+<label>Company Name</label>
+<input type="text" id="companyName" value="Nepali Print Solution" oninput="updatePreparedBy()">
+<label>Date (dd/mm/yyyy)</label>
+<input type="text" id="date" placeholder="dd/mm/yyyy">
+<label>Address</label>
+<textarea id="companyAddress" rows="2">Kathmandu, Nepal</textarea>
 </div>
 
 <div class="right">
-<label>कम्पनीको नाम</label>
-<input type="text" id="companyName" value="नेपाली प्रिन्ट सोलुसन">
-<label>ठेगाना</label>
-<textarea id="companyAddress" rows="3">काठमाडौं, नेपाल</textarea>
-<label>फोन</label>
-<input type="text" id="companyPhone" value="01-1234567">
+<label>Buyer Name</label>
+<input type="text" id="buyerName">
+<label>Buyer Phone</label>
+<input type="text" id="buyerPhone">
+<label>Terms of Delivery</label>
+<textarea id="terms" rows="2">Goods must be checked by customer.</textarea>
+<label>Buyer Address</label>
+<textarea id="buyerAddress" rows="2"></textarea>
 </div>
 </div>
 
@@ -62,9 +64,9 @@ body{background:#eef1f5;padding:30px;}
 <table id="itemsTable">
 <thead>
 <tr>
-<th>विवरण</th>
-<th>परिमाण (Qty)</th>
-<th>साइज</th>
+<th>Description</th>
+<th>Qty</th>
+<th>Size</th>
 <th>Square Feet</th>
 <th>Rate</th>
 <th>Amount</th>
@@ -85,16 +87,19 @@ body{background:#eef1f5;padding:30px;}
 
 <div class="total-section">
 <span>Grand Total: Rs. <span id="grandTotal">0</span></span>
+<span class="words" id="grandTotalWords">Zero</span>
 </div>
 
 <div class="footer">
 <div>Received By: <span id="receivedBy">_</span></div>
-<div>Prepared By: <span id="preparedBy">नेपाली प्रिन्ट सोलुसन</span></div>
+<div>Prepared By: <span id="preparedBy">Nepali Print Solution</span></div>
 </div>
 
+<div class="thank-you">Thank you for doing business with us!</div>
 </div>
 
 <script>
+// Dynamic row functions
 function addRow(){
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
   const newRow = table.insertRow();
@@ -129,10 +134,30 @@ function updateGrandTotal(){
     total += parseFloat(table.rows[i].cells[5].innerText)||0;
   }
   document.getElementById('grandTotal').innerText = total.toFixed(2);
+  document.getElementById('grandTotalWords').innerText = convertToWords(total);
 }
 
-// Initialize today's date
-document.getElementById('date').valueAsDate = new Date();
+// Convert number to words (simple version)
+function convertToWords(amount){
+  if(amount===0) return "Zero";
+  const ones = ["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"];
+  const tens = ["","Ten","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
+  const teens = ["Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
+  let num = Math.floor(amount);
+  let words="";
+  if(num>=1000){words += ones[Math.floor(num/1000)] + " Thousand "; num=num%1000;}
+  if(num>=100){words += ones[Math.floor(num/100)] + " Hundred "; num=num%100;}
+  if(num>=20){words += tens[Math.floor(num/10)]; if(num%10>0) words += " " + ones[num%10];}
+  else if(num>=10){words+=teens[num-10];}
+  else if(num>0){words+=ones[num];}
+  return words + " Rupees";
+}
+
+// Update Prepared By footer when Company Name changes
+function updatePreparedBy(){
+  const name = document.getElementById('companyName').value;
+  document.getElementById('preparedBy').innerText = name;
+}
 </script>
 
 </body>
