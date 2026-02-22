@@ -13,7 +13,7 @@ body{background:#eef1f5;padding:30px;}
 .top-section{display:flex;justify-content:space-between;margin-bottom:20px;}
 .left, .right{width:48%;}
 .left label, .right label{font-weight:700;font-size:14px;color:#333;}
-.left input, .right input, .left textarea, .right textarea{width:100%;padding:8px;margin-top:4px;margin-bottom:10px;border-radius:5px;border:1px solid #ccd6e0;font-size:14px;}
+.left input, .right input, .left textarea, .right textarea{width:100%;padding:6px;margin-top:4px;margin-bottom:10px;border:none;border-bottom:1px solid #333;font-size:14px;background:transparent;}
 .table-section table{width:100%;border-collapse:collapse;margin-bottom:15px;}
 .table-section th, .table-section td{border:1px solid #ccd6e0;padding:6px;text-align:center;font-size:14px;}
 .table-section th{background:#f0f4f8;font-weight:700;color:#1565c0;}
@@ -30,6 +30,10 @@ body{background:#eef1f5;padding:30px;}
 .action-buttons{margin-bottom:20px;text-align:right;}
 .action-buttons button{padding:10px 14px;margin-left:8px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
 .action-buttons button:hover{background:#0d47a1;}
+/* Hide Add/Remove buttons in print & image capture */
+@media print{
+  .add-remove, .action-buttons{display:none;}
+}
 </style>
 </head>
 <body>
@@ -44,17 +48,19 @@ body{background:#eef1f5;padding:30px;}
 
 <div class="top-section">
 <div class="left">
-<label>Challan Number</label>
-<input type="text" id="challanNo" value="">
 <label>Company Name</label>
 <input type="text" id="companyName" oninput="updatePreparedBy()">
-<label>Date (dd/mm/yyyy)</label>
-<input type="text" id="date" placeholder="dd/mm/yyyy">
-<label>Address</label>
+<label>Company Address</label>
 <textarea id="companyAddress" rows="2"></textarea>
+<label>Company Phone</label>
+<input type="text" id="companyPhone">
 </div>
 
 <div class="right">
+<label>Challan Number</label>
+<input type="text" id="challanNo" value="CH_">
+<label>Date (dd/mm/yyyy)</label>
+<input type="text" id="date" placeholder="dd/mm/yyyy">
 <label>Buyer Name</label>
 <input type="text" id="buyerName">
 <label>Buyer Phone</label>
