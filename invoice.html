@@ -1,5 +1,4 @@
-[3:15 PM, 2/22/2026] Canvas Hub: ——-
-[3:15 PM, 2/22/2026] Canvas Hub: <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -22,12 +21,16 @@ body{background:#eef1f5;padding:30px;}
   border-bottom:1px solid #333;
   font-size:14px;
   line-height:1.5;
+  vertical-align:middle;
   background:transparent;
 }
 .table-section table{width:100%;border-collapse:collapse;margin-bottom:15px;}
 .table-section th, .table-section td{border:1px solid #ccd6e0;padding:6px;text-align:center;font-size:14px;}
 .table-section th{background:#f0f4f8;font-weight:700;color:#1565c0;}
 .description{font-size:15px;}
+.add-remove{margin-bottom:15px;text-align:right;}
+.add-remove button{padding:8px 12px;margin-left:5px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
+.add-remove button:hover{background:#0d47a1;}
 .total-section{display:flex;flex-direction:column;justify-content:flex-end;font-size:16px;font-weight:700;margin-bottom:20px;}
 .total-section span{margin-left:0;}
 .words{font-weight:400;font-size:14px;font-style:italic;color:#333;margin-top:4px;}
@@ -35,30 +38,20 @@ body{background:#eef1f5;padding:30px;}
 .footer div span{font-weight:700;color:#1565c0;}
 .thank-you{margin-top:25px;text-align:center;font-size:14px;font-style:italic;color:#555;}
 .action-buttons{margin-bottom:20px;text-align:right;}
-.action-buttons button, .action-buttons label{
-  padding:8px 12px;
-  margin-left:5px;
-  background:#1565c0;
-  color:white;
-  border:none;
-  border-radius:5px;
-  cursor:pointer;
-  font-weight:600;
-}
+.action-buttons button{padding:10px 14px;margin-left:8px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
 .action-buttons button:hover{background:#0d47a1;}
+/* Hide admin buttons in print & image capture */
 @media print{
-  .action-buttons{display:none;}
+  .add-remove, .action-buttons{display:none;}
 }
 </style>
 </head>
 <body>
 
 <div class="action-buttons">
-<button onclick="addRow()">Add Row</button>
-<button onclick="removeRow()">Remove Row</button>
-<button onclick="toggleAutoSum()">Auto-Sum: <span id="autoSumStatus">ON</span></button>
 <button onclick="printChallan()">Print</button>
 <button onclick="saveAsImage()">Save as Image</button>
+<button onclick="toggleAutoSum()">Toggle AutoSum</button>
 </div>
 
 <div class="wrapper" id="challanWrapper">
@@ -87,10 +80,16 @@ body{background:#eef1f5;padding:30px;}
 <textarea id="terms" rows="2"></textarea>
 <label>Buyer Address</label>
 <textarea id="buyerAddress" rows="2"></textarea>
+<label>Prepared By</label>
+<input type="text" id="preparedByInput" placeholder="Enter name">
 </div>
 </div>
 
 <div class="table-section">
+<div class="add-remove">
+<button onclick="addRow()">Add Row</button>
+<button onclick="removeRow()">Remove Row</button>
+</div>
 <table id="itemsTable">
 <thead>
 <tr>
@@ -107,10 +106,10 @@ body{background:#eef1f5;padding:30px;}
 <tr>
 <td>1</td>
 <td class="description" contenteditable="true"></td>
-<td contenteditable="true" oninput="updateRow(this)">0</td>
-<td contenteditable="true">0</td>
-<td contenteditable="true" oninput="updateRow(this)">0</td>
-<td contenteditable="true" oninput="updateRow(this)">0</td>
+<td contenteditable="true" oninput="updateRow(this)"></td>
+<td contenteditable="true" oninput="updateRow(this)"></td>
+<td>0</td>
+<td contenteditable="true" oninput="updateRow(this)"></td>
 <td>0</td>
 </tr>
 </tbody>
@@ -125,16 +124,22 @@ body{background:#eef1f5;padding:30px;}
 
 <div class="footer">
 <div>Received By: <span id="receivedBy">_</span></div>
-<div>Prepared By: <span id="preparedBy" contenteditable="true"></span></div>
+<div>Prepared By: <span id="preparedBy"></span></div>
 </div>
 
 <div class="thank-you">Thank you for doing business with us!</div>
 </div>
 
 <script>
-let autoSum=true;
+let autoSum = true;
 
-// Add/Remove row functions
+// Update Prepared By
+function updatePreparedBy(){
+  const name = document.getElementById('companyName').value;
+  document.getElementById('preparedBy').innerText = name;
+}
+
+// Add / Remove Row
 function addRow(){
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
   const newRow = table.insertRow();
@@ -142,18 +147,17 @@ function addRow(){
   for(let i=0;i<7;i++){
     const cell = newRow.insertCell();
     if(i===0) cell.innerText = rowCount;
-    else if(i!==6) cell.contentEditable = true;
-    else cell.innerText = 0;
-    if(i===2 || i===4 || i===5) cell.setAttribute('oninput','updateRow(this)');
+    else if(i!==6 && i!==4) cell.contentEditable = true;
+    else cell.innerText = "0";
+    if(i>=2 && i<=5) cell.setAttribute('oninput','updateRow(this)');
   }
-  updateSerialNumbers();
 }
 
 function removeRow(){
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
   if(table.rows.length>1) table.deleteRow(table.rows.length-1);
-  updateGrandTotal();
   updateSerialNumbers();
+  updateGrandTotal();
 }
 
 function updateSerialNumbers(){
@@ -163,34 +167,34 @@ function updateSerialNumbers(){
   }
 }
 
-// Square feet conversion (supports feet and inch input like "24x36 in")
-function calculateSqFt(sizeStr, qty){
-  if(!sizeStr) return 0;
-  let s = sizeStr.toLowerCase().replace(/\s+/g,'').split('x');
-  if(s.length!==2) return 0;
-  let w=parseFloat(s[0])||0;
-  let h=parseFloat(s[1])||0;
-  if(sizeStr.includes('in')){ w/=12; h/=12; } // convert inch to feet
-  return w*h*qty;
+// Convert size to square feet
+function parseSizeToSqft(sizeStr){
+  sizeStr = sizeStr.toLowerCase().replace(/\s/g,'');
+  if(sizeStr.includes("x")){ 
+    const parts = sizeStr.split("x");
+    let w = parseFloat(parts[0]);
+    let h = parseFloat(parts[1]);
+    if(sizeStr.includes("in")){ // Inches
+      return (w*h)/144;
+    } else { // Feet
+      return w*h;
+    }
+  }
+  return 0;
 }
 
-// Update row
 function updateRow(cell){
-  if(!autoSum) return;
   const row = cell.parentElement;
   const qty = parseFloat(row.cells[2].innerText)||0;
-  const sizeStr = row.cells[3].innerText;
-  const sqft = calculateSqFt(sizeStr, qty);
-  row.cells[4].innerText = sqft.toFixed(2);
+  const sizeInput = row.cells[3].innerText || "0";
+  const sqft = parseSizeToSqft(sizeInput);
+  row.cells[4].innerText = (qty*sqft).toFixed(2);
   const rate = parseFloat(row.cells[5].innerText)||0;
-  const amount = sqft * rate;
-  row.cells[6].innerText = amount.toFixed(2);
-  updateGrandTotal();
+  row.cells[6].innerText = ((qty*sqft)*rate).toFixed(2);
+  if(autoSum) updateGrandTotal();
 }
 
-// Update Grand Total
 function updateGrandTotal(){
-  if(!autoSum) return;
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
   let total =0;
   for(let i=0;i<table.rows.length;i++){
@@ -216,33 +220,8 @@ function convertToWords(amount){
   return words + " Rupees";
 }
 
-// Toggle auto sum
-function toggleAutoSum(){
-  autoSum = !autoSum;
-  document.getElementById('autoSumStatus').innerText = autoSum?"ON":"OFF";
-  if(autoSum) updateAllRows();
-}
-
-// Update all rows
-function updateAllRows(){
-  const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
-  for(let i=0;i<table.rows.length;i++){
-    updateRow(table.rows[i].cells[2]);
-  }
-}
-
-// Update Prepared By
-function updatePreparedBy(){
-  const name = document.getElementById('companyName').value;
-  document.getElementById('preparedBy').innerText = name;
-}
-
-// Print
-function printChallan(){
-  window.print();
-}
-
-// Save as Image
+// Print & Save as Image
+function printChallan(){ window.print(); }
 function saveAsImage(){
   html2canvas(document.getElementById('challanWrapper'),{scale:2}).then(canvas=>{
     const link = document.createElement('a');
@@ -251,7 +230,12 @@ function saveAsImage(){
     link.click();
   });
 }
-</script>
 
+// Toggle AutoSum
+function toggleAutoSum(){
+  autoSum = !autoSum;
+  alert("AutoSum is now " + (autoSum ? "ON" : "OFF"));
+}
+</script>
 </body>
 </html>
