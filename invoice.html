@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Delivery Challan - All-in-One</title>
+<title>Delivery Challan</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
@@ -28,8 +28,8 @@ body{background:#eef1f5;padding:30px;}
 .table-section th, .table-section td{border:1px solid #ccd6e0;padding:6px;text-align:center;font-size:14px;}
 .table-section th{background:#f0f4f8;font-weight:700;color:#1565c0;}
 .description{font-size:15px;}
-.add-remove{margin-bottom:15px;text-align:right;}
-.add-remove button{padding:8px 12px;margin-left:5px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
+.add-remove{margin-bottom:15px;}
+.add-remove button{padding:10px 12px;margin-right:5px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
 .add-remove button:hover{background:#0d47a1;}
 .total-section{display:flex;flex-direction:column;justify-content:flex-end;font-size:16px;font-weight:700;margin-bottom:20px;}
 .total-section span{margin-left:0;}
@@ -40,17 +40,18 @@ body{background:#eef1f5;padding:30px;}
 .action-buttons{margin-bottom:20px;text-align:right;}
 .action-buttons button{padding:10px 14px;margin-left:8px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
 .action-buttons button:hover{background:#0d47a1;}
-@media print{.add-remove,.action-buttons{display:none;}}
+@media print{
+  .add-remove, .action-buttons{display:none;}
+}
 </style>
 </head>
 <body>
 
 <div class="action-buttons">
-  <button onclick="addRow()">Add Row</button>
-  <button onclick="removeRow()">Remove Row</button>
-  <button onclick="toggleEditMode()">Edit Table</button>
   <button onclick="printChallan()">Print</button>
   <button onclick="saveAsImage()">Save as Image</button>
+  <button onclick="addRow()">Add Row</button>
+  <button onclick="removeRow()">Remove Row</button>
 </div>
 
 <div class="wrapper" id="challanWrapper">
@@ -124,19 +125,18 @@ body{background:#eef1f5;padding:30px;}
 </div>
 
 <script>
-let editMode = false;
-
 function addRow(){
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
   const newRow = table.insertRow();
   for(let i=0;i<7;i++){
     const cell = newRow.insertCell();
-    if(i===0){cell.innerText = 0;} 
+    if(i===0){cell.innerText = table.rows.length;} 
     else if(i!==6){cell.contentEditable = true;}
     else{cell.innerText = 0;}
     if(i===2 || i===4 || i===5) cell.setAttribute('oninput','updateRow(this)');
   }
   updateSerialNumbers();
+  saveEditableTable();
 }
 
 function removeRow(){
@@ -144,6 +144,7 @@ function removeRow(){
   if(table.rows.length>1) table.deleteRow(table.rows.length-1);
   updateGrandTotal();
   updateSerialNumbers();
+  saveEditableTable();
 }
 
 function updateSerialNumbers(){
@@ -156,25 +157,28 @@ function updateSerialNumbers(){
 function updateRow(cell){
   const row = cell.parentElement;
   const qty = parseFloat(row.cells[2].innerText)||0;
-  const sizeText = row.cells[3].innerText;
   let sqft = parseFloat(row.cells[4].innerText)||0;
   const rate = parseFloat(row.cells[5].innerText)||0;
 
-  // Size to Square Feet conversion
-  if(sizeText.includes("x") && sizeText.toLowerCase().includes("inch")){
-    const dims = sizeText.toLowerCase().replace("inch","").split("x");
-    sqft = ((parseFloat(dims[0].trim())*parseFloat(dims[1].trim()))/144)*qty; // inches to sqft
-  } else if(sizeText.includes("x")){
-    const dims = sizeText.split("x");
-    sqft = parseFloat(dims[0].trim())*parseFloat(dims[1].trim())*qty;
+  // Auto-calculate square feet if size exists like "2x3" or "24x36"
+  const sizeText = row.cells[3].innerText.trim();
+  if(sizeText.includes('x')){
+    const parts = sizeText.split('x').map(p => parseFloat(p));
+    if(parts.length===2){
+      // detect if inches (number > 12) or feet
+      if(parts[0]>12 || parts[1]>12){ // inches -> convert to sqft
+        sqft = (parts[0]*parts[1])/144;
+      }else{ // feet
+        sqft = parts[0]*parts[1];
+      }
+      row.cells[4].innerText = sqft.toFixed(2);
+    }
   }
 
-  row.cells[4].innerText = sqft.toFixed(2);
-
-  // Amount calculation
-  let amount = sqft>0 ? sqft*rate : qty*rate; // if sqft deleted, use qty*rate
+  const amount = qty * sqft * rate;
   row.cells[6].innerText = amount.toFixed(2);
   updateGrandTotal();
+  saveEditableTable();
 }
 
 function updateGrandTotal(){
@@ -219,15 +223,39 @@ function saveAsImage(){
   });
 }
 
-// Toggle Edit Mode for Custom Users
-function toggleEditMode(){
-  editMode = !editMode;
-  const table = document.getElementById('itemsTable');
-  if(editMode){
-    table.contentEditable = true;
-    alert("Edit mode ON: You can rename or delete columns as needed.");
-  } else {
-    table.contentEditable = false;
+// Local Storage Save / Load
+function saveEditableTable(){
+  const tableData = [];
+  const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
+  for(let i=0;i<table.rows.length;i++){
+    const rowData = [];
+    for(let j=0;j<table.rows[i].cells.length;j++){
+      rowData.push(table.rows[i].cells[j].innerText);
+    }
+    tableData.push(rowData);
+  }
+  localStorage.setItem('editableTableData', JSON.stringify(tableData));
+}
+
+function loadEditableTable(data){
+  const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
+  table.innerHTML = '';
+  data.forEach(rowData=>{
+    const newRow = table.insertRow();
+    rowData.forEach((cellData,index)=>{
+      const cell = newRow.insertCell();
+      cell.innerText = cellData;
+      if(index!==0 && index!==6) cell.contentEditable=true;
+      if(index===2 || index===4 || index===5) cell.setAttribute('oninput','updateRow(this)');
+    });
+  });
+  updateSerialNumbers();
+  updateGrandTotal();
+}
+
+window.onload = function(){
+  if(localStorage.getItem('editableTableData')){
+    loadEditableTable(JSON.parse(localStorage.getItem('editableTableData')));
   }
 }
 </script>
