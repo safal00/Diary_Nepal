@@ -3,98 +3,65 @@
 <head>
 <meta charset="UTF-8">
 <title>Delivery Challan</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
-body{background:#eef1f5;padding:30px;}
-.wrapper{max-width:1000px;margin:auto;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.1);padding:25px;}
-.header{text-align:center;font-size:28px;font-weight:700;color:#1565c0;margin-bottom:20px;}
-.top-section{display:flex;justify-content:space-between;margin-bottom:20px;}
-.left, .right{width:48%;}
-.left label, .right label{font-weight:700;font-size:14px;color:#333;margin-bottom:2px;display:block;}
-.left input, .right input, .left textarea, .right textarea{
-  width:100%;
-  padding:4px 2px;
-  margin-bottom:10px;
-  border:none;
-  border-bottom:1px solid #333;
-  font-size:14px;
-  line-height:1.5;
-  vertical-align:middle;
-  background:transparent;
-}
-.table-section table{width:100%;border-collapse:collapse;margin-bottom:15px;}
-.table-section th, .table-section td{border:1px solid #ccd6e0;padding:6px;text-align:center;font-size:14px;}
-.table-section th{background:#f0f4f8;font-weight:700;color:#1565c0;}
-.description{font-size:15px;}
-.add-remove{margin-bottom:15px;}
-.add-remove button{padding:10px 12px;margin-right:5px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
+body{font-family:Arial,sans-serif;margin:30px;color:#000;}
+.wrapper{max-width:1000px;margin:auto;}
+.header{text-align:center;font-size:26px;font-weight:700;margin-bottom:20px;}
+.top{display:flex;justify-content:space-between;margin-bottom:20px;}
+.box{border:1px solid #000;padding:10px;width:48%;}
+.line{display:flex;justify-content:space-between;margin:4px 0;}
+.fill{border-bottom:1px solid #000;flex:1;margin-left:5px;text-transform:capitalize;}
+table{width:100%;border-collapse:collapse;margin-top:15px;}
+th,td{border:1px solid #000;padding:6px;text-align:center;}
+input{width:100%;border:none;text-align:center;text-transform:capitalize;}
+.amount{text-align:right;}
+.total-row td{border:none;}
+.words{margin-top:8px;font-style:italic;}
+.footer{margin-top:20px;display:flex;justify-content:space-between;font-size:14px;}
+.footer input{border:none;border-bottom:1px solid #000;background:transparent;width:200px;}
+.add-remove{margin:10px 0;}
+.add-remove button{padding:8px 12px;margin-right:5px;background:#1565c0;color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
 .add-remove button:hover{background:#0d47a1;}
-.total-section{display:flex;flex-direction:column;justify-content:flex-end;font-size:16px;font-weight:700;margin-bottom:20px;}
-.total-section span{margin-left:0;}
-.words{font-weight:400;font-size:14px;font-style:italic;color:#333;margin-top:4px;}
-.footer{display:flex;justify-content:space-between;font-size:14px;margin-top:30px;}
-.footer input{border:none;border-bottom:1px solid #333;background:transparent;font-weight:600;font-size:14px;width:200px;}
-.footer div span{font-weight:700;color:#1565c0;}
-.thank-you{margin-top:25px;text-align:center;font-size:14px;font-style:italic;color:#555;}
-.action-buttons{margin-bottom:20px;text-align:right;}
-.action-buttons button{padding:10px 14px;margin-left:8px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
-.action-buttons button:hover{background:#0d47a1;}
 @media print{
-  .add-remove, .action-buttons{display:none;}
+  .add-remove,.no-print{display:none;}
 }
 </style>
 </head>
 <body>
 
-<div class="action-buttons">
-<button onclick="printChallan()">Print</button>
-<button onclick="saveAsImage()">Save as Image</button>
+<div class="wrapper">
+<div class="header">DELIVERY CHALLAN</div>
+
+<div class="top">
+<div class="box">
+<div class="line"><span>Company Name:</span><span class="fill" contenteditable></span></div>
+<div class="line"><span>Company Address:</span><span class="fill" contenteditable></span></div>
+<div class="line"><span>Company Phone:</span><span class="fill" contenteditable></span></div>
 </div>
 
-<div class="wrapper" id="challanWrapper">
-<div class="header">Delivery Challan</div>
-
-<div class="top-section">
-<div class="left">
-<label>Company Name</label>
-<input type="text" id="companyName" oninput="updatePreparedBy()">
-<label>Company Address</label>
-<textarea id="companyAddress" rows="2"></textarea>
-<label>Company Phone</label>
-<input type="text" id="companyPhone">
-</div>
-
-<div class="right">
-<label>Challan Number</label>
-<input type="text" id="challanNo" value="CH_">
-<label>Date</label>
-<input type="text" id="date" placeholder="_ _ / _ _ / _ _ _ _">
-<label>Buyer Name</label>
-<input type="text" id="buyerName">
-<label>Buyer Phone</label>
-<input type="text" id="buyerPhone">
-<label>Terms of Delivery</label>
-<textarea id="terms" rows="2"></textarea>
-<label>Buyer Address</label>
-<textarea id="buyerAddress" rows="2"></textarea>
+<div class="box">
+<div class="line"><span>CH No:</span><span class="fill" contenteditable>CH_</span></div>
+<div class="line"><span>Date:</span><span class="fill" contenteditable>_ _ / _ _ / _ _ _ _</span></div>
+<div class="line"><span>Buyer Name:</span><span class="fill" contenteditable></span></div>
+<div class="line"><span>Buyer Phone:</span><span class="fill" contenteditable></span></div>
+<div class="line"><span>Buyer Address:</span><span class="fill" contenteditable></span></div>
+<div class="line"><span>Terms:</span><span class="fill" contenteditable></span></div>
+<div class="line"><span>Prepaid By:</span><span class="fill" contenteditable></span></div>
 </div>
 </div>
 
-<div class="table-section">
-<div class="add-remove">
+<div class="add-remove no-print">
 <button onclick="addRow()">Add Row</button>
 <button onclick="removeRow()">Remove Row</button>
 </div>
-<table id="itemsTable">
+
+<table id="itemTable">
 <thead>
 <tr>
-<th>S.No.</th>
+<th>SN</th>
 <th>Description</th>
 <th>Qty</th>
-<th>Size</th>
-<th>Square Feet</th>
+<th>Sq.Ft</th>
 <th>Rate</th>
 <th>Amount</th>
 </tr>
@@ -102,117 +69,93 @@ body{background:#eef1f5;padding:30px;}
 <tbody>
 <tr>
 <td>1</td>
-<td class="description" contenteditable="true"></td>
-<td contenteditable="true" oninput="updateRow(this)">0</td>
-<td contenteditable="true" oninput="updateRow(this)"></td>
-<td contenteditable="true" oninput="updateRow(this)">0</td>
-<td contenteditable="true" oninput="updateRow(this)">0</td>
-<td>0</td>
+<td><input></td>
+<td><input type="number" oninput="calc()"></td>
+<td><input type="number" oninput="calc()"></td>
+<td><input type="number" oninput="calc()"></td>
+<td class="amount">0</td>
 </tr>
 </tbody>
 </table>
-</div>
 
-<div class="total-section">
-<span>Grand Total:</span>
-<span id="grandTotal">0</span>
-<span class="words" id="grandTotalWords">Zero Rupees</span>
+<table>
+<tr class="total-row">
+<td colspan="4"></td>
+<td><strong>Total</strong></td>
+<td class="amount" id="grandTotal">0</td>
+</tr>
+</table>
+<div class="words">
+Amount in words: <span id="inWords">Zero Only</span>
 </div>
 
 <div class="footer">
-<div>Received By: <input type="text" id="receivedBy"></div>
-<div>Prepared By: <input type="text" id="preparedBy"></div>
+<div>Received By: <input></div>
+<div>Prepared By: <input></div>
 </div>
 
-<div class="thank-you">Thank you for doing business with us!</div>
+<div class="no-print" style="margin-top:15px;text-align:center;">
+<button onclick="printChallan()">Print</button>
+<button onclick="saveAsImage()">Save as Image</button>
+</div>
 </div>
 
 <script>
-// Dynamic row functions
+function calc(){
+  let rows=document.querySelectorAll("#itemTable tbody tr");
+  let grand=0;
+  rows.forEach((row,i)=>{
+    row.cells[0].innerText=i+1;
+    let qty=parseFloat(row.cells[2].children[0].value)||0;
+    let sqft=parseFloat(row.cells[3].children[0].value)||0;
+    let rate=parseFloat(row.cells[4].children[0].value)||0;
+    let amt=qty*sqft*rate;
+    row.cells[5].innerText=amt.toFixed(2);
+    grand+=amt;
+  });
+  document.getElementById("grandTotal").innerText=grand.toFixed(2);
+  document.getElementById("inWords").innerText=numberToWords(grand);
+}
+
 function addRow(){
-  const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
-  const newRow = table.insertRow();
-  const rowCount = table.rows.length;
-  for(let i=0;i<7;i++){
-    const cell = newRow.insertCell();
-    if(i===0){cell.innerText = rowCount+1;}
-    else if(i!==6){cell.contentEditable = true;}
-    else{cell.innerText = 0;}
-    if(i===2 || i===4 || i===5) cell.setAttribute('oninput','updateRow(this)');
-  }
+  let table=document.querySelector("#itemTable tbody");
+  let row=table.rows[0].cloneNode(true);
+  row.querySelectorAll("input").forEach(i=>i.value="");
+  row.cells[5].innerText="0";
+  table.appendChild(row);
 }
 
 function removeRow(){
-  const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
-  if(table.rows.length>1) table.deleteRow(table.rows.length-1);
-  updateGrandTotal();
-  updateSerialNumbers();
+  let table=document.querySelector("#itemTable tbody");
+  if(table.rows.length>1)table.deleteRow(-1);
+  calc();
 }
 
-function updateSerialNumbers(){
-  const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
-  for(let i=0;i<table.rows.length;i++){
-    table.rows[i].cells[0].innerText = i+1;
+function numberToWords(num){
+  if(num==0)return "Zero Only";
+  const a=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten",
+  "Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
+  const b=["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
+  function inWords(n){
+    if(n<20)return a[n];
+    if(n<100)return b[Math.floor(n/10)]+" "+a[n%10];
+    if(n<1000)return a[Math.floor(n/100)]+" Hundred "+inWords(n%100);
+    if(n<100000)return inWords(Math.floor(n/1000))+" Thousand "+inWords(n%1000);
+    return "";
   }
+  return inWords(Math.floor(num))+" Only";
 }
 
-function updateRow(cell){
-  const row = cell.parentElement;
-  const qty = parseFloat(row.cells[2].innerText)||0;
-  const sqft = parseFloat(row.cells[4].innerText)||0;
-  const rate = parseFloat(row.cells[5].innerText)||0;
-  const amount = qty*sqft*rate;
-  row.cells[6].innerText = amount.toFixed(2);
-  updateGrandTotal();
-}
-
-function updateGrandTotal(){
-  const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
-  let total =0;
-  for(let i=0;i<table.rows.length;i++){
-    total += parseFloat(table.rows[i].cells[6].innerText)||0;
-  }
-  document.getElementById('grandTotal').innerText = total.toFixed(2);
-  document.getElementById('grandTotalWords').innerText = convertToWords(total);
-}
-
-// Convert number to words
-function convertToWords(amount){
-  if(amount===0) return "Zero Rupees";
-  const ones = ["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"];
-  const tens = ["","Ten","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
-  const teens = ["Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
-  let num = Math.floor(amount);
-  let words="";
-  if(num>=1000){words += ones[Math.floor(num/1000)] + " Thousand "; num=num%1000;}
-  if(num>=100){words += ones[Math.floor(num/100)] + " Hundred "; num=num%100;}
-  if(num>=20){words += tens[Math.floor(num/10)]; if(num%10>0) words += " " + ones[num%10];}
-  else if(num>=10){words+=teens[num-10];}
-  else if(num>0){words+=ones[num];}
-  return words + " Rupees";
-}
-
-// Update Prepared By footer when Company Name changes
-function updatePreparedBy(){
-  const name = document.getElementById('companyName').value;
-  document.getElementById('preparedBy').value = name;
-}
-
-// Print function
-function printChallan(){
-  window.print();
-}
-
-// Save as Image function
+function printChallan(){window.print();}
 function saveAsImage(){
-  const wrapper = document.getElementById('challanWrapper');
-  html2canvas(wrapper,{scale:2}).then(canvas=>{
-    const link = document.createElement('a');
-    link.download = 'DeliveryChallan.png';
-    link.href = canvas.toDataURL('image/png');
+  html2canvas(document.body,{scale:2}).then(canvas=>{
+    let link=document.createElement("a");
+    link.download="DeliveryChallan.png";
+    link.href=canvas.toDataURL("image/png");
     link.click();
   });
 }
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </body>
 </html>
