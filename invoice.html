@@ -7,51 +7,45 @@
 <style>
 body{
   font-family: Arial;
-  background:#f2f2f2;
+  background:#f4f4f4;
 }
 
-.challan{
+.container{
   width:900px;
   margin:auto;
-  background:#fff;
-  padding:25px;
+  background:white;
+  padding:20px;
 }
 
 h2{
   text-align:center;
-  margin:0;
+  margin-bottom:5px;
 }
 
-[contenteditable]{
-  outline:none;
+input{
+  border:none;
+  border-bottom:1px solid #000;
+  font-size:14px;
 }
 
 table{
   width:100%;
   border-collapse:collapse;
-  margin-top:20px;
+  margin-top:15px;
 }
 
-th,td{
-  border:1px solid #000;
+th, td{
+  border:1px solid black;
   padding:6px;
   text-align:center;
 }
 
+th{
+  background:#eee;
+}
+
 .controls{
-  text-align:right;
   margin-bottom:10px;
-}
-
-button{
-  padding:6px 12px;
-  margin-left:5px;
-  cursor:pointer;
-}
-
-tfoot td{
-  border-top:2px solid #000;
-  font-weight:bold;
 }
 
 @media print{
@@ -59,7 +53,7 @@ tfoot td{
     display:none;
   }
   body{
-    background:#fff;
+    background:white;
   }
 }
 </style>
@@ -71,21 +65,24 @@ tfoot td{
   <button onclick="addRow()">Add Row</button>
   <button onclick="removeRow()">Remove Row</button>
   <button onclick="window.print()">Print</button>
-  <button onclick="saveImage()">Save Image</button>
 </div>
 
-<div class="challan" id="challan">
+<div class="container">
 
-<h2 contenteditable="true">DELIVERY CHALLAN</h2>
+<h2>DELIVERY CHALLAN</h2>
 
-<div contenteditable="true"><b>Company Name</b></div>
-<div contenteditable="true">Address, Phone</div>
+<div>
+Company Name:
+<input type="text" placeholder="Your Company Name" style="width:300px"><br><br>
 
-<br>
+Address:
+<input type="text" placeholder="Company Address" style="width:300px"><br><br>
 
-Buyer Name: <span contenteditable="true">Customer Name</span>
+Buyer Name:
+<input type="text" style="width:300px">
+</div>
 
-<table id="items">
+<table id="bill">
 <thead>
 <tr>
 <th>SN</th>
@@ -102,10 +99,10 @@ Buyer Name: <span contenteditable="true">Customer Name</span>
 <tr>
 <td>1</td>
 <td contenteditable="true"></td>
-<td contenteditable="true" oninput="calculate(this)">1</td>
-<td contenteditable="true" oninput="calculate(this)">2x3</td>
-<td class="sqft">6</td>
-<td contenteditable="true" oninput="calculate(this)">0</td>
+<td><input type="number" oninput="calc(this)"></td>
+<td><input type="text" placeholder="2x3 or 24x36" oninput="calc(this)"></td>
+<td class="sqft">0</td>
+<td><input type="number" oninput="calc(this)"></td>
 <td class="amount">0</td>
 </tr>
 </tbody>
@@ -113,8 +110,8 @@ Buyer Name: <span contenteditable="true">Customer Name</span>
 <tfoot>
 <tr>
 <td colspan="5"></td>
-<td>Grand Total</td>
-<td id="grandTotal">0</td>
+<td><b>Grand Total</b></td>
+<td id="grand">0</td>
 </tr>
 </tfoot>
 </table>
@@ -122,84 +119,68 @@ Buyer Name: <span contenteditable="true">Customer Name</span>
 </div>
 
 <script>
-
 function parseSize(size){
-  size = size.toLowerCase().replace(/ /g,'');
+  size=size.toLowerCase().replace(/ /g,'');
 
   if(size.includes('x')){
-    let parts = size.split('x');
-    let w = parseFloat(parts[0]);
-    let h = parseFloat(parts[1]);
+    let parts=size.split('x');
+    let w=parseFloat(parts[0]);
+    let h=parseFloat(parts[1]);
 
     if(w>20 || h>20){
-      return (w*h)/144;   // inches → sqft
+      return (w*h)/144; // inches → sqft
     }else{
-      return w*h;         // feet → sqft
+      return w*h; // feet → sqft
     }
   }
   return 0;
 }
 
-function calculate(el){
-  let row = el.parentElement;
-  let qty = parseFloat(row.cells[2].innerText) || 0;
-  let size = row.cells[3].innerText;
-  let rate = parseFloat(row.cells[5].innerText) || 0;
+function calc(el){
+  let row=el.closest('tr');
+  let qty=row.cells[2].children[0].value || 0;
+  let size=row.cells[3].children[0].value;
+  let rate=row.cells[5].children[0].value || 0;
 
-  let sqft = parseSize(size);
-  row.cells[4].innerText = sqft.toFixed(2);
+  let sqft=parseSize(size);
 
-  let amount = sqft * qty * rate;
-  row.cells[6].innerText = amount.toFixed(2);
+  row.querySelector('.sqft').innerText=sqft.toFixed(2);
 
-  updateGrandTotal();
+  let amount=qty*sqft*rate;
+  row.querySelector('.amount').innerText=amount.toFixed(2);
+
+  grandTotal();
 }
 
-function updateGrandTotal(){
-  let total = 0;
-  document.querySelectorAll(".amount").forEach(cell=>{
-    total += parseFloat(cell.innerText) || 0;
+function grandTotal(){
+  let total=0;
+  document.querySelectorAll('.amount').forEach(a=>{
+    total+=parseFloat(a.innerText)||0;
   });
-  document.getElementById("grandTotal").innerText = total.toFixed(2);
+  document.getElementById('grand').innerText=total.toFixed(2);
 }
 
 function addRow(){
-  let table = document.querySelector("#items tbody");
-  let rowCount = table.rows.length + 1;
+  let table=document.getElementById('bill').getElementsByTagName('tbody')[0];
+  let row=table.rows[0].cloneNode(true);
+  let count=table.rows.length+1;
 
-  let row = table.insertRow();
+  row.cells[0].innerText=count;
+  row.querySelectorAll('input').forEach(i=>i.value="");
+  row.querySelector('.sqft').innerText="0";
+  row.querySelector('.amount').innerText="0";
 
-  row.innerHTML = `
-    <td>${rowCount}</td>
-    <td contenteditable="true"></td>
-    <td contenteditable="true" oninput="calculate(this)">1</td>
-    <td contenteditable="true" oninput="calculate(this)">2x3</td>
-    <td class="sqft">6</td>
-    <td contenteditable="true" oninput="calculate(this)">0</td>
-    <td class="amount">0</td>
-  `;
+  table.appendChild(row);
 }
 
 function removeRow(){
-  let table = document.querySelector("#items tbody");
+  let table=document.getElementById('bill').getElementsByTagName('tbody')[0];
   if(table.rows.length>1){
     table.deleteRow(-1);
-    updateGrandTotal();
+    grandTotal();
   }
 }
-
-function saveImage(){
-  html2canvas(document.querySelector("#challan")).then(canvas=>{
-    let link=document.createElement('a');
-    link.download='challan.png';
-    link.href=canvas.toDataURL();
-    link.click();
-  });
-}
-
 </script>
-
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 </body>
 </html>
