@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Delivery Challan & Editable Table</title>
+<title>Delivery Challan - All-in-One</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
-body{background:#eef1f5;padding:20px;}
-.wrapper{max-width:1000px;margin:auto;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.1);padding:25px;margin-bottom:40px;}
+body{background:#eef1f5;padding:30px;}
+.wrapper{max-width:1000px;margin:auto;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.1);padding:25px;}
 .header{text-align:center;font-size:28px;font-weight:700;color:#1565c0;margin-bottom:20px;}
 .top-section{display:flex;justify-content:space-between;margin-bottom:20px;}
 .left, .right{width:48%;}
@@ -28,9 +28,9 @@ body{background:#eef1f5;padding:20px;}
 .table-section th, .table-section td{border:1px solid #ccd6e0;padding:6px;text-align:center;font-size:14px;}
 .table-section th{background:#f0f4f8;font-weight:700;color:#1565c0;}
 .description{font-size:15px;}
-.add-remove{margin-bottom:15px;}
-.add-remove button, .action-buttons button{padding:10px 12px;margin-right:5px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
-.add-remove button:hover, .action-buttons button:hover{background:#0d47a1;}
+.add-remove{margin-bottom:15px;text-align:right;}
+.add-remove button{padding:8px 12px;margin-left:5px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
+.add-remove button:hover{background:#0d47a1;}
 .total-section{display:flex;flex-direction:column;justify-content:flex-end;font-size:16px;font-weight:700;margin-bottom:20px;}
 .total-section span{margin-left:0;}
 .words{font-weight:400;font-size:14px;font-style:italic;color:#333;margin-top:4px;}
@@ -38,127 +38,94 @@ body{background:#eef1f5;padding:20px;}
 .footer div span{font-weight:700;color:#1565c0;}
 .thank-you{margin-top:25px;text-align:center;font-size:14px;font-style:italic;color:#555;}
 .action-buttons{margin-bottom:20px;text-align:right;}
-@media print{
-  .add-remove, .action-buttons{display:none;}
-}
+.action-buttons button{padding:10px 14px;margin-left:8px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
+.action-buttons button:hover{background:#0d47a1;}
+@media print{.add-remove,.action-buttons{display:none;}}
 </style>
 </head>
 <body>
 
-<!-- Action Buttons -->
 <div class="action-buttons">
-<button onclick="printChallan()">Print</button>
-<button onclick="saveAsImage()">Save as Image</button>
-<button onclick="addRow()">Add Row</button>
-<button onclick="removeRow()">Remove Row</button>
+  <button onclick="addRow()">Add Row</button>
+  <button onclick="removeRow()">Remove Row</button>
+  <button onclick="toggleEditMode()">Edit Table</button>
+  <button onclick="printChallan()">Print</button>
+  <button onclick="saveAsImage()">Save as Image</button>
 </div>
 
-<!-- STANDARD DELIVERY CHALLAN -->
 <div class="wrapper" id="challanWrapper">
-<div class="header">Delivery Challan</div>
+  <div class="header">Delivery Challan</div>
 
-<div class="top-section">
-<div class="left">
-<label>Company Name</label>
-<input type="text" id="companyName" oninput="updatePreparedBy()">
-<label>Company Address</label>
-<textarea id="companyAddress" rows="2"></textarea>
-<label>Company Phone</label>
-<input type="text" id="companyPhone">
-</div>
+  <div class="top-section">
+    <div class="left">
+      <label>Company Name</label>
+      <input type="text" id="companyName" oninput="updatePreparedBy()">
+      <label>Company Address</label>
+      <textarea id="companyAddress" rows="2"></textarea>
+      <label>Company Phone</label>
+      <input type="text" id="companyPhone">
+    </div>
 
-<div class="right">
-<label>Challan Number</label>
-<input type="text" id="challanNo" value="CH_">
-<label>Date</label>
-<input type="text" id="date" placeholder="_ _ / _ _ / _ _ _ _">
-<label>Buyer Name</label>
-<input type="text" id="buyerName">
-<label>Buyer Phone</label>
-<input type="text" id="buyerPhone">
-<label>Terms of Delivery</label>
-<textarea id="terms" rows="2"></textarea>
-<label>Buyer Address</label>
-<textarea id="buyerAddress" rows="2"></textarea>
-</div>
-</div>
+    <div class="right">
+      <label>Challan Number</label>
+      <input type="text" id="challanNo" value="CH_">
+      <label>Date</label>
+      <input type="text" id="date" placeholder="_ _ / _ _ / _ _ _ _">
+      <label>Buyer Name</label>
+      <input type="text" id="buyerName">
+      <label>Buyer Phone</label>
+      <input type="text" id="buyerPhone">
+      <label>Terms of Delivery</label>
+      <textarea id="terms" rows="2"></textarea>
+      <label>Buyer Address</label>
+      <textarea id="buyerAddress" rows="2"></textarea>
+    </div>
+  </div>
 
-<div class="table-section">
-<table id="itemsTable">
-<thead>
-<tr>
-<th>S.No.</th>
-<th>Description</th>
-<th>Qty</th>
-<th>Size</th>
-<th>Square Feet</th>
-<th>Rate</th>
-<th>Amount</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td class="description" contenteditable="true"></td>
-<td contenteditable="true" oninput="updateRow(this)">0</td>
-<td contenteditable="true"></td>
-<td contenteditable="true" oninput="updateRow(this)">0</td>
-<td contenteditable="true" oninput="updateRow(this)">0</td>
-<td>0</td>
-</tr>
-</tbody>
-</table>
-</div>
+  <div class="table-section">
+    <table id="itemsTable">
+      <thead>
+        <tr>
+          <th>S.No.</th>
+          <th>Description</th>
+          <th>Qty</th>
+          <th>Size</th>
+          <th>Square Feet</th>
+          <th>Rate</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td class="description" contenteditable="true"></td>
+          <td contenteditable="true" oninput="updateRow(this)">0</td>
+          <td contenteditable="true" oninput="updateRow(this)"></td>
+          <td contenteditable="true" oninput="updateRow(this)">0</td>
+          <td contenteditable="true" oninput="updateRow(this)">0</td>
+          <td>0</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-<div class="total-section">
-<span>Grand Total:</span>
-<span id="grandTotal">0</span>
-<span class="words" id="grandTotalWords">Zero Rupees</span>
-</div>
+  <div class="total-section">
+    <span>Grand Total:</span>
+    <span id="grandTotal">0</span>
+    <span class="words" id="grandTotalWords">Zero Rupees</span>
+  </div>
 
-<div class="footer">
-<div>Received By: <span id="receivedBy">_</span></div>
-<div>Prepared By: <span id="preparedBy" contenteditable="true"></span></div>
-</div>
+  <div class="footer">
+    <div>Received By: <span id="receivedBy">_</span></div>
+    <div>Prepared By: <span id="preparedBy" contenteditable="true"></span></div>
+  </div>
 
-<div class="thank-you">Thank you for doing business with us!</div>
-</div>
-
-<!-- EDITABLE / CUSTOM TABLE FOR OTHER USERS -->
-<div class="wrapper" id="customWrapper">
-<div class="header">Edit & Customize Table</div>
-
-<div class="table-section">
-<div class="add-remove">
-<button onclick="addCustomRow()">Add Row</button>
-<button onclick="removeCustomRow()">Remove Row</button>
-</div>
-<table id="customTable">
-<thead>
-<tr>
-<th>S.No.</th>
-<th>Description</th>
-<th>Quantity</th>
-<th>Rate</th>
-<th>Amount</th>
-<th>Edit</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td contenteditable="true">Part / Item</td>
-<td contenteditable="true" oninput="updateCustomRow(this)">0</td>
-<td contenteditable="true" oninput="updateCustomRow(this)">0</td>
-<td>0</td>
-<td><button onclick="deleteCustomRow(this)">✖</button></td>
-</tr>
-</tbody>
-</table>
+  <div class="thank-you">Thank you for doing business with us!</div>
 </div>
 
 <script>
-// STANDARD DELIVERY CHALLAN FUNCTIONS
+let editMode = false;
+
 function addRow(){
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
   const newRow = table.insertRow();
@@ -189,9 +156,23 @@ function updateSerialNumbers(){
 function updateRow(cell){
   const row = cell.parentElement;
   const qty = parseFloat(row.cells[2].innerText)||0;
-  const sqft = parseFloat(row.cells[4].innerText)||0;
+  const sizeText = row.cells[3].innerText;
+  let sqft = parseFloat(row.cells[4].innerText)||0;
   const rate = parseFloat(row.cells[5].innerText)||0;
-  const amount = qty * sqft * rate;
+
+  // Size to Square Feet conversion
+  if(sizeText.includes("x") && sizeText.toLowerCase().includes("inch")){
+    const dims = sizeText.toLowerCase().replace("inch","").split("x");
+    sqft = ((parseFloat(dims[0].trim())*parseFloat(dims[1].trim()))/144)*qty; // inches to sqft
+  } else if(sizeText.includes("x")){
+    const dims = sizeText.split("x");
+    sqft = parseFloat(dims[0].trim())*parseFloat(dims[1].trim())*qty;
+  }
+
+  row.cells[4].innerText = sqft.toFixed(2);
+
+  // Amount calculation
+  let amount = sqft>0 ? sqft*rate : qty*rate; // if sqft deleted, use qty*rate
   row.cells[6].innerText = amount.toFixed(2);
   updateGrandTotal();
 }
@@ -238,48 +219,17 @@ function saveAsImage(){
   });
 }
 
-// CUSTOM / EDITABLE TABLE FUNCTIONS
-function addCustomRow(){
-  const table = document.getElementById('customTable').getElementsByTagName('tbody')[0];
-  const newRow = table.insertRow();
-  for(let i=0;i<6;i++){
-    const cell = newRow.insertCell();
-    if(i===0){cell.innerText=0;}
-    else if(i!==4 && i!==5){cell.contentEditable=true;}
-    else if(i===4){cell.innerText=0;}
-    else{cell.innerHTML='<button onclick="deleteCustomRow(this)">✖</button>';}
-    if(i===2 || i===3) cell.setAttribute('oninput','updateCustomRow(this)');
+// Toggle Edit Mode for Custom Users
+function toggleEditMode(){
+  editMode = !editMode;
+  const table = document.getElementById('itemsTable');
+  if(editMode){
+    table.contentEditable = true;
+    alert("Edit mode ON: You can rename or delete columns as needed.");
+  } else {
+    table.contentEditable = false;
   }
-  updateCustomSerialNumbers();
-}
-
-function removeCustomRow(){
-  const table = document.getElementById('customTable').getElementsByTagName('tbody')[0];
-  if(table.rows.length>1) table.deleteRow(table.rows.length-1);
-  updateCustomSerialNumbers();
-}
-
-function deleteCustomRow(btn){
-  const row = btn.parentElement.parentElement;
-  row.parentElement.removeChild(row);
-  updateCustomSerialNumbers();
-}
-
-function updateCustomSerialNumbers(){
-  const table = document.getElementById('customTable').getElementsByTagName('tbody')[0];
-  for(let i=0;i<table.rows.length;i++){
-    table.rows[i].cells[0].innerText=i+1;
-  }
-}
-
-function updateCustomRow(cell){
-  const row = cell.parentElement;
-  const qty = parseFloat(row.cells[2].innerText)||0;
-  const rate = parseFloat(row.cells[3].innerText)||0;
-  const amount = qty * rate;
-  row.cells[4].innerText = amount.toFixed(2);
 }
 </script>
-
 </body>
 </html>
