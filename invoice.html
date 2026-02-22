@@ -1,222 +1,178 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Invoice</title>
+<title>Delivery Challan</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
-body{
-    font-family: Arial;
-    margin:40px;
-    color:#000;
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
+body{background:#eef1f5;padding:30px;}
+.wrapper{max-width:1000px;margin:auto;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.1);padding:25px;}
+.header{text-align:center;font-size:28px;font-weight:700;color:#1565c0;margin-bottom:20px;}
+.top-section{display:flex;justify-content:space-between;margin-bottom:20px;}
+.left,.right{width:48%;}
+label{font-weight:700;font-size:14px;color:#333;margin-bottom:2px;display:block;}
+input,textarea{
+width:100%;padding:4px 2px;margin-bottom:10px;border:none;border-bottom:1px solid #333;font-size:14px;background:transparent;
 }
 
-.header{
-    text-align:center;
-}
+table{width:100%;border-collapse:collapse;margin-bottom:15px;}
+th,td{border:1px solid #ccd6e0;padding:6px;text-align:center;font-size:14px;}
+th{background:#f0f4f8;font-weight:700;color:#1565c0;}
 
-.company{
-    font-size:26px;
-    font-weight:bold;
-}
+.add-remove,.action-buttons{text-align:right;margin-bottom:10px;}
+button{padding:8px 12px;background:#1565c0;color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
+button:hover{background:#0d47a1;}
 
-.details{
-    margin-top:10px;
-    display:flex;
-    justify-content:space-between;
-}
-
-.details div{
-    width:48%;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:20px;
-}
-
-th,td{
-    border:1px solid #000;
-    padding:8px;
-    text-align:center;
-}
-
-th{
-    background:#eaf2ff;
-}
-
-input{
-    width:100%;
-    border:none;
-    text-align:center;
-    font-size:14px;
-}
-
-.size-input{
-    height:30px;
-    font-weight:bold;
-}
-
-.controls{
-    position:fixed;
-    top:20px;
-    right:20px;
-}
-
-.controls button{
-    display:block;
-    margin-bottom:6px;
-    padding:8px 14px;
-    font-weight:bold;
-    cursor:pointer;
-}
-
-.footer{
-    margin-top:40px;
-    display:flex;
-    justify-content:space-between;
-}
+.total-section{font-weight:700;text-align:right;margin-top:10px;}
+.footer{display:flex;justify-content:space-between;margin-top:25px;}
+.thank-you{text-align:center;margin-top:15px;color:#555;}
 
 @media print{
-  .controls{ display:none; }
+.add-remove,.action-buttons{display:none;}
 }
 </style>
 </head>
 
 <body>
 
-<div class="controls">
+<div class="action-buttons">
+<button onclick="printChallan()">Print</button>
+<button onclick="saveAsImage()">Save as Image</button>
+</div>
+
+<div class="wrapper" id="challanWrapper">
+
+<div class="header">Delivery Challan</div>
+
+<div class="top-section">
+<div class="left">
+<label>Company Name</label>
+<input>
+<label>Company Address</label>
+<textarea rows="2"></textarea>
+<label>Phone</label>
+<input>
+</div>
+
+<div class="right">
+<label>Challan No</label>
+<input value="CH-">
+<label>Date</label>
+<input placeholder="2082/11/30">
+<label>Buyer Name</label>
+<input>
+<label>Buyer Phone</label>
+<input>
+<label>Terms of Delivery</label>
+<textarea rows="2"></textarea>
+<label>Buyer Address</label>
+<textarea rows="2"></textarea>
+</div>
+</div>
+
+<div class="add-remove">
 <button onclick="addRow()">Add Row</button>
 <button onclick="removeRow()">Remove Row</button>
-<button onclick="window.print()">Print</button>
 </div>
 
-<div class="header">
-<div class="company">Nepal Print Solution Pvt. Ltd.</div>
-<div>Address: Kathmandu, Nepal</div>
-<div>Phone: 98XXXXXXXX</div>
-</div>
-
-<div class="details">
-<div>
-<b>Bill To:</b><br>
-<input placeholder="Customer Name"><br>
-<input placeholder="Address">
-</div>
-
-<div style="text-align:right">
-Invoice No: <input style="width:120px"><br><br>
-Date: <input type="date">
-</div>
-</div>
-
-<table id="tbl">
+<table id="itemsTable">
 <thead>
 <tr>
 <th>SN</th>
 <th>Description</th>
 <th>Qty</th>
-<th>Size (ft/in)</th>
-<th>Sq.Ft</th>
+<th>Size</th>
+<th>Sq.ft</th>
 <th>Rate</th>
 <th>Amount</th>
 </tr>
 </thead>
-<tbody>
-</tbody>
+<tbody></tbody>
 </table>
 
-<h3 style="text-align:right;margin-top:20px">
-Total: Rs. <span id="total">0</span>
-</h3>
+<div class="total-section">
+Grand Total: Rs. <span id="grandTotal">0</span>
+</div>
 
 <div class="footer">
-<div>
-Prepared By:<br>
-<input placeholder="Name">
+<div>Received By: ____</div>
+<div>Prepared By: <span contenteditable="true"></span></div>
 </div>
 
-<div style="text-align:right">
-Authorized Signature
-</div>
+<div class="thank-you">Thank you for doing business with us!</div>
 </div>
 
 <script>
-const tbody = document.querySelector("#tbl tbody");
+const tbody=document.querySelector("#itemsTable tbody");
 
 function addRow(){
-    const row = tbody.insertRow();
-
-    row.innerHTML = `
-    <td class="sn"></td>
-    <td><input></td>
-    <td><input type="number" value="1" oninput="calculate()"></td>
-    <td><input class="size-input" placeholder="2x3 or 24x36" oninput="calculate()"></td>
-    <td class="sqft">0</td>
-    <td><input type="number" oninput="calculate()"></td>
-    <td class="amount">0</td>
-    `;
-
-    updateSerial();
+const row=tbody.insertRow();
+row.innerHTML=`
+<td class="sn"></td>
+<td contenteditable="true"></td>
+<td contenteditable="true" oninput="calc(this)">1</td>
+<td contenteditable="true" oninput="calc(this)" placeholder="2x3 or 24x36"></td>
+<td class="sqft">0</td>
+<td contenteditable="true" oninput="calc(this)">0</td>
+<td class="amount">0</td>`;
+updateSN();
 }
 
 function removeRow(){
-    if(tbody.rows.length>0){
-        tbody.deleteRow(-1);
-        updateSerial();
-        calculate();
-    }
+if(tbody.rows.length>0) tbody.deleteRow(-1);
+updateSN(); calculateTotal();
 }
 
-function updateSerial(){
-    document.querySelectorAll(".sn").forEach((sn,i)=>{
-        sn.innerText = i+1;
-    });
+function updateSN(){
+[...document.querySelectorAll(".sn")].forEach((el,i)=>el.innerText=i+1);
 }
 
-function calculate(){
-    let total = 0;
+function calc(el){
+const row=el.parentElement;
+let qty=parseFloat(row.cells[2].innerText)||0;
+let size=row.cells[3].innerText.toLowerCase();
+let rate=parseFloat(row.cells[5].innerText)||0;
 
-    document.querySelectorAll("#tbl tbody tr").forEach(row=>{
-        const qty = parseFloat(row.cells[2].children[0].value) || 0;
-        const sizeText = row.cells[3].children[0].value.toLowerCase();
-        const rate = parseFloat(row.cells[5].children[0].value) || 0;
+let sqft=0;
 
-        let sqft = 0;
+if(size.includes("x")){
+let [w,h]=size.split("x").map(Number);
+if(w&&h){
+if(w>20||h>20){ sqft=(w*h)/144; }
+else{ sqft=w*h; }
+sqft*=qty;
+}
+}
 
-        if(sizeText.includes("x")){
-            let parts = sizeText.split("x");
+row.querySelector(".sqft").innerText=sqft.toFixed(2);
+row.querySelector(".amount").innerText=(sqft*rate).toFixed(2);
 
-            let w = parseFloat(parts[0]);
-            let h = parseFloat(parts[1]);
+calculateTotal();
+}
 
-            if(w && h){
+function calculateTotal(){
+let total=0;
+document.querySelectorAll(".amount").forEach(a=>{
+total+=parseFloat(a.innerText)||0;
+});
+document.getElementById("grandTotal").innerText=total.toFixed(2);
+}
 
-                // detect inches automatically
-                if(w > 20 || h > 20){
-                    sqft = (w*h)/144;
-                }else{
-                    sqft = w*h;
-                }
+function printChallan(){window.print();}
 
-                sqft = sqft * qty;
-            }
-        }
-
-        row.querySelector(".sqft").innerText = sqft.toFixed(2);
-
-        let amount = sqft * rate;
-        row.querySelector(".amount").innerText = amount.toFixed(2);
-
-        total += amount;
-    });
-
-    document.getElementById("total").innerText = total.toFixed(2);
+function saveAsImage(){
+html2canvas(document.getElementById("challanWrapper"),{scale:2}).then(canvas=>{
+let link=document.createElement("a");
+link.download="challan.png";
+link.href=canvas.toDataURL();
+link.click();
+});
 }
 
 addRow();
 </script>
-
 </body>
 </html>
