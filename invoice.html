@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Delivery Challan - Final</title>
+<title>Delivery Challan</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
-body{background:#eef1f5;padding:20px;}
+body{background:#eef1f5;padding:30px;}
 .wrapper{max-width:1000px;margin:auto;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.1);padding:25px;}
 .header{text-align:center;font-size:28px;font-weight:700;color:#1565c0;margin-bottom:20px;}
 .top-section{display:flex;justify-content:space-between;margin-bottom:20px;}
@@ -28,7 +28,7 @@ body{background:#eef1f5;padding:20px;}
 .table-section th, .table-section td{border:1px solid #ccd6e0;padding:6px;text-align:center;font-size:14px;}
 .table-section th{background:#f0f4f8;font-weight:700;color:#1565c0;}
 .description{font-size:15px;}
-.add-remove{margin-bottom:15px;}
+.add-remove{margin-bottom:15px;text-align:right;}
 .add-remove button{padding:10px 12px;margin-right:5px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
 .add-remove button:hover{background:#0d47a1;}
 .total-section{display:flex;flex-direction:column;justify-content:flex-end;font-size:16px;font-weight:700;margin-bottom:20px;}
@@ -48,11 +48,10 @@ body{background:#eef1f5;padding:20px;}
 <body>
 
 <div class="action-buttons">
-<button onclick="addRow()">Add Row</button>
-<button onclick="removeRow()">Remove Row</button>
-<button onclick="toggleAutoSum()">Auto Sum</button>
 <button onclick="printChallan()">Print</button>
 <button onclick="saveAsImage()">Save as Image</button>
+<button onclick="addRow()">Add Row</button>
+<button onclick="removeRow()">Remove Row</button>
 </div>
 
 <div class="wrapper" id="challanWrapper">
@@ -95,7 +94,7 @@ body{background:#eef1f5;padding:20px;}
 <th>Square Feet</th>
 <th>Rate</th>
 <th>Amount</th>
-<th>Delete</th>
+<th>Edit/Delete</th>
 </tr>
 </thead>
 <tbody>
@@ -107,7 +106,7 @@ body{background:#eef1f5;padding:20px;}
 <td contenteditable="true" oninput="updateRow(this)">0</td>
 <td contenteditable="true" oninput="updateRow(this)">0</td>
 <td>0</td>
-<td><button onclick="deleteRow(this)">X</button></td>
+<td><button onclick="editCell(this)">Edit</button> <button onclick="deleteRow(this)">Delete</button></td>
 </tr>
 </tbody>
 </table>
@@ -128,17 +127,16 @@ body{background:#eef1f5;padding:20px;}
 </div>
 
 <script>
-let autoSum = true;
-
 function addRow(){
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
   const newRow = table.insertRow();
   for(let i=0;i<8;i++){
     const cell = newRow.insertCell();
-    if(i===0){cell.innerText = 0;}
-    else if(i===7){cell.innerHTML = '<button onclick="deleteRow(this)">X</button>';}
-    else{cell.contentEditable = true;}
-    if([2,3,4,5].includes(i)) cell.setAttribute('oninput','updateRow(this)');
+    if(i===0) cell.innerText = 0;
+    else if(i!==6 && i!==7) cell.contentEditable = true;
+    else if(i===6) cell.innerText = 0;
+    else cell.innerHTML = '<button onclick="editCell(this)">Edit</button> <button onclick="deleteRow(this)">Delete</button>';
+    if(i===2 || i===3 || i===4 || i===5) cell.setAttribute('oninput','updateRow(this)');
   }
   updateSerialNumbers();
 }
@@ -152,9 +150,16 @@ function removeRow(){
 
 function deleteRow(btn){
   const row = btn.parentElement.parentElement;
-  row.remove();
+  row.parentElement.removeChild(row);
   updateSerialNumbers();
   updateGrandTotal();
+}
+
+function editCell(btn){
+  const row = btn.parentElement.parentElement;
+  for(let i=1;i<=6;i++){
+    row.cells[i].contentEditable = true;
+  }
 }
 
 function updateSerialNumbers(){
@@ -166,31 +171,23 @@ function updateSerialNumbers(){
 
 function updateRow(cell){
   const row = cell.parentElement;
-  let qty = parseFloat(row.cells[2].innerText)||0;
-  let size = row.cells[3].innerText.trim();
-  let sqft = parseFloat(row.cells[4].innerText)||0;
-  let rate = parseFloat(row.cells[5].innerText)||0;
-
-  // Size calculation: 2x3 ft or 24x36 inch
-  if(size){
-    const parts = size.toLowerCase().split(/[xX]/);
-    if(parts.length===2){
-      let w = parseFloat(parts[0]);
-      let h = parseFloat(parts[1]);
-      if(size.toLowerCase().includes('inch')){
-        w /= 12;
-        h /= 12;
-      }
-      sqft = w*h;
-      row.cells[4].innerText = sqft.toFixed(2);
-    }
+  const qty = parseFloat(row.cells[2].innerText)||0;
+  const size = row.cells[3].innerText.trim();
+  let sqft=0;
+  if(size.includes('x')){
+    let parts = size.toLowerCase().replace("inch","").replace("ft","").split('x');
+    let w=parseFloat(parts[0])||0;
+    let h=parseFloat(parts[1])||0;
+    if(size.toLowerCase().includes('inch')) sqft = (w*h)/144;
+    else sqft = w*h;
+  } else {
+    sqft = parseFloat(row.cells[4].innerText)||0;
   }
-
-  if(autoSum){
-    const amount = qty*sqft*rate;
-    row.cells[6].innerText = amount.toFixed(2);
-    updateGrandTotal();
-  }
+  row.cells[4].innerText = sqft.toFixed(2);
+  const rate = parseFloat(row.cells[5].innerText)||0;
+  const amount = sqft * qty * rate;
+  row.cells[6].innerText = amount.toFixed(2);
+  updateGrandTotal();
 }
 
 function updateGrandTotal(){
@@ -217,8 +214,6 @@ function convertToWords(amount){
   else if(num>0){words+=ones[num];}
   return words + " Rupees";
 }
-
-function toggleAutoSum(){ autoSum = !autoSum; alert("Auto Sum " + (autoSum?"Enabled":"Disabled")); }
 
 function updatePreparedBy(){
   const name = document.getElementById('companyName').value;
