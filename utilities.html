@@ -2,168 +2,198 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Diary Nepal - Home</title>
-
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-YQQHMEQWT4"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-YQQHMEQWT4');
-</script>
+<title>Delivery Challan</title>
 
 <style>
-  body {
-    margin: 0;
-    font-family: "Segoe UI", Arial, sans-serif;
-    background: #f4f6f9;
-    color: #333;
-  }
-
-  header {
-    background: #004aad;
-    color: white;
-    padding: 30px 20px;
-    text-align: center;
-  }
-
-  header h1 {
-    margin: 0;
-    font-size: 2.3em;
-  }
-
-  header p {
-    margin-top: 8px;
-    opacity: 0.95;
-  }
-
-  /* Layout */
-  .layout {
-    display: flex;
-    max-width: 1300px;
-    margin: auto;
-    padding: 30px 20px;
-    gap: 30px;
-  }
-
-  /* Sidebar */
-  .sidebar {
-    width: 300px;
-    min-width: 260px;
-  }
-
-  .directory-card {
-    background: white;
-    border-radius: 10px;
-    padding: 18px 20px;
-    margin-bottom: 15px;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
-    font-weight: 600;
-    color: #004aad;
-  }
-
-  .directory-card:hover {
-    background: #f0f5ff;
-    transform: translateX(5px);
-    box-shadow: 0 8px 18px rgba(0,0,0,0.12);
-  }
-
-  /* Main content */
-  .content {
-    flex: 1;
-    background: white;
-    border-radius: 12px;
-    padding: 30px;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
-  }
-
-  .content h2 {
-    color: #004aad;
-    margin-top: 0;
-  }
-
-  /* Footer */
-  footer {
-    background: #1e1e1e;
-    color: #ccc;
-    text-align: center;
-    padding: 20px;
-    font-size: 0.9em;
-  }
-
-  footer a {
-    color: #004aad;
-    text-decoration: underline;
-    font-weight: bold;
-    margin-left: 5px;
-  }
-
-  /* Responsive */
-  @media (max-width: 900px) {
-    .layout {
-      flex-direction: column;
-    }
-
-    .sidebar {
-      width: 100%;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-    }
-
-    .directory-card {
-      margin-bottom: 0;
-      text-align: center;
-    }
-  }
+body{
+  font-family: Arial, sans-serif;
+  margin:40px;
+}
+h2{
+  text-align:center;
+  margin-bottom:5px;
+}
+input, select{
+  padding:6px;
+  margin:3px 0;
+}
+table{
+  width:100%;
+  border-collapse: collapse;
+  margin-top:15px;
+}
+table, th, td{
+  border:1px solid #000;
+}
+th, td{
+  padding:8px;
+  text-align:center;
+}
+.add-btn{
+  margin-top:10px;
+  padding:8px 15px;
+  cursor:pointer;
+}
+.total-box{
+  margin-top:15px;
+  text-align:right;
+}
+.signature{
+  margin-top:60px;
+  display:flex;
+  justify-content:space-between;
+}
+.hidden{
+  display:none;
+}
 </style>
 </head>
-
 <body>
 
-<header>
-  <h1>Diary Nepal</h1>
-  <p>Select a directory from the left</p>
-</header>
+<h2>DELIVERY CHALLAN</h2>
 
-<div class="layout">
+<!-- Company Details -->
+<b>Company Name:</b><br>
+<input type="text" placeholder="Company Name"><br>
 
-  <!-- Left Directory -->
-  <aside class="sidebar">
-    <div class="directory-card" onclick="location.href='vat-calculator.html'">VAT Calculator</div>
-	<div class="directory-card" onclick="location.href='date-converter.html'">Date Converter</div>
-	
-    <div class="directory-card" onclick="location.href='invoice.html'">Generate Invoice</div>
-	<div class="directory-card" onclick="location.href='quotation.html'">Generate Quotation</div>
-	<div class="directory-card" onclick="location.href='estimated-bill.html'">Estimated Bill</div>
-	<div class="directory-card" onclick="location.href='cash-received.html'">Cash Received</div>
-	<div class="directory-card" onclick="location.href='joborder.html'">Job Order</div>
-  </aside>
+<b>Address:</b><br>
+<input type="text" placeholder="Address"><br>
 
-  <!-- Main Content -->
-  <main class="content">
-    <h2>About Diary Nepal</h2>
-    <p>
-      Diary Nepal is a centralized directory providing quick access to essential
-      services and institutions across Nepal.
-    </p>
-   
-  </main>
+<b>Phone:</b><br>
+<input type="text" placeholder="Phone"><br><br>
 
+<!-- Challan Info -->
+<table>
+<tr>
+<td>Challan No</td>
+<td><input type="text"></td>
+<td>Date (AD)</td>
+<td><input type="date" id="adDate" onchange="convertDate()"></td>
+</tr>
+
+<tr>
+<td>Date (BS)</td>
+<td><input type="text" id="bsDate" readonly></td>
+<td>Terms</td>
+<td><input type="text"></td>
+</tr>
+</table>
+
+<br>
+
+<b>Buyer Details</b><br>
+<input type="text" placeholder="Buyer Name"><br>
+<input type="text" placeholder="Buyer Address"><br>
+<input type="text" placeholder="Buyer Phone"><br>
+
+<br>
+
+<!-- Quantity Mode -->
+<b>Quantity Type:</b>
+<select id="qtyType" onchange="toggleMode()">
+<option value="pcs">Pieces</option>
+<option value="sqft">Square Feet</option>
+<option value="size">Size Based</option>
+</select>
+
+<!-- Item Table -->
+<table id="itemTable">
+<thead>
+<tr>
+<th>SN</th>
+<th>Description</th>
+<th>Qty</th>
+<th class="sizeCol hidden">Length</th>
+<th class="sizeCol hidden">Width</th>
+<th>Rate</th>
+<th>Amount</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><input></td>
+<td><input type="number" oninput="calc(this)"></td>
+<td class="sizeCol hidden"><input type="number" oninput="calc(this)"></td>
+<td class="sizeCol hidden"><input type="number" oninput="calc(this)"></td>
+<td><input type="number" oninput="calc(this)"></td>
+<td class="amount">0</td>
+</tr>
+</tbody>
+</table>
+
+<button class="add-btn" onclick="addRow()">+ Add Item</button>
+
+<div class="total-box">
+<b>Total: <span id="grandTotal">0</span></b>
 </div>
 
-<footer>
-  © 2025 Diary Nepal | Data from official sources
-  <p>
-    Have a question or notice incorrect data? 
-    <a href="feedback.html" target="_blank">Submit Feedback</a>
-  </p>
-</footer>
+<div class="signature">
+<div>Receiver Signature</div>
+<div>Authorized Signature</div>
+</div>
+
+<script>
+
+function convertDate(){
+  const ad = document.getElementById('adDate').value;
+  if(ad){
+    const date = new Date(ad);
+    document.getElementById('bsDate').value =
+      (date.getFullYear()+57) + '-' + (date.getMonth()+1) + '-' + date.getDate();
+  }
+}
+
+function toggleMode(){
+  const type = document.getElementById('qtyType').value;
+  const cols = document.querySelectorAll('.sizeCol');
+
+  cols.forEach(col=>{
+    col.classList.toggle('hidden', type === 'pcs');
+  });
+}
+
+function calc(el){
+  const row = el.closest('tr');
+  const qty = parseFloat(row.cells[2].querySelector('input').value) || 0;
+  const len = row.cells[3].querySelector('input') ? parseFloat(row.cells[3].querySelector('input').value) || 0 : 0;
+  const wid = row.cells[4].querySelector('input') ? parseFloat(row.cells[4].querySelector('input').value) || 0 : 0;
+  const rate = parseFloat(row.cells[row.cells.length-2].querySelector('input').value) || 0;
+  const type = document.getElementById('qtyType').value;
+
+  let amount = 0;
+
+  if(type === 'sqft' || type === 'size'){
+    amount = qty * len * wid * rate;
+  } else {
+    amount = qty * rate;
+  }
+
+  row.querySelector('.amount').innerText = amount.toFixed(2);
+  grandTotal();
+}
+
+function grandTotal(){
+  let total = 0;
+  document.querySelectorAll('.amount').forEach(a=>{
+    total += parseFloat(a.innerText) || 0;
+  });
+  document.getElementById('grandTotal').innerText = total.toFixed(2);
+}
+
+function addRow(){
+  const table = document.querySelector('#itemTable tbody');
+  const rowCount = table.rows.length + 1;
+  const newRow = table.rows[0].cloneNode(true);
+
+  newRow.cells[0].innerText = rowCount;
+  newRow.querySelectorAll('input').forEach(i=>i.value='');
+  newRow.querySelector('.amount').innerText='0';
+
+  table.appendChild(newRow);
+}
+
+</script>
 
 </body>
 </html>
