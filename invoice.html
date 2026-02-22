@@ -27,7 +27,7 @@ body{background:#eef1f5;padding:30px;}
 .table-section table{width:100%;border-collapse:collapse;margin-bottom:15px;}
 .table-section th, .table-section td{border:1px solid #ccd6e0;padding:8px;text-align:center;font-size:14px;}
 .table-section th{background:#f0f4f8;font-weight:700;color:#1565c0;}
-.description{font-size:15px;text-align:left;padding-left:5px;}
+.description{font-size:15px;text-align:left;padding-left:5px;text-transform:capitalize;}
 .add-remove{margin-bottom:15px;}
 .add-remove button{padding:10px 12px;margin-right:5px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
 .add-remove button:hover{background:#0d47a1;}
@@ -40,7 +40,7 @@ body{background:#eef1f5;padding:30px;}
 .action-buttons{margin-bottom:20px;text-align:right;}
 .action-buttons button{padding:10px 14px;margin-left:8px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
 .action-buttons button:hover{background:#0d47a1;}
-/* Hide Add/Remove buttons and action buttons in print & image capture */
+/* Hide Add/Remove and action buttons in print & image capture */
 @media print{
   .add-remove, .action-buttons{display:none;}
 }
@@ -59,7 +59,7 @@ body{background:#eef1f5;padding:30px;}
 <div class="top-section">
 <div class="left">
 <label>Company Name</label>
-<input type="text" id="companyName" oninput="updatePreparedBy()">
+<input type="text" id="companyName" placeholder="">
 <label>Company Address</label>
 <textarea id="companyAddress" rows="2"></textarea>
 <label>Company Phone</label>
@@ -68,7 +68,7 @@ body{background:#eef1f5;padding:30px;}
 
 <div class="right">
 <label>Challan Number</label>
-<input type="text" id="challanNo" value="">
+<input type="text" id="challanNo" value="CH_">
 <label>Date</label>
 <input type="text" id="date" placeholder="_ _ / _ _ / _ _ _ _">
 <label>Buyer Name</label>
@@ -121,24 +121,13 @@ body{background:#eef1f5;padding:30px;}
 
 <div class="footer">
 <div>Received By: <span id="receivedBy">_</span></div>
-<div>Prepared By: <span id="preparedBy"></span></div>
+<div>Prepared By: <input type="text" id="preparedBy" placeholder="Prepared By"></div>
 </div>
 
 <div class="thank-you">Thank you for doing business with us!</div>
 </div>
 
 <script>
-// Initialize CH Number
-if(localStorage.getItem('challanNo')){
-  document.getElementById('challanNo').value = localStorage.getItem('challanNo');
-} else {
-  document.getElementById('challanNo').value = 'CH_001';
-}
-
-document.getElementById('challanNo').addEventListener('input',function(){
-  localStorage.setItem('challanNo',this.value);
-});
-
 // Dynamic row functions
 function addRow(){
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
@@ -169,11 +158,11 @@ function updateSerialNumbers(){
 
 function updateRow(cell){
   const row = cell.parentElement;
-  const qty = parseFloat(row.cells[2].innerText)||0;
-  const size = parseFloat(row.cells[3].innerText)||1;
-  const sqft = parseFloat(row.cells[4].innerText)||1;
-  const rate = parseFloat(row.cells[5].innerText)||0;
-  const amount = qty*size*sqft*rate;
+  let qty = parseFloat(row.cells[2].innerText)||0;
+  let size = parseFloat(row.cells[3].innerText)||1;
+  let sqft = parseFloat(row.cells[4].innerText)||1;
+  let rate = parseFloat(row.cells[5].innerText)||0;
+  let amount = qty*size*sqft*rate;
   row.cells[6].innerText = amount.toFixed(2);
   updateGrandTotal();
 }
@@ -188,7 +177,7 @@ function updateGrandTotal(){
   document.getElementById('grandTotalWords').innerText = convertToWords(total);
 }
 
-// Convert number to words
+// Number to words
 function convertToWords(amount){
   if(amount===0) return "Zero Rupees";
   const ones = ["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"];
@@ -204,16 +193,8 @@ function convertToWords(amount){
   return words + " Rupees";
 }
 
-// Update Prepared By footer when Company Name changes
-function updatePreparedBy(){
-  const name = document.getElementById('companyName').value;
-  document.getElementById('preparedBy').innerText = name;
-}
-
 // Print function
-function printChallan(){
-  window.print();
-}
+function printChallan(){ window.print(); }
 
 // Save as Image function
 function saveAsImage(){
