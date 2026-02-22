@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Delivery Challan</title>
+<title>Delivery Challan - Customizable Table</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
@@ -21,13 +21,14 @@ body{background:#eef1f5;padding:30px;}
   border-bottom:1px solid #333;
   font-size:14px;
   line-height:1.5;
-  vertical-align:middle;
   background:transparent;
 }
 .table-section table{width:100%;border-collapse:collapse;margin-bottom:15px;}
 .table-section th, .table-section td{border:1px solid #ccd6e0;padding:6px;text-align:center;font-size:14px;}
 .table-section th{background:#f0f4f8;font-weight:700;color:#1565c0;}
-.description{font-size:15px;}
+.add-remove{margin-bottom:15px;}
+.add-remove button{padding:8px 10px;margin-right:5px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
+.add-remove button:hover{background:#0d47a1;}
 .total-section{display:flex;flex-direction:column;justify-content:flex-end;font-size:16px;font-weight:700;margin-bottom:20px;}
 .total-section span{margin-left:0;}
 .words{font-weight:400;font-size:14px;font-style:italic;color:#333;margin-top:4px;}
@@ -35,10 +36,10 @@ body{background:#eef1f5;padding:30px;}
 .footer div span{font-weight:700;color:#1565c0;}
 .thank-you{margin-top:25px;text-align:center;font-size:14px;font-style:italic;color:#555;}
 .action-buttons{margin-bottom:20px;text-align:right;}
-.action-buttons button{padding:10px 14px;margin-left:8px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
+.action-buttons button{padding:8px 12px;margin-left:8px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
 .action-buttons button:hover{background:#0d47a1;}
 @media print{
-  .action-buttons{display:none;}
+  .add-remove, .action-buttons{display:none;}
 }
 </style>
 </head>
@@ -47,9 +48,7 @@ body{background:#eef1f5;padding:30px;}
 <div class="action-buttons">
 <button onclick="printChallan()">Print</button>
 <button onclick="saveAsImage()">Save as Image</button>
-<button onclick="addRow()">Add Row</button>
-<button onclick="removeRow()">Remove Row</button>
-<label style="color:#1565c0;margin-left:10px;"><input type="checkbox" id="autoSum" checked> Auto-Sum</label>
+<button onclick="toggleEditMode()">Toggle Edit</button>
 </div>
 
 <div class="wrapper" id="challanWrapper">
@@ -82,6 +81,10 @@ body{background:#eef1f5;padding:30px;}
 </div>
 
 <div class="table-section">
+<div class="add-remove" id="editButtons">
+<button onclick="addRow()">Add Row</button>
+<button onclick="removeRow()">Remove Row</button>
+</div>
 <table id="itemsTable">
 <thead>
 <tr>
@@ -92,6 +95,7 @@ body{background:#eef1f5;padding:30px;}
 <th>Square Feet</th>
 <th>Rate</th>
 <th>Amount</th>
+<th class="optional-col">Delete</th>
 </tr>
 </thead>
 <tbody>
@@ -103,6 +107,7 @@ body{background:#eef1f5;padding:30px;}
 <td contenteditable="true" oninput="updateRow(this)">0</td>
 <td contenteditable="true" oninput="updateRow(this)">0</td>
 <td>0</td>
+<td class="optional-col"><button onclick="deleteRow(this)">🗑</button></td>
 </tr>
 </tbody>
 </table>
@@ -123,24 +128,42 @@ body{background:#eef1f5;padding:30px;}
 </div>
 
 <script>
+let editMode = true;
+
+function toggleEditMode(){
+  editMode = !editMode;
+  document.getElementById('editButtons').style.display = editMode ? 'block':'none';
+  const optionalCols = document.querySelectorAll('.optional-col');
+  optionalCols.forEach(col=>{
+    col.style.display = editMode ? 'table-cell':'none';
+  });
+}
+
 function addRow(){
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
   const newRow = table.insertRow();
-  for(let i=0;i<7;i++){
+  for(let i=0;i<8;i++){
     const cell = newRow.insertCell();
-    if(i===0){cell.innerText = 0;} 
-    else if(i!==6){cell.contentEditable = true;}
-    else{cell.innerText = 0;}
+    if(i===0){cell.innerText = table.rows.length;}
+    else if(i!==6 && i!==7){cell.contentEditable = true;}
+    else if(i===6){cell.innerText = 0;}
+    else if(i===7){cell.innerHTML='<button onclick="deleteRow(this)">🗑</button>';}
     if(i===2 || i===4 || i===5) cell.setAttribute('oninput','updateRow(this)');
   }
-  updateSerialNumbers();
 }
 
 function removeRow(){
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
   if(table.rows.length>1) table.deleteRow(table.rows.length-1);
-  updateGrandTotal();
   updateSerialNumbers();
+  updateGrandTotal();
+}
+
+function deleteRow(btn){
+  const row = btn.parentElement.parentElement;
+  row.parentElement.removeChild(row);
+  updateSerialNumbers();
+  updateGrandTotal();
 }
 
 function updateSerialNumbers(){
@@ -151,7 +174,6 @@ function updateSerialNumbers(){
 }
 
 function updateRow(cell){
-  if(!document.getElementById('autoSum').checked) return;
   const row = cell.parentElement;
   const qty = parseFloat(row.cells[2].innerText)||0;
   const sqft = parseFloat(row.cells[4].innerText)||0;
