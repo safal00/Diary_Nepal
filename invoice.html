@@ -8,25 +8,42 @@
 body{
     font-family: Arial;
     margin:40px;
+    color:#000;
 }
 
-h2{
+.header{
     text-align:center;
+}
+
+.company{
+    font-size:26px;
+    font-weight:bold;
+}
+
+.details{
+    margin-top:10px;
+    display:flex;
+    justify-content:space-between;
+}
+
+.details div{
+    width:48%;
 }
 
 table{
     width:100%;
     border-collapse:collapse;
+    margin-top:20px;
 }
 
 th,td{
     border:1px solid #000;
-    padding:6px;
+    padding:8px;
     text-align:center;
 }
 
 th{
-    background:#e9f2ff;
+    background:#eaf2ff;
 }
 
 input{
@@ -34,6 +51,11 @@ input{
     border:none;
     text-align:center;
     font-size:14px;
+}
+
+.size-input{
+    height:30px;
+    font-weight:bold;
 }
 
 .controls{
@@ -50,7 +72,12 @@ input{
     cursor:pointer;
 }
 
-/* hide buttons in print & image */
+.footer{
+    margin-top:40px;
+    display:flex;
+    justify-content:space-between;
+}
+
 @media print{
   .controls{ display:none; }
 }
@@ -65,7 +92,24 @@ input{
 <button onclick="window.print()">Print</button>
 </div>
 
-<h2>INVOICE</h2>
+<div class="header">
+<div class="company">Nepal Print Solution Pvt. Ltd.</div>
+<div>Address: Kathmandu, Nepal</div>
+<div>Phone: 98XXXXXXXX</div>
+</div>
+
+<div class="details">
+<div>
+<b>Bill To:</b><br>
+<input placeholder="Customer Name"><br>
+<input placeholder="Address">
+</div>
+
+<div style="text-align:right">
+Invoice No: <input style="width:120px"><br><br>
+Date: <input type="date">
+</div>
+</div>
 
 <table id="tbl">
 <thead>
@@ -73,7 +117,7 @@ input{
 <th>SN</th>
 <th>Description</th>
 <th>Qty</th>
-<th>Size</th>
+<th>Size (ft/in)</th>
 <th>Sq.Ft</th>
 <th>Rate</th>
 <th>Amount</th>
@@ -87,6 +131,17 @@ input{
 Total: Rs. <span id="total">0</span>
 </h3>
 
+<div class="footer">
+<div>
+Prepared By:<br>
+<input placeholder="Name">
+</div>
+
+<div style="text-align:right">
+Authorized Signature
+</div>
+</div>
+
 <script>
 const tbody = document.querySelector("#tbl tbody");
 
@@ -97,7 +152,7 @@ function addRow(){
     <td class="sn"></td>
     <td><input></td>
     <td><input type="number" value="1" oninput="calculate()"></td>
-    <td><input placeholder="2x3 or 24x36" oninput="calculate()"></td>
+    <td><input class="size-input" placeholder="2x3 or 24x36" oninput="calculate()"></td>
     <td class="sqft">0</td>
     <td><input type="number" oninput="calculate()"></td>
     <td class="amount">0</td>
@@ -138,7 +193,7 @@ function calculate(){
 
             if(w && h){
 
-                // if inches detected (>20 assume inch input)
+                // detect inches automatically
                 if(w > 20 || h > 20){
                     sqft = (w*h)/144;
                 }else{
@@ -160,7 +215,6 @@ function calculate(){
     document.getElementById("total").innerText = total.toFixed(2);
 }
 
-// first row
 addRow();
 </script>
 
