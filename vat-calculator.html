@@ -2,198 +2,200 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Diary Nepal VAT Calculator</title>
+<title>VAT Invoice Calculator</title>
 
 <style>
-body{
-margin:0;
-font-family:Arial;
-background:linear-gradient(135deg,#0f172a,#1e293b,#0f172a);
-color:white;
+body {
+  font-family: Arial;
+  background:#f5f6fa;
+  padding:20px;
 }
 
-.container{
-max-width:1100px;
-margin:auto;
-padding:40px 20px;
-display:grid;
-grid-template-columns:2fr 1fr;
-gap:30px;
+.container {
+  max-width:900px;
+  margin:auto;
+  background:white;
+  padding:20px;
+  border-radius:10px;
+  box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
 
-h1{text-align:center;}
-.subtitle{text-align:center;color:#f59e0b;margin-bottom:30px;}
-
-.card{
-background:rgba(255,255,255,0.05);
-padding:30px;
-border-radius:16px;
-backdrop-filter:blur(10px);
+input, select {
+  padding:8px;
+  margin:5px 0;
+  width:100%;
 }
 
-input{
-width:100%;
-padding:14px;
-border-radius:10px;
-border:none;
-margin-top:10px;
-font-size:18px;
+.row {
+  display:flex;
+  gap:10px;
 }
 
-button{
-width:100%;
-padding:15px;
-margin-top:15px;
-border:none;
-border-radius:12px;
-background:linear-gradient(90deg,#f59e0b,#fb923c);
-color:white;
-font-size:16px;
-cursor:pointer;
+.col {
+  flex:1;
 }
 
-.modeBtns button{
-width:48%;
-margin-top:10px;
+button {
+  padding:12px;
+  background:#007bff;
+  color:white;
+  border:none;
+  cursor:pointer;
+  margin-top:10px;
 }
 
-.result{
-margin-top:20px;
-background:rgba(0,0,0,0.4);
-padding:20px;
-border-radius:12px;
+button:hover {
+  background:#0056b3;
 }
 
-.row{
-display:flex;
-justify-content:space-between;
-margin:8px 0;
+.result-box {
+  margin-top:20px;
+  background:#fafafa;
+  padding:15px;
+  border-radius:8px;
 }
 
-.total{
-font-size:22px;
-font-weight:bold;
-color:#f59e0b;
-}
-
-.history{
-max-height:500px;
-overflow:auto;
-}
-
-.historyItem{
-background:rgba(255,255,255,0.05);
-padding:12px;
-border-radius:10px;
-margin-bottom:10px;
-font-size:14px;
-}
-
-.clearBtn{
-background:#ef4444;
-margin-top:10px;
+h2,h3 {
+  margin-bottom:5px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>Diary Nepal</h1>
-<p class="subtitle">VAT Calculator (13%)</p>
-
 <div class="container">
 
-<!-- Calculator -->
-<div class="card">
+<h2>VAT & Billing Calculator</h2>
 
-<label>Amount (NPR)</label>
+<h3>Invoice Info</h3>
+
+<div class="row">
+  <div class="col">
+    Invoice No:
+    <input type="text" id="invoiceNo" value="INV-001">
+  </div>
+  <div class="col">
+    Issue Date:
+    <input type="date" id="issueDate">
+  </div>
+  <div class="col">
+    Transaction Date:
+    <input type="date" id="transDate">
+  </div>
+</div>
+
+Buyer Name:
+<input type="text" id="buyer">
+
+<div class="row">
+  <div class="col">
+    Buyer VAT No:
+    <input type="text" id="buyerVat">
+  </div>
+  <div class="col">
+    Buyer Phone:
+    <input type="text" id="buyerPhone">
+  </div>
+</div>
+
+<hr>
+
+Amount:
 <input type="number" id="amount" placeholder="Enter amount">
 
-<div class="modeBtns">
-<button onclick="setMode('add')">Add VAT</button>
-<button onclick="setMode('remove')">Remove VAT</button>
-</div>
+Discount:
+<input type="number" id="discount" placeholder="0">
+
+VAT Rate (%):
+<select id="vatRate">
+  <option value="13">13% (Standard)</option>
+  <option value="5">5%</option>
+  <option value="10">10%</option>
+  <option value="20">20%</option>
+  <option value="custom">Custom</option>
+</select>
+
+<input type="number" id="customVat" placeholder="Enter custom %" style="display:none;">
+
+<select id="vatType">
+  <option value="add">Add VAT</option>
+  <option value="remove">Remove VAT</option>
+</select>
 
 <button onclick="calculate()">Calculate</button>
 
-<div class="result" id="result" style="display:none;">
-<div class="row"><span>Net Amount</span><span id="net"></span></div>
-<div class="row"><span>VAT</span><span id="vat"></span></div>
-<hr>
-<div class="row total"><span>Total</span><span id="total"></span></div>
-</div>
-
-</div>
-
-<!-- History -->
-<div class="card">
-<h3>Recent Calculations</h3>
-<div class="history" id="history"></div>
-<button class="clearBtn" onclick="clearHistory()">Clear History</button>
-</div>
+<div class="result-box" id="result"></div>
 
 </div>
 
 <script>
-let mode="add";
-let history=[];
-
-function setMode(m){
-mode=m;
-}
-
-function calculate(){
-let amt=parseFloat(document.getElementById("amount").value);
-if(!amt){alert("Enter amount");return;}
-
-let vat,net,total;
-
-if(mode==="add"){
-net=amt;
-vat=amt*0.13;
-total=net+vat;
-}else{
-total=amt;
-net=amt/1.13;
-vat=total-net;
-}
-
-document.getElementById("net").innerText="NPR "+net.toFixed(2);
-document.getElementById("vat").innerText="NPR "+vat.toFixed(2);
-document.getElementById("total").innerText="NPR "+total.toFixed(2);
-document.getElementById("result").style.display="block";
-
-addHistory(net,vat,total);
-}
-
-function addHistory(net,vat,total){
-let item={
-time:new Date().toLocaleTimeString(),
-net,vat,total
-};
-history.unshift(item);
-if(history.length>10)history.pop();
-renderHistory();
-}
-
-function renderHistory(){
-let html="";
-history.forEach(h=>{
-html+=`
-<div class="historyItem">
-Net: NPR ${h.net.toFixed(2)}<br>
-VAT: NPR ${h.vat.toFixed(2)}<br>
-Total: NPR ${h.total.toFixed(2)}<br>
-<small>${h.time}</small>
-</div>`;
+document.getElementById("vatRate").addEventListener("change", function() {
+  document.getElementById("customVat").style.display =
+    this.value === "custom" ? "block" : "none";
 });
-document.getElementById("history").innerHTML=html||"No history yet";
+
+function numberToWords(num) {
+  const a = ["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten",
+  "Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
+  const b = ["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
+  if(num==0) return "Zero";
+  if(num<20) return a[num];
+  if(num<100) return b[Math.floor(num/10)]+" "+a[num%10];
+  if(num<1000) return a[Math.floor(num/100)]+" Hundred "+numberToWords(num%100);
+  if(num<1000000) return numberToWords(Math.floor(num/1000))+" Thousand "+numberToWords(num%1000);
+  return num;
 }
 
-function clearHistory(){
-history=[];
-renderHistory();
+function calculate() {
+
+  let amount = parseFloat(document.getElementById("amount").value) || 0;
+  let discount = parseFloat(document.getElementById("discount").value) || 0;
+
+  let vatRate = document.getElementById("vatRate").value;
+  if(vatRate === "custom"){
+    vatRate = parseFloat(document.getElementById("customVat").value) || 0;
+  }
+
+  vatRate = vatRate / 100;
+
+  let vatType = document.getElementById("vatType").value;
+
+  let subtotal = amount - discount;
+  let taxable = subtotal;
+  let vat = 0;
+  let total = 0;
+
+  if(vatType === "add"){
+    vat = taxable * vatRate;
+    total = taxable + vat;
+  } else {
+    vat = taxable - (taxable / (1 + vatRate));
+    total = taxable;
+    taxable = total - vat;
+  }
+
+  document.getElementById("result").innerHTML = `
+    <h3>Invoice Summary</h3>
+    Invoice No: ${invoiceNo.value}<br>
+    Issue Date: ${issueDate.value}<br>
+    Transaction Date: ${transDate.value}<br><br>
+
+    Buyer: ${buyer.value}<br>
+    Buyer VAT: ${buyerVat.value}<br>
+    Phone: ${buyerPhone.value}<br><br>
+
+    Subtotal: Rs. ${subtotal.toFixed(2)}<br>
+    Discount: Rs. ${discount.toFixed(2)}<br>
+    Taxable Amount: Rs. ${taxable.toFixed(2)}<br>
+    VAT (${vatRate*100}%): Rs. ${vat.toFixed(2)}<br>
+
+    <h3>Grand Total: Rs. ${total.toFixed(2)}</h3>
+    In Words: ${numberToWords(Math.round(total))} Rupees Only<br><br>
+
+    -----------------------------<br>
+    Received By: _____<br>
+    Prepared By: _____
+  `;
 }
 </script>
 
