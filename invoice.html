@@ -11,82 +11,55 @@ body{background:#eef1f5;padding:20px;}
 .wrapper{max-width:1000px;margin:auto;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.1);padding:25px;}
 .header{text-align:center;font-size:28px;font-weight:700;color:#1565c0;margin-bottom:20px;}
 .top-section{display:flex;justify-content:space-between;margin-bottom:20px;}
-.left, .right{width:48%;}
-.left label, .right label{font-weight:700;font-size:14px;color:#333;margin-bottom:2px;display:block;}
-.left input, .right input, .left textarea, .right textarea{
-  width:100%;
-  padding:4px 2px;
-  margin-bottom:10px;
-  border:none;
-  border-bottom:1px solid #333;
-  font-size:14px;
-  line-height:1.5;
-  background:transparent;
-}
+.left,.right{width:48%;}
+.left label,.right label{font-weight:700;font-size:14px;color:#333;margin-bottom:2px;display:block;}
+.left input,.right input,.left textarea,.right textarea{width:100%;padding:4px 2px;margin-bottom:10px;border:none;border-bottom:1px solid #333;font-size:14px;line-height:1.5;background:transparent;}
 .table-section table{width:100%;border-collapse:collapse;margin-bottom:15px;}
-.table-section th, .table-section td{border:1px solid #ccd6e0;padding:6px;text-align:center;font-size:14px;}
+.table-section th,.table-section td{border:1px solid #ccd6e0;padding:6px;text-align:center;font-size:14px;}
 .table-section th{background:#f0f4f8;font-weight:700;color:#1565c0;}
-.description{font-size:15px;}
 .add-remove{margin-bottom:15px;}
-.add-remove button{padding:10px 12px;margin-right:5px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
-.add-remove button:hover{background:#0d47a1;}
+.add-remove button,.action-buttons button{padding:10px 12px;margin-right:5px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
+.add-remove button:hover,.action-buttons button:hover{background:#0d47a1;}
 .total-section{display:flex;flex-direction:column;justify-content:flex-end;font-size:16px;font-weight:700;margin-bottom:20px;}
 .total-section span{margin-left:0;}
 .words{font-weight:400;font-size:14px;font-style:italic;color:#333;margin-top:4px;}
 .footer{display:flex;justify-content:space-between;font-size:14px;margin-top:30px;}
 .footer div span{font-weight:700;color:#1565c0;}
 .thank-you{margin-top:25px;text-align:center;font-size:14px;font-style:italic;color:#555;}
-.action-buttons{margin-bottom:20px;text-align:right;}
-.action-buttons button, .action-buttons input[type=checkbox]{padding:8px 12px;margin-left:8px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
-.action-buttons button:hover{background:#0d47a1;}
-/* Hide Add/Remove buttons & toggle in print */
-@media print{
-  .add-remove, .action-buttons{display:none;}
-}
+.action-buttons{text-align:right;margin-bottom:20px;}
+@media print{.add-remove,.action-buttons{display:none;}}
 </style>
 </head>
 <body>
 
+<!-- Action buttons -->
 <div class="action-buttons">
 <button onclick="printChallan()">Print</button>
 <button onclick="saveAsImage()">Save as Image</button>
-<label style="color:black;margin-left:10px;"><input type="checkbox" id="autoSumToggle" checked> Auto Sum</label>
+<button onclick="addRow()">Add Row</button>
+<button onclick="removeRow()">Remove Row</button>
 </div>
 
+<!-- Main Delivery Challan -->
 <div class="wrapper" id="challanWrapper">
 <div class="header">Delivery Challan</div>
-
 <div class="top-section">
 <div class="left">
-<label>Company Name</label>
-<input type="text" id="companyName" oninput="updatePreparedBy()">
-<label>Company Address</label>
-<textarea id="companyAddress" rows="2"></textarea>
-<label>Company Phone</label>
-<input type="text" id="companyPhone">
+<label>Company Name</label><input type="text" id="companyName" oninput="updatePreparedBy()">
+<label>Company Address</label><textarea id="companyAddress" rows="2"></textarea>
+<label>Company Phone</label><input type="text" id="companyPhone">
 </div>
-
 <div class="right">
-<label>Challan Number</label>
-<input type="text" id="challanNo" value="CH_">
-<label>Date</label>
-<input type="text" id="date" placeholder="_ _ / _ _ / _ _ _ _">
-<label>Buyer Name</label>
-<input type="text" id="buyerName">
-<label>Buyer Phone</label>
-<input type="text" id="buyerPhone">
-<label>Terms of Delivery</label>
-<textarea id="terms" rows="2"></textarea>
-<label>Buyer Address</label>
-<textarea id="buyerAddress" rows="2"></textarea>
+<label>Challan Number</label><input type="text" id="challanNo" value="CH_">
+<label>Date</label><input type="text" id="date" placeholder="_ _ / _ _ / _ _ _ _">
+<label>Buyer Name</label><input type="text" id="buyerName">
+<label>Buyer Phone</label><input type="text" id="buyerPhone">
+<label>Terms of Delivery</label><textarea id="terms" rows="2"></textarea>
+<label>Buyer Address</label><textarea id="buyerAddress" rows="2"></textarea>
 </div>
 </div>
 
 <div class="table-section">
-<div class="add-remove">
-<button onclick="addRow()">Add Row</button>
-<button onclick="removeRow()">Remove Row</button>
-</div>
 <table id="itemsTable">
 <thead>
 <tr>
@@ -102,9 +75,9 @@ body{background:#eef1f5;padding:20px;}
 <tbody>
 <tr>
 <td>1</td>
-<td class="description" contenteditable="true"></td>
+<td contenteditable="true" class="description"></td>
 <td contenteditable="true" oninput="updateRow(this)">0</td>
-<td contenteditable="true">0</td>
+<td contenteditable="true" oninput="updateRow(this)"></td>
 <td contenteditable="true" oninput="updateRow(this)">0</td>
 <td contenteditable="true" oninput="updateRow(this)">0</td>
 <td>0</td>
@@ -123,23 +96,20 @@ body{background:#eef1f5;padding:20px;}
 <div>Received By: <span id="receivedBy">_</span></div>
 <div>Prepared By: <span id="preparedBy" contenteditable="true"></span></div>
 </div>
-
 <div class="thank-you">Thank you for doing business with us!</div>
-</div>
 
 <script>
-// Dynamic row functions
 function addRow(){
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
   const newRow = table.insertRow();
-  const rowCount = table.rows.length;
   for(let i=0;i<7;i++){
     const cell = newRow.insertCell();
-    if(i===0){cell.innerText = rowCount+1;}
-    else if(i!==6){cell.contentEditable = true;}
-    else{cell.innerText = 0;}
-    if(i===2||i===4||i===5) cell.setAttribute('oninput','updateRow(this)');
+    if(i===0) cell.innerText = 0;
+    else if(i!==6) cell.contentEditable = true;
+    else cell.innerText = 0;
+    if(i===2 || i===3 || i===4 || i===5) cell.setAttribute('oninput','updateRow(this)');
   }
+  updateSerialNumbers();
 }
 
 function removeRow(){
@@ -157,11 +127,17 @@ function updateSerialNumbers(){
 }
 
 function updateRow(cell){
-  if(!document.getElementById('autoSumToggle').checked) return;
   const row = cell.parentElement;
   const qty = parseFloat(row.cells[2].innerText)||0;
-  const sqft = parseFloat(row.cells[4].innerText)||0;
-  const rate = parseFloat(row.cells[5].innerText)||0;
+  const sizeText = row.cells[3].innerText.trim();
+  let sqft=0;
+  if(sizeText.includes("x")){
+    const [w,h] = sizeText.toLowerCase().replace(/inch/g,'').split('x').map(s=>parseFloat(s.trim()));
+    if(sizeText.toLowerCase().includes("inch")) sqft=(w*h)/144;
+    else sqft=w*h;
+  }
+  row.cells[4].innerText=sqft.toFixed(2);
+  const rate=parseFloat(row.cells[5].innerText)||0;
   const amount = qty*sqft*rate;
   row.cells[6].innerText = amount.toFixed(2);
   updateGrandTotal();
@@ -169,48 +145,41 @@ function updateRow(cell){
 
 function updateGrandTotal(){
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
-  let total =0;
+  let total=0;
   for(let i=0;i<table.rows.length;i++){
-    total += parseFloat(table.rows[i].cells[6].innerText)||0;
+    total+=parseFloat(table.rows[i].cells[6].innerText)||0;
   }
-  document.getElementById('grandTotal').innerText = total.toFixed(2);
-  document.getElementById('grandTotalWords').innerText = convertToWords(total);
+  document.getElementById('grandTotal').innerText=total.toFixed(2);
+  document.getElementById('grandTotalWords').innerText=convertToWords(total);
 }
 
-// Convert number to words
 function convertToWords(amount){
   if(amount===0) return "Zero Rupees";
-  const ones = ["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"];
-  const tens = ["","Ten","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
-  const teens = ["Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
-  let num = Math.floor(amount);
-  let words="";
-  if(num>=1000){words += ones[Math.floor(num/1000)] + " Thousand "; num=num%1000;}
-  if(num>=100){words += ones[Math.floor(num/100)] + " Hundred "; num=num%100;}
-  if(num>=20){words += tens[Math.floor(num/10)]; if(num%10>0) words += " " + ones[num%10];}
-  else if(num>=10){words+=teens[num-10];}
-  else if(num>0){words+=ones[num];}
-  return words + " Rupees";
+  const ones=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"];
+  const tens=["","Ten","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
+  const teens=["Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
+  let num=Math.floor(amount), words="";
+  if(num>=1000){words+=ones[Math.floor(num/1000)]+" Thousand ";num=num%1000;}
+  if(num>=100){words+=ones[Math.floor(num/100)]+" Hundred ";num=num%100;}
+  if(num>=20){words+=tens[Math.floor(num/10)]; if(num%10>0) words+=" "+ones[num%10];}
+  else if(num>=10) words+=teens[num-10];
+  else if(num>0) words+=ones[num];
+  return words+" Rupees";
 }
 
-// Update Prepared By footer when Company Name changes
 function updatePreparedBy(){
   const name = document.getElementById('companyName').value;
-  document.getElementById('preparedBy').innerText = name;
+  document.getElementById('preparedBy').innerText=name;
 }
 
-// Print function
-function printChallan(){
-  window.print();
-}
+function printChallan(){ window.print(); }
 
-// Save as Image function
 function saveAsImage(){
-  const wrapper = document.getElementById('challanWrapper');
+  const wrapper=document.getElementById('challanWrapper');
   html2canvas(wrapper,{scale:2}).then(canvas=>{
-    const link = document.createElement('a');
-    link.download = 'DeliveryChallan.png';
-    link.href = canvas.toDataURL('image/png');
+    const link=document.createElement('a');
+    link.download='DeliveryChallan.png';
+    link.href=canvas.toDataURL('image/png');
     link.click();
   });
 }
