@@ -40,7 +40,6 @@ body{background:#eef1f5;padding:30px;}
 .action-buttons{margin-bottom:20px;text-align:right;}
 .action-buttons button{padding:10px 14px;margin-left:8px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
 .action-buttons button:hover{background:#0d47a1;}
-/* Hide Add/Remove buttons in print & image capture */
 @media print{
   .add-remove, .action-buttons{display:none;}
 }
@@ -59,7 +58,7 @@ body{background:#eef1f5;padding:30px;}
 <div class="top-section">
 <div class="left">
 <label>Company Name</label>
-<input type="text" id="companyName">
+<input type="text" id="companyName" oninput="updatePreparedBy()">
 <label>Company Address</label>
 <textarea id="companyAddress" rows="2"></textarea>
 <label>Company Phone</label>
@@ -104,7 +103,7 @@ body{background:#eef1f5;padding:30px;}
 <td>1</td>
 <td class="description" contenteditable="true"></td>
 <td contenteditable="true" oninput="updateRow(this)">0</td>
-<td contenteditable="true">0</td>
+<td contenteditable="true"></td>
 <td contenteditable="true" oninput="updateRow(this)">0</td>
 <td contenteditable="true" oninput="updateRow(this)">0</td>
 <td>0</td>
@@ -121,25 +120,24 @@ body{background:#eef1f5;padding:30px;}
 
 <div class="footer">
 <div>Received By: <span id="receivedBy">_</span></div>
-<div>Prepared By: <input type="text" id="preparedBy" placeholder="Prepared By"></div>
+<div>Prepared By: <span id="preparedBy" contenteditable="true"></span></div>
 </div>
 
 <div class="thank-you">Thank you for doing business with us!</div>
 </div>
 
 <script>
-// Dynamic row functions
 function addRow(){
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
   const newRow = table.insertRow();
-  const rowCount = table.rows.length;
   for(let i=0;i<7;i++){
     const cell = newRow.insertCell();
-    if(i===0){cell.innerText = rowCount+1;}
+    if(i===0){cell.innerText = 0;} 
     else if(i!==6){cell.contentEditable = true;}
     else{cell.innerText = 0;}
     if(i===2 || i===4 || i===5) cell.setAttribute('oninput','updateRow(this)');
   }
+  updateSerialNumbers();
 }
 
 function removeRow(){
@@ -161,7 +159,7 @@ function updateRow(cell){
   const qty = parseFloat(row.cells[2].innerText)||0;
   const sqft = parseFloat(row.cells[4].innerText)||0;
   const rate = parseFloat(row.cells[5].innerText)||0;
-  const amount = sqft*rate; // Only Square Feet × Rate
+  const amount = qty * sqft * rate;
   row.cells[6].innerText = amount.toFixed(2);
   updateGrandTotal();
 }
@@ -176,7 +174,6 @@ function updateGrandTotal(){
   document.getElementById('grandTotalWords').innerText = convertToWords(total);
 }
 
-// Convert number to words
 function convertToWords(amount){
   if(amount===0) return "Zero Rupees";
   const ones = ["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"];
@@ -192,12 +189,13 @@ function convertToWords(amount){
   return words + " Rupees";
 }
 
-// Print function
-function printChallan(){
-  window.print();
+function updatePreparedBy(){
+  const name = document.getElementById('companyName').value;
+  document.getElementById('preparedBy').innerText = name;
 }
 
-// Save as Image function
+function printChallan(){ window.print(); }
+
 function saveAsImage(){
   const wrapper = document.getElementById('challanWrapper');
   html2canvas(wrapper,{scale:2}).then(canvas=>{
