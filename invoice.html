@@ -27,29 +27,31 @@ body{background:#eef1f5;padding:30px;}
 .table-section th, .table-section td{border:1px solid #ccd6e0;padding:6px;text-align:center;font-size:14px;}
 .table-section th{background:#f0f4f8;font-weight:700;color:#1565c0;}
 .description{font-size:15px;}
-.add-remove{margin-bottom:15px;text-align:right;}
-.add-remove button{padding:10px 12px;margin-left:5px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
-.add-remove button:hover{background:#0d47a1;}
-.total-section{display:flex;flex-direction:column;justify-content:flex-end;font-size:16px;font-weight:700;margin-bottom:20px;}
+.total-section{display:flex;flex-direction:column;justify-content:flex-end;font-size:16px;font-weight:700;margin-bottom:20px;margin-top:10px;}
 .total-section span{margin-left:0;}
 .words{font-weight:400;font-size:14px;font-style:italic;color:#333;margin-top:4px;}
 .footer{display:flex;justify-content:space-between;font-size:14px;margin-top:30px;}
 .footer div span{font-weight:700;color:#1565c0;}
 .thank-you{margin-top:25px;text-align:center;font-size:14px;font-style:italic;color:#555;}
-@media print{.add-remove{display:none;}}
+.action-buttons{margin-bottom:20px;text-align:right;}
+.action-buttons button{padding:10px 14px;margin-left:8px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
+.action-buttons button:hover{background:#0d47a1;}
+.add-remove{margin-bottom:15px;}
+.add-remove button{padding:10px 12px;margin-right:5px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
+.add-remove button:hover{background:#0d47a1;}
+@media print{
+  .add-remove, .action-buttons{display:none;}
+}
 </style>
 </head>
 <body>
 
-<div class="wrapper" id="challanWrapper">
-
-<div class="add-remove">
-<button onclick="addRow()">Add Row</button>
-<button onclick="removeRow()">Remove Row</button>
+<div class="action-buttons">
 <button onclick="printChallan()">Print</button>
 <button onclick="saveAsImage()">Save as Image</button>
 </div>
 
+<div class="wrapper" id="challanWrapper">
 <div class="header">Delivery Challan</div>
 
 <div class="top-section">
@@ -79,6 +81,10 @@ body{background:#eef1f5;padding:30px;}
 </div>
 
 <div class="table-section">
+<div class="add-remove">
+<button onclick="addRow()">Add Row</button>
+<button onclick="removeRow()">Remove Row</button>
+</div>
 <table id="itemsTable">
 <thead>
 <tr>
@@ -86,7 +92,7 @@ body{background:#eef1f5;padding:30px;}
 <th>Description of Goods</th>
 <th>Qty</th>
 <th>Size</th>
-<th>Sq.Ft.</th>
+<th>SQ.FT</th>
 <th>Rate</th>
 <th>Amount</th>
 </tr>
@@ -147,28 +153,27 @@ function updateSerialNumbers(){
   }
 }
 
-// Size parser: feet × feet or inch × inch
-function parseSizeToSqFt(size){
-  if(!size) return 0;
-  let s = size.toLowerCase().trim();
-  let isInch = s.includes('inch') || s.includes('in');
-  s = s.replace(/[a-z\s]/g,'');
-  let parts = s.split('x');
-  if(parts.length!==2) return 0;
-  let width = parseFloat(parts[0])||0;
-  let height = parseFloat(parts[1])||0;
-  if(isInch){ width/=12; height/=12; } // inch to feet
-  return width*height;
-}
-
 function updateRow(cell){
   const row = cell.parentElement;
   const qty = parseFloat(row.cells[2].innerText)||0;
-  const sizeStr = row.cells[3].innerText||'';
-  const sqft = parseSizeToSqFt(sizeStr) * qty;
+  const size = row.cells[3].innerText.trim();
+  let sqft=0;
+  // Calculate square feet
+  if(size.includes('x')){
+    let parts = size.toLowerCase().replace('inch','').split('x');
+    if(parts.length===2){
+      let w = parseFloat(parts[0])||0;
+      let h = parseFloat(parts[1])||0;
+      // if values >12 assume inch
+      if(w>12 || h>12) sqft = (w*h)/144; // inch to sq.ft
+      else sqft = w*h; // feet
+    }
+  } else {
+    sqft = parseFloat(row.cells[4].innerText)||0;
+  }
   row.cells[4].innerText = sqft.toFixed(2);
   const rate = parseFloat(row.cells[5].innerText)||0;
-  const amount = sqft * rate;
+  const amount = qty * sqft * rate;
   row.cells[6].innerText = amount.toFixed(2);
   updateGrandTotal();
 }
