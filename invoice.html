@@ -94,7 +94,6 @@ body{background:#eef1f5;padding:30px;}
 <th>SQ.FT</th>
 <th>Rate</th>
 <th>Amount</th>
-<th>Delete</th>
 </tr>
 </thead>
 <tbody>
@@ -106,14 +105,13 @@ body{background:#eef1f5;padding:30px;}
 <td>0</td>
 <td contenteditable="true" oninput="updateRow(this)">0</td>
 <td>0</td>
-<td><button onclick="deleteRow(this)">X</button></td>
 </tr>
 </tbody>
 </table>
 </div>
 
 <div class="total-section">
-<span>Grand Total: <span id="grandTotal">0</span></span>
+<span>Grand Total (Rate): <span id="grandTotal">0</span></span>
 <span class="words" id="grandTotalWords">Zero Rupees</span>
 </div>
 
@@ -129,13 +127,11 @@ body{background:#eef1f5;padding:30px;}
 function addRow(){
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
   const newRow = table.insertRow();
-  for(let i=0;i<8;i++){
+  for(let i=0;i<7;i++){
     const cell = newRow.insertCell();
     if(i===0){cell.innerText = table.rows.length;} 
     else if(i===1){cell.contentEditable = true;}
-    else if(i===4){cell.innerText = 0;}
-    else if(i===6){cell.innerText = 0;}
-    else if(i===7){cell.innerHTML = '<button onclick="deleteRow(this)">X</button>';}
+    else if(i===4 || i===6){cell.innerText = 0;}
     else{cell.contentEditable = true; cell.setAttribute('oninput','updateRow(this)');}
   }
 }
@@ -143,12 +139,6 @@ function addRow(){
 function removeRow(){
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
   if(table.rows.length>1) table.deleteRow(table.rows.length-1);
-  updateGrandTotal();
-}
-
-function deleteRow(btn){
-  const row = btn.parentElement.parentElement;
-  row.parentElement.removeChild(row);
   updateSerialNumbers();
   updateGrandTotal();
 }
@@ -161,7 +151,6 @@ function updateSerialNumbers(){
 }
 
 function parseSizeToSQFT(sizeStr){
-  // Expected formats: "2x3", "24x36"
   if(!sizeStr) return 0;
   const parts = sizeStr.toLowerCase().split('x');
   if(parts.length!==2) return 0;
@@ -169,11 +158,8 @@ function parseSizeToSQFT(sizeStr){
   const h = parseFloat(parts[1]);
   if(isNaN(w) || isNaN(h)) return 0;
   let sqft = 0;
-  if(w<=12 && h<=12){ // small number → assume feet already
-    sqft = w * h;
-  } else { // inches → convert to feet
-    sqft = (w*h)/144;
-  }
+  if(w<=12 && h<=12){ sqft = w*h; } 
+  else { sqft = (w*h)/144; } 
   return parseFloat(sqft.toFixed(2));
 }
 
