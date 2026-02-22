@@ -21,15 +21,14 @@ body{background:#eef1f5;padding:30px;}
   border-bottom:1px solid #333;
   font-size:14px;
   line-height:1.5;
-  vertical-align:middle;
   background:transparent;
 }
 .table-section table{width:100%;border-collapse:collapse;margin-bottom:15px;}
 .table-section th, .table-section td{border:1px solid #ccd6e0;padding:6px;text-align:center;font-size:14px;}
 .table-section th{background:#f0f4f8;font-weight:700;color:#1565c0;}
 .description{font-size:15px;}
-.add-remove{margin-bottom:15px;}
-.add-remove button{padding:10px 12px;margin-right:5px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
+.add-remove{margin-bottom:15px;text-align:right;}
+.add-remove button{padding:10px 12px;margin-left:5px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
 .add-remove button:hover{background:#0d47a1;}
 .total-section{display:flex;flex-direction:column;justify-content:flex-end;font-size:16px;font-weight:700;margin-bottom:20px;}
 .total-section span{margin-left:0;}
@@ -37,91 +36,87 @@ body{background:#eef1f5;padding:30px;}
 .footer{display:flex;justify-content:space-between;font-size:14px;margin-top:30px;}
 .footer div span{font-weight:700;color:#1565c0;}
 .thank-you{margin-top:25px;text-align:center;font-size:14px;font-style:italic;color:#555;}
-.action-buttons{margin-bottom:20px;text-align:right;}
-.action-buttons button{padding:10px 14px;margin-left:8px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
-.action-buttons button:hover{background:#0d47a1;}
-@media print{
-  .add-remove, .action-buttons{display:none;}
-}
+@media print{.add-remove{display:none;}}
 </style>
 </head>
 <body>
 
-<div class="action-buttons">
-  <button onclick="printChallan()">Print</button>
-  <button onclick="saveAsImage()">Save as Image</button>
-  <button onclick="addRow()">Add Row</button>
-  <button onclick="removeRow()">Remove Row</button>
+<div class="wrapper" id="challanWrapper">
+
+<div class="add-remove">
+<button onclick="addRow()">Add Row</button>
+<button onclick="removeRow()">Remove Row</button>
+<button onclick="printChallan()">Print</button>
+<button onclick="saveAsImage()">Save as Image</button>
 </div>
 
-<div class="wrapper" id="challanWrapper">
-  <div class="header">Delivery Challan</div>
+<div class="header">Delivery Challan</div>
 
-  <div class="top-section">
-    <div class="left">
-      <label>Company Name</label>
-      <input type="text" id="companyName" oninput="updatePreparedBy()">
-      <label>Company Address</label>
-      <textarea id="companyAddress" rows="2"></textarea>
-      <label>Company Phone</label>
-      <input type="text" id="companyPhone">
-    </div>
+<div class="top-section">
+<div class="left">
+<label>Company Name</label>
+<input type="text" id="companyName" oninput="updatePreparedBy()">
+<label>Company Address</label>
+<textarea id="companyAddress" rows="2"></textarea>
+<label>Company Phone</label>
+<input type="text" id="companyPhone">
+</div>
 
-    <div class="right">
-      <label>Challan Number</label>
-      <input type="text" id="challanNo" value="CH_">
-      <label>Date</label>
-      <input type="text" id="date" placeholder="_ _ / _ _ / _ _ _ _">
-      <label>Buyer Name</label>
-      <input type="text" id="buyerName">
-      <label>Buyer Phone</label>
-      <input type="text" id="buyerPhone">
-      <label>Terms of Delivery</label>
-      <textarea id="terms" rows="2"></textarea>
-      <label>Buyer Address</label>
-      <textarea id="buyerAddress" rows="2"></textarea>
-    </div>
-  </div>
+<div class="right">
+<label>Challan Number</label>
+<input type="text" id="challanNo" value="CH_">
+<label>Date</label>
+<input type="text" id="date" placeholder="_ _ / _ _ / _ _ _ _">
+<label>Buyer Name</label>
+<input type="text" id="buyerName">
+<label>Buyer Phone</label>
+<input type="text" id="buyerPhone">
+<label>Terms of Delivery</label>
+<textarea id="terms" rows="2"></textarea>
+<label>Buyer Address</label>
+<textarea id="buyerAddress" rows="2"></textarea>
+</div>
+</div>
 
-  <div class="table-section">
-    <table id="itemsTable">
-      <thead>
-        <tr>
-          <th>S.No.</th>
-          <th>Description</th>
-          <th>Qty</th>
-          <th>Size</th>
-          <th>Square Feet</th>
-          <th>Rate</th>
-          <th>Amount</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>1</td>
-          <td class="description" contenteditable="true"></td>
-          <td contenteditable="true" oninput="updateRow(this)">0</td>
-          <td contenteditable="true" oninput="updateRow(this)"></td>
-          <td contenteditable="true" oninput="updateRow(this)">0</td>
-          <td contenteditable="true" oninput="updateRow(this)">0</td>
-          <td>0</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+<div class="table-section">
+<table id="itemsTable">
+<thead>
+<tr>
+<th>S.No.</th>
+<th>Description of Goods</th>
+<th>Qty</th>
+<th>Size</th>
+<th>Sq.Ft.</th>
+<th>Rate</th>
+<th>Amount</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td class="description" contenteditable="true"></td>
+<td contenteditable="true" oninput="updateRow(this)">0</td>
+<td contenteditable="true" oninput="updateRow(this)"></td>
+<td contenteditable="true" oninput="updateRow(this)">0</td>
+<td contenteditable="true" oninput="updateRow(this)">0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+</div>
 
-  <div class="total-section">
-    <span>Grand Total:</span>
-    <span id="grandTotal">0</span>
-    <span class="words" id="grandTotalWords">Zero Rupees</span>
-  </div>
+<div class="total-section">
+<span>Grand Total:</span>
+<span id="grandTotal">0</span>
+<span class="words" id="grandTotalWords">Zero Rupees</span>
+</div>
 
-  <div class="footer">
-    <div>Received By: <span id="receivedBy">_</span></div>
-    <div>Prepared By: <span id="preparedBy" contenteditable="true"></span></div>
-  </div>
+<div class="footer">
+<div>Received By: <span id="receivedBy">_</span></div>
+<div>Prepared By: <span id="preparedBy" contenteditable="true"></span></div>
+</div>
 
-  <div class="thank-you">Thank you for doing business with us!</div>
+<div class="thank-you">Thank you for doing business with us!</div>
 </div>
 
 <script>
@@ -130,13 +125,12 @@ function addRow(){
   const newRow = table.insertRow();
   for(let i=0;i<7;i++){
     const cell = newRow.insertCell();
-    if(i===0){cell.innerText = table.rows.length;} 
+    if(i===0){cell.innerText = 0;} 
     else if(i!==6){cell.contentEditable = true;}
     else{cell.innerText = 0;}
-    if(i===2 || i===4 || i===5) cell.setAttribute('oninput','updateRow(this)');
+    if(i===2 || i===3 || i===4 || i===5) cell.setAttribute('oninput','updateRow(this)');
   }
   updateSerialNumbers();
-  saveEditableTable();
 }
 
 function removeRow(){
@@ -144,7 +138,6 @@ function removeRow(){
   if(table.rows.length>1) table.deleteRow(table.rows.length-1);
   updateGrandTotal();
   updateSerialNumbers();
-  saveEditableTable();
 }
 
 function updateSerialNumbers(){
@@ -154,31 +147,30 @@ function updateSerialNumbers(){
   }
 }
 
+// Size parser: feet × feet or inch × inch
+function parseSizeToSqFt(size){
+  if(!size) return 0;
+  let s = size.toLowerCase().trim();
+  let isInch = s.includes('inch') || s.includes('in');
+  s = s.replace(/[a-z\s]/g,'');
+  let parts = s.split('x');
+  if(parts.length!==2) return 0;
+  let width = parseFloat(parts[0])||0;
+  let height = parseFloat(parts[1])||0;
+  if(isInch){ width/=12; height/=12; } // inch to feet
+  return width*height;
+}
+
 function updateRow(cell){
   const row = cell.parentElement;
   const qty = parseFloat(row.cells[2].innerText)||0;
-  let sqft = parseFloat(row.cells[4].innerText)||0;
+  const sizeStr = row.cells[3].innerText||'';
+  const sqft = parseSizeToSqFt(sizeStr) * qty;
+  row.cells[4].innerText = sqft.toFixed(2);
   const rate = parseFloat(row.cells[5].innerText)||0;
-
-  // Auto-calculate square feet if size exists like "2x3" or "24x36"
-  const sizeText = row.cells[3].innerText.trim();
-  if(sizeText.includes('x')){
-    const parts = sizeText.split('x').map(p => parseFloat(p));
-    if(parts.length===2){
-      // detect if inches (number > 12) or feet
-      if(parts[0]>12 || parts[1]>12){ // inches -> convert to sqft
-        sqft = (parts[0]*parts[1])/144;
-      }else{ // feet
-        sqft = parts[0]*parts[1];
-      }
-      row.cells[4].innerText = sqft.toFixed(2);
-    }
-  }
-
-  const amount = qty * sqft * rate;
+  const amount = sqft * rate;
   row.cells[6].innerText = amount.toFixed(2);
   updateGrandTotal();
-  saveEditableTable();
 }
 
 function updateGrandTotal(){
@@ -221,42 +213,6 @@ function saveAsImage(){
     link.href = canvas.toDataURL('image/png');
     link.click();
   });
-}
-
-// Local Storage Save / Load
-function saveEditableTable(){
-  const tableData = [];
-  const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
-  for(let i=0;i<table.rows.length;i++){
-    const rowData = [];
-    for(let j=0;j<table.rows[i].cells.length;j++){
-      rowData.push(table.rows[i].cells[j].innerText);
-    }
-    tableData.push(rowData);
-  }
-  localStorage.setItem('editableTableData', JSON.stringify(tableData));
-}
-
-function loadEditableTable(data){
-  const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
-  table.innerHTML = '';
-  data.forEach(rowData=>{
-    const newRow = table.insertRow();
-    rowData.forEach((cellData,index)=>{
-      const cell = newRow.insertCell();
-      cell.innerText = cellData;
-      if(index!==0 && index!==6) cell.contentEditable=true;
-      if(index===2 || index===4 || index===5) cell.setAttribute('oninput','updateRow(this)');
-    });
-  });
-  updateSerialNumbers();
-  updateGrandTotal();
-}
-
-window.onload = function(){
-  if(localStorage.getItem('editableTableData')){
-    loadEditableTable(JSON.parse(localStorage.getItem('editableTableData')));
-  }
 }
 </script>
 </body>
