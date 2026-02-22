@@ -1,263 +1,197 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Professional Invoice</title>
+<title>Delivery Challan</title>
 
 <style>
 body{
   font-family: Arial, sans-serif;
   margin:40px;
-  background:#f4f6f8;
 }
-
-.invoice-box{
-  max-width:900px;
-  margin:auto;
-  background:white;
-  padding:30px;
-  box-shadow:0 0 10px rgba(0,0,0,0.15);
+h2{
+  text-align:center;
+  margin-bottom:5px;
 }
-
-.header{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
+input, select{
+  padding:6px;
+  margin:3px 0;
 }
-
-.company-info h2{
-  margin:0;
-}
-
-.logo-preview{
-  max-height:90px;
-}
-
 table{
   width:100%;
-  border-collapse:collapse;
-  margin-top:20px;
+  border-collapse: collapse;
+  margin-top:15px;
 }
-
-table th{
-  background:#2c3e50;
-  color:white;
-  padding:10px;
-  text-align:left;
+table, th, td{
+  border:1px solid #000;
 }
-
-table td{
+th, td{
   padding:8px;
-  border-bottom:1px solid #ddd;
+  text-align:center;
 }
-
-.totals{
-  margin-top:20px;
-  width:300px;
-  float:right;
-}
-
-.totals div{
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:6px;
-}
-
-.no-print{
-  margin-top:20px;
-}
-
-button{
+.add-btn{
+  margin-top:10px;
   padding:8px 15px;
-  background:#2c3e50;
-  color:white;
-  border:none;
   cursor:pointer;
 }
-
-/* ---------------- PRINT STYLE ---------------- */
-
-@media print{
-
-  body{
-    background:white;
-    margin:0;
-  }
-
-  .no-print,
-  input,
-  textarea{
-    display:none !important;
-  }
-
-  .invoice-box{
-    box-shadow:none;
-    padding:0;
-  }
-
-  table th{
-    background:white !important;
-    color:black !important;
-    border-bottom:2px solid black;
-  }
-
-  h3{
-    text-align:center;
-    text-transform:uppercase;
-    font-size:22px;
-    margin-top:20px;
-    margin-bottom:20px;
-  }
+.total-box{
+  margin-top:15px;
+  text-align:right;
+}
+.signature{
+  margin-top:60px;
+  display:flex;
+  justify-content:space-between;
+}
+.hidden{
+  display:none;
 }
 </style>
 </head>
-
 <body>
 
-<div class="invoice-box">
+<h2>DELIVERY CHALLAN</h2>
 
-<div class="header">
-  <div class="company-info">
-    <h2 id="printCompanyName"></h2>
-    <div id="printCompanyAddress"></div>
-    <div id="printCompanyContact"></div>
-  </div>
+<!-- Company Details -->
+<b>Company Name:</b><br>
+<input type="text" placeholder="Company Name"><br>
 
-  <div>
-    <img id="logoPreview" class="logo-preview">
-  </div>
-</div>
+<b>Address:</b><br>
+<input type="text" placeholder="Address"><br>
 
-<hr>
+<b>Phone:</b><br>
+<input type="text" placeholder="Phone"><br><br>
 
-<h3 id="printInvoiceType"></h3>
-
-<div style="display:flex; justify-content:space-between;">
-  <div>
-    <strong>Bill To:</strong><br>
-    <span id="printCustomerName"></span><br>
-    <span id="printCustomerAddress"></span><br>
-    <span id="printCustomerContact"></span>
-  </div>
-  <div>
-    <strong>Invoice No:</strong> <span id="printInvoiceNo"></span><br>
-    <strong>Date:</strong> <span id="printDate"></span>
-  </div>
-</div>
-
+<!-- Challan Info -->
 <table>
+<tr>
+<td>Challan No</td>
+<td><input type="text"></td>
+<td>Date (AD)</td>
+<td><input type="date" id="adDate" onchange="convertDate()"></td>
+</tr>
+
+<tr>
+<td>Date (BS)</td>
+<td><input type="text" id="bsDate" readonly></td>
+<td>Terms</td>
+<td><input type="text"></td>
+</tr>
+</table>
+
+<br>
+
+<b>Buyer Details</b><br>
+<input type="text" placeholder="Buyer Name"><br>
+<input type="text" placeholder="Buyer Address"><br>
+<input type="text" placeholder="Buyer Phone"><br>
+
+<br>
+
+<!-- Quantity Mode -->
+<b>Quantity Type:</b>
+<select id="qtyType" onchange="toggleMode()">
+<option value="pcs">Pieces</option>
+<option value="sqft">Square Feet</option>
+<option value="size">Size Based</option>
+</select>
+
+<!-- Item Table -->
+<table id="itemTable">
 <thead>
 <tr>
+<th>SN</th>
 <th>Description</th>
 <th>Qty</th>
+<th class="sizeCol hidden">Length</th>
+<th class="sizeCol hidden">Width</th>
 <th>Rate</th>
 <th>Amount</th>
 </tr>
 </thead>
-<tbody id="itemsBody">
+<tbody>
 <tr>
-<td><input type="text" class="desc"></td>
-<td><input type="number" class="qty" value="1"></td>
-<td><input type="number" class="rate" value="0"></td>
+<td>1</td>
+<td><input></td>
+<td><input type="number" oninput="calc(this)"></td>
+<td class="sizeCol hidden"><input type="number" oninput="calc(this)"></td>
+<td class="sizeCol hidden"><input type="number" oninput="calc(this)"></td>
+<td><input type="number" oninput="calc(this)"></td>
 <td class="amount">0</td>
 </tr>
 </tbody>
 </table>
 
-<div class="totals">
-<div><strong>Total</strong><strong id="grandTotal">0.00</strong></div>
+<button class="add-btn" onclick="addRow()">+ Add Item</button>
+
+<div class="total-box">
+<b>Total: <span id="grandTotal">0</span></b>
 </div>
 
-<div style="clear:both;"></div>
-
-<div class="no-print">
-<br><br>
-Company Name: <input type="text" id="companyName"><br><br>
-Address: <input type="text" id="companyAddress"><br><br>
-Phone/Email: <input type="text" id="companyContact"><br><br>
-
-Invoice Type: <input type="text" id="invoiceType" placeholder="e.g. Invoice"><br><br>
-
-Invoice No: <input type="text" id="invoiceNo"><br><br>
-Date: <input type="date" id="date"><br><br>
-
-Customer Name: <input type="text" id="customerName"><br><br>
-Customer Address: <input type="text" id="customerAddress"><br><br>
-Customer Contact: <input type="text" id="customerContact"><br><br>
-
-Upload Logo: <input type="file" id="logoInput"><br><br>
-
-<button onclick="addItem()">Add Item</button>
-<button onclick="window.print()">Print / Save PDF</button>
-</div>
-
+<div class="signature">
+<div>Receiver Signature</div>
+<div>Authorized Signature</div>
 </div>
 
 <script>
 
-// Logo upload
-document.getElementById("logoInput").addEventListener("change",function(e){
-  const reader=new FileReader();
-  reader.onload=function(){
-    document.getElementById("logoPreview").src=reader.result;
+function convertDate(){
+  const ad = document.getElementById('adDate').value;
+  if(ad){
+    const date = new Date(ad);
+    document.getElementById('bsDate').value =
+      (date.getFullYear()+57) + '-' + (date.getMonth()+1) + '-' + date.getDate();
   }
-  reader.readAsDataURL(e.target.files[0]);
-});
-
-// Add new item row
-function addItem(){
-  let row=document.createElement("tr");
-  row.innerHTML=`
-    <td><input type="text" class="desc"></td>
-    <td><input type="number" class="qty" value="1"></td>
-    <td><input type="number" class="rate" value="0"></td>
-    <td class="amount">0</td>
-  `;
-  document.getElementById("itemsBody").appendChild(row);
 }
 
-// Calculate totals
-document.addEventListener("input",function(){
-  let total=0;
-  document.querySelectorAll("#itemsBody tr").forEach(row=>{
-    let qty=row.querySelector(".qty").value || 0;
-    let rate=row.querySelector(".rate").value || 0;
-    let amount=qty*rate;
-    row.querySelector(".amount").innerText=amount.toFixed(2);
-    total+=amount;
+function toggleMode(){
+  const type = document.getElementById('qtyType').value;
+  const cols = document.querySelectorAll('.sizeCol');
+
+  cols.forEach(col=>{
+    col.classList.toggle('hidden', type === 'pcs');
   });
-  document.getElementById("grandTotal").innerText=total.toFixed(2);
-});
+}
 
-// Before printing, populate text
-window.onbeforeprint=function(){
-  document.getElementById("printCompanyName").innerText=
-    document.getElementById("companyName").value;
+function calc(el){
+  const row = el.closest('tr');
+  const qty = parseFloat(row.cells[2].querySelector('input').value) || 0;
+  const len = row.cells[3].querySelector('input') ? parseFloat(row.cells[3].querySelector('input').value) || 0 : 0;
+  const wid = row.cells[4].querySelector('input') ? parseFloat(row.cells[4].querySelector('input').value) || 0 : 0;
+  const rate = parseFloat(row.cells[row.cells.length-2].querySelector('input').value) || 0;
+  const type = document.getElementById('qtyType').value;
 
-  document.getElementById("printCompanyAddress").innerText=
-    document.getElementById("companyAddress").value;
+  let amount = 0;
 
-  document.getElementById("printCompanyContact").innerText=
-    document.getElementById("companyContact").value;
+  if(type === 'sqft' || type === 'size'){
+    amount = qty * len * wid * rate;
+  } else {
+    amount = qty * rate;
+  }
 
-  document.getElementById("printInvoiceType").innerText=
-    document.getElementById("invoiceType").value;
+  row.querySelector('.amount').innerText = amount.toFixed(2);
+  grandTotal();
+}
 
-  document.getElementById("printCustomerName").innerText=
-    document.getElementById("customerName").value;
+function grandTotal(){
+  let total = 0;
+  document.querySelectorAll('.amount').forEach(a=>{
+    total += parseFloat(a.innerText) || 0;
+  });
+  document.getElementById('grandTotal').innerText = total.toFixed(2);
+}
 
-  document.getElementById("printCustomerAddress").innerText=
-    document.getElementById("customerAddress").value;
+function addRow(){
+  const table = document.querySelector('#itemTable tbody');
+  const rowCount = table.rows.length + 1;
+  const newRow = table.rows[0].cloneNode(true);
 
-  document.getElementById("printCustomerContact").innerText=
-    document.getElementById("customerContact").value;
+  newRow.cells[0].innerText = rowCount;
+  newRow.querySelectorAll('input').forEach(i=>i.value='');
+  newRow.querySelector('.amount').innerText='0';
 
-  document.getElementById("printInvoiceNo").innerText=
-    document.getElementById("invoiceNo").value;
-
-  document.getElementById("printDate").innerText=
-    document.getElementById("date").value;
-};
+  table.appendChild(newRow);
+}
 
 </script>
 
