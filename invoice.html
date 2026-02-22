@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Delivery Challan</title>
+<title>Delivery Challan Editable Version</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
@@ -52,6 +52,7 @@ body{background:#eef1f5;padding:30px;}
 <button onclick="saveAsImage()">Save as Image</button>
 <button onclick="addRow()">Add Row</button>
 <button onclick="removeRow()">Remove Row</button>
+<button onclick="openEditTable()">Edit Table</button>
 </div>
 
 <div class="wrapper" id="challanWrapper">
@@ -124,7 +125,32 @@ body{background:#eef1f5;padding:30px;}
 <div class="thank-you">Thank you for doing business with us!</div>
 </div>
 
+<!-- Edit Table Modal -->
+<div id="editTableModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:9999;">
+  <div style="background:#fff;width:90%;max-width:900px;margin:50px auto;padding:20px;border-radius:10px;position:relative;">
+    <h3>Edit / Customize Table</h3>
+    <table id="editTable" style="width:100%;border-collapse:collapse;margin-bottom:15px;">
+      <thead>
+        <tr>
+          <th>S.No.</th>
+          <th>Description</th>
+          <th>Qty</th>
+          <th>Size / Parts</th>
+          <th>Square Feet / Custom</th>
+          <th>Rate</th>
+          <th>Amount</th>
+          <th>Delete</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <button onclick="saveEditTable()" style="padding:8px 12px;background:#1565c0;color:white;border:none;border-radius:5px;">Save Edits</button>
+    <button onclick="closeEditTable()" style="padding:8px 12px;background:#555;color:white;border:none;border-radius:5px;">Close</button>
+  </div>
+</div>
+
 <script>
+// main table functions
 function addRow(){
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
   const newRow = table.insertRow();
@@ -207,7 +233,6 @@ function updatePreparedBy(){
 }
 
 function printChallan(){ window.print(); }
-
 function saveAsImage(){
   const wrapper = document.getElementById('challanWrapper');
   html2canvas(wrapper,{scale:2}).then(canvas=>{
@@ -217,6 +242,53 @@ function saveAsImage(){
     link.click();
   });
 }
+
+// Edit table functions
+function openEditTable(){
+  const modal = document.getElementById('editTableModal');
+  const editBody = document.getElementById('editTable').getElementsByTagName('tbody')[0];
+  editBody.innerHTML = '';
+  const mainRows = document.getElementById('itemsTable').getElementsByTagName('tbody')[0].rows;
+  for(let i=0;i<mainRows.length;i++){
+    const row = editBody.insertRow();
+    for(let j=0;j<8;j++){
+      const cell = row.insertCell();
+      if(j<7){
+        cell.contentEditable = true;
+        cell.innerText = mainRows[i].cells[j].innerText;
+      } else{
+        cell.innerHTML = '<button onclick="deleteEditRow(this)">Delete</button>';
+      }
+    }
+  }
+  modal.style.display = 'block';
+}
+
+function closeEditTable(){ document.getElementById('editTableModal').style.display='none'; }
+
+function deleteEditRow(btn){
+  const row = btn.parentElement.parentElement;
+  row.parentElement.removeChild(row);
+}
+
+function saveEditTable(){
+  const editRows = document.getElementById('editTable').getElementsByTagName('tbody')[0].rows;
+  const mainBody = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
+  mainBody.innerHTML='';
+  for(let i=0;i<editRows.length;i++){
+    const row = mainBody.insertRow();
+    for(let j=0;j<7;j++){
+      const cell = row.insertCell();
+      cell.contentEditable = (j!==4); // Square Feet auto
+      cell.innerText = editRows[i].cells[j].innerText;
+      if(j===2 || j===3 || j===5) cell.setAttribute('oninput','updateRow(this)');
+    }
+  }
+  updateSerialNumbers();
+  updateGrandTotal();
+  closeEditTable();
+}
 </script>
+
 </body>
 </html>
