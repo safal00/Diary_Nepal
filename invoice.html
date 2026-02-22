@@ -107,6 +107,13 @@ body{background:#eef1f5;padding:30px;}
 <td>0</td>
 </tr>
 </tbody>
+<tfoot>
+<tr>
+<td colspan="5"></td>
+<td>Grand Total:</td>
+<td id="grandTotalAmount">0</td>
+</tr>
+</tfoot>
 </table>
 </div>
 
@@ -178,12 +185,13 @@ function updateRow(cell){
 
 function updateGrandTotal(){
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
-  let total =0;
+  let totalAmount =0;
   for(let i=0;i<table.rows.length;i++){
-    total += parseFloat(table.rows[i].cells[6].innerText)||0;
+    totalAmount += parseFloat(table.rows[i].cells[6].innerText)||0;
   }
-  document.getElementById('grandTotal').innerText = total.toFixed(2);
-  document.getElementById('grandTotalWords').innerText = convertToWords(total);
+  document.getElementById('grandTotalAmount').innerText = totalAmount.toFixed(2);
+  document.getElementById('grandTotal').innerText = totalAmount.toFixed(2);
+  document.getElementById('grandTotalWords').innerText = convertToWords(totalAmount);
 }
 
 function convertToWords(amount){
