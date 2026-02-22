@@ -32,8 +32,6 @@ body{background:#eef1f5;padding:30px;}
 .add-remove button{padding:10px 12px;margin-right:5px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
 .add-remove button:hover{background:#0d47a1;}
 .total-section{display:flex;flex-direction:column;justify-content:flex-end;font-size:16px;font-weight:700;margin-bottom:20px;}
-.total-section span{margin-left:0;}
-.words{font-weight:400;font-size:14px;font-style:italic;color:#333;margin-top:4px;}
 .footer{display:flex;justify-content:space-between;font-size:14px;margin-top:30px;}
 .footer div span{font-weight:700;color:#1565c0;}
 .thank-you{margin-top:25px;text-align:center;font-size:14px;font-style:italic;color:#555;}
@@ -90,7 +88,7 @@ body{background:#eef1f5;padding:30px;}
 <th>S.No.</th>
 <th>Description of Goods</th>
 <th>Qty</th>
-<th>Size (inches)</th>
+<th>Size</th>
 <th>SQ.FT</th>
 <th>Rate</th>
 <th>Amount</th>
@@ -119,7 +117,6 @@ body{background:#eef1f5;padding:30px;}
 
 <div class="total-section">
 <span>Grand Total (Rate): <span id="grandTotal">0</span></span>
-<span class="words" id="grandTotalWords">Zero Rupees</span>
 </div>
 
 <div class="footer">
@@ -191,22 +188,6 @@ function updateGrandTotal(){
   }
   document.getElementById('grandTotalAmount').innerText = totalAmount.toFixed(2);
   document.getElementById('grandTotal').innerText = totalAmount.toFixed(2);
-  document.getElementById('grandTotalWords').innerText = convertToWords(totalAmount);
-}
-
-function convertToWords(amount){
-  if(amount===0) return "Zero Rupees";
-  const ones = ["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"];
-  const tens = ["","Ten","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
-  const teens = ["Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
-  let num = Math.floor(amount);
-  let words="";
-  if(num>=1000){words += ones[Math.floor(num/1000)] + " Thousand "; num=num%1000;}
-  if(num>=100){words += ones[Math.floor(num/100)] + " Hundred "; num=num%100;}
-  if(num>=20){words += tens[Math.floor(num/10)]; if(num%10>0) words += " " + ones[num%10];}
-  else if(num>=10){words+=teens[num-10];}
-  else if(num>0){words+=ones[num];}
-  return words + " Rupees";
 }
 
 function updatePreparedBy(){
