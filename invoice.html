@@ -27,19 +27,20 @@ body{background:#eef1f5;padding:20px;}
 .table-section th, .table-section td{border:1px solid #ccd6e0;padding:6px;text-align:center;font-size:14px;}
 .table-section th{background:#f0f4f8;font-weight:700;color:#1565c0;}
 .description{font-size:15px;}
-.add-remove{margin-bottom:15px;}
+.add-remove{margin-bottom:15px;display:flex;align-items:center;}
 .add-remove button{padding:10px 12px;margin-right:5px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
 .add-remove button:hover{background:#0d47a1;}
+.action-buttons{margin-bottom:20px;text-align:right;display:flex;align-items:center;gap:5px;}
+.action-buttons button, .action-buttons label{padding:8px 12px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;font-size:14px;}
+.action-buttons input[type=checkbox]{accent-color:#1565c0;margin-right:5px;}
+.action-buttons button:hover, .action-buttons label:hover{background:#0d47a1;}
 .total-section{display:flex;flex-direction:column;justify-content:flex-end;font-size:16px;font-weight:700;margin-bottom:20px;}
 .total-section span{margin-left:0;}
 .words{font-weight:400;font-size:14px;font-style:italic;color:#333;margin-top:4px;}
 .footer{display:flex;justify-content:space-between;font-size:14px;margin-top:30px;}
 .footer div span{font-weight:700;color:#1565c0;}
 .thank-you{margin-top:25px;text-align:center;font-size:14px;font-style:italic;color:#555;}
-.action-buttons{margin-bottom:20px;text-align:right;}
-.action-buttons button, .action-buttons input[type=checkbox]{padding:8px 12px;margin-left:8px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
-.action-buttons button:hover{background:#0d47a1;}
-/* Hide Add/Remove buttons & toggle in print */
+/* Hide admin buttons and toggle in print */
 @media print{
   .add-remove, .action-buttons{display:none;}
 }
@@ -50,7 +51,12 @@ body{background:#eef1f5;padding:20px;}
 <div class="action-buttons">
 <button onclick="printChallan()">Print</button>
 <button onclick="saveAsImage()">Save as Image</button>
-<label style="color:black;margin-left:10px;"><input type="checkbox" id="autoSumToggle" checked> Auto Sum</label>
+<label><input type="checkbox" id="autoSumToggle" checked> Auto Sum</label>
+</div>
+
+<div class="add-remove">
+<button onclick="addRow()">Add Row</button>
+<button onclick="removeRow()">Remove Row</button>
 </div>
 
 <div class="wrapper" id="challanWrapper">
@@ -83,10 +89,6 @@ body{background:#eef1f5;padding:20px;}
 </div>
 
 <div class="table-section">
-<div class="add-remove">
-<button onclick="addRow()">Add Row</button>
-<button onclick="removeRow()">Remove Row</button>
-</div>
 <table id="itemsTable">
 <thead>
 <tr>
@@ -177,7 +179,6 @@ function updateGrandTotal(){
   document.getElementById('grandTotalWords').innerText = convertToWords(total);
 }
 
-// Convert number to words
 function convertToWords(amount){
   if(amount===0) return "Zero Rupees";
   const ones = ["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"];
@@ -193,18 +194,12 @@ function convertToWords(amount){
   return words + " Rupees";
 }
 
-// Update Prepared By footer when Company Name changes
 function updatePreparedBy(){
   const name = document.getElementById('companyName').value;
   document.getElementById('preparedBy').innerText = name;
 }
 
-// Print function
-function printChallan(){
-  window.print();
-}
-
-// Save as Image function
+function printChallan(){window.print();}
 function saveAsImage(){
   const wrapper = document.getElementById('challanWrapper');
   html2canvas(wrapper,{scale:2}).then(canvas=>{
