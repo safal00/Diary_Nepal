@@ -115,10 +115,6 @@ body{background:#eef1f5;padding:30px;}
 </table>
 </div>
 
-<div class="total-section">
-<span>Grand Total (Rate): <span id="grandTotal">0</span></span>
-</div>
-
 <div class="footer">
 <div>Received By: <span id="receivedBy">_</span></div>
 <div>Prepared By: <span id="preparedBy" contenteditable="true"></span></div>
@@ -187,7 +183,6 @@ function updateGrandTotal(){
     totalAmount += parseFloat(table.rows[i].cells[6].innerText)||0;
   }
   document.getElementById('grandTotalAmount').innerText = totalAmount.toFixed(2);
-  document.getElementById('grandTotal').innerText = totalAmount.toFixed(2);
 }
 
 function updatePreparedBy(){
