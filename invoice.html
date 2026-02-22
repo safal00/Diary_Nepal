@@ -28,11 +28,9 @@ body{background:#eef1f5;padding:30px;}
 .table-section th, .table-section td{border:1px solid #ccd6e0;padding:6px;text-align:center;font-size:14px;}
 .table-section th{background:#f0f4f8;font-weight:700;color:#1565c0;}
 .description{font-size:15px;}
-.add-remove, .autosum-toggle{margin-bottom:15px;}
-.add-remove button, .autosum-toggle button{
-  padding:10px 12px;margin-right:5px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;
-}
-.add-remove button:hover, .autosum-toggle button:hover{background:#0d47a1;}
+.add-remove{margin-bottom:15px;}
+.add-remove button{padding:10px 12px;margin-right:5px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
+.add-remove button:hover{background:#0d47a1;}
 .total-section{display:flex;flex-direction:column;justify-content:flex-end;font-size:16px;font-weight:700;margin-bottom:20px;color:#1565c0;}
 .total-section span{margin-left:0;}
 .words{font-weight:400;font-size:14px;font-style:italic;color:#333;margin-top:4px;}
@@ -42,9 +40,10 @@ body{background:#eef1f5;padding:30px;}
 .action-buttons{margin-bottom:20px;text-align:right;}
 .action-buttons button{padding:10px 14px;margin-left:8px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
 .action-buttons button:hover{background:#0d47a1;}
-/* Hide buttons and links in print & image capture */
+.auto-sum-label{margin-left:8px;font-weight:600;color:#1565c0;font-size:14px;}
+/* Hide Add/Remove buttons in print & image capture */
 @media print{
-  .add-remove, .action-buttons, .autosum-toggle{display:none;}
+  .add-remove, .action-buttons, .auto-sum-label{display:none;}
 }
 </style>
 </head>
@@ -53,10 +52,7 @@ body{background:#eef1f5;padding:30px;}
 <div class="action-buttons">
 <button onclick="printChallan()">Print</button>
 <button onclick="saveAsImage()">Save as Image</button>
-</div>
-
-<div class="autosum-toggle">
-<label><input type="checkbox" id="autoSumToggle" checked> Auto Sum</label>
+<label class="auto-sum-label"><input type="checkbox" id="autoSumToggle" checked> Auto Sum</label>
 </div>
 
 <div class="wrapper" id="challanWrapper">
@@ -127,7 +123,7 @@ body{background:#eef1f5;padding:30px;}
 
 <div class="footer">
 <div>Received By: <span id="receivedBy">_</span></div>
-<div>Prepared By: <span id="preparedBy"></span></div>
+<div>Prepared By: <span id="preparedBy" contenteditable="true"></span></div>
 </div>
 
 <div class="thank-you">Thank you for doing business with us!</div>
@@ -138,14 +134,14 @@ body{background:#eef1f5;padding:30px;}
 function addRow(){
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
   const newRow = table.insertRow();
-  const rowCount = table.rows.length;
   for(let i=0;i<7;i++){
     const cell = newRow.insertCell();
-    if(i===0){cell.innerText = rowCount+1;} // Serial number fix
+    if(i===0){cell.innerText = 0;}
     else if(i!==6){cell.contentEditable = true;}
     else{cell.innerText = 0;}
     if(i===2 || i===4 || i===5) cell.setAttribute('oninput','updateRow(this)');
   }
+  updateSerialNumbers();
 }
 
 function removeRow(){
@@ -162,22 +158,18 @@ function updateSerialNumbers(){
   }
 }
 
-// Update Amount for a row
 function updateRow(cell){
   const autoSum = document.getElementById('autoSumToggle').checked;
   if(!autoSum) return;
-
   const row = cell.parentElement;
   const qty = parseFloat(row.cells[2].innerText)||0;
   const sqft = parseFloat(row.cells[4].innerText)||0;
   const rate = parseFloat(row.cells[5].innerText)||0;
   const amount = qty * sqft * rate;
   row.cells[6].innerText = amount.toFixed(2);
-
   updateGrandTotal();
 }
 
-// Grand total calculation
 function updateGrandTotal(){
   const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
   let total =0;
@@ -188,7 +180,7 @@ function updateGrandTotal(){
   document.getElementById('grandTotalWords').innerText = convertToWords(total);
 }
 
-// Number to words
+// Convert number to words
 function convertToWords(amount){
   if(amount===0) return "Zero Rupees";
   const ones = ["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"];
@@ -204,7 +196,7 @@ function convertToWords(amount){
   return words + " Rupees";
 }
 
-// Update Prepared By
+// Update Prepared By footer when Company Name changes
 function updatePreparedBy(){
   const name = document.getElementById('companyName').value;
   document.getElementById('preparedBy').innerText = name;
@@ -215,7 +207,7 @@ function printChallan(){
   window.print();
 }
 
-// Save as image
+// Save as Image function
 function saveAsImage(){
   const wrapper = document.getElementById('challanWrapper');
   html2canvas(wrapper,{scale:2}).then(canvas=>{
