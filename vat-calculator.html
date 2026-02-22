@@ -2,131 +2,141 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>VAT Invoice Calculator</title>
+<title>VAT Calculator</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
 *{
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family:'Poppins',sans-serif;
+  font-family:'Inter',sans-serif;
 }
 
 body{
-  background:#eef1f6;
+  background:#eef1f5;
   padding:30px;
 }
 
-/* WRAPPER */
+/* MAIN CARD */
 .wrapper{
-  max-width:1100px;
+  max-width:880px;
   margin:auto;
-  background:white;
+  background:#fff;
   border-radius:12px;
-  box-shadow:0 12px 30px rgba(0,0,0,0.08);
+  box-shadow:0 8px 25px rgba(0,0,0,0.08);
   overflow:hidden;
 }
 
 /* HEADER */
 .header{
-  background:#0b1f3a; /* navy blue */
+  background:#1565c0;
   color:white;
-  padding:22px;
-  font-size:20px;
-  font-weight:600;
-  letter-spacing:.5px;
+  padding:18px 22px;
+  font-size:22px;
+  font-weight:700;
+  letter-spacing:.4px;
 }
 
-/* CONTENT */
+/* LAYOUT */
 .content{
   display:flex;
-  gap:20px;
-  padding:20px;
 }
 
 .left,.right{
   flex:1;
+  padding:22px;
 }
 
-.card{
-  background:#f9fbfd;
-  padding:16px;
-  border-radius:8px;
-  margin-bottom:15px;
-  border:1px solid #e6ecf3;
+/* vertical divider */
+.right{
+  border-left:1px solid #e5e7eb;
+}
+
+/* INPUT ROW STYLE */
+.field{
+  margin-bottom:18px;
 }
 
 label{
   font-size:13px;
-  font-weight:500;
-  color:#333;
+  font-weight:600;
+  color:#444;
 }
 
 input, select{
   width:100%;
-  padding:9px;
-  margin-top:4px;
-  margin-bottom:10px;
+  padding:10px;
+  margin-top:6px;
   border-radius:6px;
-  border:1px solid #ccd6e0;
-  background:white;
+  border:1px solid #d6dbe1;
+  font-size:15px;
 }
 
 /* BUTTON */
 button{
   width:100%;
-  padding:12px;
-  background:#0b1f3a;
-  color:white;
+  padding:13px;
+  margin-top:5px;
+  background:#1565c0;
+  color:#fff;
   border:none;
   border-radius:6px;
   font-weight:600;
+  font-size:15px;
   cursor:pointer;
 }
 
 button:hover{
-  background:#08172c;
+  background:#0d47a1;
 }
 
-/* SUMMARY */
-.summary{
-  background:white;
-}
-
-.summary h3{
-  margin-bottom:10px;
-  color:#0b1f3a;
+/* SUMMARY PANEL */
+.summary-title{
+  font-weight:700;
+  margin-bottom:15px;
+  color:#1565c0;
 }
 
 .line{
   display:flex;
   justify-content:space-between;
-  margin:7px 0;
-  font-size:14px;
+  padding:10px 0;
+  border-bottom:1px solid #e5e7eb;
+  font-size:15px;
+}
+
+.line span:last-child{
+  font-weight:600;
 }
 
 .total{
+  display:flex;
+  justify-content:space-between;
+  padding-top:16px;
   font-size:22px;
-  font-weight:600;
-  color:#0b1f3a;
-  margin-top:12px;
+  font-weight:700;
+  color:#1565c0;
 }
 
 /* FOOTER */
 .footer{
+  background:#000;
+  color:#fff;
   text-align:center;
-  padding:15px;
+  padding:12px;
   font-size:12px;
-  color:#666;
-  border-top:1px solid #e5e5e5;
 }
 
 /* MOBILE */
 @media(max-width:768px){
   .content{
     flex-direction:column;
+  }
+  .right{
+    border-left:none;
+    border-top:1px solid #e5e7eb;
   }
 }
 </style>
@@ -136,36 +146,24 @@ button:hover{
 
 <div class="wrapper">
 
-  <div class="header">
-    VAT Invoice Calculator
-  </div>
+  <div class="header">VAT Calculator</div>
 
   <div class="content">
 
-    <!-- LEFT -->
+    <!-- INPUT -->
     <div class="left">
 
-      <div class="card">
-        <label>Invoice No</label>
-        <input type="text" id="invoice" value="INV-001">
-
-        <label>Buyer Name</label>
-        <input type="text" id="buyer">
-
-        <label>Buyer VAT No</label>
-        <input type="text" id="buyerVat">
-
-        <label>Phone</label>
-        <input type="text" id="phone">
-      </div>
-
-      <div class="card">
+      <div class="field">
         <label>Amount</label>
         <input type="number" id="amount">
+      </div>
 
+      <div class="field">
         <label>Discount</label>
         <input type="number" id="discount" placeholder="0">
+      </div>
 
+      <div class="field">
         <label>VAT Rate</label>
         <select id="vatRate">
           <option value="13">13% (Standard)</option>
@@ -173,38 +171,37 @@ button:hover{
           <option value="10">10%</option>
           <option value="custom">Custom</option>
         </select>
+      </div>
 
-        <input type="number" id="customVat" placeholder="Custom %" style="display:none">
+      <div class="field">
+        <input type="number" id="customVat" placeholder="Enter custom %" style="display:none">
+      </div>
 
+      <div class="field">
         <label>Mode</label>
         <select id="mode">
           <option value="add">Add VAT</option>
           <option value="remove">Remove VAT</option>
         </select>
-
-        <button onclick="calc()">Calculate</button>
       </div>
+
+      <button onclick="calculate()">Calculate</button>
 
     </div>
 
-    <!-- RIGHT -->
+    <!-- SUMMARY -->
     <div class="right">
 
-      <div class="card summary">
-        <h3>Invoice Summary</h3>
+      <div class="summary-title">Invoice Summary</div>
 
-        <div class="line"><span>Subtotal</span><span id="sub">Rs. 0</span></div>
-        <div class="line"><span>Discount</span><span id="disc">Rs. 0</span></div>
-        <div class="line"><span>Taxable</span><span id="taxable">Rs. 0</span></div>
-        <div class="line"><span>VAT</span><span id="vat">Rs. 0</span></div>
+      <div class="line"><span>Subtotal</span><span id="sub">Rs. 0</span></div>
+      <div class="line"><span>Discount</span><span id="disc">Rs. 0</span></div>
+      <div class="line"><span>Taxable Amount</span><span id="taxable">Rs. 0</span></div>
+      <div class="line"><span>VAT</span><span id="vat">Rs. 0</span></div>
 
-        <div class="total" id="total">Rs. 0</div>
-
-        <div style="margin-top:15px;font-size:13px">
-          In Words: <span id="words">Zero Rupees</span><br><br>
-          Received By: _____<br>
-          Prepared By: _____
-        </div>
+      <div class="total">
+        <span>Grand Total</span>
+        <span id="total">Rs. 0</span>
       </div>
 
     </div>
@@ -212,55 +209,51 @@ button:hover{
   </div>
 
   <div class="footer">
-    © 2025 • Data from official sources
+    © 2025 Data from official sources
   </div>
 
 </div>
 
 <script>
-document.getElementById("vatRate").addEventListener("change",()=>{
-  customVat.style.display = vatRate.value==="custom"?"block":"none";
+const vatRate = document.getElementById("vatRate");
+const customVat = document.getElementById("customVat");
+
+vatRate.addEventListener("change",()=>{
+  customVat.style.display = vatRate.value==="custom"?"block":"block":"none";
 });
 
-function toWords(n){
-  const a=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten",
-  "Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
-  const b=["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
-  if(n==0) return "Zero";
-  if(n<20) return a[n];
-  if(n<100) return b[Math.floor(n/10)]+" "+a[n%10];
-  if(n<1000) return a[Math.floor(n/100)]+" Hundred "+toWords(n%100);
-  if(n<1000000) return toWords(Math.floor(n/1000))+" Thousand "+toWords(n%1000);
-  return n;
-}
+function calculate(){
 
-function calc(){
-  let amt=parseFloat(amount.value)||0;
-  let disc=parseFloat(discount.value)||0;
+  let amount = parseFloat(document.getElementById("amount").value) || 0;
+  let discount = parseFloat(document.getElementById("discount").value) || 0;
 
-  let rate = vatRate.value==="custom" ? parseFloat(customVat.value)||0 : parseFloat(vatRate.value);
-  rate/=100;
+  let rate = vatRate.value === "custom"
+      ? parseFloat(customVat.value) || 0
+      : parseFloat(vatRate.value);
 
-  let subtotal=amt;
-  let taxable=subtotal-disc;
+  rate = rate / 100;
 
-  let vat=0,total=0;
+  let subtotal = amount;
+  let taxable = subtotal - discount;
+  if(taxable < 0) taxable = 0;
 
-  if(mode.value==="add"){
-    vat=taxable*rate;
-    total=taxable+vat;
+  let vat = 0;
+  let total = 0;
+
+  if(document.getElementById("mode").value === "add"){
+      vat = taxable * rate;
+      total = taxable + vat;
   }else{
-    vat=taxable-(taxable/(1+rate));
-    total=taxable;
-    taxable=total-vat;
+      vat = taxable - (taxable / (1 + rate));
+      total = taxable;
+      taxable = total - vat;
   }
 
-  sub.innerText="Rs. "+subtotal.toFixed(2);
-  disc.innerText="Rs. "+disc.toFixed(2);
-  taxable.innerText="Rs. "+taxable.toFixed(2);
-  vat.innerText="Rs. "+vat.toFixed(2);
-  total.innerText="Rs. "+total.toFixed(2);
-  words.innerText=toWords(Math.round(total))+" Rupees Only";
+  document.getElementById("sub").innerText = "Rs. " + subtotal.toFixed(2);
+  document.getElementById("disc").innerText = "Rs. " + discount.toFixed(2);
+  document.getElementById("taxable").innerText = "Rs. " + taxable.toFixed(2);
+  document.getElementById("vat").innerText = "Rs. " + vat.toFixed(2);
+  document.getElementById("total").innerText = "Rs. " + total.toFixed(2);
 }
 </script>
 
