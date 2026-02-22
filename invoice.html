@@ -27,31 +27,29 @@ body{background:#eef1f5;padding:30px;}
 .table-section table{width:100%;border-collapse:collapse;margin-bottom:15px;}
 .table-section th, .table-section td{border:1px solid #ccd6e0;padding:6px;text-align:center;font-size:14px;}
 .table-section th{background:#f0f4f8;font-weight:700;color:#1565c0;}
-.description{font-size:15px;text-align:left;padding-left:4px;}
-.add-remove{margin-bottom:15px;}
-.add-remove button{padding:10px 12px;margin-right:5px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
-.add-remove button:hover{background:#0d47a1;}
+.description{font-size:15px;}
 .total-section{display:flex;flex-direction:column;justify-content:flex-end;font-size:16px;font-weight:700;margin-bottom:20px;}
 .total-section span{margin-left:0;}
 .words{font-weight:400;font-size:14px;font-style:italic;color:#333;margin-top:4px;}
 .footer{display:flex;justify-content:space-between;font-size:14px;margin-top:30px;}
 .footer div span{font-weight:700;color:#1565c0;}
 .thank-you{margin-top:25px;text-align:center;font-size:14px;font-style:italic;color:#555;}
-.action-buttons{margin-bottom:20px;text-align:right;}
-.action-buttons button{padding:10px 14px;margin-left:8px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
+/* Action buttons: Add/Remove Row + Print/Save side by side */
+.action-buttons{margin-bottom:20px;display:flex;justify-content:flex-end;gap:8px;}
+.action-buttons button{padding:10px 14px;background:#1565c0;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;}
 .action-buttons button:hover{background:#0d47a1;}
 @media print{
-  .add-remove, .action-buttons{display:none;}
+  .action-buttons{display:none;}
 }
 </style>
 </head>
 <body>
 
 <div class="action-buttons">
-  <button onclick="addRow()">Add Row</button>
-  <button onclick="removeRow()">Remove Row</button>
-  <button onclick="printChallan()">Print</button>
-  <button onclick="saveAsImage()">Save as Image</button>
+<button onclick="addRow()">Add Row</button>
+<button onclick="removeRow()">Remove Row</button>
+<button onclick="printChallan()">Print</button>
+<button onclick="saveAsImage()">Save as Image</button>
 </div>
 
 <div class="wrapper" id="challanWrapper">
@@ -60,24 +58,24 @@ body{background:#eef1f5;padding:30px;}
 <div class="top-section">
 <div class="left">
 <label>Company Name</label>
-<input type="text" id="companyName" oninput="updatePreparedBy()" value="Nepal Print Solution Pvt. Ltd.">
+<input type="text" id="companyName" oninput="updatePreparedBy()" value="Newpani Print Solutions Pvt. Ltd.">
 <label>Company Address</label>
 <textarea id="companyAddress" rows="2">London, UK</textarea>
 <label>Company Phone</label>
-<input type="text" id="companyPhone" value="+44 123456789">
+<input type="text" id="companyPhone">
 </div>
 
 <div class="right">
 <label>Challan Number</label>
-<input type="text" id="challanNo" value="CH_001">
+<input type="text" id="challanNo" value="CH_">
 <label>Date</label>
 <input type="text" id="date" placeholder="_ _ / _ _ / _ _ _ _">
 <label>Buyer Name</label>
-<input type="text" id="buyerName" placeholder="Buyer Name">
+<input type="text" id="buyerName">
 <label>Buyer Phone</label>
-<input type="text" id="buyerPhone" placeholder="Buyer Phone">
+<input type="text" id="buyerPhone">
 <label>Terms of Delivery</label>
-<textarea id="terms" rows="2">Cash on Delivery</textarea>
+<textarea id="terms" rows="2"></textarea>
 <label>Buyer Address</label>
 <textarea id="buyerAddress" rows="2"></textarea>
 </div>
@@ -99,9 +97,9 @@ body{background:#eef1f5;padding:30px;}
 <tbody>
 <tr>
 <td>1</td>
-<td class="description" contenteditable="true">Item 1</td>
+<td class="description" contenteditable="true"></td>
 <td contenteditable="true" oninput="updateRow(this)">0</td>
-<td contenteditable="true" oninput="updateRow(this)">0</td>
+<td contenteditable="true" oninput="updateRow(this)"></td>
 <td contenteditable="true" oninput="updateRow(this)">0</td>
 <td contenteditable="true" oninput="updateRow(this)">0</td>
 <td>0</td>
@@ -118,7 +116,7 @@ body{background:#eef1f5;padding:30px;}
 
 <div class="footer">
 <div>Received By: <span id="receivedBy">_</span></div>
-<div>Prepared By: <span id="preparedBy" contenteditable="true">Nepal Print Solution Pvt. Ltd.</span></div>
+<div>Prepared By: <span id="preparedBy" contenteditable="true"></span></div>
 </div>
 
 <div class="thank-you">Thank you for doing business with us!</div>
@@ -130,11 +128,12 @@ function addRow(){
   const newRow = table.insertRow();
   for(let i=0;i<7;i++){
     const cell = newRow.insertCell();
-    if(i===0){cell.innerText = table.rows.length;} 
+    if(i===0){cell.innerText = 0;} 
     else if(i!==6){cell.contentEditable = true;}
     else{cell.innerText = 0;}
     if(i===2 || i===3 || i===4 || i===5) cell.setAttribute('oninput','updateRow(this)');
   }
+  updateSerialNumbers();
 }
 
 function removeRow(){
@@ -152,29 +151,37 @@ function updateSerialNumbers(){
 }
 
 function parseSizeToSqft(size){
-  size = size.toLowerCase().replace(/\s/g,'');
-  if(size.includes('x')){
-    let parts = size.split('x');
-    let w = parseFloat(parts[0]);
-    let h = parseFloat(parts[1]);
-    if(size.includes('inch')){
-      return (w*h)/144; // inch to sqft
-    } else {
-      return w*h; // already in feet
+  // Example: "2x3", "24x36 inch"
+  size = size.toLowerCase().replace(/\s+inch/,'');
+  let match = size.match(/([\d.]+)x([\d.]+)/);
+  if(match){
+    let width = parseFloat(match[1]);
+    let height = parseFloat(match[2]);
+    if(width>10 || height>10){ // likely in inches, convert to feet
+      width = width/12; 
+      height = height/12;
     }
+    return width*height;
   }
-  return parseFloat(size)||0;
+  return 0;
 }
 
 function updateRow(cell){
   const row = cell.parentElement;
   const qty = parseFloat(row.cells[2].innerText)||0;
-  const sizeVal = row.cells[3].innerText;
-  const sqft = parseFloat(parseSizeToSqft(sizeVal));
-  row.cells[4].innerText = sqft.toFixed(2);
+  const sizeStr = row.cells[3].innerText||"";
+  const sqftCell = row.cells[4];
+  let sqft = parseFloat(sqftCell.innerText)||0;
+
+  if(sizeStr.trim()!==""){
+    sqft = parseSizeToSqft(sizeStr);
+    sqftCell.innerText = sqft.toFixed(2);
+  }
+
   const rate = parseFloat(row.cells[5].innerText)||0;
-  const amount = qty * sqft * rate;
+  const amount = qty*sqft*rate;
   row.cells[6].innerText = amount.toFixed(2);
+
   updateGrandTotal();
 }
 
