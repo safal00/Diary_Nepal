@@ -2,186 +2,164 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Quotation - Final Old Layout + Photo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quotation</title>
+
 <style>
-body { font-family: Arial, sans-serif; margin:30px; color:#000; }
-h1 { text-align:center; color:#004aad; }
-.flex { display:flex; justify-content:space-between; margin-bottom:15px; }
-.details { width:48%; }
-.details input { width:100%; margin:2px 0; padding:3px; }
-table { width:100%; border-collapse: collapse; margin-top:15px; }
-table th { background:#004aad; color:#fff; padding:8px 5px; text-align:left; }
-table td { padding:5px; border-bottom:1px solid #ccc; vertical-align:middle; }
-.underline { border-bottom:1px solid #000; margin:5px 0; }
-.photo-container { position:relative; width:100px; height:60px; }
-.photo-container img.preview { width:100%; height:100%; object-fit:contain; display:none; }
-.photo-container .remove-btn { position:absolute; top:2px; right:2px; background:red; color:white; border:none; cursor:pointer; display:none; padding:2px 5px; }
-.btn { padding:5px 10px; margin-top:5px; cursor:pointer; }
-.totals { width:50%; margin-top:15px; float:right; }
-.totals div { display:flex; justify-content:space-between; margin-bottom:5px; }
-.signature-section { margin-top:50px; display:flex; justify-content:space-between; }
-.sig-box { width:48%; text-align:center; }
-.stamp-box { width:150px; height:80px; border:1px solid #000; margin-top:10px; display:inline-block; line-height:80px; }
-.terms ol { padding-left:20px; }
+body{
+  font-family: Arial, sans-serif;
+  background:#f4f6fb;
+  padding:20px;
+}
+.container{
+  max-width:900px;
+  margin:auto;
+  background:white;
+  padding:20px;
+  border-radius:8px;
+}
+.header{
+  display:flex;
+  justify-content:space-between;
+  flex-wrap:wrap;
+}
+input, textarea{
+  width:100%;
+  border:none;
+  border-bottom:1px solid #ccc;
+}
+.blue{
+  background:#2b65d9;
+  color:white;
+  padding:10px;
+  margin-top:10px;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+th, td{
+  border:1px solid #ddd;
+  padding:8px;
+}
+th{
+  background:#2b65d9;
+  color:white;
+}
+.total{
+  text-align:right;
+}
+button{
+  background:#2b65d9;
+  color:white;
+  border:none;
+  padding:8px 15px;
+  margin:5px;
+  cursor:pointer;
+}
+@media print{
+  button{display:none;}
+  body{background:white;}
+}
 </style>
 </head>
+
 <body>
 
-<h1>QUOTATION</h1>
+<div class="container">
 
-<div class="flex">
-  <div class="details">
-    <strong>Client Details:</strong><br>
-    Name: <input type="text" placeholder="Client Name"><br>
-    Company: <input type="text" placeholder="Client Company"><br>
-    Phone: <input type="text" placeholder="Client Phone">
-  </div>
-  <div class="details">
-    <strong>Company Details:</strong><br>
-    Name: <input type="text" placeholder="Company Name"><br>
-    Address: <input type="text" placeholder="Company Address">
-  </div>
+<div class="header">
+<div>
+<h2 contenteditable="true">Company Name</h2>
+<p contenteditable="true">Address</p>
+<p contenteditable="true">Email</p>
+<p contenteditable="true">PAN/VAT</p>
 </div>
 
-<table id="itemTable">
-  <thead>
-    <tr>
-      <th>S/N</th>
-      <th>Description</th>
-      <th>Photo</th>
-      <th>Size</th>
-      <th>Quantity</th>
-      <th>Unit Price</th>
-      <th>Amount</th>
-    </tr>
-  </thead>
-  <tbody>
-  </tbody>
+<div>
+<p>Date: <input type="date"></p>
+<p>Valid Until: <input type="text" placeholder="10 days"></p>
+</div>
+</div>
+
+<div class="blue">QUOTATION</div>
+
+<br>
+
+<table id="items">
+<tr>
+<th>S.N</th>
+<th>Description</th>
+<th>Qty</th>
+<th>Rate</th>
+<th>Amount</th>
+<th></th>
+</tr>
 </table>
 
-<button class="btn" onclick="addRow()">+ Add Item</button>
+<button onclick="addRow()">Add Item</button>
 
-<div class="totals">
-  <div><span>Subtotal:</span><span id="subtotal">0</span></div>
-  <div><span>Discount:</span><span><input type="number" value="0" id="discount" oninput="updateTotals()"></span></div>
-  <div><strong>Grand Total:</strong><strong id="grandtotal">0</strong></div>
-  <div><strong>In Words:</strong><strong id="grandwords"></strong></div>
-</div>
+<br><br>
 
-<div class="underline"></div>
+<p>
+VAT Included %:
+<input type="number" id="vat" value="13" style="width:80px">
+</p>
 
-<div class="terms">
-  <h3>Terms & Conditions:</h3>
-  <ol>
-    <li>All items delivered as per quotation.</li>
-    <li>Payment within 15 days of invoice.</li>
-    <li>Discounts applicable as agreed.</li>
-    <li>Warranty & returns as per company policy.</li>
-    <li>Quotation valid for 30 days from date issued.</li>
-  </ol>
-</div>
+<h3 class="total">Grand Total: Rs <span id="total">0</span></h3>
 
-<div class="signature-section">
-  <div class="sig-box">
-    Signature<br>
-    Name / Position: <input type="text" placeholder="Manager">
-  </div>
-  <div class="sig-box">
-    Company Stamp<br>
-    <div class="stamp-box">STAMP</div>
-  </div>
+<br>
+
+<p contenteditable="true">Advance Payment %</p>
+<p contenteditable="true">Delivery Time</p>
+
+<h4>Terms & Conditions</h4>
+<textarea rows="4">Editable terms...</textarea>
+
+<br>
+<button onclick="window.print()">Print</button>
+
 </div>
 
 <script>
-let itemCount=0;
 
 function addRow(){
-  itemCount++;
-  const tbody=document.querySelector('#itemTable tbody');
-  const tr=document.createElement('tr');
-  tr.innerHTML=`
-    <td class="sn">${itemCount}</td>
-    <td><input type="text" placeholder="Description"></td>
-    <td>
-      <div class="photo-container">
-        <img class="preview">
-        <button class="remove-btn" onclick="removeImg(this)">×</button>
-        <input type="file" accept="image/*" onchange="previewImg(event,this)">
-      </div>
-    </td>
-    <td><input type="text" placeholder="Size"></td>
-    <td><input type="number" value="1" oninput="updateAmount(this)"></td>
-    <td><input type="number" value="0" oninput="updateAmount(this)"></td>
-    <td class="amount">0</td>
-  `;
-  tbody.appendChild(tr);
-  updateTotals();
+let table=document.getElementById("items");
+let row=table.insertRow();
+let sn=table.rows.length-1;
+
+row.innerHTML=`
+<td>${sn}</td>
+<td contenteditable="true">Item</td>
+<td><input type="number" value="1" onchange="calc()"></td>
+<td><input type="number" value="0" onchange="calc()"></td>
+<td class="amt">0</td>
+<td><button onclick="delRow(this)">X</button></td>
+`;
 }
 
-function previewImg(e,input){
-  const file=input.files[0];
-  const img=input.parentElement.querySelector('img.preview');
-  const removeBtn=input.parentElement.querySelector('.remove-btn');
-  if(file){
-    img.src=URL.createObjectURL(file);
-    img.style.display='block';
-    input.style.display='none';
-    img.parentElement.onmouseenter=()=>removeBtn.style.display='block';
-    img.parentElement.onmouseleave=()=>removeBtn.style.display='none';
-  } else {
-    img.src='';
-    img.style.display='none';
-    removeBtn.style.display='none';
-    input.style.display='inline-block';
-  }
+function delRow(btn){
+btn.parentElement.parentElement.remove();
+calc();
 }
 
-function removeImg(btn){
-  const tr=btn.closest('tr');
-  tr.remove();
-  itemCount--;
-  updateSerials();
-  updateTotals();
+function calc(){
+let rows=document.querySelectorAll("#items tr");
+let total=0;
+
+for(let i=1;i<rows.length;i++){
+let qty=rows[i].cells[2].querySelector("input").value;
+let rate=rows[i].cells[3].querySelector("input").value;
+let amt=qty*rate;
+rows[i].cells[4].innerText=amt;
+total+=amt;
 }
 
-function updateSerials(){
-  const rows=document.querySelectorAll('#itemTable tbody tr');
-  let sn=1;
-  rows.forEach(r=>{r.querySelector('.sn').innerText=sn++;});
+let vat=document.getElementById("vat").value;
+let included=total + (total*vat/100);
+document.getElementById("total").innerText=included.toFixed(2);
 }
 
-function updateAmount(input){
-  const row=input.closest('tr');
-  const qty=row.querySelector('td:nth-child(5) input').value;
-  const price=row.querySelector('td:nth-child(6) input').value;
-  row.querySelector('.amount').innerText=(qty*price).toFixed(2);
-  updateTotals();
-}
-
-function updateTotals(){
-  let subtotal=0;
-  document.querySelectorAll('.amount').forEach(a=>{
-    subtotal+=Number(a.innerText)||0;
-  });
-  const discount=Number(document.getElementById('discount').value)||0;
-  const grand=subtotal-discount;
-  document.getElementById('subtotal').innerText=subtotal.toFixed(2);
-  document.getElementById('grandtotal').innerText=grand.toFixed(2);
-  document.getElementById('grandwords').innerText=numberToWords(Math.round(grand));
-}
-
-function numberToWords(num){
-  const a=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten',
-  'Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
-  const b=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
-  if(num==0) return 'Zero Only';
-  let words='';
-  if(num>=1000){words+=a[Math.floor(num/1000)]+' Thousand '; num%=1000;}
-  if(num>=100){words+=a[Math.floor(num/100)]+' Hundred '; num%=100;}
-  if(num>=20){words+=b[Math.floor(num/10)]+' '; num%=10;}
-  if(num>0) words+=a[num]+' ';
-  return words+'Only';
-}
 </script>
 
 </body>
