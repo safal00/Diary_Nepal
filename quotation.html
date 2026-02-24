@@ -1,139 +1,193 @@
 <!DOCTYPE html>
 <html lang="ne">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quotation / कोटेसन</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 40px;
-            background-color: #f9f9f9;
-        }
-        .quotation-container {
-            max-width: 800px;
-            margin: auto;
-            padding: 30px;
-            background: #fff;
-            border: 1px solid #ccc;
-            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            text-align: center;
-            font-size: 24px;
-        }
-        .section {
-            margin-bottom: 20px;
-        }
-        .section h2 {
-            font-size: 16px;
-            margin-bottom: 8px;
-            text-decoration: underline;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        table, th, td {
-            border: 1px solid #333;
-        }
-        th, td {
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background: #f0f0f0;
-        }
-        .totals {
-            margin-top: 15px;
-            text-align: right;
-        }
-        .terms {
-            margin-top: 25px;
-        }
-        .signature {
-            margin-top: 50px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Professional Quotation</title>
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f0f4ff;
+        margin: 0; padding: 20px;
+    }
+    .quotation-container {
+        max-width: 900px;
+        margin: auto;
+        background: #fff;
+        padding: 30px 40px;
+        border-radius: 10px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        border-top: 6px solid #0066cc;
+    }
+    h1 {
+        text-align: center;
+        color: #004080;
+        margin-bottom: 30px;
+    }
+    .section {
+        margin-bottom: 25px;
+    }
+    .section h2 {
+        font-size: 16px;
+        color: #003366;
+        margin-bottom: 8px;
+        border-bottom: 2px solid #3399ff;
+        padding-bottom: 4px;
+        display: inline-block;
+    }
+    input, textarea {
+        width: 100%;
+        font-size: 14px;
+        padding: 6px 8px;
+        margin-top: 4px;
+        margin-bottom: 8px;
+        border: 1px solid #3399ff;
+        border-radius: 4px;
+        background: #f9faff;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+    table, th, td {
+        border: 1px solid #3399ff;
+    }
+    th {
+        background-color: #cce0ff;
+        color: #003366;
+        padding: 10px;
+        text-align: left;
+    }
+    td {
+        padding: 8px;
+    }
+    td input {
+        width: 100%;
+        border: none;
+        background: transparent;
+        text-align: left;
+        font-size: 14px;
+    }
+    td input:focus {
+        outline: 1px solid #0066cc;
+        background: #eef5ff;
+    }
+    .totals input {
+        width: 50%;
+        float: right;
+        margin-bottom: 5px;
+    }
+    .terms textarea {
+        height: 80px;
+        resize: vertical;
+    }
+    .signature input {
+        width: 100%;
+    }
+    button {
+        padding: 8px 14px;
+        border-radius: 4px;
+        border: none;
+        background: #0066cc;
+        color: #fff;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+    button:hover {
+        background: #004080;
+    }
+</style>
 </head>
 <body>
-    <div class="quotation-container">
-        <h1>QUOTATION / कोटेसन</h1>
 
-        <div class="section company-info">
-            <strong>Company / Name:</strong> _______<br>
-            <strong>Address:</strong> _______<br>
-            <strong>Phone / Email:</strong> _______<br>
-            <strong>Date:</strong> _//_<br>
-            <strong>Quotation No.:</strong> _______
-        </div>
+<div class="quotation-container">
+<h1>QUOTATION / कोटेसन</h1>
 
-        <div class="section client-info">
-            <h2>To:</h2>
-            <strong>Client Name:</strong> _______<br>
-            <strong>Company Name:</strong> _______<br>
-            <strong>Address:</strong> _______
-        </div>
+<div class="section company-info">
+<h2>Company Info</h2>
+<input type="text" placeholder="Company / Name">
+<input type="text" placeholder="Address">
+<input type="text" placeholder="Phone / Email">
+<input type="text" placeholder="Date">
+<input type="text" placeholder="Quotation No.">
+</div>
 
-        <div class="section subject">
-            <strong>Subject:</strong> Quotation for _______
-        </div>
+<div class="section client-info">
+<h2>Client Info</h2>
+<input type="text" placeholder="Client Name">
+<input type="text" placeholder="Company Name">
+<input type="text" placeholder="Address">
+</div>
 
-        <div class="section table-section">
-            <table>
-                <thead>
-                    <tr>
-                        <th>S.N.</th>
-                        <th>Description</th>
-                        <th>Quantity</th>
-                        <th>Unit Price (NPR)</th>
-                        <th>Total (NPR)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>_______</td>
-                        <td>_</td>
-                        <td>_</td>
-                        <td>_</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>_______</td>
-                        <td>_</td>
-                        <td>_</td>
-                        <td>_</td>
-                    </tr>
-                    <!-- Add more rows as needed -->
-                </tbody>
-            </table>
-        </div>
+<div class="section subject">
+<h2>Subject</h2>
+<input type="text" placeholder="Quotation for...">
+</div>
 
-        <div class="totals">
-            <p>Subtotal: _____</p>
-            <p>Tax (e.g., VAT 13%): _____</p>
-            <p><strong>Grand Total: _____</strong></p>
-        </div>
+<div class="section table-section">
+<table id="items-table">
+<thead>
+<tr>
+<th>S.N.</th>
+<th>Description</th>
+<th>Quantity</th>
+<th>Unit Price (NPR)</th>
+<th>Total (NPR)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><input type="text" placeholder="Item Description"></td>
+<td><input type="number" placeholder="Qty"></td>
+<td><input type="number" placeholder="Unit Price"></td>
+<td><input type="number" placeholder="Total" readonly></td>
+</tr>
+</tbody>
+</table>
+<button onclick="addRow()">Add Item</button>
+</div>
 
-        <div class="terms">
-            <h2>Terms & Conditions:</h2>
-            <ol>
-                <li>Validity: This quotation is valid for _ days from the date mentioned above.</li>
-                <li>Payment Terms: _________</li>
-                <li>Delivery Time: _________</li>
-                <li>Additional terms: _________</li>
-            </ol>
-        </div>
+<div class="totals">
+<input type="text" placeholder="Subtotal">
+<input type="text" placeholder="Tax (e.g., VAT 13%)">
+<input type="text" placeholder="Grand Total">
+</div>
 
-        <div class="signature">
-            <p>Sincerely,</p>
-            <p>__________</p>
-            <p>Name / Designation</p>
-            <p>Company / Personal</p>
-            <p>Contact Information</p>
-        </div>
-    </div>
+<div class="terms">
+<h2>Terms & Conditions</h2>
+<textarea placeholder="Enter terms & conditions..."></textarea>
+</div>
+
+<div class="signature">
+<p>Sincerely,</p>
+<input type="text" placeholder="Name / Designation">
+<input type="text" placeholder="Company / Personal">
+<input type="text" placeholder="Contact Information">
+</div>
+
+</div>
+
+<script>
+function addRow() {
+    const table = document.getElementById('items-table').getElementsByTagName('tbody')[0];
+    const rowCount = table.rows.length + 1;
+    const row = table.insertRow();
+    row.innerHTML = `<td>${rowCount}</td>
+<td><input type="text" placeholder="Item Description"></td>
+<td><input type="number" placeholder="Qty"></td>
+<td><input type="number" placeholder="Unit Price"></td>
+<td><input type="number" placeholder="Total" readonly></td>`;
+}
+
+document.getElementById('items-table').addEventListener('input', function(e) {
+    const row = e.target.closest('tr');
+    const qty = row.cells[2].querySelector('input').value || 0;
+    const price = row.cells[3].querySelector('input').value || 0;
+    row.cells[4].querySelector('input').value = qty * price;
+});
+</script>
+
 </body>
 </html>
