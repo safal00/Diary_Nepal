@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Quotation - Final Ultimate</title>
+<title>Quotation - Final Old Layout + Photo</title>
 <style>
 body { font-family: Arial, sans-serif; margin:30px; color:#000; }
 h1 { text-align:center; color:#004aad; }
@@ -10,10 +10,10 @@ h1 { text-align:center; color:#004aad; }
 .details { width:48%; }
 .details input { width:100%; margin:2px 0; padding:3px; }
 table { width:100%; border-collapse: collapse; margin-top:15px; }
-table th { background:#004aad; color:#fff; padding:8px 5px; }
-table td { padding:5px; border-bottom:1px solid #ccc; }
+table th { background:#004aad; color:#fff; padding:8px 5px; text-align:left; }
+table td { padding:5px; border-bottom:1px solid #ccc; vertical-align:middle; }
 .underline { border-bottom:1px solid #000; margin:5px 0; }
-.photo-container { position:relative; width:120px; height:80px; }
+.photo-container { position:relative; width:100px; height:60px; }
 .photo-container img.preview { width:100%; height:100%; object-fit:contain; display:none; }
 .photo-container .remove-btn { position:absolute; top:2px; right:2px; background:red; color:white; border:none; cursor:pointer; display:none; padding:2px 5px; }
 .btn { padding:5px 10px; margin-top:5px; cursor:pointer; }
@@ -154,18 +154,20 @@ function updateAmount(input){
   const row=input.closest('tr');
   const qty=row.querySelector('td:nth-child(5) input').value;
   const price=row.querySelector('td:nth-child(6) input').value;
-  row.querySelector('.amount').innerText=qty*price;
+  row.querySelector('.amount').innerText=(qty*price).toFixed(2);
   updateTotals();
 }
 
 function updateTotals(){
   let subtotal=0;
-  document.querySelectorAll('.amount').forEach(a=>subtotal+=Number(a.innerText));
+  document.querySelectorAll('.amount').forEach(a=>{
+    subtotal+=Number(a.innerText)||0;
+  });
   const discount=Number(document.getElementById('discount').value)||0;
   const grand=subtotal-discount;
-  document.getElementById('subtotal').innerText=subtotal;
-  document.getElementById('grandtotal').innerText=grand;
-  document.getElementById('grandwords').innerText=numberToWords(grand);
+  document.getElementById('subtotal').innerText=subtotal.toFixed(2);
+  document.getElementById('grandtotal').innerText=grand.toFixed(2);
+  document.getElementById('grandwords').innerText=numberToWords(Math.round(grand));
 }
 
 function numberToWords(num){
@@ -174,9 +176,9 @@ function numberToWords(num){
   const b=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
   if(num==0) return 'Zero Only';
   let words='';
-  if(num>=1000){words+=a[Math.floor(num/1000)]+' Thousand ';num%=1000;}
-  if(num>=100){words+=a[Math.floor(num/100)]+' Hundred ';num%=100;}
-  if(num>=20){words+=b[Math.floor(num/10)]+' ';num%=10;}
+  if(num>=1000){words+=a[Math.floor(num/1000)]+' Thousand '; num%=1000;}
+  if(num>=100){words+=a[Math.floor(num/100)]+' Hundred '; num%=100;}
+  if(num>=20){words+=b[Math.floor(num/10)]+' '; num%=10;}
   if(num>0) words+=a[num]+' ';
   return words+'Only';
 }
