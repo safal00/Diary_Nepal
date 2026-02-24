@@ -6,8 +6,23 @@
 <title>Quotation</title>
 
 <style>
-body { font-family: Arial; }
 
+body{
+  font-family: Arial;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+td, th{
+  border:1px solid #000;
+  padding:5px;
+  text-align:center;
+}
+
+/* photo style */
 .photo-container{
   position:relative;
   width:80px;
@@ -38,13 +53,29 @@ body { font-family: Arial; }
 .photo-container.has-image:hover .remove-btn{
   display:block;
 }
+
 </style>
 </head>
 
 <body>
 
-<table border="1">
+<h2>QUOTATION</h2>
+
+<table id="itemTable">
+
 <tr>
+<th>SN</th>
+<th>Photo</th>
+<th>Item</th>
+<th>Qty</th>
+<th>Rate</th>
+<th>Total</th>
+<th>Remove</th>
+</tr>
+
+<tr>
+<td>1</td>
+
 <td>
 <div class="photo-container">
 
@@ -54,11 +85,28 @@ body { font-family: Arial; }
 
 </div>
 </td>
+
+<td contenteditable="true"></td>
+<td contenteditable="true"></td>
+<td contenteditable="true"></td>
+<td></td>
+
+<td>
+<button onclick="deleteRow(this)">×</button>
+</td>
+
 </tr>
+
 </table>
+
+<br>
+
+<button onclick="addRow()">Add Item</button>
+
 
 <script>
 
+/* photo preview */
 function previewImg(input){
 
   const file = input.files[0];
@@ -75,6 +123,7 @@ function previewImg(input){
   }
 }
 
+/* remove photo */
 function removeImg(btn){
 
   const container = btn.parentElement;
@@ -88,6 +137,53 @@ function removeImg(btn){
   input.style.display = "block";
 
   container.classList.remove("has-image");
+}
+
+
+/* add row */
+function addRow(){
+
+  const table = document.getElementById("itemTable");
+  const rowCount = table.rows.length;
+
+  const row = table.insertRow();
+
+  row.innerHTML = `
+  <td>${rowCount}</td>
+
+  <td>
+  <div class="photo-container">
+
+  <input type="file" accept="image/*" onchange="previewImg(this)">
+  <img class="preview">
+  <button class="remove-btn" onclick="removeImg(this)">×</button>
+
+  </div>
+  </td>
+
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td></td>
+
+  <td>
+  <button onclick="deleteRow(this)">×</button>
+  </td>
+  `;
+}
+
+
+/* delete row */
+function deleteRow(btn){
+
+  const row = btn.parentElement.parentElement;
+  row.remove();
+
+  const table = document.getElementById("itemTable");
+
+  for(let i=1; i<table.rows.length; i++){
+    table.rows[i].cells[0].innerText = i;
+  }
 }
 
 </script>
