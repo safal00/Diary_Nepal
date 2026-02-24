@@ -1,166 +1,139 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ne">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quotation</title>
-
-<style>
-body{
-  font-family: Arial, sans-serif;
-  background:#f4f6fb;
-  padding:20px;
-}
-.container{
-  max-width:900px;
-  margin:auto;
-  background:white;
-  padding:20px;
-  border-radius:8px;
-}
-.header{
-  display:flex;
-  justify-content:space-between;
-  flex-wrap:wrap;
-}
-input, textarea{
-  width:100%;
-  border:none;
-  border-bottom:1px solid #ccc;
-}
-.blue{
-  background:#2b65d9;
-  color:white;
-  padding:10px;
-  margin-top:10px;
-}
-table{
-  width:100%;
-  border-collapse:collapse;
-}
-th, td{
-  border:1px solid #ddd;
-  padding:8px;
-}
-th{
-  background:#2b65d9;
-  color:white;
-}
-.total{
-  text-align:right;
-}
-button{
-  background:#2b65d9;
-  color:white;
-  border:none;
-  padding:8px 15px;
-  margin:5px;
-  cursor:pointer;
-}
-@media print{
-  button{display:none;}
-  body{background:white;}
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quotation / कोटेसन</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 40px;
+            background-color: #f9f9f9;
+        }
+        .quotation-container {
+            max-width: 800px;
+            margin: auto;
+            padding: 30px;
+            background: #fff;
+            border: 1px solid #ccc;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            font-size: 24px;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            font-size: 16px;
+            margin-bottom: 8px;
+            text-decoration: underline;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table, th, td {
+            border: 1px solid #333;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: #f0f0f0;
+        }
+        .totals {
+            margin-top: 15px;
+            text-align: right;
+        }
+        .terms {
+            margin-top: 25px;
+        }
+        .signature {
+            margin-top: 50px;
+        }
+    </style>
 </head>
-
 <body>
+    <div class="quotation-container">
+        <h1>QUOTATION / कोटेसन</h1>
 
-<div class="container">
+        <div class="section company-info">
+            <strong>Company / Name:</strong> _______<br>
+            <strong>Address:</strong> _______<br>
+            <strong>Phone / Email:</strong> _______<br>
+            <strong>Date:</strong> _//_<br>
+            <strong>Quotation No.:</strong> _______
+        </div>
 
-<div class="header">
-<div>
-<h2 contenteditable="true">Company Name</h2>
-<p contenteditable="true">Address</p>
-<p contenteditable="true">Email</p>
-<p contenteditable="true">PAN/VAT</p>
-</div>
+        <div class="section client-info">
+            <h2>To:</h2>
+            <strong>Client Name:</strong> _______<br>
+            <strong>Company Name:</strong> _______<br>
+            <strong>Address:</strong> _______
+        </div>
 
-<div>
-<p>Date: <input type="date"></p>
-<p>Valid Until: <input type="text" placeholder="10 days"></p>
-</div>
-</div>
+        <div class="section subject">
+            <strong>Subject:</strong> Quotation for _______
+        </div>
 
-<div class="blue">QUOTATION</div>
+        <div class="section table-section">
+            <table>
+                <thead>
+                    <tr>
+                        <th>S.N.</th>
+                        <th>Description</th>
+                        <th>Quantity</th>
+                        <th>Unit Price (NPR)</th>
+                        <th>Total (NPR)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>_______</td>
+                        <td>_</td>
+                        <td>_</td>
+                        <td>_</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>_______</td>
+                        <td>_</td>
+                        <td>_</td>
+                        <td>_</td>
+                    </tr>
+                    <!-- Add more rows as needed -->
+                </tbody>
+            </table>
+        </div>
 
-<br>
+        <div class="totals">
+            <p>Subtotal: _____</p>
+            <p>Tax (e.g., VAT 13%): _____</p>
+            <p><strong>Grand Total: _____</strong></p>
+        </div>
 
-<table id="items">
-<tr>
-<th>S.N</th>
-<th>Description</th>
-<th>Qty</th>
-<th>Rate</th>
-<th>Amount</th>
-<th></th>
-</tr>
-</table>
+        <div class="terms">
+            <h2>Terms & Conditions:</h2>
+            <ol>
+                <li>Validity: This quotation is valid for _ days from the date mentioned above.</li>
+                <li>Payment Terms: _________</li>
+                <li>Delivery Time: _________</li>
+                <li>Additional terms: _________</li>
+            </ol>
+        </div>
 
-<button onclick="addRow()">Add Item</button>
-
-<br><br>
-
-<p>
-VAT Included %:
-<input type="number" id="vat" value="13" style="width:80px">
-</p>
-
-<h3 class="total">Grand Total: Rs <span id="total">0</span></h3>
-
-<br>
-
-<p contenteditable="true">Advance Payment %</p>
-<p contenteditable="true">Delivery Time</p>
-
-<h4>Terms & Conditions</h4>
-<textarea rows="4">Editable terms...</textarea>
-
-<br>
-<button onclick="window.print()">Print</button>
-
-</div>
-
-<script>
-
-function addRow(){
-let table=document.getElementById("items");
-let row=table.insertRow();
-let sn=table.rows.length-1;
-
-row.innerHTML=`
-<td>${sn}</td>
-<td contenteditable="true">Item</td>
-<td><input type="number" value="1" onchange="calc()"></td>
-<td><input type="number" value="0" onchange="calc()"></td>
-<td class="amt">0</td>
-<td><button onclick="delRow(this)">X</button></td>
-`;
-}
-
-function delRow(btn){
-btn.parentElement.parentElement.remove();
-calc();
-}
-
-function calc(){
-let rows=document.querySelectorAll("#items tr");
-let total=0;
-
-for(let i=1;i<rows.length;i++){
-let qty=rows[i].cells[2].querySelector("input").value;
-let rate=rows[i].cells[3].querySelector("input").value;
-let amt=qty*rate;
-rows[i].cells[4].innerText=amt;
-total+=amt;
-}
-
-let vat=document.getElementById("vat").value;
-let included=total + (total*vat/100);
-document.getElementById("total").innerText=included.toFixed(2);
-}
-
-</script>
-
+        <div class="signature">
+            <p>Sincerely,</p>
+            <p>__________</p>
+            <p>Name / Designation</p>
+            <p>Company / Personal</p>
+            <p>Contact Information</p>
+        </div>
+    </div>
 </body>
 </html>
