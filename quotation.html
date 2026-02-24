@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ultimate Quotation Template - Final</title>
+<title>Ultimate Quotation Template - Final Photo Fix</title>
 <style>
 body { font-family: Arial, sans-serif; background:#f0f4ff; margin:0; padding:20px; }
 .quotation-container { max-width:900px; margin:auto; background:#fff; padding:30px 40px; border-radius:8px; box-shadow:0 8px 20px rgba(0,0,0,0.1);}
@@ -14,11 +14,15 @@ input, textarea { width:100%; padding:6px 8px; margin-top:4px; margin-bottom:8px
 table { width:100%; border-collapse: collapse; margin-top:12px; }
 table th { padding:8px; text-align:left; border-bottom:2px solid #3399ff; background:#cce0ff; color:#003366; }
 table td { padding:6px 8px; vertical-align:middle; }
-img.preview { width:80px; height:60px; object-fit:contain; display:block; }
-.photo-container { position: relative; display: inline-block; width:80px; height:60px; }
-.photo-container input[type="file"] { width: 100%; height: 100%; cursor:pointer; }
+.photo-container { position: relative; display:inline-block; width:80px; height:60px; }
 .photo-container img { width:100%; height:100%; object-fit:contain; display:block; }
-.remove-btn { position:absolute; top:2px; right:2px; width:14px; height:14px; background:red; color:#fff; font-weight:bold; font-size:10px; line-height:14px; text-align:center; cursor:pointer; display:none; border:none; border-radius:2px; z-index:10;}
+.remove-btn { 
+    position:absolute; top:2px; right:2px; 
+    background:red; color:#fff; border:none; 
+    border-radius:3px; width:16px; height:16px; 
+    font-size:12px; line-height:14px; text-align:center; 
+    cursor:pointer; display:none;
+}
 .photo-container:hover .remove-btn { display:block; }
 button { padding:6px 14px; background:#0066cc; color:#fff; border:none; border-radius:4px; cursor:pointer; margin-top:5px;}
 button:hover { background:#004080; }
@@ -171,7 +175,7 @@ function removeImg(btn){
   const container = btn.parentElement;
   container.querySelector('input[type=file]').value='';
   container.querySelector('img').src='';
-  container.querySelector('input[type=file]').style.display='block';
+  container.querySelector('input[type=file]').style.display='block'; // restore choose file
 }
 
 function previewStamp(event,input){
