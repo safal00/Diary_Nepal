@@ -1,1 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quotation Table - Final Photo Fix</title>
+<style>
+body { font-family: Arial, sans-serif; background:#f0f4ff; margin:0; padding:20px; }
+.quotation-container { max-width:900px; margin:auto; background:#fff; padding:30px 40px; border-radius:8px; box-shadow:0 8px 20px rgba(0,0,0,0.1);}
+h1 { text-align:center; color:#004080; margin-bottom:30px; }
+table { width:100%; border-collapse: collapse; margin-top:12px; }
+table th { padding:8px; text-align:left; border-bottom:2px solid #3399ff; background:#cce0ff; color:#003366; }
+table td { padding:6px 8px; vertical-align:middle; }
+input[type=text], input[type=number] { width:100%; padding:4px 6px; font-size:14px; border:1px solid #ccc; border-radius:4px; }
+.photo-container { position:relative; width:80px; height:60px; }
+.photo-container img { width:100%; height:100%; object-fit:contain; display:block; }
+.remove-btn { position:absolute; top:0; right:0; width:18px; height:18px; border:none; background:red; color:#fff; font-weight:bold; font-size:12px; cursor:pointer; border-radius:3px; display:none; line-height:18px; text-align:center;}
+.photo-container:hover .remove-btn { display:block; }
+button { padding:6px 12px; background:#0066cc; color:#fff; border:none; border-radius:4px; cursor:pointer; margin-top:5px;}
+button:hover { background:#004080; }
+.underline-row { border-bottom:1px solid #ccc; padding-bottom:4px; margin-bottom:4px; }
+</style>
+</head>
+<body>
 
+<div class="quotation-container" id="quotation">
+<h1>QUOTATION</h1>
+
+<table id="items-table">
+<thead>
+<tr>
+<th>S.N</th>
+<th>Description</th>
+<th>Photo</th>
+<th>Size</th>
+<th>Qty</th>
+<th>Unit Price</th>
+<th>Total</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="underline-row">
+<td>1</td>
+<td><input type="text" placeholder="Item Description"></td>
+<td>
+  <div class="photo-container">
+    <span class="design-text">Design</span>
+    <input type="file" accept="image/*" style="width:80px;height:60px;" onchange="previewImg(event,this)">
+    <img class="preview" src="" style="display:none;">
+    <button class="remove-btn" onclick="removeImg(this)">X</button>
+  </div>
+</td>
+<td><input type="text" placeholder="Size"></td>
+<td><input type="number" placeholder="0" oninput="updateRow(this)"></td>
+<td><input type="number" placeholder="0" oninput="updateRow(this)"></td>
+<td><input type="number" readonly placeholder="0"></td>
+<td><button onclick="removeRow(this)">×</button></td>
+</tr>
+</tbody>
+</table>
+<button onclick="addItem()">+ Add Item</button>
+
+</div>
+
+<script>
+function addItem(){
+  const table = document.querySelector('#items-table tbody');
+  const count = table.rows.length + 1;
+  const row = table.insertRow();
+  row.className="underline-row";
+  row.innerHTML = `<td>${count}</td>
+  <td><input type="text" placeholder="Item Description"></td>
+  <td>
+    <div class="photo-container">
+      <span class="design-text">Design</span>
+      <input type="file" accept="image/*" style="width:80px;height:60px;" onchange="previewImg(event,this)">
+      <img class="preview" src="" style="display:none;">
+      <button class="remove-btn" onclick="removeImg(this)">X</button>
+    </div>
+  </td>
+  <td><input type="text" placeholder="Size"></td>
+  <td><input type="number" placeholder="0" oninput="updateRow(this)"></td>
+  <td><input type="number" placeholder="0" oninput="updateRow(this)"></td>
+  <td><input type="number" readonly placeholder="0"></td>
+  <td><button onclick="removeRow(this)">×</button></td>`;
+}
+
+function previewImg(event,input){
+  const file = input.files[0];
+  const container = input.parentElement;
+  const img = container.querySelector('img');
+  const designText = container.querySelector('.design-text');
+  if(file){
+    img.src = URL.createObjectURL(file);
+    img.style.display='block';
+    designText.style.display='none';
+    input.style.display='none';
+  }
+}
+
+function removeImg(btn){
+  const container = btn.parentElement;
+  const input = container.querySelector('input[type=file]');
+  const img = container.querySelector('img');
+  const designText = container.querySelector('.design-text');
+  input.value='';
+  img.src='';
+  img.style.display='none';
+  designText.style.display='block';
+  input.style.display='block';
+}
+
+function updateRow(el){
+  const tr = el.closest('tr');
+  const qty = +tr.cells[4].querySelector('input').value || 0;
+  const price = +tr.cells[5].querySelector('input').value || 0;
+  tr.cells[6].querySelector('input').value = qty*price;
+}
+
+function removeRow(btn){
+  const row = btn.closest('tr');
+  row.remove();
+  const table = document.querySelector('#items-table tbody');
+  Array.from(table.rows).forEach((r,i)=> r.cells[0].textContent=i+1);
+}
+</script>
+
+</body>
+</html>
