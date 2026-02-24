@@ -22,7 +22,7 @@ td, th{
   text-align:center;
 }
 
-/* photo style */
+/* photo */
 .photo-container{
   position:relative;
   width:80px;
@@ -59,14 +59,34 @@ td, th{
 
 <body>
 
-<h2>QUOTATION</h2>
+<h2 style="text-align:center;">QUOTATION</h2>
 
+<!-- Buyer Details -->
+<table>
+<tr>
+<td style="text-align:left;">
+Buyer Name: <span contenteditable="true"></span><br>
+Company: <span contenteditable="true"></span><br>
+Address: <span contenteditable="true"></span><br>
+Phone: <span contenteditable="true"></span>
+</td>
+
+<td style="text-align:left;">
+Date: <span contenteditable="true"></span><br>
+Quotation No: <span contenteditable="true"></span>
+</td>
+</tr>
+</table>
+
+<br>
+
+<!-- Item Table -->
 <table id="itemTable">
 
 <tr>
 <th>SN</th>
 <th>Photo</th>
-<th>Item</th>
+<th>Description</th>
 <th>Qty</th>
 <th>Rate</th>
 <th>Total</th>
@@ -78,11 +98,9 @@ td, th{
 
 <td>
 <div class="photo-container">
-
 <input type="file" accept="image/*" onchange="previewImg(this)">
 <img class="preview">
 <button class="remove-btn" onclick="removeImg(this)">×</button>
-
 </div>
 </td>
 
@@ -94,19 +112,39 @@ td, th{
 <td>
 <button onclick="deleteRow(this)">×</button>
 </td>
-
 </tr>
 
 </table>
 
 <br>
-
 <button onclick="addRow()">Add Item</button>
+
+<br><br>
+
+<!-- Company Stamp -->
+<table>
+<tr>
+<td style="text-align:center;">
+Company Stamp<br><br>
+
+<div class="photo-container" style="margin:auto;">
+<input type="file" accept="image/*" onchange="previewImg(this)">
+<img class="preview">
+<button class="remove-btn" onclick="removeImg(this)">×</button>
+</div>
+
+</td>
+
+<td style="text-align:center;">
+Authorized Signature
+</td>
+</tr>
+</table>
 
 
 <script>
 
-/* photo preview */
+/* preview */
 function previewImg(input){
 
   const file = input.files[0];
@@ -115,15 +153,13 @@ function previewImg(input){
 
   if(file){
     img.src = URL.createObjectURL(file);
-
     img.style.display = "block";
     input.style.display = "none";
-
     container.classList.add("has-image");
   }
 }
 
-/* remove photo */
+/* remove */
 function removeImg(btn){
 
   const container = btn.parentElement;
@@ -139,7 +175,6 @@ function removeImg(btn){
   container.classList.remove("has-image");
 }
 
-
 /* add row */
 function addRow(){
 
@@ -153,11 +188,9 @@ function addRow(){
 
   <td>
   <div class="photo-container">
-
   <input type="file" accept="image/*" onchange="previewImg(this)">
   <img class="preview">
   <button class="remove-btn" onclick="removeImg(this)">×</button>
-
   </div>
   </td>
 
@@ -172,8 +205,7 @@ function addRow(){
   `;
 }
 
-
-/* delete row */
+/* delete */
 function deleteRow(btn){
 
   const row = btn.parentElement.parentElement;
