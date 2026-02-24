@@ -1,2 +1,166 @@
-0010
-\
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quotation</title>
+
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background:#f4f6fb;
+  padding:20px;
+}
+.container{
+  max-width:900px;
+  margin:auto;
+  background:white;
+  padding:20px;
+  border-radius:8px;
+}
+.header{
+  display:flex;
+  justify-content:space-between;
+  flex-wrap:wrap;
+}
+input, textarea{
+  width:100%;
+  border:none;
+  border-bottom:1px solid #ccc;
+}
+.blue{
+  background:#2b65d9;
+  color:white;
+  padding:10px;
+  margin-top:10px;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+th, td{
+  border:1px solid #ddd;
+  padding:8px;
+}
+th{
+  background:#2b65d9;
+  color:white;
+}
+.total{
+  text-align:right;
+}
+button{
+  background:#2b65d9;
+  color:white;
+  border:none;
+  padding:8px 15px;
+  margin:5px;
+  cursor:pointer;
+}
+@media print{
+  button{display:none;}
+  body{background:white;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+<div>
+<h2 contenteditable="true">Company Name</h2>
+<p contenteditable="true">Address</p>
+<p contenteditable="true">Email</p>
+<p contenteditable="true">PAN/VAT</p>
+</div>
+
+<div>
+<p>Date: <input type="date"></p>
+<p>Valid Until: <input type="text" placeholder="10 days"></p>
+</div>
+</div>
+
+<div class="blue">QUOTATION</div>
+
+<br>
+
+<table id="items">
+<tr>
+<th>S.N</th>
+<th>Description</th>
+<th>Qty</th>
+<th>Rate</th>
+<th>Amount</th>
+<th></th>
+</tr>
+</table>
+
+<button onclick="addRow()">Add Item</button>
+
+<br><br>
+
+<p>
+VAT Included %:
+<input type="number" id="vat" value="13" style="width:80px">
+</p>
+
+<h3 class="total">Grand Total: Rs <span id="total">0</span></h3>
+
+<br>
+
+<p contenteditable="true">Advance Payment %</p>
+<p contenteditable="true">Delivery Time</p>
+
+<h4>Terms & Conditions</h4>
+<textarea rows="4">Editable terms...</textarea>
+
+<br>
+<button onclick="window.print()">Print</button>
+
+</div>
+
+<script>
+
+function addRow(){
+let table=document.getElementById("items");
+let row=table.insertRow();
+let sn=table.rows.length-1;
+
+row.innerHTML=`
+<td>${sn}</td>
+<td contenteditable="true">Item</td>
+<td><input type="number" value="1" onchange="calc()"></td>
+<td><input type="number" value="0" onchange="calc()"></td>
+<td class="amt">0</td>
+<td><button onclick="delRow(this)">X</button></td>
+`;
+}
+
+function delRow(btn){
+btn.parentElement.parentElement.remove();
+calc();
+}
+
+function calc(){
+let rows=document.querySelectorAll("#items tr");
+let total=0;
+
+for(let i=1;i<rows.length;i++){
+let qty=rows[i].cells[2].querySelector("input").value;
+let rate=rows[i].cells[3].querySelector("input").value;
+let amt=qty*rate;
+rows[i].cells[4].innerText=amt;
+total+=amt;
+}
+
+let vat=document.getElementById("vat").value;
+let included=total + (total*vat/100);
+document.getElementById("total").innerText=included.toFixed(2);
+}
+
+</script>
+
+</body>
+</html>
