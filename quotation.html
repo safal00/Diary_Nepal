@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html lang="ne">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Professional Quotation</title>
+<title>Final Quotation System</title>
+
 <style>
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f0f4ff;
+    font-family: Arial, sans-serif;
+    background-color: #eef4ff;
     margin: 0; padding: 20px;
 }
 .quotation-container {
@@ -16,182 +17,217 @@ body {
     background: #fff;
     padding: 30px 40px;
     border-radius: 10px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
     border-top: 6px solid #0066cc;
 }
 h1 { text-align: center; color: #004080; margin-bottom: 30px; }
 .section { margin-bottom: 25px; }
 .section h2 {
-    font-size: 16px; color: #003366; margin-bottom: 8px;
-    border-bottom: 2px solid #3399ff; padding-bottom: 4px; display: inline-block;
+    font-size: 16px; color: #003366; margin-bottom: 6px;
+    border-bottom: 2px solid #3399ff; padding-bottom: 4px;
 }
 input, textarea {
-    width: 100%; font-size: 14px; padding: 6px 8px;
+    width: 100%; padding: 8px; font-size: 14px;
     margin-top: 4px; margin-bottom: 8px;
-    border: 1px solid #3399ff; border-radius: 4px; background: #f9faff;
+    border: 1px solid #3399ff; border-radius: 4px;
+    background: #f9faff;
 }
-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+table { width: 100%; border-collapse: collapse; margin-top: 12px; }
 table, th, td { border: 1px solid #3399ff; }
-th { background-color: #cce0ff; color: #003366; padding: 10px; text-align: left; }
+th {
+    background-color: #cce0ff; color: #003366;
+    padding: 10px; text-align: left;
+}
 td { padding: 8px; }
-td input { width: 100%; border: none; background: transparent; font-size: 14px; }
-td input:focus { outline: 1px solid #0066cc; background: #eef5ff; }
-.totals input { width: 50%; float: right; margin-bottom: 5px; }
-.terms textarea { height: 80px; resize: vertical; }
-.signature input { width: 100%; }
-button { padding: 8px 14px; border-radius: 4px; border: none; background: #0066cc; color: #fff; cursor: pointer; margin-top: 10px; }
+img.preview {
+    max-width: 60px; max-height: 45px; display: block;
+}
+button {
+    background: #0066cc; color: #fff;
+    border: none; padding: 8px 14px;
+    border-radius: 4px; cursor: pointer;
+}
 button:hover { background: #004080; }
-img.preview { max-width: 60px; max-height: 40px; display:block; margin-top:4px; }
+.actions { text-align: center; margin-top: 20px; }
 </style>
+
+<!-- pdf-lib for PDF export -->
+<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+<!-- html2canvas for image -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 </head>
 <body>
 
 <div class="quotation-container" id="quotation">
-<h1>QUOTATION / कोटेसन</h1>
+<h1>QUOTATION</h1>
 
-<div class="section company-info">
-<h2>Company Info</h2>
-<input type="text" placeholder="Company / Name">
+<!-- COMPANY INFO -->
+<div class="section">
+<h2>Company Details</h2>
+<input type="text" placeholder="Company Name">
 <input type="text" placeholder="Address">
 <input type="text" placeholder="Phone / Email">
 <input type="text" placeholder="Date">
 <input type="text" placeholder="Quotation No.">
 </div>
 
-<div class="section client-info">
-<h2>Client Info</h2>
+<!-- CLIENT INFO -->
+<div class="section">
+<h2>Client Details</h2>
 <input type="text" placeholder="Client Name">
 <input type="text" placeholder="Company Name">
 <input type="text" placeholder="Address">
 </div>
 
-<div class="section subject">
-<h2>Subject</h2>
-<input type="text" placeholder="Quotation for...">
-</div>
-
-<div class="section table-section">
+<!-- ITEMS TABLE -->
+<div class="section">
 <table id="items-table">
 <thead>
 <tr>
-<th>S.N.</th>
+<th>#</th>
 <th>Description</th>
 <th>Photo</th>
-<th>Quantity</th>
-<th>Unit Price (NPR)</th>
-<th>Total (NPR)</th>
+<th>Qty</th>
+<th>Unit Price</th>
+<th>Total</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>1</td>
-<td><input type="text" placeholder="Item Description"></td>
-<td><input type="file" accept="image/*" onchange="previewImage(event,this)"><img class="preview"></td>
-<td><input type="number" placeholder="Qty"></td>
-<td><input type="number" placeholder="Unit Price"></td>
-<td><input type="number" placeholder="Total" readonly></td>
+<td><input type="text" placeholder="Desc"></td>
+<td><input type="file" accept="image/*" onchange="previewImg(event,this)"><img class="preview"></td>
+<td><input type="number" oninput="updateRow(this)" placeholder="0"></td>
+<td><input type="number" oninput="updateRow(this)" placeholder="0"></td>
+<td><input type="number" readonly placeholder="0"></td>
 </tr>
 </tbody>
 </table>
-<button onclick="addRow()">Add Item</button>
+<button onclick="addItem()">+ Add Item</button>
 </div>
 
-<div class="totals">
+<!-- TOTALS -->
+<div class="section">
 <input type="text" id="subtotal" placeholder="Subtotal" readonly>
-<input type="text" id="tax" placeholder="Tax (%)" oninput="calculateTotals()">
+<input type="text" id="taxval" placeholder="Tax (13%)" readonly>
 <input type="text" id="grandtotal" placeholder="Grand Total" readonly>
 <input type="text" id="grandwords" placeholder="Grand Total (in words)" readonly>
 </div>
 
-<div class="terms">
+<!-- TERMS -->
+<div class="section">
 <h2>Terms & Conditions</h2>
-<textarea placeholder="Enter terms & conditions..."></textarea>
+<textarea placeholder="Write terms & conditions..."></textarea>
 </div>
 
-<div class="signature">
-<p>Sincerely,</p>
-<input type="text" placeholder="Name / Designation">
-<input type="text" placeholder="Company / Personal">
-<input type="text" placeholder="Contact Information">
+<!-- SIGNATURE -->
+<div class="section">
+<h2>Signature</h2>
+<input type="text" placeholder="Name / Position">
+<input type="text" placeholder="Company/Contact">
 </div>
 
-<div>
-<button onclick="printQuotation()">Print Quotation</button>
+</div>
+
+<div class="actions">
+<button onclick="printPage()">Print Quotation</button>
 <button onclick="saveAsImage()">Save as Image</button>
+<button onclick="exportAsPDF()">Save as PDF</button>
 </div>
 
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
-function addRow() {
-    const table = document.getElementById('items-table').getElementsByTagName('tbody')[0];
-    const rowCount = table.rows.length + 1;
+
+// ADD NEW ROW
+function addItem(){
+    const table = document.querySelector('#items-table tbody');
+    const count = table.rows.length + 1;
     const row = table.insertRow();
-    row.innerHTML = `<td>${rowCount}</td>
-<td><input type="text" placeholder="Item Description"></td>
-<td><input type="file" accept="image/*" onchange="previewImage(event,this)"><img class="preview"></td>
-<td><input type="number" placeholder="Qty"></td>
-<td><input type="number" placeholder="Unit Price"></td>
-<td><input type="number" placeholder="Total" readonly></td>`;
+    row.innerHTML = `
+      <td>${count}</td>
+      <td><input type="text" placeholder="Desc"></td>
+      <td><input type="file" accept="image/*" onchange="previewImg(event,this)"><img class="preview"></td>
+      <td><input type="number" oninput="updateRow(this)" placeholder="0"></td>
+      <td><input type="number" oninput="updateRow(this)" placeholder="0"></td>
+      <td><input type="number" readonly placeholder="0"></td>`;
 }
 
-document.getElementById('items-table').addEventListener('input', function(e) {
-    const row = e.target.closest('tr');
-    const qty = parseFloat(row.cells[3].querySelector('input').value) || 0;
-    const price = parseFloat(row.cells[4].querySelector('input').value) || 0;
-    row.cells[5].querySelector('input').value = qty * price;
-    calculateTotals();
-});
-
-function previewImage(event,inputElem) {
-    const file = inputElem.files[0];
-    const img = inputElem.nextElementSibling;
-    if(file) {
+// PREVIEW IMAGE
+function previewImg(ev, input){
+    const file = input.files[0];
+    const img = input.nextElementSibling;
+    if(file){
         img.src = URL.createObjectURL(file);
-    } else { img.src = ""; }
-}
-
-function calculateTotals() {
-    const table = document.getElementById('items-table');
-    let subtotal = 0;
-    for(let i=1;i<table.rows.length;i++){
-        const total = parseFloat(table.rows[i].cells[5].querySelector('input').value) || 0;
-        subtotal += total;
+        input.style.display = 'none';
     }
+}
+
+// CALCULATE ROW & TOTALS
+function updateRow(el){
+    const tr = el.closest('tr');
+    const qty = +tr.cells[3].querySelector('input').value || 0;
+    const price = +tr.cells[4].querySelector('input').value || 0;
+    tr.cells[5].querySelector('input').value = qty * price;
+    calculateTotals();
+}
+
+function calculateTotals(){
+    let subtotal = 0;
+    document.querySelectorAll('#items-table tbody tr').forEach(r=>{
+        subtotal += +r.cells[5].querySelector('input').value || 0;
+    });
     document.getElementById('subtotal').value = subtotal;
-    const taxPercent = parseFloat(document.getElementById('tax').value) || 0;
-    const grand = subtotal + (subtotal * taxPercent/100);
-    document.getElementById('grandtotal').value = grand;
-    document.getElementById('grandwords').value = numberToWords(grand);
+    const tax = subtotal * 0.13;
+    document.getElementById('taxval').value = tax.toFixed(2);
+    const grand = subtotal + tax;
+    document.getElementById('grandtotal').value = grand.toFixed(2);
+    document.getElementById('grandwords').value = convertToWords(Math.round(grand)) + " Nepali Rupees Only";
 }
 
-function numberToWords(amount) {
-    // Simple Nepali/English number to words (English)
-    const ones=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"];
-    const tens=["","Ten","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
-    if(amount===0) return "Zero";
-    let str="";
-    let num = Math.floor(amount);
-    let hundreds = Math.floor(num/100); let rem = num%100;
-    if(hundreds>0) str += ones[hundreds]+" Hundred ";
-    if(rem>=20){ str += tens[Math.floor(rem/10)]+" "+ones[rem%10]; }
-    else if(rem>0){ str += ones[rem]; }
-    return str + " Nepali Rupees Only";
+// NUMBER TO WORDS (English)
+function convertToWords(num) {
+    if(num===0) return "Zero";
+    const a = ["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"];
+    const b = ["","Ten","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
+    let res="";
+    if(num>=100){ res += a[Math.floor(num/100)] + " Hundred "; num%=100; }
+    if(num>=20){ res += b[Math.floor(num/10)] + " " + a[num%10]; }
+    else if(num>0){ res += a[num]; }
+    return res.trim();
 }
 
-function printQuotation(){
-    window.print();
-}
+// PRINT
+function printPage(){ window.print(); }
 
+// SAVE AS IMAGE
 function saveAsImage(){
-    html2canvas(document.getElementById("quotation")).then(function(canvas){
-        const link = document.createElement('a');
-        link.download = 'Quotation.png';
-        link.href = canvas.toDataURL("image/png");
-        link.click();
+    html2canvas(document.getElementById('quotation')).then(canvas=>{
+        const a = document.createElement('a');
+        a.download = "Quotation.png";
+        a.href = canvas.toDataURL();
+        a.click();
     });
 }
+
+// SAVE AS PDF
+async function exportAsPDF(){
+    const canvas = await html2canvas(document.getElementById('quotation'));
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = PDFLib.PDFDocument.create();
+    const page = pdf.addPage();
+    const png = await pdf.embedPng(imgData);
+    const { width, height } = page.getSize();
+    const imgDims = png.scaleToFit(width, height);
+    page.drawImage(png, { x:0, y: height-imgDims.height, width: imgDims.width, height: imgDims.height });
+    const pdfBytes = await pdf.save();
+    const blob = new Blob([pdfBytes], { type:'application/pdf' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = "Quotation.pdf";
+    link.click();
+}
+
 </script>
+
 </body>
 </html>
