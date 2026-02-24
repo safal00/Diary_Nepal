@@ -3,68 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ultimate Quotation Template - Final Photo Fix</title>
+<title>Quotation Template - Final Photo Fix</title>
 <style>
 body { font-family: Arial, sans-serif; background:#f0f4ff; margin:0; padding:20px; }
 .quotation-container { max-width:900px; margin:auto; background:#fff; padding:30px 40px; border-radius:8px; box-shadow:0 8px 20px rgba(0,0,0,0.1);}
 h1 { text-align:center; color:#004080; margin-bottom:30px; }
-.flex-container { display:flex; justify-content:space-between; margin-bottom:20px; }
-.flex-container .box { width:48%; }
-input, textarea { width:100%; padding:6px 8px; margin-top:4px; margin-bottom:8px; font-size:14px; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;}
 table { width:100%; border-collapse: collapse; margin-top:12px; }
 table th { padding:8px; text-align:left; border-bottom:2px solid #3399ff; background:#cce0ff; color:#003366; }
 table td { padding:6px 8px; vertical-align:middle; }
-img.preview { width:80px; height:60px; object-fit:contain; display:block; }
-.photo-container { position: relative; display:inline-block; width:80px; height:60px; }
-.remove-btn { position:absolute; top:0; right:0; background:red; color:#fff; border:none; border-radius:50%; width:18px; height:18px; cursor:pointer; display:none; font-size:12px; line-height:14px; text-align:center;}
-.photo-container:hover .remove-btn { display:block; }
-button { padding:6px 14px; background:#0066cc; color:#fff; border:none; border-radius:4px; cursor:pointer; margin-top:5px;}
+input, textarea, button { font-size:14px; }
+input { width:100%; padding:6px 8px; margin:2px 0; border:1px solid #ccc; border-radius:4px; }
+button { padding:5px 10px; border:none; border-radius:4px; background:#0066cc; color:#fff; cursor:pointer; }
 button:hover { background:#004080; }
-.actions { text-align:center; margin-top:20px; }
-.totals { margin-top:15px; display:flex; justify-content:space-between; }
-.totals div { display:flex; flex-direction:column; width:23%; }
-.underline-row { border-bottom:1px solid #ccc; margin-bottom:4px; padding-bottom:4px; }
-.terms { font-family: 'Times New Roman', serif; font-size:13px; margin-top:15px; }
-.signature-section { display:flex; justify-content:space-between; margin-top:25px; }
-.signature-box { width:48%; }
-.signature-box input { width:100%; }
-.stamp-box { border:1px dashed #333; height:80px; width:120px; display:flex; align-items:center; justify-content:center; position:relative; background:#f9f9f9;}
-.stamp-box img { width:100%; height:100%; object-fit:contain;}
-.stamp-box input[type=file] { position:absolute; opacity:0; width:100%; height:100%; cursor:pointer;}
+.photo-container { position: relative; display:inline-block; width:80px; height:60px; }
+.photo-container img { width:80px; height:60px; object-fit:contain; display:block; }
+.remove-btn { position:absolute; top:0; right:0; background:red; color:#fff; border:none; border-radius:50%; width:18px; height:18px; cursor:pointer; display:none; font-weight:bold; font-size:12px; line-height:18px; text-align:center;}
+.photo-container:hover .remove-btn { display:block; }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 </head>
 <body>
 
 <div class="quotation-container" id="quotation">
 <h1>QUOTATION</h1>
 
-<div class="flex-container">
-  <div class="box">
-    <h3>Client Details</h3>
-    <input type="text" placeholder="Client Name">
-    <input type="text" placeholder="Company Name">
-    <input type="text" placeholder="Address">
-    <input type="text" placeholder="Phone Number">
-  </div>
-  <div class="box">
-    <h3>Company Details</h3>
-    <input type="text" placeholder="Company Name">
-    <input type="text" placeholder="Address">
-    <input type="text" placeholder="Email / Phone">
-    <input type="text" placeholder="Date" id="quotation-date">
-    <input type="text" placeholder="Quotation No.">
-  </div>
-</div>
-
-<div>
 <table id="items-table">
 <thead>
 <tr>
-<th>#</th>
+<th>S.N</th>
 <th>Description</th>
-<th>Photo</th>
+<th>Design</th>
 <th>Size</th>
 <th>Qty</th>
 <th>Unit Price</th>
@@ -73,14 +40,14 @@ button:hover { background:#004080; }
 </tr>
 </thead>
 <tbody>
-<tr class="underline-row">
+<tr>
 <td>1</td>
 <td><input type="text" placeholder="Item Description"></td>
 <td>
   <div class="photo-container">
     <input type="file" accept="image/*" onchange="previewImg(event,this)">
-    <img class="preview">
-    <button class="remove-btn" onclick="removeImg(this)">×</button>
+    <img class="preview" src="">
+    <button class="remove-btn" onclick="removeImg(this)">X</button>
   </div>
 </td>
 <td><input type="text" placeholder="Size"></td>
@@ -91,47 +58,9 @@ button:hover { background:#004080; }
 </tr>
 </tbody>
 </table>
+
 <button onclick="addItem()">+ Add Item</button>
-</div>
 
-<div class="totals">
-<div><label>Subtotal</label><input type="number" id="subtotal" readonly></div>
-<div><label>Discount (%)</label><input type="number" id="discount" oninput="calculateTotals()"></div>
-<div><label>Grand Total</label><input type="number" id="grandtotal" readonly></div>
-<div><label>In Words</label><input type="text" id="grandwords" readonly></div>
-</div>
-
-<div class="signature-section">
-  <div class="signature-box">
-    <label>Signature:</label>
-    <input type="text" placeholder="Name">
-    <span>Position: <input type="text" value="Manager"></span>
-  </div>
-  <div class="stamp-box">
-    Company Stamp
-    <input type="file" accept="image/*" onchange="previewStamp(event,this)">
-    <img>
-    <button class="remove-btn" onclick="removeStamp(this)">×</button>
-  </div>
-</div>
-
-<div class="section terms">
-<h3>Terms & Conditions</h3>
-<textarea rows="8">
-1. This quotation is valid for 30 days from the date issued.
-2. Delivery will be made within 7 working days.
-3. Payment: 50% advance, 50% on delivery.
-4. Items checked for quality before shipment.
-5. Amounts exclusive of 13% VAT; VAT added at billing.
-</textarea>
-</div>
-
-</div>
-
-<div class="actions">
-<button onclick="printPage()">Print Quotation</button>
-<button onclick="saveAsImage()">Save as Image</button>
-<button onclick="exportAsPDF()">Save as PDF</button>
 </div>
 
 <script>
@@ -139,14 +68,13 @@ function addItem(){
   const table = document.querySelector('#items-table tbody');
   const count = table.rows.length + 1;
   const row = table.insertRow();
-  row.className="underline-row";
   row.innerHTML = `<td>${count}</td>
   <td><input type="text" placeholder="Item Description"></td>
   <td>
     <div class="photo-container">
       <input type="file" accept="image/*" onchange="previewImg(event,this)">
-      <img class="preview">
-      <button class="remove-btn" onclick="removeImg(this)">×</button>
+      <img class="preview" src="">
+      <button class="remove-btn" onclick="removeImg(this)">X</button>
     </div>
   </td>
   <td><input type="text" placeholder="Size"></td>
@@ -161,7 +89,7 @@ function previewImg(event,input){
   const img = input.nextElementSibling;
   if(file){ 
     img.src = URL.createObjectURL(file); 
-    input.style.display = 'none'; // hide choose file after upload
+    input.style.display = 'none';
   }
 }
 
@@ -169,18 +97,7 @@ function removeImg(btn){
   const container = btn.parentElement;
   container.querySelector('input[type=file]').value='';
   container.querySelector('img').src='';
-  container.querySelector('input[type=file]').style.display='block'; // restore choose file
-}
-
-function previewStamp(event,input){
-  const img = input.parentElement.querySelector('img');
-  const file = input.files[0];
-  if(file){ img.src = URL.createObjectURL(file); }
-}
-function removeStamp(btn){
-  const container = btn.parentElement;
-  container.querySelector('input[type=file]').value='';
-  container.querySelector('img').src='';
+  container.querySelector('input[type=file]').style.display='block';
 }
 
 function updateRow(el){
@@ -188,30 +105,6 @@ function updateRow(el){
   const qty = +tr.cells[4].querySelector('input').value || 0;
   const price = +tr.cells[5].querySelector('input').value || 0;
   tr.cells[6].querySelector('input').value = qty*price;
-  calculateTotals();
-}
-
-function calculateTotals(){
-  let subtotal=0;
-  document.querySelectorAll('#items-table tbody tr').forEach(r=>{
-    subtotal += +r.cells[6].querySelector('input').value || 0;
-  });
-  document.getElementById('subtotal').value = subtotal;
-  const discount = +document.getElementById('discount').value || 0;
-  const grand = subtotal - (subtotal*discount/100);
-  document.getElementById('grandtotal').value = grand.toFixed(2);
-  document.getElementById('grandwords').value = convertToWords(Math.round(grand)) + " Only";
-}
-
-function convertToWords(num){
-  if(num===0) return "Zero";
-  const a=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"];
-  const b=["","Ten","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
-  let res="";
-  if(num>=100){ res+=a[Math.floor(num/100)]+" Hundred "; num%=100; }
-  if(num>=20){ res+=b[Math.floor(num/10)]+" "+a[num%10]; }
-  else if(num>0){ res+=a[num]; }
-  return res.trim();
 }
 
 function removeRow(btn){
@@ -219,28 +112,6 @@ function removeRow(btn){
   row.remove();
   const table = document.querySelector('#items-table tbody');
   Array.from(table.rows).forEach((r,i)=> r.cells[0].textContent=i+1);
-  calculateTotals();
-}
-
-function printPage(){ window.print(); }
-function saveAsImage(){
-  html2canvas(document.getElementById('quotation')).then(canvas=>{
-    const a=document.createElement('a');
-    a.href=canvas.toDataURL(); a.download="Quotation.png"; a.click();
-  });
-}
-async function exportAsPDF(){
-  const canvas = await html2canvas(document.getElementById('quotation'));
-  const imgData = canvas.toDataURL('image/png');
-  const pdf = await PDFLib.PDFDocument.create();
-  const page = pdf.addPage();
-  const png = await pdf.embedPng(imgData);
-  const {width, height} = page.getSize();
-  const dims = png.scaleToFit(width,height);
-  page.drawImage(png,{x:0,y:height-dims.height,width:dims.width,height:dims.height});
-  const pdfBytes = await pdf.save();
-  const blob = new Blob([pdfBytes], {type:'application/pdf'});
-  const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download="Quotation.pdf"; link.click();
 }
 </script>
 
