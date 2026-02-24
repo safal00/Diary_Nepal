@@ -5,103 +5,48 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Professional Quotation</title>
 <style>
-    body {
-        font-family: 'Arial', sans-serif;
-        background-color: #f0f4ff;
-        margin: 0; padding: 20px;
-    }
-    .quotation-container {
-        max-width: 900px;
-        margin: auto;
-        background: #fff;
-        padding: 30px 40px;
-        border-radius: 10px;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-        border-top: 6px solid #0066cc;
-    }
-    h1 {
-        text-align: center;
-        color: #004080;
-        margin-bottom: 30px;
-    }
-    .section {
-        margin-bottom: 25px;
-    }
-    .section h2 {
-        font-size: 16px;
-        color: #003366;
-        margin-bottom: 8px;
-        border-bottom: 2px solid #3399ff;
-        padding-bottom: 4px;
-        display: inline-block;
-    }
-    input, textarea {
-        width: 100%;
-        font-size: 14px;
-        padding: 6px 8px;
-        margin-top: 4px;
-        margin-bottom: 8px;
-        border: 1px solid #3399ff;
-        border-radius: 4px;
-        background: #f9faff;
-    }
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-    }
-    table, th, td {
-        border: 1px solid #3399ff;
-    }
-    th {
-        background-color: #cce0ff;
-        color: #003366;
-        padding: 10px;
-        text-align: left;
-    }
-    td {
-        padding: 8px;
-    }
-    td input {
-        width: 100%;
-        border: none;
-        background: transparent;
-        text-align: left;
-        font-size: 14px;
-    }
-    td input:focus {
-        outline: 1px solid #0066cc;
-        background: #eef5ff;
-    }
-    .totals input {
-        width: 50%;
-        float: right;
-        margin-bottom: 5px;
-    }
-    .terms textarea {
-        height: 80px;
-        resize: vertical;
-    }
-    .signature input {
-        width: 100%;
-    }
-    button {
-        padding: 8px 14px;
-        border-radius: 4px;
-        border: none;
-        background: #0066cc;
-        color: #fff;
-        cursor: pointer;
-        margin-top: 10px;
-    }
-    button:hover {
-        background: #004080;
-    }
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f4ff;
+    margin: 0; padding: 20px;
+}
+.quotation-container {
+    max-width: 900px;
+    margin: auto;
+    background: #fff;
+    padding: 30px 40px;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    border-top: 6px solid #0066cc;
+}
+h1 { text-align: center; color: #004080; margin-bottom: 30px; }
+.section { margin-bottom: 25px; }
+.section h2 {
+    font-size: 16px; color: #003366; margin-bottom: 8px;
+    border-bottom: 2px solid #3399ff; padding-bottom: 4px; display: inline-block;
+}
+input, textarea {
+    width: 100%; font-size: 14px; padding: 6px 8px;
+    margin-top: 4px; margin-bottom: 8px;
+    border: 1px solid #3399ff; border-radius: 4px; background: #f9faff;
+}
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+table, th, td { border: 1px solid #3399ff; }
+th { background-color: #cce0ff; color: #003366; padding: 10px; text-align: left; }
+td { padding: 8px; }
+td input { width: 100%; border: none; background: transparent; font-size: 14px; }
+td input:focus { outline: 1px solid #0066cc; background: #eef5ff; }
+.totals input { width: 50%; float: right; margin-bottom: 5px; }
+.terms textarea { height: 80px; resize: vertical; }
+.signature input { width: 100%; }
+button { padding: 8px 14px; border-radius: 4px; border: none; background: #0066cc; color: #fff; cursor: pointer; margin-top: 10px; }
+button:hover { background: #004080; }
+img.preview { max-width: 60px; max-height: 40px; display:block; margin-top:4px; }
 </style>
 </head>
 <body>
 
-<div class="quotation-container">
+<div class="quotation-container" id="quotation">
 <h1>QUOTATION / कोटेसन</h1>
 
 <div class="section company-info">
@@ -131,6 +76,7 @@
 <tr>
 <th>S.N.</th>
 <th>Description</th>
+<th>Photo</th>
 <th>Quantity</th>
 <th>Unit Price (NPR)</th>
 <th>Total (NPR)</th>
@@ -140,6 +86,7 @@
 <tr>
 <td>1</td>
 <td><input type="text" placeholder="Item Description"></td>
+<td><input type="file" accept="image/*" onchange="previewImage(event,this)"><img class="preview"></td>
 <td><input type="number" placeholder="Qty"></td>
 <td><input type="number" placeholder="Unit Price"></td>
 <td><input type="number" placeholder="Total" readonly></td>
@@ -150,9 +97,10 @@
 </div>
 
 <div class="totals">
-<input type="text" placeholder="Subtotal">
-<input type="text" placeholder="Tax (e.g., VAT 13%)">
-<input type="text" placeholder="Grand Total">
+<input type="text" id="subtotal" placeholder="Subtotal" readonly>
+<input type="text" id="tax" placeholder="Tax (%)" oninput="calculateTotals()">
+<input type="text" id="grandtotal" placeholder="Grand Total" readonly>
+<input type="text" id="grandwords" placeholder="Grand Total (in words)" readonly>
 </div>
 
 <div class="terms">
@@ -167,8 +115,14 @@
 <input type="text" placeholder="Contact Information">
 </div>
 
+<div>
+<button onclick="printQuotation()">Print Quotation</button>
+<button onclick="saveAsImage()">Save as Image</button>
 </div>
 
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 function addRow() {
     const table = document.getElementById('items-table').getElementsByTagName('tbody')[0];
@@ -176,6 +130,7 @@ function addRow() {
     const row = table.insertRow();
     row.innerHTML = `<td>${rowCount}</td>
 <td><input type="text" placeholder="Item Description"></td>
+<td><input type="file" accept="image/*" onchange="previewImage(event,this)"><img class="preview"></td>
 <td><input type="number" placeholder="Qty"></td>
 <td><input type="number" placeholder="Unit Price"></td>
 <td><input type="number" placeholder="Total" readonly></td>`;
@@ -183,11 +138,60 @@ function addRow() {
 
 document.getElementById('items-table').addEventListener('input', function(e) {
     const row = e.target.closest('tr');
-    const qty = row.cells[2].querySelector('input').value || 0;
-    const price = row.cells[3].querySelector('input').value || 0;
-    row.cells[4].querySelector('input').value = qty * price;
+    const qty = parseFloat(row.cells[3].querySelector('input').value) || 0;
+    const price = parseFloat(row.cells[4].querySelector('input').value) || 0;
+    row.cells[5].querySelector('input').value = qty * price;
+    calculateTotals();
 });
-</script>
 
+function previewImage(event,inputElem) {
+    const file = inputElem.files[0];
+    const img = inputElem.nextElementSibling;
+    if(file) {
+        img.src = URL.createObjectURL(file);
+    } else { img.src = ""; }
+}
+
+function calculateTotals() {
+    const table = document.getElementById('items-table');
+    let subtotal = 0;
+    for(let i=1;i<table.rows.length;i++){
+        const total = parseFloat(table.rows[i].cells[5].querySelector('input').value) || 0;
+        subtotal += total;
+    }
+    document.getElementById('subtotal').value = subtotal;
+    const taxPercent = parseFloat(document.getElementById('tax').value) || 0;
+    const grand = subtotal + (subtotal * taxPercent/100);
+    document.getElementById('grandtotal').value = grand;
+    document.getElementById('grandwords').value = numberToWords(grand);
+}
+
+function numberToWords(amount) {
+    // Simple Nepali/English number to words (English)
+    const ones=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"];
+    const tens=["","Ten","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
+    if(amount===0) return "Zero";
+    let str="";
+    let num = Math.floor(amount);
+    let hundreds = Math.floor(num/100); let rem = num%100;
+    if(hundreds>0) str += ones[hundreds]+" Hundred ";
+    if(rem>=20){ str += tens[Math.floor(rem/10)]+" "+ones[rem%10]; }
+    else if(rem>0){ str += ones[rem]; }
+    return str + " Nepali Rupees Only";
+}
+
+function printQuotation(){
+    window.print();
+}
+
+function saveAsImage(){
+    html2canvas(document.getElementById("quotation")).then(function(canvas){
+        const link = document.createElement('a');
+        link.download = 'Quotation.png';
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    });
+}
+</script>
 </body>
 </html>
