@@ -3,23 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ultimate Quotation Template</title>
+<title>Ultimate Quotation Template v5</title>
 <style>
-body { font-family: Arial,sans-serif; background:#f0f4ff; margin:0; padding:20px; }
+body { font-family: Arial, sans-serif; background:#f0f4ff; margin:0; padding:20px; }
 .quotation-container { max-width:900px; margin:auto; background:#fff; padding:30px 40px; border-radius:8px; box-shadow:0 8px 20px rgba(0,0,0,0.1);}
 h1 { text-align:center; color:#004080; margin-bottom:30px; }
 .flex-container { display:flex; justify-content:space-between; margin-bottom:20px; }
 .flex-container .box { width:48%; }
 input, textarea { width:100%; padding:6px 8px; margin-top:4px; margin-bottom:8px; font-size:14px; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;}
 table { width:100%; border-collapse: collapse; margin-top:12px; }
-table th, table td { padding:8px; text-align:left; }
-table th { border-bottom:1px solid #3399ff; background:#cce0ff; color:#003366; }
+table th { padding:8px; text-align:left; border-bottom:2px solid #3399ff; background:#cce0ff; color:#003366; }
+table td { padding:6px 8px; vertical-align:middle; }
 img.preview { width:80px; height:60px; object-fit: cover; display:block; }
 button { padding:6px 14px; background:#0066cc; color:#fff; border:none; border-radius:4px; cursor:pointer; margin-top:5px;}
 button:hover { background:#004080; }
 .actions { text-align:center; margin-top:20px; }
 .totals { margin-top:15px; }
 .totals div { display:flex; justify-content:space-between; margin-bottom:5px; }
+.underline-row { border-bottom:1px solid #ccc; margin-bottom:4px; padding-bottom:4px; }
+.terms { font-family: 'Times New Roman', serif; font-size:13px; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
@@ -30,22 +32,27 @@ button:hover { background:#004080; }
 <h1>QUOTATION</h1>
 
 <div class="flex-container">
+  <!-- Left: Client Details -->
   <div class="box" style="text-align:left;">
     <h3>Client Details</h3>
     <input type="text" placeholder="Client Name">
     <input type="text" placeholder="Company Name">
     <input type="text" placeholder="Address">
+    <input type="text" placeholder="Phone Number">
   </div>
+
+  <!-- Right: Company Details -->
   <div class="box" style="text-align:right;">
     <h3>Company Details</h3>
     <input type="text" placeholder="Company Name">
     <input type="text" placeholder="Address">
-    <input type="text" placeholder="Phone / Email">
+    <input type="text" placeholder="Email / Phone">
     <input type="text" placeholder="Date" id="quotation-date">
     <input type="text" placeholder="Quotation No.">
   </div>
 </div>
 
+<!-- Items Table -->
 <div>
 <table id="items-table">
 <thead>
@@ -60,10 +67,10 @@ button:hover { background:#004080; }
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="underline-row">
 <td>1</td>
 <td><input type="text" placeholder="Item Description"></td>
-<td><input type="file" accept="image/*" onchange="previewImg(event,this)"><img class="preview"></td>
+<td><input type="file" accept="image/*" onchange="previewImg(event,this)"><img class="preview"><button onclick="removeImg(this)">×</button></td>
 <td><input type="text" placeholder="Size"></td>
 <td><input type="number" placeholder="0" oninput="updateRow(this)"></td>
 <td><input type="number" placeholder="0" oninput="updateRow(this)"></td>
@@ -74,6 +81,7 @@ button:hover { background:#004080; }
 <button onclick="addItem()">+ Add Item</button>
 </div>
 
+<!-- Totals -->
 <div class="totals">
 <div><span>Subtotal</span><input type="number" id="subtotal" readonly></div>
 <div><span>Discount (%)</span><input type="number" id="discount" oninput="calculateTotals()"></div>
@@ -81,7 +89,15 @@ button:hover { background:#004080; }
 <div><span>In Words</span><input type="text" id="grandwords" readonly></div>
 </div>
 
+<!-- Signature -->
 <div class="section">
+<h3>Signature</h3>
+<input type="text" placeholder="Name / Position">
+<input type="text" placeholder="Company / Contact">
+</div>
+
+<!-- Terms & Conditions -->
+<div class="section terms">
 <h3>Terms & Conditions</h3>
 <textarea rows="8">
 1. This quotation is valid for 30 days from the date issued.
@@ -92,11 +108,6 @@ button:hover { background:#004080; }
 </textarea>
 </div>
 
-<div class="section">
-<h3>Signature</h3>
-<input type="text" placeholder="Name / Position">
-<input type="text" placeholder="Company / Contact">
-</div>
 </div>
 
 <div class="actions">
@@ -106,25 +117,36 @@ button:hover { background:#004080; }
 </div>
 
 <script>
+// Add Item
 function addItem(){
   const table = document.querySelector('#items-table tbody');
   const count = table.rows.length + 1;
   const row = table.insertRow();
+  row.className="underline-row";
   row.innerHTML = `<td>${count}</td>
   <td><input type="text" placeholder="Item Description"></td>
-  <td><input type="file" accept="image/*" onchange="previewImg(event,this)"><img class="preview"></td>
+  <td><input type="file" accept="image/*" onchange="previewImg(event,this)"><img class="preview"><button onclick="removeImg(this)">×</button></td>
   <td><input type="text" placeholder="Size"></td>
   <td><input type="number" placeholder="0" oninput="updateRow(this)"></td>
   <td><input type="number" placeholder="0" oninput="updateRow(this)"></td>
   <td><input type="number" readonly placeholder="0"></td>`;
 }
 
+// Preview & Remove Image
 function previewImg(event,input){
   const file = input.files[0];
   const img = input.nextElementSibling;
   if(file){ img.src = URL.createObjectURL(file); input.style.display='none'; }
 }
+function removeImg(btn){
+  const td = btn.parentElement;
+  const input = td.querySelector('input[type=file]');
+  const img = td.querySelector('img');
+  input.value=''; input.style.display='inline-block';
+  img.src='';
+}
 
+// Update totals
 function updateRow(el){
   const tr = el.closest('tr');
   const qty = +tr.cells[4].querySelector('input').value || 0;
@@ -145,6 +167,7 @@ function calculateTotals(){
   document.getElementById('grandwords').value = convertToWords(Math.round(grand)) + " Only";
 }
 
+// Number to words
 function convertToWords(num){
   if(num===0) return "Zero";
   const a=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"];
@@ -156,15 +179,14 @@ function convertToWords(num){
   return res.trim();
 }
 
+// Print / Image / PDF
 function printPage(){ window.print(); }
-
 function saveAsImage(){
   html2canvas(document.getElementById('quotation')).then(canvas=>{
     const a=document.createElement('a');
     a.href=canvas.toDataURL(); a.download="Quotation.png"; a.click();
   });
 }
-
 async function exportAsPDF(){
   const canvas = await html2canvas(document.getElementById('quotation'));
   const imgData = canvas.toDataURL('image/png');
