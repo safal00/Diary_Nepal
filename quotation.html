@@ -2,53 +2,48 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Ultimate Quotation</title>
+<title>Quotation - Final Ultimate</title>
 <style>
-  body{font-family:Arial, sans-serif; margin:20px; color:#333;}
-  h1{text-align:center; color:#004aad;}
-  .company, .client{width:48%; display:inline-block; vertical-align:top;}
-  .company{float:right;}
-  .details input{width:100%; border:none; border-bottom:1px solid #999; padding:4px;}
-  table{width:100%; border-collapse:collapse; margin-top:20px;}
-  th, td{border-bottom:1px solid #ccc; padding:8px; text-align:left; vertical-align:middle;}
-  th{background:#004aad; color:white;}
-  .photo-container{width:100px; height:80px; position:relative;}
-  .photo-container img{width:100%; height:100%; object-fit:contain; display:none;}
-  .photo-container .remove-btn{
-    position:absolute; top:2px; right:2px; display:none;
-    background:red;color:white;border:none;border-radius:50%;width:18px;height:18px;cursor:pointer;
-  }
-  .totals{margin-top:15px; width:50%; float:right;}
-  .totals div{display:flex; justify-content:space-between; margin-bottom:4px;}
-  .grand-total{font-weight:bold; border-top:2px solid #004aad; padding-top:4px;}
-  .terms{margin-top:40px;}
-  .signature-stamp{margin-top:50px; display:flex; justify-content:space-between;}
-  .signature, .stamp{width:48%; border-top:1px solid #000; text-align:center; padding-top:4px;}
-  button.add-item{margin-top:10px; background:#004aad; color:white; border:none; padding:6px 12px; cursor:pointer;}
+  body { font-family: Arial, sans-serif; margin: 30px; color:#000;}
+  h1 { color:#004aad; text-align:center; }
+  .header, .footer { width:100%; margin-bottom:20px; }
+  .flex { display:flex; justify-content:space-between; }
+  .details { width:48%; }
+  table { width:100%; border-collapse: collapse; margin-top:15px; }
+  table th, table td { padding:8px 5px; text-align:left; }
+  table th { background-color:#004aad; color:white; }
+  table td { border-bottom:1px solid #ccc; }
+  .photo-container { position:relative; width:120px; height:80px; }
+  .photo-container img.preview { width:100%; height:100%; object-fit:contain; display:none; }
+  .remove-btn { position:absolute; top:2px; right:2px; background:red; color:white; border:none; cursor:pointer; display:none; padding:2px 5px; }
+  .btn { padding:5px 10px; margin-top:5px; cursor:pointer; }
+  .totals { width:50%; margin-top:15px; float:right; }
+  .totals div { display:flex; justify-content:space-between; margin-bottom:5px; }
+  .underline { border-bottom:1px solid #000; margin-top:5px; margin-bottom:5px; }
+  .signature-section { margin-top:50px; display:flex; justify-content:space-between; }
+  .sig-box { width:48%; text-align:center; }
+  .stamp-box { width:150px; height:80px; border:1px solid #000; margin-top:10px; display:inline-block; text-align:center; vertical-align:middle; line-height:80px; }
 </style>
 </head>
 <body>
 
 <h1>QUOTATION</h1>
 
-<div class="details">
-  <div class="client">
-    <label>Client Name</label><br>
-    <input type="text" placeholder="Client Name">
-    <label>Client Company</label><br>
-    <input type="text" placeholder="Company Name">
-    <label>Phone</label><br>
-    <input type="text" placeholder="Phone">
+<div class="flex header">
+  <div class="details">
+    <strong>Client Details:</strong><br>
+    Name: <input type="text" placeholder="Client Name"><br>
+    Company: <input type="text" placeholder="Client Company"><br>
+    Phone: <input type="text" placeholder="Client Phone">
   </div>
-  <div class="company">
-    <label>Company Name</label><br>
-    <input type="text" placeholder="Your Company Name">
-    <label>Address</label><br>
-    <input type="text" placeholder="Company Address">
+  <div class="details">
+    <strong>Company Details:</strong><br>
+    Name: <input type="text" placeholder="Company Name"><br>
+    Address: <input type="text" placeholder="Company Address">
   </div>
 </div>
 
-<table id="itemsTable">
+<table id="itemTable">
   <thead>
     <tr>
       <th>S/N</th>
@@ -64,134 +59,141 @@
   </tbody>
 </table>
 
-<button class="add-item" onclick="addRow()">+ Add Item</button>
+<button class="btn" onclick="addRow()">+ Add Item</button>
 
 <div class="totals">
-  <div><span>Subtotal</span><span id="subtotal">0</span></div>
-  <div><span>Discount</span><span id="discount">0</span></div>
-  <div class="grand-total"><span>Grand Total</span><span id="grandtotal">0</span></div>
-  <div class="grand-total"><span>In Words</span><span id="grandtotalwords">Zero Only</span></div>
+  <div><span>Subtotal:</span><span id="subtotal">0</span></div>
+  <div><span>Discount:</span><span><input type="number" value="0" id="discount" oninput="updateTotals()"></span></div>
+  <div><strong>Grand Total:</strong><strong id="grandtotal">0</strong></div>
+  <div><strong>In Words:</strong><strong id="grandwords"></strong></div>
 </div>
 
+<div class="underline"></div>
+
 <div class="terms">
-  <strong>Terms & Conditions</strong>
+  <h3>Terms & Conditions:</h3>
   <ol>
-    <li>Payment within 15 days.</li>
-    <li>Quotation valid for 30 days.</li>
-    <li>VAT extra as applicable.</li>
-    <li>Delivery as per schedule.</li>
-    <li>Warranty as per product terms.</li>
+    <li>Term one.</li>
+    <li>Term two.</li>
+    <li>Term three.</li>
+    <li>Term four.</li>
+    <li>Term five.</li>
   </ol>
 </div>
 
-<div class="signature-stamp">
-  <div class="signature">Authorized Signature</div>
-  <div class="stamp">Company Stamp / Upload Image</div>
+<div class="signature-section">
+  <div class="sig-box">
+    Signature<br>
+    Name / Position: <input type="text" placeholder="Manager">
+  </div>
+  <div class="sig-box">
+    Company Stamp<br>
+    <div class="stamp-box">STAMP</div>
+  </div>
 </div>
 
 <script>
-let sn = 0;
+let itemCount = 0;
+
 function addRow(){
-  sn++;
-  const tbody = document.getElementById('itemsTable').querySelector('tbody');
+  itemCount++;
+  const tbody = document.getElementById('itemTable').querySelector('tbody');
   const tr = document.createElement('tr');
   tr.innerHTML = `
-    <td>${sn}</td>
-    <td><input type="text" placeholder="Description" style="width:100%"></td>
+    <td class="sn">${itemCount}</td>
+    <td><input type="text" placeholder="Description"></td>
     <td>
       <div class="photo-container">
-        <input type="file" accept="image/*" onchange="previewImg(event,this)">
-        <button onclick="this.previousElementSibling.click()">Choose File</button>
         <img class="preview">
         <button class="remove-btn" onclick="removeImg(this)">×</button>
+        <input type="file" accept="image/*" onchange="previewImg(event,this)">
       </div>
     </td>
     <td><input type="text" placeholder="Size"></td>
-    <td><input type="number" placeholder="Qty" oninput="calculateRow(this)"></td>
-    <td><input type="number" placeholder="Unit Price" oninput="calculateRow(this)"></td>
+    <td><input type="number" value="1" oninput="updateAmount(this)"></td>
+    <td><input type="number" value="0" oninput="updateAmount(this)"></td>
     <td class="amount">0</td>
   `;
   tbody.appendChild(tr);
+  updateTotals();
 }
 
 function previewImg(event,input){
   const file = input.files[0];
   const img = input.parentElement.querySelector('img.preview');
   const removeBtn = input.parentElement.querySelector('.remove-btn');
+
   if(file){
     img.src = URL.createObjectURL(file);
     img.style.display='block';
-    removeBtn.style.display='block';
-    input.nextElementSibling.style.display='none';
+    input.style.display='none';
+    img.parentElement.onmouseenter = ()=> removeBtn.style.display='block';
+    img.parentElement.onmouseleave = ()=> removeBtn.style.display='none';
   } else {
     img.src='';
     img.style.display='none';
     removeBtn.style.display='none';
-    input.nextElementSibling.style.display='inline-block';
+    input.style.display='inline-block';
   }
 }
 
 function removeImg(btn){
-  const container = btn.parentElement;
-  const input = container.querySelector('input[type=file]');
-  const img = container.querySelector('img.preview');
-  input.value="";
-  img.src="";
-  img.style.display='none';
-  btn.style.display='none';
-  container.querySelector('button').style.display='inline-block';
+  const container = btn.parentElement.parentElement;
+  container.remove();
+  itemCount--;
+  updateSerials();
+  updateTotals();
 }
 
-function calculateRow(input){
-  const tr = input.closest('tr');
-  const qty = parseFloat(tr.querySelector('td:nth-child(5) input').value) || 0;
-  const price = parseFloat(tr.querySelector('td:nth-child(6) input').value) || 0;
-  const amount = qty * price;
-  tr.querySelector('td.amount').innerText = amount.toFixed(2);
-  calculateTotals();
+function updateSerials(){
+  const rows = document.querySelectorAll('#itemTable tbody tr');
+  let sn=1;
+  rows.forEach(r=>{
+    r.querySelector('.sn').innerText=sn++;
+  });
 }
 
-function calculateTotals(){
-  const amounts = document.querySelectorAll('td.amount');
+function updateAmount(input){
+  const row = input.parentElement.parentElement;
+  const qty = row.querySelector('td:nth-child(5) input').value;
+  const price = row.querySelector('td:nth-child(6) input').value;
+  const amountCell = row.querySelector('.amount');
+  amountCell.innerText = qty * price;
+  updateTotals();
+}
+
+function updateTotals(){
   let subtotal = 0;
-  amounts.forEach(a=>subtotal+=parseFloat(a.innerText)||0);
-  let discount = parseFloat(document.getElementById('discount').innerText) || 0;
-  let grand = subtotal - discount;
-  document.getElementById('subtotal').innerText = subtotal.toFixed(2);
-  document.getElementById('grandtotal').innerText = grand.toFixed(2);
-  document.getElementById('grandtotalwords').innerText = numberToWords(grand) + " Only";
+  const amounts = document.querySelectorAll('.amount');
+  amounts.forEach(a=>subtotal+=Number(a.innerText));
+  const discount = Number(document.getElementById('discount').value) || 0;
+  const grand = subtotal - discount;
+  document.getElementById('subtotal').innerText=subtotal;
+  document.getElementById('grandtotal').innerText=grand;
+  document.getElementById('grandwords').innerText=numberToWords(grand);
 }
 
-// Simple number to words (English)
-function numberToWords(amount){
-  const th = ["","Thousand","Million","Billion"];
-  const dg = ["Zero","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"];
-  const tn = ["Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
-  const tw = ["Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
-  amount = Math.floor(amount);
-  if(amount==0) return "Zero";
-  let str="";
-  let i=0;
-  while(amount>0){
-    let chunk = amount % 1000;
-    if(chunk){
-      let chunkStr="";
-      let hundreds = Math.floor(chunk/100);
-      let tensUnits = chunk %100;
-      if(hundreds) chunkStr+=dg[hundreds]+" Hundred ";
-      if(tensUnits<20 && tensUnits>9) chunkStr+=tn[tensUnits-10]+" ";
-      else{
-        let tens = Math.floor(tensUnits/10);
-        let units = tensUnits%10;
-        if(tens) chunkStr+=tw[tens-2]+" ";
-        if(units) chunkStr+=dg[units]+" ";
-      }
-      str = chunkStr + th[i]+" "+str;
-    }
-    amount = Math.floor(amount/1000);
-    i++;
+// Simple number to words (English only)
+function numberToWords(num){
+  const a=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten',
+  'Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+  const b=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+  if(num==0) return 'Zero Only';
+  let words='';
+  if(num>=1000){
+    words+=a[Math.floor(num/1000)]+' Thousand ';
+    num%=1000;
   }
-  return str.trim();
+  if(num>=100){
+    words+=a[Math.floor(num/100)]+' Hundred ';
+    num%=100;
+  }
+  if(num>=20){
+    words+=b[Math.floor(num/10)]+' ';
+    num%=10;
+  }
+  if(num>0) words+=a[num]+' ';
+  return words+'Only';
 }
 </script>
 
