@@ -2,225 +2,197 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ultimate Quotation Template – Final</title>
+<title>Ultimate Quotation</title>
 <style>
-body { font-family: Arial, sans-serif; background:#f0f4ff; margin:0; padding:20px; }
-.quotation-container { max-width:900px; margin:auto; background:#fff; padding:30px 40px; border-radius:8px; box-shadow:0 8px 20px rgba(0,0,0,0.1);}
-h1 { text-align:center; color:#004080; margin-bottom:30px; }
-.flex-container { display:flex; justify-content:space-between; margin-bottom:20px; }
-.flex-container .box { width:48%; }
-input, textarea { width:100%; padding:6px 8px; margin-top:4px; margin-bottom:8px; font-size:14px; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;}
-table { width:100%; border-collapse: collapse; margin-top:12px; }
-table th { padding:8px; text-align:left; border-bottom:2px solid #3399ff; background:#cce0ff; color:#003366; }
-table td { padding:6px 8px; vertical-align:middle; }
-img.preview { width:80px; height:60px; object-fit:contain; display:block; }
-.photo-container { position: relative; display:inline-block; width:80px; height:60px; }
-.remove-btn { position:absolute; top:2px; right:2px; background:red; color:#fff; border:none; border-radius:50%; width:18px; height:18px; cursor:pointer; display:none; font-size:12px; line-height:18px; text-align:center;}
-.photo-container:hover .remove-btn { display:block; }
-button { padding:6px 14px; background:#0066cc; color:#fff; border:none; border-radius:4px; cursor:pointer; margin-top:5px;}
-button:hover { background:#004080; }
-.actions { text-align:center; margin-top:20px; }
-.underline-row { border-bottom:1px solid #ccc; margin-bottom:4px; padding-bottom:4px; }
-.terms { font-family: 'Times New Roman', serif; font-size:13px; margin-top:15px; }
-.signature-section { display:flex; justify-content:space-between; margin-top:25px; }
-.signature-box { width:48%; }
-.signature-box input { width:100%; margin-bottom:4px; }
-.stamp-container { width:48%; text-align:center; position:relative; }
-.stamp-container img { width:150px; height:100px; object-fit:contain; }
-.stamp-container input[type=file] { position:absolute; opacity:0; width:100%; height:100%; top:0; left:0; cursor:pointer; }
-.stamp-label { margin-top:4px; font-weight:bold; }
-.totals-series { margin-top:20px; }
-.total-row { margin-bottom:8px; font-weight: bold; }
-.total-row input { width:200px; margin-left:12px; padding:4px; }
+  body{font-family:Arial, sans-serif; margin:20px; color:#333;}
+  h1{text-align:center; color:#004aad;}
+  .company, .client{width:48%; display:inline-block; vertical-align:top;}
+  .company{float:right;}
+  .details input{width:100%; border:none; border-bottom:1px solid #999; padding:4px;}
+  table{width:100%; border-collapse:collapse; margin-top:20px;}
+  th, td{border-bottom:1px solid #ccc; padding:8px; text-align:left; vertical-align:middle;}
+  th{background:#004aad; color:white;}
+  .photo-container{width:100px; height:80px; position:relative;}
+  .photo-container img{width:100%; height:100%; object-fit:contain; display:none;}
+  .photo-container .remove-btn{
+    position:absolute; top:2px; right:2px; display:none;
+    background:red;color:white;border:none;border-radius:50%;width:18px;height:18px;cursor:pointer;
+  }
+  .totals{margin-top:15px; width:50%; float:right;}
+  .totals div{display:flex; justify-content:space-between; margin-bottom:4px;}
+  .grand-total{font-weight:bold; border-top:2px solid #004aad; padding-top:4px;}
+  .terms{margin-top:40px;}
+  .signature-stamp{margin-top:50px; display:flex; justify-content:space-between;}
+  .signature, .stamp{width:48%; border-top:1px solid #000; text-align:center; padding-top:4px;}
+  button.add-item{margin-top:10px; background:#004aad; color:white; border:none; padding:6px 12px; cursor:pointer;}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 </head>
 <body>
 
-<div class="quotation-container" id="quotation">
 <h1>QUOTATION</h1>
 
-<div class="flex-container">
-  <div class="box">
-    <h3>Client Details</h3>
+<div class="details">
+  <div class="client">
+    <label>Client Name</label><br>
     <input type="text" placeholder="Client Name">
+    <label>Client Company</label><br>
     <input type="text" placeholder="Company Name">
-    <input type="text" placeholder="Address">
-    <input type="text" placeholder="Phone Number">
+    <label>Phone</label><br>
+    <input type="text" placeholder="Phone">
   </div>
-  <div class="box">
-    <h3>Company Details</h3>
-    <input type="text" placeholder="Company Name">
-    <input type="text" placeholder="Address">
-    <input type="text" placeholder="Email / Phone">
-    <input type="text" placeholder="Date" id="quotation-date">
-    <input type="text" placeholder="Quotation No.">
+  <div class="company">
+    <label>Company Name</label><br>
+    <input type="text" placeholder="Your Company Name">
+    <label>Address</label><br>
+    <input type="text" placeholder="Company Address">
   </div>
 </div>
 
-<div>
-<table id="items-table">
-<thead>
-<tr>
-<th>#</th>
-<th>Description</th>
-<th>Photo</th>
-<th>Size</th>
-<th>Qty</th>
-<th>Unit Price</th>
-<th>Total</th>
-</tr>
-</thead>
-<tbody>
-<tr class="underline-row">
-<td>1</td>
-<td><input type="text" placeholder="Item Description"></td>
-<td>
-  <div class="photo-container">
-    <input type="file" accept="image/*" onchange="previewImg(event,this)" style="display:none;">
-    <button onclick="this.previousElementSibling.click()">Choose File</button>
-    <img class="preview">
-    <button class="remove-btn" onclick="removeImg(this)">×</button>
-  </div>
-</td>
-<td><input type="text" placeholder="Size"></td>
-<td><input type="number" placeholder="0" oninput="updateRow(this)"></td>
-<td><input type="number" placeholder="0" oninput="updateRow(this)"></td>
-<td><input type="number" readonly placeholder="0"></td>
-</tr>
-</tbody>
+<table id="itemsTable">
+  <thead>
+    <tr>
+      <th>S/N</th>
+      <th>Description</th>
+      <th>Photo</th>
+      <th>Size</th>
+      <th>Quantity</th>
+      <th>Unit Price</th>
+      <th>Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
 </table>
-<button onclick="addItem()">+ Add Item</button>
+
+<button class="add-item" onclick="addRow()">+ Add Item</button>
+
+<div class="totals">
+  <div><span>Subtotal</span><span id="subtotal">0</span></div>
+  <div><span>Discount</span><span id="discount">0</span></div>
+  <div class="grand-total"><span>Grand Total</span><span id="grandtotal">0</span></div>
+  <div class="grand-total"><span>In Words</span><span id="grandtotalwords">Zero Only</span></div>
 </div>
 
-<div class="totals-series">
-<div class="total-row">1. Subtotal: <input type="number" id="subtotal" readonly></div>
-<div class="total-row">2. Discount (%): <input type="number" id="discount" oninput="calculateTotals()"></div>
-<div class="total-row">3. Grand Total: <input type="number" id="grandtotal" readonly></div>
-<div class="total-row">4. Grand Total in Words: <input type="text" id="grandwords" readonly></div>
+<div class="terms">
+  <strong>Terms & Conditions</strong>
+  <ol>
+    <li>Payment within 15 days.</li>
+    <li>Quotation valid for 30 days.</li>
+    <li>VAT extra as applicable.</li>
+    <li>Delivery as per schedule.</li>
+    <li>Warranty as per product terms.</li>
+  </ol>
 </div>
 
-<div class="signature-section">
-  <div class="signature-box">
-    <label>Signature:</label>
-    <input type="text" placeholder="Name">
-    <input type="text" value="Manager" placeholder="Position">
-  </div>
-  <div class="stamp-container">
-    <img id="stamp-preview">
-    <input type="file" accept="image/*" onchange="previewStamp(event,this)">
-    <div class="stamp-label">Company Stamp</div>
-  </div>
-</div>
-
-<div class="section terms">
-<h3>Terms & Conditions</h3>
-<textarea rows="8">
-1. This quotation is valid for 30 days from the date issued.
-2. Delivery will be made within 7 working days.
-3. Payment: 50% advance, 50% on delivery.
-4. Items checked for quality before shipment.
-5. Amounts exclusive of 13% VAT; VAT added at billing.
-</textarea>
-</div>
-
-</div>
-
-<div class="actions">
-<button onclick="printPage()">Print Quotation</button>
-<button onclick="saveAsImage()">Save as Image</button>
-<button onclick="exportAsPDF()">Save as PDF</button>
+<div class="signature-stamp">
+  <div class="signature">Authorized Signature</div>
+  <div class="stamp">Company Stamp / Upload Image</div>
 </div>
 
 <script>
-function addItem(){
-  const table = document.querySelector('#items-table tbody');
-  const count = table.rows.length + 1;
-  const row = table.insertRow();
-  row.className="underline-row";
-  row.innerHTML = `<td>${count}</td>
-  <td><input type="text" placeholder="Item Description"></td>
-  <td>
-    <div class="photo-container">
-      <input type="file" accept="image/*" onchange="previewImg(event,this)" style="display:none;">
-      <button onclick="this.previousElementSibling.click()">Choose File</button>
-      <img class="preview">
-      <button class="remove-btn" onclick="removeImg(this)">×</button>
-    </div>
-  </td>
-  <td><input type="text" placeholder="Size"></td>
-  <td><input type="number" placeholder="0" oninput="updateRow(this)"></td>
-  <td><input type="number" placeholder="0" oninput="updateRow(this)"></td>
-  <td><input type="number" readonly placeholder="0"></td>`;
+let sn = 0;
+function addRow(){
+  sn++;
+  const tbody = document.getElementById('itemsTable').querySelector('tbody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>${sn}</td>
+    <td><input type="text" placeholder="Description" style="width:100%"></td>
+    <td>
+      <div class="photo-container">
+        <input type="file" accept="image/*" onchange="previewImg(event,this)">
+        <button onclick="this.previousElementSibling.click()">Choose File</button>
+        <img class="preview">
+        <button class="remove-btn" onclick="removeImg(this)">×</button>
+      </div>
+    </td>
+    <td><input type="text" placeholder="Size"></td>
+    <td><input type="number" placeholder="Qty" oninput="calculateRow(this)"></td>
+    <td><input type="number" placeholder="Unit Price" oninput="calculateRow(this)"></td>
+    <td class="amount">0</td>
+  `;
+  tbody.appendChild(tr);
 }
 
 function previewImg(event,input){
   const file = input.files[0];
   const img = input.parentElement.querySelector('img.preview');
-  if(file){ img.src = URL.createObjectURL(file); } else { img.src=""; }
+  const removeBtn = input.parentElement.querySelector('.remove-btn');
+  if(file){
+    img.src = URL.createObjectURL(file);
+    img.style.display='block';
+    removeBtn.style.display='block';
+    input.nextElementSibling.style.display='none';
+  } else {
+    img.src='';
+    img.style.display='none';
+    removeBtn.style.display='none';
+    input.nextElementSibling.style.display='inline-block';
+  }
 }
+
 function removeImg(btn){
   const container = btn.parentElement;
-  container.querySelector('input[type=file]').value="";
-  container.querySelector('img.preview').src="";
+  const input = container.querySelector('input[type=file]');
+  const img = container.querySelector('img.preview');
+  input.value="";
+  img.src="";
+  img.style.display='none';
+  btn.style.display='none';
+  container.querySelector('button').style.display='inline-block';
 }
 
-function previewStamp(event,input){
-  const img = document.getElementById('stamp-preview');
-  const file = input.files[0];
-  if(file){ img.src = URL.createObjectURL(file); }
-}
-
-function updateRow(el){
-  const tr = el.closest('tr');
-  const qty = +tr.cells[4].querySelector('input').value || 0;
-  const price = +tr.cells[5].querySelector('input').value || 0;
-  tr.cells[6].querySelector('input').value = qty*price;
+function calculateRow(input){
+  const tr = input.closest('tr');
+  const qty = parseFloat(tr.querySelector('td:nth-child(5) input').value) || 0;
+  const price = parseFloat(tr.querySelector('td:nth-child(6) input').value) || 0;
+  const amount = qty * price;
+  tr.querySelector('td.amount').innerText = amount.toFixed(2);
   calculateTotals();
 }
 
 function calculateTotals(){
-  let subtotal=0;
-  document.querySelectorAll('#items-table tbody tr').forEach(r=>{
-    subtotal += +r.cells[6].querySelector('input').value || 0;
-  });
-  document.getElementById('subtotal').value = subtotal;
-  const discount = +document.getElementById('discount').value || 0;
-  const grand = subtotal - (subtotal*discount/100);
-  document.getElementById('grandtotal').value = grand.toFixed(2);
-  document.getElementById('grandwords').value = convertToWords(Math.round(grand)) + " Only";
+  const amounts = document.querySelectorAll('td.amount');
+  let subtotal = 0;
+  amounts.forEach(a=>subtotal+=parseFloat(a.innerText)||0);
+  let discount = parseFloat(document.getElementById('discount').innerText) || 0;
+  let grand = subtotal - discount;
+  document.getElementById('subtotal').innerText = subtotal.toFixed(2);
+  document.getElementById('grandtotal').innerText = grand.toFixed(2);
+  document.getElementById('grandtotalwords').innerText = numberToWords(grand) + " Only";
 }
 
-function convertToWords(num) {
-    if(num===0) return "Zero";
-    const a = ["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"];
-    const b = ["","Ten","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
-    const c = ["","Hundred","Thousand"];
-    let str="";
-    if(num>=1000){
-        const thousands = Math.floor(num/1000);
-        str += a[thousands] + " " + c[2] + " ";
-        num = num % 1000;
+// Simple number to words (English)
+function numberToWords(amount){
+  const th = ["","Thousand","Million","Billion"];
+  const dg = ["Zero","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"];
+  const tn = ["Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
+  const tw = ["Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
+  amount = Math.floor(amount);
+  if(amount==0) return "Zero";
+  let str="";
+  let i=0;
+  while(amount>0){
+    let chunk = amount % 1000;
+    if(chunk){
+      let chunkStr="";
+      let hundreds = Math.floor(chunk/100);
+      let tensUnits = chunk %100;
+      if(hundreds) chunkStr+=dg[hundreds]+" Hundred ";
+      if(tensUnits<20 && tensUnits>9) chunkStr+=tn[tensUnits-10]+" ";
+      else{
+        let tens = Math.floor(tensUnits/10);
+        let units = tensUnits%10;
+        if(tens) chunkStr+=tw[tens-2]+" ";
+        if(units) chunkStr+=dg[units]+" ";
+      }
+      str = chunkStr + th[i]+" "+str;
     }
-    if(num>=100){
-        const hundreds = Math.floor(num/100);
-        str += a[hundreds] + " " + c[1] + " ";
-        num = num % 100;
-    }
-    if(num>=20){
-        const tens = Math.floor(num/10);
-        str += b[tens] + " ";
-        num = num % 10;
-    }
-    if(num>0){ str += a[num] + " "; }
-    return str.trim();
+    amount = Math.floor(amount/1000);
+    i++;
+  }
+  return str.trim();
 }
-
-function printPage(){ window.print(); }
-function saveAsImage(){ html2canvas(document.getElementById('quotation')).then(canvas=>{ const a=document.createElement('a'); a.href=canvas.toDataURL(); a.download="Quotation.png"; a.click(); });}
-async function exportAsPDF(){ const canvas = await html2canvas(document.getElementById('quotation')); const imgData = canvas.toDataURL('image/png'); const pdf = await PDFLib.PDFDocument.create(); const page = pdf.addPage(); const png = await pdf.embedPng(imgData); const {width, height} = page.getSize(); const dims = png.scaleToFit(width,height); page.drawImage(png,{x:0,y:height-dims.height,width:dims.width,height:dims.height}); const pdfBytes = await pdf.save(); const blob = new Blob([pdfBytes], {type:'application/pdf'}); const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download="Quotation.pdf"; link.click(); }
 </script>
 
 </body>
