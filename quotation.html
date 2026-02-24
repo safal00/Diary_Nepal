@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ultimate Quotation Template Final</title>
+<title>Ultimate Quotation Template v7</title>
 <style>
 body { font-family: Arial, sans-serif; background:#f0f4ff; margin:0; padding:20px; }
 .quotation-container { max-width:900px; margin:auto; background:#fff; padding:30px 40px; border-radius:8px; box-shadow:0 8px 20px rgba(0,0,0,0.1);}
@@ -14,9 +14,9 @@ input, textarea { width:100%; padding:6px 8px; margin-top:4px; margin-bottom:8px
 table { width:100%; border-collapse: collapse; margin-top:12px; }
 table th { padding:8px; text-align:left; border-bottom:2px solid #3399ff; background:#cce0ff; color:#003366; }
 table td { padding:6px 8px; vertical-align:middle; }
-.photo-container { position: relative; display:inline-block; width:80px; height:60px; }
-.photo-container img { width:100%; height:100%; object-fit:contain; display:block; }
-.remove-btn { position:absolute; top:2px; right:2px; background:red; color:#fff; border:none; border-radius:50%; width:18px; height:18px; cursor:pointer; display:none; font-size:12px; line-height:14px; text-align:center;}
+.photo-container { position: relative; width:80px; height:60px; display:inline-block; }
+.photo-container img.preview { width:100%; height:100%; object-fit:contain; display:block; }
+.remove-btn { position:absolute; top:2px; right:2px; background:red; color:#fff; border:none; border-radius:50%; width:18px; height:18px; cursor:pointer; display:none; font-size:12px; line-height:14px; text-align:center; }
 .photo-container:hover .remove-btn { display:block; }
 button { padding:6px 14px; background:#0066cc; color:#fff; border:none; border-radius:4px; cursor:pointer; margin-top:5px;}
 button:hover { background:#004080; }
@@ -28,8 +28,8 @@ button:hover { background:#004080; }
 .signature-section { display:flex; justify-content:space-between; margin-top:25px; }
 .signature-box { width:48%; }
 .signature-box input { width:100%; }
-.stamp-box { border:1px dashed #333; height:80px; width:120px; display:flex; align-items:center; justify-content:center; position:relative; background:#f9f9f9; overflow:hidden;}
-.stamp-box img { width:100%; height:100%; object-fit:cover;}
+.stamp-box { border:1px dashed #333; height:80px; width:120px; display:flex; align-items:center; justify-content:center; position:relative; background:#f9f9f9;}
+.stamp-box img { width:100%; height:100%; object-fit:contain;}
 .stamp-box input[type=file] { position:absolute; opacity:0; width:100%; height:100%; cursor:pointer;}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -110,6 +110,7 @@ button:hover { background:#004080; }
     <span>Position: <input type="text" placeholder="Manager"></span>
   </div>
   <div class="stamp-box">
+    Company Stamp
     <input type="file" accept="image/*" onchange="previewStamp(event,this)">
     <img>
     <button class="remove-btn" onclick="removeStamp(this)">×</button>
@@ -138,6 +139,7 @@ button:hover { background:#004080; }
 </div>
 
 <script>
+// Add Item
 function addItem(){
   const table = document.querySelector('#items-table tbody');
   const count = table.rows.length + 1;
@@ -158,17 +160,23 @@ function addItem(){
   <td><input type="number" readonly placeholder="0"></td>`;
 }
 
+// Photo preview & remove
 function previewImg(event,input){
   const file = input.files[0];
   const img = input.nextElementSibling;
-  if(file){ img.src = URL.createObjectURL(file); }
+  if(file){
+    img.src = URL.createObjectURL(file);
+    input.style.display="none"; // hide choose file input
+  }
 }
 function removeImg(btn){
   const container = btn.parentElement;
   container.querySelector('input[type=file]').value='';
   container.querySelector('img').src='';
+  container.querySelector('input[type=file]').style.display="block"; // allow new upload
 }
 
+// Stamp preview & remove
 function previewStamp(event,input){
   const img = input.parentElement.querySelector('img');
   const file = input.files[0];
@@ -180,6 +188,7 @@ function removeStamp(btn){
   container.querySelector('img').src='';
 }
 
+// Update totals
 function updateRow(el){
   const tr = el.closest('tr');
   const qty = +tr.cells[4].querySelector('input').value || 0;
@@ -200,6 +209,7 @@ function calculateTotals(){
   document.getElementById('grandwords').value = convertToWords(Math.round(grand)) + " Only";
 }
 
+// Number to words
 function convertToWords(num){
   if(num===0) return "Zero";
   const a=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"];
@@ -211,6 +221,7 @@ function convertToWords(num){
   return res.trim();
 }
 
+// Print / Image / PDF
 function printPage(){ window.print(); }
 function saveAsImage(){
   html2canvas(document.getElementById('quotation')).then(canvas=>{
