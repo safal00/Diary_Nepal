@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quotation Template - Final Photo Fix</title>
+<title>Ultimate Quotation Template - Final Photo Fix</title>
 <style>
 body { font-family: Arial, sans-serif; background:#f0f4ff; margin:0; padding:20px; }
 .quotation-container { max-width:900px; margin:auto; background:#fff; padding:30px 40px; border-radius:8px; box-shadow:0 8px 20px rgba(0,0,0,0.1);}
@@ -14,17 +14,9 @@ input, textarea { width:100%; padding:6px 8px; margin-top:4px; margin-bottom:8px
 table { width:100%; border-collapse: collapse; margin-top:12px; }
 table th { padding:8px; text-align:left; border-bottom:2px solid #3399ff; background:#cce0ff; color:#003366; }
 table td { padding:6px 8px; vertical-align:middle; }
-.photo-container { position: relative; width:80px; height:60px; display:inline-block; }
-.photo-container img { width:80px; height:60px; object-fit:contain; display:block; }
-.remove-btn { 
-    position:absolute; 
-    top:2px; right:2px; 
-    width:18px; height:18px; 
-    background:red; color:#fff; 
-    border:none; border-radius:2px; 
-    cursor:pointer; font-size:12px; line-height:16px; 
-    text-align:center; display:none;
-}
+img.preview { width:80px; height:60px; object-fit:contain; display:block; }
+.photo-container { position: relative; display:inline-block; width:80px; height:60px; }
+.remove-btn { position:absolute; top:0; right:0; background:red; color:#fff; border:none; border-radius:50%; width:18px; height:18px; cursor:pointer; display:none; font-size:12px; line-height:14px; text-align:center;}
 .photo-container:hover .remove-btn { display:block; }
 button { padding:6px 14px; background:#0066cc; color:#fff; border:none; border-radius:4px; cursor:pointer; margin-top:5px;}
 button:hover { background:#004080; }
@@ -70,7 +62,7 @@ button:hover { background:#004080; }
 <table id="items-table">
 <thead>
 <tr>
-<th>S.N.</th>
+<th>#</th>
 <th>Description</th>
 <th>Photo</th>
 <th>Size</th>
@@ -166,18 +158,10 @@ function addItem(){
 
 function previewImg(event,input){
   const file = input.files[0];
-  const container = input.parentElement;
-  const img = container.querySelector('img');
-  const btn = container.querySelector('.remove-btn');
+  const img = input.nextElementSibling;
   if(file){ 
     img.src = URL.createObjectURL(file); 
-    // show cross button only on hover
-    btn.style.display = 'none';
-    container.onmouseenter = ()=> btn.style.display='block';
-    container.onmouseleave = ()=> btn.style.display='none';
-  } else {
-    img.src='';
-    btn.style.display='none';
+    input.style.display = 'none'; // hide choose file after upload
   }
 }
 
@@ -185,7 +169,7 @@ function removeImg(btn){
   const container = btn.parentElement;
   container.querySelector('input[type=file]').value='';
   container.querySelector('img').src='';
-  btn.style.display='none';
+  container.querySelector('input[type=file]').style.display='block'; // restore choose file
 }
 
 function previewStamp(event,input){
