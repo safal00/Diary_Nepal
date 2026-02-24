@@ -3,21 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quotation - Photo Upload Final</title>
+<title>Quotation Template - Final</title>
 <style>
 body { font-family: Arial, sans-serif; background:#f0f4ff; margin:0; padding:20px; }
 .quotation-container { max-width:900px; margin:auto; background:#fff; padding:30px 40px; border-radius:8px; box-shadow:0 8px 20px rgba(0,0,0,0.1);}
 h1 { text-align:center; color:#004080; margin-bottom:30px; }
+.flex-container { display:flex; justify-content:space-between; margin-bottom:20px; }
+.flex-container .box { width:48%; }
+input, textarea { width:100%; padding:6px 8px; margin-top:4px; margin-bottom:8px; font-size:14px; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;}
 table { width:100%; border-collapse: collapse; margin-top:12px; }
 table th { padding:8px; text-align:left; border-bottom:2px solid #3399ff; background:#cce0ff; color:#003366; }
 table td { padding:6px 8px; vertical-align:middle; }
-input[type=text], input[type=number] { width:100%; padding:6px 8px; font-size:14px; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;}
-.photo-container { position: relative; display:inline-block; width:80px; height:60px; }
-img.preview { width:80px; height:60px; object-fit:contain; display:block; }
-.remove-btn { position:absolute; top:0; right:0; background:red; color:#fff; border:none; border-radius:50%; width:18px; height:18px; cursor:pointer; display:none; font-size:12px; line-height:14px; text-align:center; }
-.photo-container:hover .remove-btn { display:block; }
+.photo-container { position: relative; width:80px; height:60px; }
+.photo-container img { width:100%; height:100%; object-fit:contain; display:none; }
+.remove-btn { 
+  position:absolute; top:0; right:0; background:red; color:#fff; border:none; 
+  border-radius:50%; width:18px; height:18px; cursor:pointer; display:none; 
+  font-size:12px; line-height:16px; text-align:center;
+}
 button { padding:6px 14px; background:#0066cc; color:#fff; border:none; border-radius:4px; cursor:pointer; margin-top:5px;}
 button:hover { background:#004080; }
+.totals { margin-top:15px; display:flex; justify-content:space-between; }
+.totals div { display:flex; flex-direction:column; width:23%; }
+.underline-row { border-bottom:1px solid #ccc; margin-bottom:4px; padding-bottom:4px; }
 </style>
 </head>
 <body>
@@ -25,6 +33,7 @@ button:hover { background:#004080; }
 <div class="quotation-container">
 <h1>QUOTATION</h1>
 
+<div>
 <table id="items-table">
 <thead>
 <tr>
@@ -39,7 +48,7 @@ button:hover { background:#004080; }
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="underline-row">
 <td>1</td>
 <td><input type="text" placeholder="Item Description"></td>
 <td>
@@ -58,6 +67,14 @@ button:hover { background:#004080; }
 </tbody>
 </table>
 <button onclick="addItem()">+ Add Item</button>
+</div>
+
+<div class="totals">
+<div><label>Subtotal</label><input type="number" id="subtotal" readonly></div>
+<div><label>Discount (%)</label><input type="number" id="discount" oninput="calculateTotals()"></div>
+<div><label>Grand Total</label><input type="number" id="grandtotal" readonly></div>
+<div><label>In Words</label><input type="text" id="grandwords" readonly></div>
+</div>
 
 </div>
 
@@ -66,6 +83,7 @@ function addItem(){
   const table = document.querySelector('#items-table tbody');
   const count = table.rows.length + 1;
   const row = table.insertRow();
+  row.className="underline-row";
   row.innerHTML = `<td>${count}</td>
   <td><input type="text" placeholder="Item Description"></td>
   <td>
@@ -84,18 +102,25 @@ function addItem(){
 
 function previewImg(event,input){
   const file = input.files[0];
-  const img = input.nextElementSibling;
+  const img = input.parentElement.querySelector('img');
+  const removeBtn = input.parentElement.querySelector('.remove-btn');
   if(file){ 
     img.src = URL.createObjectURL(file); 
-    input.style.display = 'none'; // hide choose file after upload
+    img.style.display = 'block';
+    removeBtn.style.display = 'block';
+    input.style.display = 'none';
   }
 }
 
 function removeImg(btn){
   const container = btn.parentElement;
-  container.querySelector('input[type=file]').value='';
-  container.querySelector('img').src='';
-  container.querySelector('input[type=file]').style.display='block'; // restore choose file
+  const fileInput = container.querySelector('input[type=file]');
+  const img = container.querySelector('img');
+  fileInput.value='';
+  img.src='';
+  img.style.display='none';
+  btn.style.display='none';
+  fileInput.style.display='block';
 }
 
 function updateRow(el){
@@ -103,6 +128,30 @@ function updateRow(el){
   const qty = +tr.cells[4].querySelector('input').value || 0;
   const price = +tr.cells[5].querySelector('input').value || 0;
   tr.cells[6].querySelector('input').value = qty*price;
+  calculateTotals();
+}
+
+function calculateTotals(){
+  let subtotal=0;
+  document.querySelectorAll('#items-table tbody tr').forEach(r=>{
+    subtotal += +r.cells[6].querySelector('input').value || 0;
+  });
+  document.getElementById('subtotal').value = subtotal;
+  const discount = +document.getElementById('discount').value || 0;
+  const grand = subtotal - (subtotal*discount/100);
+  document.getElementById('grandtotal').value = grand.toFixed(2);
+  document.getElementById('grandwords').value = convertToWords(Math.round(grand)) + " Only";
+}
+
+function convertToWords(num){
+  if(num===0) return "Zero";
+  const a=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"];
+  const b=["","Ten","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
+  let res="";
+  if(num>=100){ res+=a[Math.floor(num/100)]+" Hundred "; num%=100; }
+  if(num>=20){ res+=b[Math.floor(num/10)]+" "+a[num%10]; }
+  else if(num>0){ res+=a[num]; }
+  return res.trim();
 }
 
 function removeRow(btn){
@@ -110,6 +159,7 @@ function removeRow(btn){
   row.remove();
   const table = document.querySelector('#items-table tbody');
   Array.from(table.rows).forEach((r,i)=> r.cells[0].textContent=i+1);
+  calculateTotals();
 }
 </script>
 
