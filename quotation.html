@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+[6:41 PM, 2/24/2026] Canvas Hub: <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -11,27 +11,26 @@ h1 { text-align:center; color:#004080; margin-bottom:30px; }
 .flex-container { display:flex; justify-content:space-between; margin-bottom:20px; }
 .flex-container .box { width:48%; }
 input, textarea { width:100%; padding:6px 8px; margin-top:4px; margin-bottom:8px; font-size:14px; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;}
+table { wi…
+[6:48 PM, 2/24/2026] Canvas Hub: <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultimate Quotation Template - Photo Remove Fix</title>
+<style>
+body { font-family: Arial, sans-serif; background:#f0f4ff; margin:0; padding:20px; }
+.quotation-container { max-width:900px; margin:auto; background:#fff; padding:30px 40px; border-radius:8px; box-shadow:0 8px 20px rgba(0,0,0,0.1);}
+h1 { text-align:center; color:#004080; margin-bottom:30px; }
+.flex-container { display:flex; justify-content:space-between; margin-bottom:20px; }
+.flex-container .box { width:48%; }
+input, textarea { width:100%; padding:6px 8px; margin-top:4px; margin-bottom:8px; font-size:14px; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;}
 table { width:100%; border-collapse: collapse; margin-top:12px; }
 table th { padding:8px; text-align:left; border-bottom:2px solid #3399ff; background:#cce0ff; color:#003366; }
 table td { padding:6px 8px; vertical-align:middle; }
 img.preview { width:80px; height:60px; object-fit:contain; display:block; }
 .photo-container { position: relative; display:inline-block; width:80px; height:60px; }
-.remove-btn { 
-  position:absolute; 
-  top:3px; 
-  right:3px; 
-  background:red; 
-  color:#fff; 
-  border:none; 
-  border-radius:4px; 
-  width:16px; 
-  height:16px; 
-  cursor:pointer; 
-  display:none; 
-  font-size:12px; 
-  line-height:14px; 
-  text-align:center;
-}
+.remove-btn { position:absolute; top:0; right:0; background:red; color:#fff; border:none; border-radius:50%; width:18px; height:18px; cursor:pointer; display:none; font-size:12px; line-height:14px; text-align:center;}
 button { padding:6px 14px; background:#0066cc; color:#fff; border:none; border-radius:4px; cursor:pointer; margin-top:5px;}
 button:hover { background:#004080; }
 .actions { text-align:center; margin-top:20px; }
@@ -76,7 +75,7 @@ button:hover { background:#004080; }
 <table id="items-table">
 <thead>
 <tr>
-<th>S.N</th>
+<th>#</th>
 <th>Description</th>
 <th>Photo</th>
 <th>Size</th>
@@ -170,33 +169,32 @@ function addItem(){
   <td><button onclick="removeRow(this)">×</button></td>`;
 }
 
-function previewImg(event,input){
-  const file = input.files[0];
-  const img = input.nextElementSibling;          
-  const removeBtn = input.nextElementSibling.nextElementSibling;
-  
-  removeBtn.style.display = 'none'; // start hidden
-  
-  if(file){ 
-    img.src = URL.createObjectURL(file); 
-    input.style.display = 'none'; 
-    
-    img.onmouseenter = () => { removeBtn.style.display='block'; };
-    img.onmouseleave = () => { removeBtn.style.display='none'; };
-  } else {
-    img.src = '';
-    input.style.display = 'block';
-    removeBtn.style.display = 'none';
+// Photo preview and hover cross remove logic
+function previewImg(event, input) {
+  const img = input.nextElementSibling;
+  if(input.files[0]){
+    img.src = URL.createObjectURL(input.files[0]);
+    input.style.display = 'none';
+    img.parentElement.querySelector('.remove-btn').style.display = 'none';
   }
 }
 
-function removeImg(btn){
+// Hover to show cross only
+document.querySelectorAll('.photo-container').forEach(container => {
+  const img = container.querySelector('img');
+  const btn = container.querySelector('.remove-btn');
+  img.addEventListener('mouseenter', () => { if(img.src) btn.style.display = 'block'; });
+  img.addEventListener('mouseleave', () => { btn.style.display = 'none'; });
+});
+
+// Remove photo
+function removeImg(btn) {
   const container = btn.parentElement;
   const fileInput = container.querySelector('input[type=file]');
   const img = container.querySelector('img');
 
-  fileInput.value = '';
   img.src = '';
+  fileInput.value = '';
   fileInput.style.display = 'block';
   btn.style.display = 'none';
 }
