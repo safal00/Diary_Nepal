@@ -4,32 +4,32 @@
 <meta charset="UTF-8">
 <title>Quotation - Final Ultimate</title>
 <style>
-  body { font-family: Arial, sans-serif; margin: 30px; color:#000;}
-  h1 { color:#004aad; text-align:center; }
-  .header, .footer { width:100%; margin-bottom:20px; }
-  .flex { display:flex; justify-content:space-between; }
-  .details { width:48%; }
-  table { width:100%; border-collapse: collapse; margin-top:15px; }
-  table th, table td { padding:8px 5px; text-align:left; }
-  table th { background-color:#004aad; color:white; }
-  table td { border-bottom:1px solid #ccc; }
-  .photo-container { position:relative; width:120px; height:80px; }
-  .photo-container img.preview { width:100%; height:100%; object-fit:contain; display:none; }
-  .remove-btn { position:absolute; top:2px; right:2px; background:red; color:white; border:none; cursor:pointer; display:none; padding:2px 5px; }
-  .btn { padding:5px 10px; margin-top:5px; cursor:pointer; }
-  .totals { width:50%; margin-top:15px; float:right; }
-  .totals div { display:flex; justify-content:space-between; margin-bottom:5px; }
-  .underline { border-bottom:1px solid #000; margin-top:5px; margin-bottom:5px; }
-  .signature-section { margin-top:50px; display:flex; justify-content:space-between; }
-  .sig-box { width:48%; text-align:center; }
-  .stamp-box { width:150px; height:80px; border:1px solid #000; margin-top:10px; display:inline-block; text-align:center; vertical-align:middle; line-height:80px; }
+body { font-family: Arial, sans-serif; margin:30px; color:#000; }
+h1 { text-align:center; color:#004aad; }
+.flex { display:flex; justify-content:space-between; margin-bottom:15px; }
+.details { width:48%; }
+.details input { width:100%; margin:2px 0; padding:3px; }
+table { width:100%; border-collapse: collapse; margin-top:15px; }
+table th { background:#004aad; color:#fff; padding:8px 5px; }
+table td { padding:5px; border-bottom:1px solid #ccc; }
+.underline { border-bottom:1px solid #000; margin:5px 0; }
+.photo-container { position:relative; width:120px; height:80px; }
+.photo-container img.preview { width:100%; height:100%; object-fit:contain; display:none; }
+.photo-container .remove-btn { position:absolute; top:2px; right:2px; background:red; color:white; border:none; cursor:pointer; display:none; padding:2px 5px; }
+.btn { padding:5px 10px; margin-top:5px; cursor:pointer; }
+.totals { width:50%; margin-top:15px; float:right; }
+.totals div { display:flex; justify-content:space-between; margin-bottom:5px; }
+.signature-section { margin-top:50px; display:flex; justify-content:space-between; }
+.sig-box { width:48%; text-align:center; }
+.stamp-box { width:150px; height:80px; border:1px solid #000; margin-top:10px; display:inline-block; line-height:80px; }
+.terms ol { padding-left:20px; }
 </style>
 </head>
 <body>
 
 <h1>QUOTATION</h1>
 
-<div class="flex header">
+<div class="flex">
   <div class="details">
     <strong>Client Details:</strong><br>
     Name: <input type="text" placeholder="Client Name"><br>
@@ -93,13 +93,13 @@
 </div>
 
 <script>
-let itemCount = 0;
+let itemCount=0;
 
 function addRow(){
   itemCount++;
-  const tbody = document.getElementById('itemTable').querySelector('tbody');
-  const tr = document.createElement('tr');
-  tr.innerHTML = `
+  const tbody=document.querySelector('#itemTable tbody');
+  const tr=document.createElement('tr');
+  tr.innerHTML=`
     <td class="sn">${itemCount}</td>
     <td><input type="text" placeholder="Description"></td>
     <td>
@@ -118,17 +118,16 @@ function addRow(){
   updateTotals();
 }
 
-function previewImg(event,input){
-  const file = input.files[0];
-  const img = input.parentElement.querySelector('img.preview');
-  const removeBtn = input.parentElement.querySelector('.remove-btn');
-
+function previewImg(e,input){
+  const file=input.files[0];
+  const img=input.parentElement.querySelector('img.preview');
+  const removeBtn=input.parentElement.querySelector('.remove-btn');
   if(file){
-    img.src = URL.createObjectURL(file);
+    img.src=URL.createObjectURL(file);
     img.style.display='block';
     input.style.display='none';
-    img.parentElement.onmouseenter = ()=> removeBtn.style.display='block';
-    img.parentElement.onmouseleave = ()=> removeBtn.style.display='none';
+    img.parentElement.onmouseenter=()=>removeBtn.style.display='block';
+    img.parentElement.onmouseleave=()=>removeBtn.style.display='none';
   } else {
     img.src='';
     img.style.display='none';
@@ -138,60 +137,46 @@ function previewImg(event,input){
 }
 
 function removeImg(btn){
-  const container = btn.parentElement.parentElement;
-  container.remove();
+  const tr=btn.closest('tr');
+  tr.remove();
   itemCount--;
   updateSerials();
   updateTotals();
 }
 
 function updateSerials(){
-  const rows = document.querySelectorAll('#itemTable tbody tr');
+  const rows=document.querySelectorAll('#itemTable tbody tr');
   let sn=1;
-  rows.forEach(r=>{
-    r.querySelector('.sn').innerText=sn++;
-  });
+  rows.forEach(r=>{r.querySelector('.sn').innerText=sn++;});
 }
 
 function updateAmount(input){
-  const row = input.parentElement.parentElement;
-  const qty = row.querySelector('td:nth-child(5) input').value;
-  const price = row.querySelector('td:nth-child(6) input').value;
-  const amountCell = row.querySelector('.amount');
-  amountCell.innerText = qty * price;
+  const row=input.closest('tr');
+  const qty=row.querySelector('td:nth-child(5) input').value;
+  const price=row.querySelector('td:nth-child(6) input').value;
+  row.querySelector('.amount').innerText=qty*price;
   updateTotals();
 }
 
 function updateTotals(){
-  let subtotal = 0;
-  const amounts = document.querySelectorAll('.amount');
-  amounts.forEach(a=>subtotal+=Number(a.innerText));
-  const discount = Number(document.getElementById('discount').value) || 0;
-  const grand = subtotal - discount;
+  let subtotal=0;
+  document.querySelectorAll('.amount').forEach(a=>subtotal+=Number(a.innerText));
+  const discount=Number(document.getElementById('discount').value)||0;
+  const grand=subtotal-discount;
   document.getElementById('subtotal').innerText=subtotal;
   document.getElementById('grandtotal').innerText=grand;
   document.getElementById('grandwords').innerText=numberToWords(grand);
 }
 
-// Simple number to words (English only)
 function numberToWords(num){
   const a=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten',
   'Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
   const b=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
   if(num==0) return 'Zero Only';
   let words='';
-  if(num>=1000){
-    words+=a[Math.floor(num/1000)]+' Thousand ';
-    num%=1000;
-  }
-  if(num>=100){
-    words+=a[Math.floor(num/100)]+' Hundred ';
-    num%=100;
-  }
-  if(num>=20){
-    words+=b[Math.floor(num/10)]+' ';
-    num%=10;
-  }
+  if(num>=1000){words+=a[Math.floor(num/1000)]+' Thousand ';num%=1000;}
+  if(num>=100){words+=a[Math.floor(num/100)]+' Hundred ';num%=100;}
+  if(num>=20){words+=b[Math.floor(num/10)]+' ';num%=10;}
   if(num>0) words+=a[num]+' ';
   return words+'Only';
 }
