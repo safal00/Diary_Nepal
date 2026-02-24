@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quotation with SN & Hashtag Description</title>
+<title>Ultimate Quotation Template - Final Photo Fix</title>
 <style>
 body { font-family: Arial, sans-serif; background:#f0f4ff; margin:0; padding:20px; }
 .quotation-container { max-width:900px; margin:auto; background:#fff; padding:30px 40px; border-radius:8px; box-shadow:0 8px 20px rgba(0,0,0,0.1);}
@@ -14,10 +14,10 @@ input, textarea { width:100%; padding:6px 8px; margin-top:4px; margin-bottom:8px
 table { width:100%; border-collapse: collapse; margin-top:12px; }
 table th { padding:8px; text-align:left; border-bottom:2px solid #3399ff; background:#cce0ff; color:#003366; }
 table td { padding:6px 8px; vertical-align:middle; }
-img.preview { width:80px; height:60px; object-fit:contain; display:block; }
-.photo-container { position: relative; display:inline-block; width:80px; height:60px; }
-.remove-btn { position:absolute; top:0; right:0; background:red; color:#fff; border:none; border-radius:50%; width:18px; height:18px; cursor:pointer; display:none; font-size:12px; line-height:14px; text-align:center;}
-.photo-container:hover .remove-btn { display:block; }
+.photo-container{ position:relative; display:inline-block; width:80px; height:60px; }
+.photo-container img{ width:100%; height:100%; object-fit:contain; }
+.remove-btn{ position:absolute; top:0; right:0; background:red; color:#fff; border:none; border-radius:50%; width:18px; height:18px; cursor:pointer; font-size:12px; display:none; }
+.photo-container.has-image:hover .remove-btn{ display:block; }
 button { padding:6px 14px; background:#0066cc; color:#fff; border:none; border-radius:4px; cursor:pointer; margin-top:5px;}
 button:hover { background:#004080; }
 .actions { text-align:center; margin-top:20px; }
@@ -62,7 +62,7 @@ button:hover { background:#004080; }
 <table id="items-table">
 <thead>
 <tr>
-<th>S.N.</th>
+<th>#</th>
 <th>Description</th>
 <th>Photo</th>
 <th>Size</th>
@@ -74,8 +74,8 @@ button:hover { background:#004080; }
 </thead>
 <tbody>
 <tr class="underline-row">
-<td class="sn">1</td>
-<td># <input type="text" placeholder="Item Description"></td>
+<td>1</td>
+<td><input type="text" placeholder="Item Description"></td>
 <td>
   <div class="photo-container">
     <input type="file" accept="image/*" onchange="previewImg(event,this)">
@@ -140,8 +140,8 @@ function addItem(){
   const count = table.rows.length + 1;
   const row = table.insertRow();
   row.className="underline-row";
-  row.innerHTML = `<td class="sn">${count}</td>
-  <td># <input type="text" placeholder="Item Description"></td>
+  row.innerHTML = `<td>${count}</td>
+  <td><input type="text" placeholder="Item Description"></td>
   <td>
     <div class="photo-container">
       <input type="file" accept="image/*" onchange="previewImg(event,this)">
@@ -158,18 +158,23 @@ function addItem(){
 
 function previewImg(event,input){
   const file = input.files[0];
-  const img = input.nextElementSibling;
-  if(file){ 
-    img.src = URL.createObjectURL(file); 
-    input.style.display = 'none'; // hide choose file after upload
+  const container = input.parentElement;
+  const img = container.querySelector('img');
+  if(file){
+    img.src = URL.createObjectURL(file);
+    input.style.display = "none";
+    container.classList.add("has-image");
   }
 }
 
 function removeImg(btn){
   const container = btn.parentElement;
-  container.querySelector('input[type=file]').value='';
-  container.querySelector('img').src='';
-  container.querySelector('input[type=file]').style.display='block'; // restore choose file
+  const input = container.querySelector('input[type=file]');
+  const img = container.querySelector('img');
+  img.src="";
+  input.value="";
+  input.style.display="block";
+  container.classList.remove("has-image");
 }
 
 function previewStamp(event,input){
