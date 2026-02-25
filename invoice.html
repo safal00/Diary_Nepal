@@ -73,7 +73,7 @@ th { background: #cce0ff; }
       </tr>
     </tbody>
   </table>
-  <button class="btn" onclick="addRow()">+ Add Item</button>
+  <button class="btn" id="addItemBtn">+ Add Item</button>
 
   <div class="grand-total">Grand Total: <span id="grandTotal">0</span></div>
 </div>
@@ -97,15 +97,16 @@ function updateGrandTotal() {
   let total = 0;
   const rows = document.querySelectorAll('#itemsTable tbody tr');
   rows.forEach((r,i) => {
-    r.cells[0].innerText = i+1; // S.No auto
+    r.cells[0].innerText = i+1; // Serial Number
     total += parseFloat(r.cells[5].children[0].value) || 0;
   });
   document.getElementById('grandTotal').innerText = total;
 }
 
-function addRow() {
+// Fully functional Add Item
+document.getElementById('addItemBtn').addEventListener('click', function() {
   const tbody = document.querySelector('#itemsTable tbody');
-  const newRow = tbody.insertRow();
+  const newRow = document.createElement('tr');
   newRow.innerHTML = `
     <td></td>
     <td><input type="text" placeholder="Item description"></td>
@@ -115,8 +116,9 @@ function addRow() {
     <td><input type="number" value="0" readonly></td>
     <td><button class="btn" onclick="removeRow(this)">Remove</button></td>
   `;
+  tbody.appendChild(newRow);
   updateGrandTotal();
-}
+});
 
 function removeRow(btn) {
   btn.closest('tr').remove();
