@@ -61,17 +61,7 @@ th { background: #cce0ff; }
         <th style="width:10%;">Action</th>
       </tr>
     </thead>
-    <tbody>
-      <tr>
-        <td>1</td>
-        <td><input type="text" placeholder="Item description"></td>
-        <td><input type="text" placeholder="Size"></td>
-        <td><input type="number" value="1" oninput="calculateAmount(this)"></td>
-        <td><input type="number" value="0" oninput="calculateAmount(this)"></td>
-        <td><input type="number" value="0" readonly></td>
-        <td><button class="btn" onclick="removeRow(this)">Remove</button></td>
-      </tr>
-    </tbody>
+    <tbody></tbody>
   </table>
   <button class="btn" id="addItemBtn">+ Add Item</button>
 
@@ -85,6 +75,24 @@ th { background: #cce0ff; }
 </div>
 
 <script>
+// Add Row Function
+function addItemRow() {
+  const tbody = document.querySelector('#itemsTable tbody');
+  const newRow = document.createElement('tr');
+  newRow.innerHTML = `
+    <td></td>
+    <td><input type="text" placeholder="Item description"></td>
+    <td><input type="text" placeholder="Size"></td>
+    <td><input type="number" value="1" min="0" oninput="calculateAmount(this)"></td>
+    <td><input type="number" value="0" min="0" oninput="calculateAmount(this)"></td>
+    <td><input type="number" value="0" readonly></td>
+    <td><button class="btn removeBtn">Remove</button></td>
+  `;
+  tbody.appendChild(newRow);
+  updateGrandTotal();
+}
+
+// Calculate Amount
 function calculateAmount(el) {
   const row = el.closest('tr');
   const qty = parseFloat(row.cells[3].children[0].value) || 0;
@@ -93,38 +101,32 @@ function calculateAmount(el) {
   updateGrandTotal();
 }
 
+// Update Serial and Grand Total
 function updateGrandTotal() {
   let total = 0;
   const rows = document.querySelectorAll('#itemsTable tbody tr');
-  rows.forEach((r,i) => {
-    r.cells[0].innerText = i+1; // Serial Number auto-update
-    total += parseFloat(r.cells[5].children[0].value) || 0;
+  rows.forEach((row, index) => {
+    row.cells[0].innerText = index + 1;
+    total += parseFloat(row.cells[5].children[0].value) || 0;
   });
   document.getElementById('grandTotal').innerText = total;
 }
 
-// Fully functional Add Item
-document.getElementById('addItemBtn').addEventListener('click', function() {
-  const tbody = document.querySelector('#itemsTable tbody');
-  const newRow = document.createElement('tr');
-  newRow.innerHTML = `
-    <td></td>
-    <td><input type="text" placeholder="Item description"></td>
-    <td><input type="text" placeholder="Size"></td>
-    <td><input type="number" value="1" oninput="calculateAmount(this)"></td>
-    <td><input type="number" value="0" oninput="calculateAmount(this)"></td>
-    <td><input type="number" value="0" readonly></td>
-    <td><button class="btn" onclick="removeRow(this)">Remove</button></td>
-  `;
-  tbody.appendChild(newRow);
-  updateGrandTotal(); // Serial + Grand Total update
+// Event delegation for Remove
+document.querySelector('#itemsTable tbody').addEventListener('click', function(e){
+  if(e.target && e.target.classList.contains('removeBtn')){
+    e.target.closest('tr').remove();
+    updateGrandTotal();
+  }
 });
 
-function removeRow(btn) {
-  btn.closest('tr').remove();
-  updateGrandTotal();
-}
+// Add Item Button click
+document.getElementById('addItemBtn').addEventListener('click', addItemRow);
 
+// Add first empty row on load
+addItemRow();
+
+// Download as Image
 function downloadImage() {
   html2canvas(document.getElementById('challan'), { scale: 3 }).then(canvas => {
     canvas.toBlob(function(blob) {
@@ -136,20 +138,20 @@ function downloadImage() {
   });
 }
 
+// WhatsApp share
 function shareWhatsapp() {
   html2canvas(document.getElementById('challan'), { scale: 2 }).then(canvas => {
-    const text = encodeURIComponent("Check this Delivery Challan");
-    if (navigator.share) {
-      canvas.toBlob(blob => {
-        const file = new File([blob], "Delivery_Challan.png", { type: "image/png" });
-        navigator.share({ files: [file], text: "Delivery Challan" }).catch(e=>console.log(e));
+    if(navigator.share){
+      canvas.toBlob(blob=>{
+        const file = new File([blob],"Delivery_Challan.png",{type:"image/png"});
+        navigator.share({files:[file], text:"Delivery Challan"}).catch(e=>console.log(e));
       });
-    } else {
+    }else{
+      const text = encodeURIComponent("Check this Delivery Challan");
       window.open(https://web.whatsapp.com/send?text=${text}, '_blank');
     }
   });
 }
 </script>
-
 </body>
 </html>
