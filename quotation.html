@@ -1,49 +1,101 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Quotation Table</title>
+<meta charset="UTF-8">
+<title>Quotation</title>
 
 <style>
-table{
-width:100%;
-border-collapse:collapse;
-font-family:Arial;
-}
+body{font-family:Arial;padding:20px}
 
-th,td{
-border:1px solid #444;
-padding:8px;
-text-align:center;
-}
+button{cursor:pointer}
 
-th{
-background:#2f5fa5;
+.addBtn{
+margin-bottom:10px;
+background:#2a5fa5;
 color:white;
-}
-
-button{
-padding:5px 10px;
-cursor:pointer;
+border:none;
+padding:6px 12px;
 }
 
 .undoBtn{
 background:green;
 color:white;
-margin-bottom:10px;
+border:none;
+padding:6px 12px;
+margin-left:10px;
 }
 
 .delBtn{
 background:red;
 color:white;
+border:none;
+padding:5px 10px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+border:1px solid #333;
+padding:8px;
+text-align:center;
+}
+
+th{
+background:#2a5fa5;
+color:white;
+}
+
+.designCell{
+position:relative;
+height:140px;
+}
+
+.fileInput{display:none;}
+
+.designImg{
+width:100%;
+height:100%;
+object-fit:contain;
+display:none;
+}
+
+.fileBtn{
+padding:5px 10px;
+}
+
+.removeBtn{
+position:absolute;
+top:5px;
+right:5px;
+background:red;
+color:white;
+border:none;
+display:none;
+}
+
+.designCell:hover .removeBtn.show{
+display:block;
+}
+
+/* PRINT CLEAN */
+@media print{
+.addBtn,.undoBtn,.delBtn,.removeBtn,.fileBtn,
+th:last-child,td:last-child{
+display:none !important;
+}
 }
 </style>
 </head>
 
 <body>
 
+<button class="addBtn" onclick="addRow()">Add Item</button>
 <button class="undoBtn" onclick="undoDelete()">Undo Delete</button>
 
-<table id="itemTable">
+<table>
 <thead>
 <tr>
 <th>S.No</th>
@@ -57,47 +109,114 @@ color:white;
 </tr>
 </thead>
 
-<tbody>
-
-<tr>
-<td>1</td>
-<td contenteditable></td>
-<td><input type="file"></td>
-<td contenteditable></td>
-<td contenteditable></td>
-<td contenteditable></td>
-<td>0</td>
-<td><button class="delBtn" onclick="deleteRow(this)">Delete</button></td>
-</tr>
-
-</tbody>
+<tbody id="tbody"></tbody>
 </table>
 
 <script>
 
+let tbody=document.getElementById("tbody");
 let lastDeletedRow=null;
 let lastDeletedIndex=null;
 
+addRow();
 
-// DELETE WITH CONFIRM
+function addRow(){
+
+let n=tbody.rows.length+1;
+
+let row=tbody.insertRow();
+
+row.innerHTML=`
+<td>${n}</td>
+<td contenteditable></td>
+
+<td class="designCell">
+
+<input type="file" class="fileInput"
+accept="image/*"
+onchange="uploadPhoto(event,this)">
+
+<button class="fileBtn"
+onclick="this.previousElementSibling.click()">
+Choose Photo
+</button>
+
+<img class="designImg">
+
+<button class="removeBtn"
+onclick="removePhoto(this)">❌</button>
+
+</td>
+
+<td contenteditable></td>
+<td contenteditable></td>
+<td contenteditable></td>
+<td>0</td>
+
+<td>
+<button class="delBtn"
+onclick="deleteRow(this)">Delete</button>
+</td>
+`;
+}
+
+/* PHOTO UPLOAD */
+function uploadPhoto(e,input){
+
+let file=e.target.files[0];
+if(!file) return;
+
+let reader=new FileReader();
+
+reader.onload=function(ev){
+
+let cell=input.parentElement;
+let img=cell.querySelector(".designImg");
+let remove=cell.querySelector(".removeBtn");
+let btn=cell.querySelector(".fileBtn");
+
+img.src=ev.target.result;
+img.style.display="block";
+
+btn.style.display="none";   // hide choose button
+remove.classList.add("show");
+
+};
+
+reader.readAsDataURL(file);
+input.value="";
+}
+
+/* REMOVE PHOTO */
+function removePhoto(btn){
+
+let cell=btn.parentElement;
+let img=cell.querySelector(".designImg");
+let fileBtn=cell.querySelector(".fileBtn");
+
+img.src="";
+img.style.display="none";
+
+btn.classList.remove("show");
+fileBtn.style.display="inline-block";
+}
+
+/* DELETE ROW */
 function deleteRow(btn){
 
-if(!confirm("Are you sure to delete this row?")) return;
+if(!confirm("Delete this row?")) return;
 
 let row=btn.closest("tr");
-let table=document.querySelector("#itemTable tbody");
-
-lastDeletedIndex=Array.from(table.children).indexOf(row);
+lastDeletedIndex=[...tbody.rows].indexOf(row);
 lastDeletedRow=row.cloneNode(true);
 
 row.remove();
 
 updateSerial();
-addEmptyRowIfNeeded();
+if(tbody.rows.length==0) addRow();
 }
 
-
-// UNDO DELETE
+/* UNDO DELETE */
 function undoDelete(){
 
 if(!lastDeletedRow){
@@ -105,57 +224,19 @@ alert("Nothing to undo!");
 return;
 }
 
-let table=document.querySelector("#itemTable tbody");
-
-if(lastDeletedIndex>=table.children.length){
-table.appendChild(lastDeletedRow);
-}else{
-table.insertBefore(lastDeletedRow,table.children[lastDeletedIndex]);
-}
+if(lastDeletedIndex>=tbody.rows.length)
+tbody.appendChild(lastDeletedRow);
+else
+tbody.insertBefore(lastDeletedRow,tbody.rows[lastDeletedIndex]);
 
 updateSerial();
 lastDeletedRow=null;
 }
 
-
-// AUTO ADD EMPTY ROW
-function addEmptyRowIfNeeded(){
-
-let table=document.querySelector("#itemTable tbody");
-
-if(table.children.length===0){
-addNewRow();
-}
-}
-
-
-// ADD NEW ROW
-function addNewRow(){
-
-let table=document.querySelector("#itemTable tbody");
-
-let row=table.insertRow();
-
-row.innerHTML=`
-<td></td>
-<td contenteditable></td>
-<td><input type="file"></td>
-<td contenteditable></td>
-<td contenteditable></td>
-<td contenteditable></td>
-<td>0</td>
-<td><button class="delBtn" onclick="deleteRow(this)">Delete</button></td>
-`;
-
-updateSerial();
-}
-
-
-// SERIAL UPDATE
+/* SERIAL UPDATE */
 function updateSerial(){
-let rows=document.querySelectorAll("#itemTable tbody tr");
-rows.forEach((row,index)=>{
-row.cells[0].innerText=index+1;
+[...tbody.rows].forEach((r,i)=>{
+r.cells[0].innerText=i+1;
 });
 }
 
