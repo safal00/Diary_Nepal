@@ -2,325 +2,144 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Quotation</title>
+<title>Professional Glass Gallery</title>
 
 <style>
 body{
-font-family:Arial;
+margin:0;
+font-family:Arial, sans-serif;
 background:#eef2ff;
-padding:20px;
 }
 
-/* A4 Page */
-.page{
-width:210mm;
-min-height:297mm;
-background:white;
-margin:auto;
-padding:20px;
-box-shadow:0 0 10px rgba(0,0,0,0.2);
+/* GALLERY GRID */
+.gallery{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:25px;
+padding:25px;
 }
 
-/* HEADER */
-.header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-border-bottom:2px solid #2f5ea3;
-padding-bottom:10px;
-}
-
-.logo{
-height:70px;
-}
-
-.company{
-font-weight:bold;
-}
-
-.section{
-margin-top:15px;
-display:flex;
-justify-content:space-between;
-}
-
-h2{
-color:#2f5ea3;
-margin-top:10px;
-}
-
-/* TABLE */
-table{
-width:100%;
-border-collapse:collapse;
-margin-top:10px;
-}
-
-th{
-background:#2f5ea3;
-color:white;
-padding:8px;
-}
-
-td{
-border:1px solid #ccc;
-padding:6px;
-vertical-align:top;
-}
-
-textarea{
-width:100%;
-min-height:100px;
-}
-
-/* DESIGN */
-.designCell{
+/* CARD */
+.card{
+background:rgba(255,255,255,0.35);
+backdrop-filter:blur(12px);
+border-radius:18px;
+padding:15px;
+text-align:center;
 position:relative;
-width:160px;
-height:150px;
 overflow:hidden;
-border-radius:10px;
-background:#f2f4ff;
+box-shadow:0 8px 25px rgba(0,0,0,0.15);
 }
 
-.designImg{
+/* ANIMATED BORDER */
+.card::before{
+content:"";
 position:absolute;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
+inset:0;
+padding:2px;
+border-radius:18px;
+background:linear-gradient(90deg,#00eaff,#ff00ff,#00eaff);
+background-size:300% 300%;
+animation:borderMove 5s linear infinite;
+-webkit-mask:
+linear-gradient(#fff 0 0) content-box,
+linear-gradient(#fff 0 0);
+-webkit-mask-composite:xor;
+}
+
+@keyframes borderMove{
+0%{background-position:0%}
+100%{background-position:300%}
+}
+
+/* IMAGE */
+.card img{
 width:100%;
-height:100%;
-object-fit:cover;
-display:none;
-}
-
-.uploadBtn{
-position:absolute;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-background:#2f5ea3;
-color:white;
-padding:6px 12px;
-border-radius:6px;
+height:220px;
+object-fit:contain;   /* NO CROP */
+border-radius:12px;
+transition:0.5s;
+background:white;
 cursor:pointer;
 }
 
-.uploadBtn input{display:none;}
-
-.designCell.hasImage .uploadBtn{display:none;}
-
-.totalRow td{
-font-weight:bold;
-background:#f1f3ff;
+/* ZOOM */
+.card:hover img{
+transform:scale(1.08);
 }
 
-/* FOOTER */
-.footer{
-margin-top:40px;
-display:flex;
-justify-content:space-between;
+/* DESCRIPTION */
+.card p{
+margin-top:10px;
+font-size:15px;
 }
 
-.stamp{
-width:120px;
-height:120px;
-border:2px dashed #aaa;
-display:flex;
+/* POPUP */
+#popup{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.85);
+display:none;
 align-items:center;
 justify-content:center;
+z-index:999;
 }
 
-/* TERMS */
-.terms{
-margin-top:30px;
-border-top:1px solid #ccc;
-padding-top:10px;
-font-size:14px;
+#popup img{
+max-width:90%;
+max-height:90%;
+border-radius:15px;
+animation:zoom 0.4s ease;
 }
 
-/* BUTTONS */
-.buttons{
-text-align:center;
-margin-top:15px;
+@keyframes zoom{
+from{transform:scale(0.5)}
+to{transform:scale(1)}
 }
 
-button{
-padding:6px 12px;
-margin:4px;
-background:#2f5ea3;
-color:white;
-border:none;
-cursor:pointer;
+/* MOBILE */
+@media(max-width:600px){
+.card img{
+height:180px;
 }
-
-.deleteBtn{background:red;}
-
-/* PRINT PERFECT */
-@media print{
-body{background:white;padding:0;}
-.page{box-shadow:none;margin:0;}
-.buttons{display:none;}
-.uploadBtn{display:none;}
 }
 </style>
 </head>
+
 <body>
 
-<div class="page">
+<div class="gallery">
 
-<!-- HEADER -->
-<div class="header">
-<div>
-<img src="" class="logo" id="logoPreview">
-<br>
-<input type="file" onchange="previewLogo(this)">
+<div class="card">
+<img src="https://picsum.photos/500/400" onclick="openPopup(this.src)">
+<p>Product Description 1</p>
 </div>
 
-<div class="company">
-<div contenteditable="true">Company Name Pvt Ltd</div>
-<div contenteditable="true">Address Line</div>
-<div contenteditable="true">Phone / Email</div>
+<div class="card">
+<img src="https://picsum.photos/400/600" onclick="openPopup(this.src)">
+<p>Product Description 2</p>
 </div>
 
-<div>
-<h2>QUOTATION</h2>
-<div>No: <span contenteditable="true"></span></div>
-<div>Date: <span contenteditable="true"></span></div>
-</div>
+<div class="card">
+<img src="https://picsum.photos/500/500" onclick="openPopup(this.src)">
+<p>Product Description 3</p>
 </div>
 
-<!-- BUYER -->
-<div class="section">
-<div contenteditable="true">
-<b>Bill To</b><br>
-Buyer Name<br>
-Address<br>
-Phone
 </div>
 
-<div contenteditable="true">
-<b>Ship To</b><br>
-Address
-</div>
-</div>
-
-<!-- TABLE -->
-<div class="buttons">
-<button onclick="addRow()">Add Item</button>
-<button onclick="window.print()">Print</button>
-</div>
-
-<table id="tbl">
-<thead>
-<tr>
-<th>S.No</th>
-<th>Description</th>
-<th>Design</th>
-<th>Size</th>
-<th>Qty</th>
-<th>Rate</th>
-<th>Amount</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody id="tbody"></tbody>
-
-<tfoot>
-<tr class="totalRow">
-<td colspan="6">Grand Total</td>
-<td id="gt">0</td>
-<td></td>
-</tr>
-</tfoot>
-</table>
-
-<!-- FOOTER -->
-<div class="footer">
-<div>
-Prepared By:<br>
-<span contenteditable="true">Name</span>
-</div>
-
-<div class="stamp">
-Stamp
-</div>
-
-<div>
-Authorized Sign<br>
-<span contenteditable="true">Sign</span>
-</div>
-</div>
-
-<!-- TERMS -->
-<div class="terms" contenteditable="true">
-<b>Terms & Conditions</b><br>
-1. Goods once sold not returnable.<br>
-2. 50% advance required.<br>
-3. Delivery within 7 days.
-</div>
-
+<!-- POPUP -->
+<div id="popup" onclick="closePopup()">
+<img id="popupImg">
 </div>
 
 <script>
-let tbody=document.getElementById("tbody");
-
-function addRow(){
-let n=tbody.rows.length+1;
-let r=tbody.insertRow();
-
-r.innerHTML=`
-<td>${n}</td>
-<td><textarea></textarea></td>
-
-<td class="designCell">
-<label class="uploadBtn">
-Photo
-<input type="file" accept="image/*" onchange="img(this)">
-</label>
-<img class="designImg">
-</td>
-
-<td contenteditable="true"></td>
-<td contenteditable="true" oninput="calc(this)"></td>
-<td contenteditable="true" oninput="calc(this)"></td>
-<td class="amt">0</td>
-<td><button class="deleteBtn" onclick="del(this)">Delete</button></td>
-`;
+function openPopup(src){
+document.getElementById("popup").style.display="flex";
+document.getElementById("popupImg").src=src;
 }
 
-function img(i){
-let c=i.closest(".designCell");
-let im=c.querySelector(".designImg");
-im.src=URL.createObjectURL(i.files[0]);
-im.style.display="block";
-c.classList.add("hasImage");
-}
-
-function calc(el){
-let r=el.parentElement;
-let q=parseFloat(r.cells[4].innerText)||0;
-let rt=parseFloat(r.cells[5].innerText)||0;
-r.cells[6].innerText=q*rt;
-total();
-}
-
-function total(){
-let t=0;
-document.querySelectorAll(".amt").forEach(a=>t+=Number(a.innerText)||0);
-document.getElementById("gt").innerText=t;
-}
-
-function del(b){
-if(confirm("Delete item?")){
-b.closest("tr").remove();
-total();
-}
-}
-
-function previewLogo(i){
-let img=document.getElementById("logoPreview");
-img.src=URL.createObjectURL(i.files[0]);
+function closePopup(){
+document.getElementById("popup").style.display="none";
 }
 </script>
 
