@@ -3,23 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <title>Invoice</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-body{font-family:Arial;padding:20px}
-.invoice{max-width:900px;margin:auto}
-h1{text-align:center}
+body{font-family:Arial;padding:30px;background:#eef3ff}
+.invoice{background:#fff;padding:30px;max-width:1000px;margin:auto}
+h1{text-align:center;color:#2a5fa5;margin-bottom:30px}
+.top{display:flex;justify-content:flex-end;margin-bottom:15px;font-weight:bold;padding-right:20px}
+.top .row{display:flex;justify-content:flex-end;white-space:nowrap}
+.top .label{display:inline-block;width:120px;text-align:right}
+.top .value{display:inline-block;min-width:80px;text-align:left}
+.line{display:inline-block;min-width:120px} /* underline removed */
+.details{display:grid;grid-template-columns:1fr 1fr;margin-bottom:20px}
+.details .company{text-align:left;padding-left:10px}
+.details .buyer{justify-self:end;text-align:left;padding-right:40px}
+.details .company{grid-column:1}
+.details .buyer{grid-column:2}
+.details .empty{grid-column:3}
+
 table{width:100%;border-collapse:collapse;margin-top:20px}
-th,td{border:1px solid #000;padding:6px;text-align:center}
-input{width:90%;border:none;text-align:center;font-size:15px}
-input:focus{outline:none}
-.buttons{text-align:center;margin-top:20px}
-button{padding:8px 15px;margin:5px;border:none;background:#2a5fa5;color:#fff;cursor:pointer}
+th,td{border:1px solid #333;padding:8px;text-align:center}
+th{background:#2a5fa5;color:#fff}
+[contenteditable]:focus{outline:none}
+.total{font-weight:bold;font-size:18px}
+.buttons{text-align:center;margin-top:25px}
+button{padding:8px 15px;margin:5px;border:none;background:#2a5fa5;color:#fff;cursor:pointer;border-radius:5px}
 button:hover{background:#1d4a82}
+.whatsapp{background:#25D366}
+.whatsapp:hover{background:#1ebe5d}
+.thank{text-align:center;margin-top:40px;font-weight:bold;color:#2a5fa5}
 </style>
 </head>
 <body>
 
-<div class="invoice">
+<div class="invoice" id="invoice">
 <h1>INVOICE</h1>
+
+<div class="top">
+  <div>
+    <div class="row"><span class="label">Invoice No:</span><span contenteditable="true" class="value"></span></div>
+    <div class="row"><span class="label">Date:</span><input type="text" class="value"  style="border:none;background:transparent;font-weight:bold;width:120px"></div>
+  </div>
+</div>
+
+<div class="details">
+  <div class="company">
+    <b>Company Details</b><br>
+    <div contenteditable="true">Company Name</div>
+    <div contenteditable="true">Address</div>
+    <div contenteditable="true">Phone</div>
+  </div>
+
+  <div class="buyer">
+    <b>Buyer Details</b><br>
+    <div contenteditable="true">Buyer Name</div>
+    <div contenteditable="true">Address</div>
+    <div contenteditable="true">Phone</div>
+  </div>
+</div>
 
 <table id="tbl">
 <thead>
@@ -32,41 +72,41 @@ button:hover{background:#1d4a82}
 <th>Amount</th>
 </tr>
 </thead>
-<tbody id="tbody">
-</tbody>
+<tbody id="tbody"></tbody>
 <tfoot>
-<tr>
-<td colspan="5"><b>Grand Total</b></td>
-<td><b id="gt">0</b></td>
+<tr class="total">
+<td colspan="5">Grand Total</td>
+<td id="gt">0</td>
 </tr>
 </tfoot>
 </table>
 
-<div class="buttons">
+<br>
+Prepared By: <span contenteditable="true" class="line"></span>
+
+<div class="thank">Thank You For Doing Business With Us</div>
+</div>
+
+<div class="buttons" id="actions">
 <button onclick="addRow()">+ Add Item</button>
 <button onclick="removeRow()">Remove Item</button>
 <button onclick="window.print()">Print</button>
-</div>
-
+<button class="whatsapp" onclick="shareInvoice()">📱 Share</button>
 </div>
 
 <script>
 let tbody=document.getElementById("tbody");
 
 function addRow(){
-let rowCount=tbody.rows.length+1;
-
-let r=document.createElement("tr");
-r.innerHTML=`
-<td>${rowCount}</td>
-<td><input type="text"></td>
-<td><input type="text"></td>
-<td><input type="number" class="qty" oninput="calc(this)"></td>
-<td><input type="number" class="rate" oninput="fixRate(this);calc(this)"></td>
-<td class="amount">0</td>
-`;
-
-tbody.appendChild(r);
+let n=tbody.rows.length+1;
+let row=tbody.insertRow();
+row.innerHTML=`
+<td>${n}</td>
+<td contenteditable="true" onblur="alignDesc(this)"></td>
+<td contenteditable="true"></td>
+<td contenteditable="true" oninput="calc(this)"></td>
+<td contenteditable="true" oninput="calc(this)"></td>
+<td class="amt">0</td>`;
 }
 
 function removeRow(){
@@ -76,32 +116,55 @@ calcTotal();
 }
 
 function updateSerial(){
-[...tbody.rows].forEach((row,i)=>{
-row.cells[0].innerText=i+1;
-});
-}
-
-function fixRate(el){
-if(el.value.length>1 && el.value.startsWith("0")){
-el.value=parseFloat(el.value);
-}
+[...tbody.rows].forEach((row,i)=>{row.cells[0].innerText=i+1;});
 }
 
 function calc(el){
-let row=el.closest("tr");
-let qty=row.querySelector(".qty").value||0;
-let rate=row.querySelector(".rate").value||0;
-let amt=qty*rate;
-row.querySelector(".amount").innerText=amt;
+let row=el.parentElement;
+let qty=parseFloat(row.cells[3].innerText)||0;
+let rate=parseFloat(row.cells[4].innerText)||0;
+row.cells[5].innerText=qty*rate;
 calcTotal();
 }
 
 function calcTotal(){
 let total=0;
-document.querySelectorAll(".amount").forEach(a=>{
-total+=Number(a.innerText)||0;
-});
+document.querySelectorAll(".amt").forEach(a=>{total+=Number(a.innerText)||0;});
 document.getElementById("gt").innerText=total;
+}
+
+/* First Letter Capital */
+function toTitleCase(el){
+let txt=el.innerText;
+txt=txt.toLowerCase().split(" ").map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(" ");
+el.innerText=txt;
+}
+
+document.addEventListener("blur",e=>{
+if(e.target.isContentEditable){toTitleCase(e.target);} 
+},true);
+
+/* Description Alignment */
+function alignDesc(el){
+let text=el.innerText.trim();
+if(text.includes(" ") || text.includes(",")){
+el.style.textAlign="left";
+}else{
+el.style.textAlign="center";
+}
+}
+
+/* WhatsApp Share */
+function shareInvoice(){
+let btn=document.getElementById("actions");
+btn.style.display="none";
+html2canvas(document.getElementById("invoice"),{scale:3}).then(canvas=>{
+canvas.toBlob(function(blob){
+if(navigator.share){
+navigator.share({files:[new File([blob],"Invoice.png",{type:"image/png"})]});
+}else{alert("Use Mobile Device For WhatsApp Share");}
+btn.style.display="block";
+});});
 }
 </script>
 
