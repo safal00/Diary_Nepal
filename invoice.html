@@ -2,256 +2,152 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quotation</title>
-
+<title>Delivery Challan</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:Arial, sans-serif;
-}
-
-body{
-  padding:15px;
-  background:#f4f4f4;
-}
-
-.container{
-  max-width:900px;
-  margin:auto;
-  background:#fff;
-  padding:20px;
-  border-radius:6px;
-  box-shadow:0 0 10px rgba(0,0,0,0.1);
-}
-
-/* Header */
-.header{
-  text-align:center;
-  margin-bottom:15px;
-}
-
-.header h2{
-  font-size:22px;
-}
-
-.section{
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:15px;
-  gap:15px;
-}
-
-.box{
-  flex:1;
-  border:1px solid #ccc;
-  padding:10px;
-  border-radius:4px;
-}
-
-/* Table */
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:15px;
-}
-
-th, td{
-  border:1px solid #ccc;
-  padding:6px;
-  text-align:center;
-  font-size:13px;
-}
-
-th{
-  background:#f0f0f0;
-}
-
-/* Design Column */
-.photo-box{
-  position:relative;
-  width:80px;
-  height:70px;
-  margin:auto;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.photo-box img{
-  max-width:100%;
-  max-height:100%;
-  object-fit:contain;
-  display:none;
-  cursor:pointer;
-}
-
-.remove-btn{
-  position:absolute;
-  top:-5px;
-  right:-5px;
-  background:red;
-  color:#fff;
-  border:none;
-  border-radius:50%;
-  width:18px;
-  height:18px;
-  font-size:12px;
-  cursor:pointer;
-  display:none;
-}
-
-.photo-box:hover .remove-btn{
-  display:block;
-}
-
-/* Buttons */
-button{
-  padding:6px 10px;
-  margin-top:10px;
-  cursor:pointer;
-}
-
-/* Terms */
-.terms{
-  margin-top:20px;
-  border-top:1px solid #ccc;
-  padding-top:10px;
-  font-size:13px;
-}
-
-/* Mobile */
-@media(max-width:768px){
-
-.section{
-  flex-direction:column;
-}
-
-table{
-  font-size:11px;
-}
-
-.photo-box{
-  width:60px;
-  height:60px;
-}
-
-}
+body { font-family: 'Inter', sans-serif; padding: 20px; background: #e6f0ff; }
+.challan { width: 210mm; min-height: 297mm; margin: auto; background: #fff; padding: 30px; box-sizing: border-box; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+h1 { text-align: center; margin-bottom: 20px; color: #004aad; }
+.header-row { display: flex; justify-content: space-between; margin-bottom: 20px; }
+.header-row div { font-weight: 600; color: #004aad; }
+.details { display: flex; justify-content: space-between; margin-bottom: 20px; }
+.details div { width: 48%; }
+.details input { border: none; border-bottom: 1px solid #004aad; font-size: 1em; width: 100%; margin: 5px 0; }
+table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+table, th, td { border: 1px solid #004aad; }
+th, td { padding: 8px; text-align: left; }
+th { background: #cce0ff; }
+.grand-total { text-align: right; font-weight: bold; font-size: 1.2em; margin-top: 10px; color: #004aad; }
+.btn { display: inline-block; margin: 5px; padding: 8px 15px; font-size: 0.95em; cursor: pointer; background: #004aad; color: #fff; border: none; border-radius: 5px; }
+.btn:hover { background: #003080; }
 </style>
 </head>
-
 <body>
 
-<div class="container">
+<div class="challan" id="challan">
+  <h1>Delivery Challan</h1>
 
-<div class="header">
-  <h2>QUOTATION</h2>
-</div>
-
-<div class="section">
-  <div class="box">
-    <strong>Company Details</strong><br>
-    Nepal Print Solution Pvt. Ltd.<br>
-    Kathmandu, Nepal
+  <!-- Header: Challan No & Date -->
+  <div class="header-row">
+    <div>Challan No: <input type="text" id="challanNo" placeholder="____"></div>
+    <div>Date (BS/AD): <input type="text" id="challanDate" placeholder="____"></div>
   </div>
 
-  <div class="box">
-    <strong>Client Details</strong><br>
-    Client Name<br>
-    Address
+  <!-- Company & Buyer Details -->
+  <div class="details">
+    <div>
+      <div style="font-weight:600; color:#004aad; margin-bottom:5px;">Company Details</div>
+      <input type="text" id="companyName" value="Nepal Print Solution Pvt. Ltd.">
+      <input type="text" id="companyAddress" value="Address: Kathmandu, Nepal | Phone: 01-XXXXXXX">
+    </div>
+    <div>
+      <div style="font-weight:600; color:#004aad; margin-bottom:5px;">Buyer Details</div>
+      <input type="text" id="buyerName" placeholder="Buyer Name">
+      <input type="text" id="buyerAddress" placeholder="Buyer Address">
+      <input type="text" id="buyerPhone" placeholder="Buyer Phone">
+    </div>
   </div>
+
+  <!-- Items Table -->
+  <div style="font-weight:600; color:#004aad; margin-bottom:5px;">Items</div>
+  <table id="itemsTable">
+    <thead>
+      <tr>
+        <th>S.No</th>
+        <th>Description of Goods</th>
+        <th>Size</th>
+        <th>Quantity</th>
+        <th>Rate</th>
+        <th>Amount</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td><input type="text" value="Item 1"></td>
+        <td><input type="text" value="Size 1"></td>
+        <td><input type="number" value="2" oninput="calculateAmount(this)"></td>
+        <td><input type="number" value="140" oninput="calculateAmount(this)"></td>
+        <td><input type="number" value="280" readonly></td>
+        <td><button class="btn" onclick="removeRow(this)">Remove</button></td>
+      </tr>
+    </tbody>
+  </table>
+  <button class="btn" onclick="addRow()">+ Add Item</button>
+
+  <div class="grand-total">Grand Total: <span id="grandTotal">280</span></div>
 </div>
 
-<table>
-<thead>
-<tr>
-<th>SN</th>
-<th>Description</th>
-<th>Design</th>
-<th>Qty</th>
-<th>Rate</th>
-<th>Total</th>
-</tr>
-</thead>
-
-<tbody id="itemBody">
-<tr>
-<td>1</td>
-<td><input type="text" style="width:100%"></td>
-
-<td>
-<div class="photo-box">
-<input type="file" accept="image/*" onchange="showImg(this)">
-<img class="preview">
-<button class="remove-btn" onclick="removeImg(this)">×</button>
-</div>
-</td>
-
-<td><input type="number" style="width:60px"></td>
-<td><input type="number" style="width:70px"></td>
-<td>0</td>
-</tr>
-</tbody>
-</table>
-
-<button onclick="addRow()">Add Item</button>
-
-<div class="terms">
-<strong>Terms & Conditions:</strong>
-<ul>
-<li>Goods once sold will not be returned.</li>
-<li>Delivery within 3-5 working days.</li>
-<li>Advance payment required.</li>
-</ul>
-</div>
-
+<!-- Action Buttons -->
+<div style="text-align:center; margin-top:20px;">
+  <button class="btn" onclick="window.print()">Print</button>
+  <button class="btn" onclick="downloadImage()">Save as Image</button>
+  <button class="btn" onclick="shareWhatsapp()">Share on WhatsApp</button>
 </div>
 
 <script>
-function showImg(input){
-  const file = input.files[0];
-  const img = input.nextElementSibling;
-
-  if(file){
-    img.src = URL.createObjectURL(file);
-    img.style.display = "block";
-    input.style.display = "none";
-  }
+function calculateAmount(el) {
+  const row = el.closest('tr');
+  const qty = parseFloat(row.cells[3].children[0].value) || 0;
+  const rate = parseFloat(row.cells[4].children[0].value) || 0;
+  row.cells[5].children[0].value = qty * rate;
+  updateGrandTotal();
 }
 
-function removeImg(btn){
-  const box = btn.parentElement;
-  const img = box.querySelector("img");
-  const input = box.querySelector("input");
-
-  img.src = "";
-  img.style.display = "none";
-  input.value = "";
-  input.style.display = "block";
+function updateGrandTotal() {
+  let total = 0;
+  const rows = document.querySelectorAll('#itemsTable tbody tr');
+  rows.forEach(r => total += parseFloat(r.cells[5].children[0].value) || 0);
+  document.getElementById('grandTotal').innerText = total;
+  updateSerialNumbers();
 }
 
-function addRow(){
-  const body = document.getElementById("itemBody");
-  const rowCount = body.rows.length + 1;
-
-  const row = body.insertRow();
-
-  row.innerHTML = `
-  <td>${rowCount}</td>
-  <td><input type="text" style="width:100%"></td>
-  <td>
-    <div class="photo-box">
-      <input type="file" accept="image/*" onchange="showImg(this)">
-      <img class="preview">
-      <button class="remove-btn" onclick="removeImg(this)">×</button>
-    </div>
-  </td>
-  <td><input type="number" style="width:60px"></td>
-  <td><input type="number" style="width:70px"></td>
-  <td>0</td>
+function addRow() {
+  const tbody = document.querySelector('#itemsTable tbody');
+  const newRow = tbody.insertRow();
+  newRow.innerHTML = `
+    <td></td>
+    <td><input type="text" value="New Item"></td>
+    <td><input type="text" value=""></td>
+    <td><input type="number" value="1" oninput="calculateAmount(this)"></td>
+    <td><input type="number" value="0" oninput="calculateAmount(this)"></td>
+    <td><input type="number" value="0" readonly></td>
+    <td><button class="btn" onclick="removeRow(this)">Remove</button></td>
   `;
+  updateSerialNumbers();
+}
+
+function removeRow(button) {
+  const row = button.closest('tr');
+  row.remove();
+  updateGrandTotal();
+}
+
+function updateSerialNumbers() {
+  const rows = document.querySelectorAll('#itemsTable tbody tr');
+  rows.forEach((r,i) => r.cells[0].innerText = i+1);
+}
+
+function downloadImage() {
+  html2canvas(document.getElementById('challan'), { scale: 3 }).then(canvas => {
+    canvas.toBlob(function(blob) {
+      const link = document.createElement('a');
+      link.download = 'Delivery_Challan.png';
+      link.href = URL.createObjectURL(blob);
+      link.click();
+    });
+  });
+}
+
+function shareWhatsapp() {
+  html2canvas(document.getElementById('challan'), { scale: 3 }).then(canvas => {
+    canvas.toBlob(function(blob) {
+      const text = encodeURIComponent("Check this Delivery Challan");
+      window.open(https://web.whatsapp.com/send?text=${text}, '_blank');
+    });
+  });
 }
 </script>
 
