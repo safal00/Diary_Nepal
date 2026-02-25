@@ -5,16 +5,20 @@
 <title>Quotation</title>
 
 <style>
-body{font-family:Arial;padding:20px}
+body{
+font-family:Arial;
+padding:20px;
+}
 
+/* BUTTONS */
 button{cursor:pointer}
 
 .addBtn{
-margin-bottom:10px;
 background:#2a5fa5;
 color:white;
 border:none;
 padding:6px 12px;
+margin-bottom:10px;
 }
 
 .undoBtn{
@@ -32,9 +36,11 @@ border:none;
 padding:5px 10px;
 }
 
+/* TABLE */
 table{
 width:100%;
 border-collapse:collapse;
+margin-top:10px;
 }
 
 th,td{
@@ -48,9 +54,14 @@ background:#2a5fa5;
 color:white;
 }
 
+/* PREMIUM DESIGN COLUMN */
 .designCell{
 position:relative;
-height:140px;
+height:180px;
+overflow:hidden;
+border-radius:12px;
+box-shadow:0 4px 12px rgba(0,0,0,0.15);
+background:#f5f7ff;
 }
 
 .fileInput{display:none;}
@@ -58,8 +69,13 @@ height:140px;
 .designImg{
 width:100%;
 height:100%;
-object-fit:contain;
+object-fit:cover;
 display:none;
+transition:transform 0.4s ease;
+}
+
+.designCell:hover .designImg{
+transform:scale(1.08);
 }
 
 .fileBtn{
@@ -68,8 +84,8 @@ padding:5px 10px;
 
 .removeBtn{
 position:absolute;
-top:5px;
-right:5px;
+top:6px;
+right:6px;
 background:red;
 color:white;
 border:none;
@@ -80,10 +96,31 @@ display:none;
 display:block;
 }
 
+/* TERMS SECTION */
+.terms{
+margin-top:40px;
+padding:15px;
+border:1px solid #ccc;
+border-radius:8px;
+background:#fafafa;
+}
+
+.terms h3{
+margin-bottom:10px;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+.designCell{height:120px;}
+}
+
+@media(max-width:480px){
+.designCell{height:100px;}
+}
+
 /* PRINT CLEAN */
 @media print{
-.addBtn,.undoBtn,.delBtn,.removeBtn,.fileBtn,
-th:last-child,td:last-child{
+.addBtn,.undoBtn,.delBtn,.removeBtn,.fileBtn{
 display:none !important;
 }
 }
@@ -91,6 +128,8 @@ display:none !important;
 </head>
 
 <body>
+
+<h2>QUOTATION</h2>
 
 <button class="addBtn" onclick="addRow()">Add Item</button>
 <button class="undoBtn" onclick="undoDelete()">Undo Delete</button>
@@ -108,9 +147,22 @@ display:none !important;
 <th>Action</th>
 </tr>
 </thead>
-
 <tbody id="tbody"></tbody>
 </table>
+
+<!-- TERMS & CONDITIONS -->
+<div class="terms">
+<h3>Terms & Conditions</h3>
+<ol>
+<li>Quotation valid for 7 days from issue date.</li>
+<li>50% advance payment required before work start.</li>
+<li>Final payment must be cleared before delivery.</li>
+<li>Delivery time depends on order quantity.</li>
+<li>Design once approved cannot be changed.</li>
+<li>Transportation cost not included unless mentioned.</li>
+<li>Company is not responsible for damage after delivery.</li>
+</ol>
+</div>
 
 <script>
 
@@ -121,7 +173,6 @@ let lastDeletedIndex=null;
 addRow();
 
 function addRow(){
-
 let n=tbody.rows.length+1;
 
 let row=tbody.insertRow();
@@ -131,7 +182,6 @@ row.innerHTML=`
 <td contenteditable></td>
 
 <td class="designCell">
-
 <input type="file" class="fileInput"
 accept="image/*"
 onchange="uploadPhoto(event,this)">
@@ -144,8 +194,7 @@ Choose Photo
 <img class="designImg">
 
 <button class="removeBtn"
-onclick="removePhoto(this)">❌</button>
-
+onclick="removePhoto(this)">✖</button>
 </td>
 
 <td contenteditable></td>
@@ -160,16 +209,13 @@ onclick="deleteRow(this)">Delete</button>
 `;
 }
 
-/* PHOTO UPLOAD */
 function uploadPhoto(e,input){
-
 let file=e.target.files[0];
 if(!file) return;
 
 let reader=new FileReader();
 
 reader.onload=function(ev){
-
 let cell=input.parentElement;
 let img=cell.querySelector(".designImg");
 let remove=cell.querySelector(".removeBtn");
@@ -177,33 +223,26 @@ let btn=cell.querySelector(".fileBtn");
 
 img.src=ev.target.result;
 img.style.display="block";
-
-btn.style.display="none";   // hide choose button
+btn.style.display="none";
 remove.classList.add("show");
-
 };
 
 reader.readAsDataURL(file);
 input.value="";
 }
 
-/* REMOVE PHOTO */
 function removePhoto(btn){
-
 let cell=btn.parentElement;
 let img=cell.querySelector(".designImg");
 let fileBtn=cell.querySelector(".fileBtn");
 
 img.src="";
 img.style.display="none";
-
 btn.classList.remove("show");
 fileBtn.style.display="inline-block";
 }
 
-/* DELETE ROW */
 function deleteRow(btn){
-
 if(!confirm("Delete this row?")) return;
 
 let row=btn.closest("tr");
@@ -211,14 +250,12 @@ lastDeletedIndex=[...tbody.rows].indexOf(row);
 lastDeletedRow=row.cloneNode(true);
 
 row.remove();
-
 updateSerial();
+
 if(tbody.rows.length==0) addRow();
 }
 
-/* UNDO DELETE */
 function undoDelete(){
-
 if(!lastDeletedRow){
 alert("Nothing to undo!");
 return;
@@ -233,7 +270,6 @@ updateSerial();
 lastDeletedRow=null;
 }
 
-/* SERIAL UPDATE */
 function updateSerial(){
 [...tbody.rows].forEach((r,i)=>{
 r.cells[0].innerText=i+1;
