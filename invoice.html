@@ -1,61 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset='UTF-8'>
+<meta charset="UTF-8">
 <title>Invoice</title>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'></script>
 <style>
-body{font-family:Arial;padding:20px;background:#eef3ff}
-.invoice{width:210mm;min-height:297mm;background:#fff;margin:auto;padding:25px}
-h1{text-align:center;color:#2a5fa5;margin-bottom:30px}
-.top{display:flex;justify-content:space-between;margin-bottom:25px;font-weight:bold;padding-right:60px}
-.line-field{display:inline-block;border-bottom:2px solid transparent;padding:2px 4px;text-align:left;width:auto}
-.line-field.filled{border-bottom:2px solid #333}
-.details{display:flex;justify-content:space-between;margin:25px 0}
-.details div{width:48%}
-table{width:100%;border-collapse:collapse;margin-top:15px}
-th,td{border:1px solid #666;padding:6px;text-align:left}
-th:nth-child(1),td:nth-child(1),
-th:nth-child(3),td:nth-child(3),
-th:nth-child(4),td:nth-child(4),
-th:nth-child(5),td:nth-child(5),
-th:nth-child(6),td:nth-child(6){text-align:center}
-th:nth-child(2),td:nth-child(2){text-align:center}
-th{background:#cfe0ff}
+body{font-family:Arial;padding:20px}
+.invoice{max-width:900px;margin:auto}
+h1{text-align:center}
+table{width:100%;border-collapse:collapse;margin-top:20px}
+th,td{border:1px solid #000;padding:6px;text-align:center}
+input{width:90%;border:none;text-align:center;font-size:15px}
+input:focus{outline:none}
 .buttons{text-align:center;margin-top:20px}
-.btn{padding:8px 14px;margin:5px;border:none;background:#2a5fa5;color:#fff;border-radius:5px;cursor:pointer}
-.btn:hover{background:#1d4a82}
-.whatsapp{background:#25D366}
-.whatsapp:hover{background:#1ebe5d}
-.thankyou{text-align:center;margin-top:40px;font-size:18px;font-weight:600;color:#2a5fa5}
-[contenteditable]:focus{outline:none}
+button{padding:8px 15px;margin:5px;border:none;background:#2a5fa5;color:#fff;cursor:pointer}
+button:hover{background:#1d4a82}
 </style>
 </head>
 <body>
 
-<div class='invoice' id='invoice'>
+<div class="invoice">
 <h1>INVOICE</h1>
 
-<div class='top'>
-<div>Invoice No: <span contenteditable='true' spellcheck='false' class='line-field'></span></div>
-<div>Date: <span contenteditable='true' spellcheck='false' class='line-field'></span></div>
-</div>
-
-<div class='details'>
-<div>
-<b>Company</b><br>
-<div contenteditable='true'>Company Name</div>
-<div contenteditable='true'>Address / Phone</div>
-</div>
-<div>
-<b>Buyer</b><br>
-<div contenteditable='true'>Buyer Name</div>
-<div contenteditable='true'>Buyer Address</div>
-<div contenteditable='true'>Buyer Phone</div>
-</div>
-</div>
-
-<table id='tbl'>
+<table id="tbl">
 <thead>
 <tr>
 <th>S.No</th>
@@ -66,128 +32,76 @@ th{background:#cfe0ff}
 <th>Amount</th>
 </tr>
 </thead>
-<tbody id='tbody'>
-<tr id='emptyRow'>
-<td colspan='6' style='text-align:center;color:#888'>Click + Add Item to start</td>
-</tr>
+<tbody id="tbody">
 </tbody>
 <tfoot>
 <tr>
-<td colspan='4' style='border:none'></td>
-<td style='font-weight:bold;text-align:center'>Grand Total</td>
-<td style='font-weight:bold;text-align:center'><span id='gt'>0</span></td>
+<td colspan="5"><b>Grand Total</b></td>
+<td><b id="gt">0</b></td>
 </tr>
 </tfoot>
 </table>
 
-<br><br>
-Prepared By: <span contenteditable='true' class='line-field' style='min-width:220px'></span>
-
-<div class='thankyou'>
-Thank you for doing business with us
+<div class="buttons">
+<button onclick="addRow()">+ Add Item</button>
+<button onclick="removeRow()">Remove Item</button>
+<button onclick="window.print()">Print</button>
 </div>
 
-</div>
-
-<div class='buttons' id='actionButtons'>
-<button class='btn' onclick='addRow()'>+ Add Item</button>
-<button class='btn' onclick='removeRow()'>Remove Item</button>
-<button class='btn' onclick='window.print()'>Print</button>
-<button class='btn whatsapp' onclick='shareInvoice()'>📱 Share</button>
 </div>
 
 <script>
-let tbody=document.getElementById('tbody');
+let tbody=document.getElementById("tbody");
 
 function addRow(){
-let empty=document.getElementById('emptyRow');
-if(empty) empty.remove();
+let rowCount=tbody.rows.length+1;
 
-let r=document.createElement('tr');
-r.innerHTML=`<td></td>
-<td contenteditable='true'></td>
-<td contenteditable='true'></td>
-<td contenteditable='true'></td>
-<td contenteditable='true'></td>
-<td></td>`;
+let r=document.createElement("tr");
+r.innerHTML=`
+<td>${rowCount}</td>
+<td><input type="text"></td>
+<td><input type="text"></td>
+<td><input type="number" class="qty" oninput="calc(this)"></td>
+<td><input type="number" class="rate" oninput="fixRate(this);calc(this)"></td>
+<td class="amount">0</td>
+`;
+
 tbody.appendChild(r);
-calc();
 }
 
 function removeRow(){
 tbody.lastElementChild?.remove();
-if(tbody.children.length===0){
-tbody.innerHTML=`<tr id='emptyRow'><td colspan='6' style='text-align:center;color:#888'>Click + Add Item to start</td></tr>`;
-}
-calc();
+updateSerial();
+calcTotal();
 }
 
-function calc(){
-let t=0;
-[...tbody.querySelectorAll('tr')].forEach((r,i)=>{
-if(r.id==='emptyRow') return;
-r.cells[0].innerText=i+1;
-
-let q=parseFloat(r.cells[3].innerText)||0;
-let rateText=r.cells[4].innerText.trim();
-let rate=parseFloat(rateText)||0;
-
-if(rate===0 && rateText===''){ r.cells[4].innerText=''; }
-else if(rate!==0){ r.cells[4].innerText=rate; }
-
-let a=q*rate;
-r.cells[5].innerText=a;
-t+=a;
+function updateSerial(){
+[...tbody.rows].forEach((row,i)=>{
+row.cells[0].innerText=i+1;
 });
-document.getElementById('gt').innerText=t;
 }
 
-function toTitleCase(el){
-let txt=el.innerText||'';
-if(txt.length>0){
-txt=txt.toLowerCase().split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
-el.innerText=txt;
+function fixRate(el){
+if(el.value.length>1 && el.value.startsWith("0")){
+el.value=parseFloat(el.value);
 }
 }
 
-document.addEventListener('blur',e=>{
-if(e.target.isContentEditable) toTitleCase(e.target);
-
-if(e.target.cellIndex===1){
-let text=e.target.innerText.trim();
-if(text.includes(' ')||text.includes(',')){
-e.target.style.textAlign='left';
-}else{
-e.target.style.textAlign='center';
-}
-}
-},true);
-
-function toggleUnderline(el){
-if((el.innerText||'').trim()==='') el.classList.add('filled');
-else el.classList.remove('filled');
+function calc(el){
+let row=el.closest("tr");
+let qty=row.querySelector(".qty").value||0;
+let rate=row.querySelector(".rate").value||0;
+let amt=qty*rate;
+row.querySelector(".amount").innerText=amt;
+calcTotal();
 }
 
-document.querySelectorAll('.line-field').forEach(e=>toggleUnderline(e));
-document.addEventListener('input',e=>{
-if(e.target.classList.contains('line-field')) toggleUnderline(e.target);
+function calcTotal(){
+let total=0;
+document.querySelectorAll(".amount").forEach(a=>{
+total+=Number(a.innerText)||0;
 });
-
-setInterval(calc,500);
-
-function shareInvoice(){
-let btn=document.getElementById('actionButtons');
-btn.style.display='none';
-html2canvas(document.getElementById('invoice'),{scale:3}).then(c=>{
-c.toBlob(b=>{
-if(navigator.share){
-navigator.share({files:[new File([b],'Invoice.png',{type:'image/png'})]});
-}else{
-alert('Use mobile device for WhatsApp share');
-}
-btn.style.display='block';
-});
-});
+document.getElementById("gt").innerText=total;
 }
 </script>
 
