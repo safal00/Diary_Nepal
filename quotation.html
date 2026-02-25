@@ -3,251 +3,382 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Professional Quotation</title>
+<title>Quotation</title>
 
 <style>
 body{
-font-family: Arial;
-background:#f2f5ff;
-padding:20px;
+  font-family: Arial, sans-serif;
+  background:#f0f4ff;
+  margin:0;
+  padding:15px;
 }
 
 .quotation-container{
-max-width:1000px;
-margin:auto;
-background:#fff;
-padding:30px;
-border-radius:8px;
-box-shadow:0 10px 25px rgba(0,0,0,0.1);
+  max-width:900px;
+  margin:auto;
+  background:#fff;
+  padding:25px;
+  border-radius:8px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.1);
 }
 
-h1{text-align:center;color:#004080;}
+h1{
+  text-align:center;
+  color:#004080;
+}
 
-.flex{display:flex;gap:15px;flex-wrap:wrap;}
-.flex .box{flex:1 1 48%;}
+.flex-container{
+  display:flex;
+  gap:15px;
+}
 
-input{
-width:100%;
-padding:6px;
-margin:4px 0;
-border:1px solid #ccc;
-border-radius:4px;
-text-align:center;
+.flex-container .box{
+  flex:1;
+}
+
+input, textarea{
+  width:100%;
+  padding:7px;
+  margin:4px 0 8px;
+  border:1px solid #ccc;
+  border-radius:4px;
+  background:#f9f9f9;
+  font-size:14px;
 }
 
 table{
-width:100%;
-border-collapse:collapse;
-margin-top:15px;
-}
-
-th,td{
-border-bottom:1px solid #ddd;
-padding:6px;
-text-align:center;
+  width:100%;
+  margin-top:10px;
+  border-collapse:separate;
+  border-spacing:4px;
 }
 
 th{
-background:#cce0ff;
+  background:#cce0ff;
+  padding:8px;
+}
+
+td{
+  background:#fff;
+  padding:6px;
 }
 
 .photo-container{
-position:relative;
-width:90px;
-height:65px;
-margin:auto;
-border:1px solid #ccc;
-border-radius:5px;
-overflow:hidden;
-background:#fafafa;
+  position:relative;
+  width:70px;
+  height:55px;
 }
 
 .photo-container img{
-width:100%;
-height:100%;
-object-fit:cover;
-display:none;
-}
-
-.photo-container input{
-position:absolute;
-width:100%;
-height:100%;
-opacity:0;
-cursor:pointer;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:none;
+  cursor:pointer;
 }
 
 .remove-btn{
-position:absolute;
-top:2px;
-right:2px;
-background:red;
-color:#fff;
-border:none;
-border-radius:50%;
-width:18px;
-height:18px;
-font-size:12px;
-display:none;
-cursor:pointer;
+  position:absolute;
+  top:-6px;
+  right:-6px;
+  background:red;
+  color:#fff;
+  border:none;
+  border-radius:50%;
+  width:18px;
+  height:18px;
+  font-size:12px;
+  cursor:pointer;
+  display:none;
 }
 
+.photo-container:hover .remove-btn{
+  display:block;
+}
+
+/* FULLSCREEN VIEW */
+.fullscreen-view{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.9);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+
+.fullscreen-view img{
+  max-width:90%;
+  max-height:90%;
+}
+
+/* STAMP BOX */
+.stamp-box{
+  border:1px dashed #333;
+  height:90px;
+  width:130px;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+
+.stamp-box span{
+  position:absolute;
+  color:#777;
+}
+
+.stamp-box img{
+  position:absolute;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  display:none;
+}
+
+.stamp-box input{
+  position:absolute;
+  width:100%;
+  height:100%;
+  opacity:0;
+  cursor:pointer;
+}
+
+/* TOTALS */
+.totals{
+  display:flex;
+  gap:10px;
+  margin-top:15px;
+}
+
+.totals div{
+  flex:1;
+}
+
+/* SIGNATURE */
+.signature-section{
+  display:flex;
+  justify-content:space-between;
+  margin-top:20px;
+}
+
+/* BUTTON */
 button{
-background:#0066cc;
-color:#fff;
-border:none;
-padding:6px 14px;
-border-radius:4px;
-cursor:pointer;
+  background:#0066cc;
+  color:#fff;
+  border:none;
+  padding:7px 14px;
+  border-radius:4px;
+  cursor:pointer;
 }
 
+button:hover{
+  background:#004080;
+}
+
+/* MOBILE VIEW */
 @media(max-width:768px){
-.flex .box{flex:1 1 100%;}
-table{display:block;overflow:auto;}
+
+  .flex-container{
+    flex-direction:column;
+  }
+
+  table{
+    font-size:12px;
+  }
+
+  .totals{
+    flex-direction:column;
+  }
+
+  .signature-section{
+    flex-direction:column;
+    gap:15px;
+  }
+
+  .photo-container{
+    width:55px;
+    height:45px;
+  }
+}
+
+/* PRINT CLEAN */
+@media print{
+  button{display:none;}
+  body{background:#fff;}
+  .quotation-container{box-shadow:none;}
 }
 </style>
 </head>
 
 <body>
 
-<div class="quotation-container">
+<div class="quotation-container" id="quotation">
 
 <h1>QUOTATION</h1>
 
-<div class="flex">
-<div class="box">
-<h3>Client</h3>
-<input placeholder="Client Name">
-<input placeholder="Company">
-<input placeholder="Address">
-<input placeholder="Phone">
-</div>
+<div class="flex-container">
+  <div class="box">
+    <h3>Client Details</h3>
+    <input placeholder="Client Name">
+    <input placeholder="Company Name">
+    <input placeholder="Address">
+    <input placeholder="Phone">
+  </div>
 
-<div class="box">
-<h3>Company</h3>
-<input placeholder="Company Name">
-<input placeholder="Address">
-<input placeholder="Phone">
-<input type="date">
-<input placeholder="Quotation No.">
-</div>
+  <div class="box">
+    <h3>Company Details</h3>
+    <input placeholder="Company Name">
+    <input placeholder="Address">
+    <input placeholder="Email / Phone">
+    <input placeholder="Date">
+    <input placeholder="Quotation No.">
+  </div>
 </div>
 
 <table id="items">
-<thead>
 <tr>
-<th>SN</th>
+<th>#</th>
 <th>Description</th>
-<th>Design</th>
+<th>Photo</th>
 <th>Size</th>
 <th>Qty</th>
 <th>Unit</th>
 <th>Total</th>
 <th></th>
 </tr>
-</thead>
 
-<tbody>
 <tr>
 <td>1</td>
 <td><input placeholder="Item"></td>
+
 <td>
 <div class="photo-container">
+<input type="file" accept="image/*" onchange="previewImg(event,this)">
 <img>
-<input type="file" accept="image/*" onchange="preview(this)">
 <button class="remove-btn" onclick="removeImg(this)">×</button>
 </div>
 </td>
-<td><input placeholder="Size"></td>
-<td><input value="0" oninput="calc(this)"></td>
-<td><input value="0" oninput="calc(this)"></td>
-<td><input value="0" readonly></td>
-<td><button onclick="delRow(this)">×</button></td>
+
+<td><input></td>
+<td><input type="number" oninput="calc(this)"></td>
+<td><input type="number" oninput="calc(this)"></td>
+<td><input readonly></td>
+<td><button onclick="removeRow(this)">×</button></td>
 </tr>
-</tbody>
 </table>
 
-<button onclick="add()">+ Add</button>
+<button onclick="addRow()">+ Add Item</button>
 
-<br><br>
+<div class="totals">
+<div><label>Subtotal</label><input id="subtotal" readonly></div>
+<div><label>Discount %</label><input id="discount" oninput="updateTotals()"></div>
+<div><label>Grand Total</label><input id="grand" readonly></div>
+<div><label>In Words</label><input id="words" readonly></div>
+</div>
 
-Subtotal <input id="sub" readonly>
-Discount % <input id="dis" oninput="total()">
-Grand <input id="grand" readonly>
+<div class="signature-section">
+<div>
+<label>Signature</label>
+<input placeholder="Name">
+</div>
+
+<div class="stamp-box">
+<span>Company Stamp</span>
+<input type="file" accept="image/*" onchange="stampPreview(event,this)">
+<img>
+<button class="remove-btn" onclick="removeStamp(this)">×</button>
+</div>
+</div>
 
 </div>
 
+<br>
+<button onclick="window.print()">Print</button>
+
 <script>
+function previewImg(e,input){
+ const file=input.files[0];
+ const img=input.nextElementSibling;
+ if(file){
+  img.src=URL.createObjectURL(file);
+  img.style.display='block';
+  input.style.display='none';
 
-function preview(input){
-let file=input.files[0];
-let box=input.parentElement;
-let img=box.querySelector("img");
-let btn=box.querySelector(".remove-btn");
-
-if(file){
-img.src=URL.createObjectURL(file);
-img.style.display="block";
-btn.style.display="block";
-}
+  img.onclick=()=>{
+   const v=document.createElement('div');
+   v.className='fullscreen-view';
+   v.innerHTML=<img src="${img.src}">;
+   v.onclick=()=>v.remove();
+   document.body.appendChild(v);
+  }
+ }
 }
 
 function removeImg(btn){
-let box=btn.parentElement;
-let img=box.querySelector("img");
-let input=box.querySelector("input");
-
-img.src="";
-img.style.display="none";
-input.value="";
-btn.style.display="none";
+ const box=btn.parentElement;
+ const input=box.querySelector('input');
+ const img=box.querySelector('img');
+ input.value='';
+ input.style.display='block';
+ img.style.display='none';
 }
 
-function add(){
-let tb=document.querySelector("#items tbody");
-let n=tb.rows.length+1;
-let r=tb.insertRow();
-
-r.innerHTML=`
-<td>${n}</td>
-<td><input></td>
-<td>
-<div class="photo-container">
-<img>
-<input type="file" accept="image/*" onchange="preview(this)">
-<button class="remove-btn" onclick="removeImg(this)">×</button>
-</div>
-</td>
-<td><input></td>
-<td><input value="0" oninput="calc(this)"></td>
-<td><input value="0" oninput="calc(this)"></td>
-<td><input value="0" readonly></td>
-<td><button onclick="delRow(this)">×</button></td>`;
+function stampPreview(e,input){
+ const box=input.parentElement;
+ const img=box.querySelector('img');
+ const text=box.querySelector('span');
+ img.src=URL.createObjectURL(input.files[0]);
+ img.style.display='block';
+ text.style.display='none';
 }
 
-function calc(e){
-let tr=e.closest("tr");
-let q=+tr.cells[4].querySelector("input").value||0;
-let p=+tr.cells[5].querySelector("input").value||0;
-tr.cells[6].querySelector("input").value=q*p;
-total();
+function removeStamp(btn){
+ const box=btn.parentElement;
+ const img=box.querySelector('img');
+ const text=box.querySelector('span');
+ const input=box.querySelector('input');
+ input.value='';
+ img.style.display='none';
+ text.style.display='block';
 }
 
-function total(){
-let s=0;
-document.querySelectorAll("#items tbody tr").forEach(r=>{
-s+=+r.cells[6].querySelector("input").value||0;
-});
-document.getElementById("sub").value=s;
-let d=document.getElementById("dis").value||0;
-document.getElementById("grand").value=(s-(s*d/100)).toFixed(2);
+function addRow(){
+ const table=document.getElementById('items');
+ const r=table.insertRow();
+ const n=table.rows.length-1;
+ r.innerHTML=table.rows[1].innerHTML;
+ r.cells[0].innerText=n;
 }
 
-function delRow(btn){
-btn.closest("tr").remove();
-let rows=document.querySelectorAll("#items tbody tr");
-rows.forEach((r,i)=>r.cells[0].innerText=i+1);
-total();
+function removeRow(btn){
+ btn.closest('tr').remove();
+ updateTotals();
+}
+
+function calc(el){
+ const tr=el.closest('tr');
+ const qty=tr.cells[4].querySelector('input').value||0;
+ const price=tr.cells[5].querySelector('input').value||0;
+ tr.cells[6].querySelector('input').value=qty*price;
+ updateTotals();
+}
+
+function updateTotals(){
+ let total=0;
+ document.querySelectorAll('#items tr').forEach((r,i)=>{
+  if(i===0) return;
+  total+=Number(r.cells[6].querySelector('input').value)||0;
+ });
+ document.getElementById('subtotal').value=total;
+ const d=document.getElementById('discount').value||0;
+ const grand=total-(total*d/100);
+ document.getElementById('grand').value=grand.toFixed(2);
+ document.getElementById('words').value=grand;
 }
 </script>
 
