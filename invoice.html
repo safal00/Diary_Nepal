@@ -97,7 +97,7 @@ function updateGrandTotal() {
   let total = 0;
   const rows = document.querySelectorAll('#itemsTable tbody tr');
   rows.forEach((r,i) => {
-    r.cells[0].innerText = i+1; // Serial Number
+    r.cells[0].innerText = i+1; // Serial Number auto-update
     total += parseFloat(r.cells[5].children[0].value) || 0;
   });
   document.getElementById('grandTotal').innerText = total;
@@ -117,7 +117,7 @@ document.getElementById('addItemBtn').addEventListener('click', function() {
     <td><button class="btn" onclick="removeRow(this)">Remove</button></td>
   `;
   tbody.appendChild(newRow);
-  updateGrandTotal();
+  updateGrandTotal(); // Serial + Grand Total update
 });
 
 function removeRow(btn) {
