@@ -12,7 +12,7 @@ h1{text-align:center;color:#2a5fa5;margin-bottom:30px}
 .top .row{display:flex;justify-content:flex-end;white-space:nowrap}
 .top .label{display:inline-block;width:120px;text-align:right}
 .top .value{display:inline-block;min-width:80px;text-align:left}
-.line{display:inline-block;min-width:120px} /* underline removed */
+.line{display:inline-block;min-width:120px}
 .details{display:grid;grid-template-columns:1fr 1fr;margin-bottom:20px}
 .details .company{text-align:left;padding-left:10px}
 .details .buyer{justify-self:end;text-align:left;padding-right:40px}
@@ -82,7 +82,14 @@ button:hover{background:#1d4a82}
 </table>
 
 <br>
-Prepared By: <span contenteditable="true" class="line"></span>
+<div style="display:flex;justify-content:space-between;margin-top:20px">
+  <div>
+    Prepared By: <span contenteditable="true" class="line"></span>
+  </div>
+  <div>
+    Received By: <span contenteditable="true" class="line"></span>
+  </div>
+</div>
 
 <div class="thank">Thank You For Doing Business With Us</div>
 </div>
@@ -133,7 +140,6 @@ document.querySelectorAll(".amt").forEach(a=>{total+=Number(a.innerText)||0;});
 document.getElementById("gt").innerText=total;
 }
 
-/* First Letter Capital */
 function toTitleCase(el){
 let txt=el.innerText;
 txt=txt.toLowerCase().split(" ").map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(" ");
@@ -144,7 +150,6 @@ document.addEventListener("blur",e=>{
 if(e.target.isContentEditable){toTitleCase(e.target);} 
 },true);
 
-/* Description Alignment */
 function alignDesc(el){
 let text=el.innerText.trim();
 if(text.includes(" ") || text.includes(",")){
@@ -154,7 +159,6 @@ el.style.textAlign="center";
 }
 }
 
-/* WhatsApp Share */
 function shareInvoice(){
 let btn=document.getElementById("actions");
 btn.style.display="none";
