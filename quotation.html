@@ -6,251 +6,62 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body{
-font-family:Arial, sans-serif;
-background:#f4f6fb;
-margin:0;
-padding:20px;
-}
-
-.container{
-max-width:1100px;
-margin:auto;
-background:white;
-padding:25px;
-border-radius:14px;
-box-shadow:0 10px 30px rgba(0,0,0,0.12);
-}
-
-.header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-border-bottom:2px solid #eee;
-padding-bottom:15px;
-margin-bottom:20px;
-}
-
-.company{
-font-size:14px;
-line-height:1.6;
-}
-
-.title{
-font-size:28px;
-font-weight:bold;
-color:#2d4da5;
-}
-
-button{
-padding:8px 18px;
-border:none;
-border-radius:6px;
-background:#2d4da5;
-color:white;
-cursor:pointer;
-margin:10px 5px;
-}
-
+body{font-family:Arial;background:#f4f6fb;margin:0;padding:20px}
+.container{max-width:1100px;margin:auto;background:#fff;padding:25px;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.12)}
+.header{display:flex;justify-content:space-between;border-bottom:2px solid #eee;margin-bottom:20px;padding-bottom:10px}
+.title{font-size:28px;font-weight:bold;color:#2d4da5}
+button{padding:7px 16px;border:none;border-radius:6px;background:#2d4da5;color:#fff;margin:6px;cursor:pointer}
 button:hover{background:#1f3674}
-
-.table{
-width:100%;
-border-collapse:collapse;
-margin-top:10px;
-}
-
-.table th{
-background:#2d4da5;
-color:white;
-padding:10px;
-}
-
-.table td{
-padding:10px;
-border:1px solid #ddd;
-vertical-align:top;
-}
-
-textarea{
-width:100%;
-height:80px;
-border-radius:6px;
-padding:6px;
-}
-
-/* PREMIUM IMAGE CARD */
-.design-box{
-width:180px;
-height:180px;
-display:flex;
-align-items:center;
-justify-content:center;
-background:rgba(255,255,255,0.4);
-backdrop-filter:blur(10px);
-border-radius:16px;
-box-shadow:0 6px 20px rgba(0,0,0,0.15);
-overflow:hidden;
-position:relative;
-cursor:pointer;
-}
-
-.design-box input{
-position:absolute;
-width:100%;
-height:100%;
-opacity:0;
-cursor:pointer;
-z-index:2;
-}
-
-.design-box img{
-width:100%;
-height:100%;
-object-fit:contain;
-display:none;
-transition:0.4s ease;
-z-index:1;
-}
-
-.design-box img{
-max-width:100%;
-max-height:100%;
-object-fit:contain;
-transition:0.4s ease;
-cursor:pointer;
-}
-
-.design-box:hover img{
-transform:scale(1.12);
-}
-
-.footer{
-margin-top:30px;
-border-top:2px solid #eee;
-padding-top:15px;
-font-size:13px;
-}
-
-.stamp{
-width:120px;
-height:120px;
-border:2px dashed #bbb;
-display:flex;
-align-items:center;
-justify-content:center;
-margin:auto;
-}
-
-.popup{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.8);
-display:none;
-align-items:center;
-justify-content:center;
-}
-
-.popup img{
-max-width:90%;
-max-height:90%;
-border-radius:12px;
-}
-
-@media(max-width:600px){
-.design-box{width:120px;height:120px}
-textarea{height:60px}
-}
+.table{width:100%;border-collapse:collapse;margin-top:10px}
+.table th{background:#2d4da5;color:#fff;padding:10px}
+.table td{border:1px solid #ddd;padding:10px;vertical-align:top}
+textarea{width:100%;height:90px;border-radius:6px;padding:6px}
+.design-box{width:170px;height:170px;border-radius:16px;background:#fff;box-shadow:0 6px 20px rgba(0,0,0,.15);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center}
+.design-box input{position:absolute;width:100%;height:100%;opacity:0;cursor:pointer}
+.design-box img{width:100%;height:100%;object-fit:contain;display:none;transition:.3s}
+.design-box:hover img{transform:scale(1.08)}
+.removeBtn{position:absolute;top:5px;right:5px;background:red;padding:3px 7px;border-radius:4px;font-size:12px;display:none}
+.design-box:hover .removeBtn{display:block}
+@media print{.removeBtn,button{display:none}}
+.footer{margin-top:25px;border-top:2px solid #eee;padding-top:15px;font-size:13px}
+.undo{background:green}
+.popup{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center}
+.popup img{max-width:90%;max-height:90%;border-radius:10px}
+@media(max-width:600px){.design-box{width:120px;height:120px}}
 </style>
 </head>
-
 <body>
-
 <div class="container">
-
 <div class="header">
-<div class="company">
-<b>Company Name Pvt Ltd</b><br>
-Address Line<br>
-Phone / Email
+<div>
+<b>Company Name Pvt Ltd</b><br>Address Line<br>Phone / Email
 </div>
 <div class="title">QUOTATION</div>
 </div>
-
 <button onclick="addRow()">Add Item</button>
+<button class="undo" onclick="undoDelete()">Undo Delete</button>
 <button onclick="window.print()">Print</button>
-
 <table class="table" id="qTable">
-<tr>
-<th>S.No</th>
-<th>Description</th>
-<th>Design</th>
-<th>Qty</th>
-<th>Action</th>
-</tr>
+<tr><th>S.No</th><th>Description</th><th>Design</th><th>Qty</th><th>Action</th></tr>
 </table>
-
 <div class="footer">
-Prepared By: ____________
-<div class="stamp">Stamp</div>
-<br>
+Prepared By: ____________<br><br>
 <b>Terms & Conditions</b><br>
 1. Goods once sold not returnable.<br>
 2. 50% advance required.<br>
 3. Delivery within 7 days.
 </div>
 </div>
-
-<div class="popup" id="popup" onclick="this.style.display='none'">
-<img id="popupImg">
-</div>
-
+<div class="popup" id="popup" onclick="this.style.display='none'"><img id="popupImg"></div>
 <script>
-let count=0;
-
-function addRow(){
-count++;
-let table=document.getElementById('qTable');
-let row=table.insertRow();
-
-row.innerHTML=`
-<td>${count}</td>
-<td><textarea placeholder="Description"></textarea></td>
-<td>
-<div class="design-box">
-<input type="file" accept="image/*" onchange="preview(event,this)">
-<img style="display:none">
-</div>
-</td>
-<td><input type="number" value="0" style="width:60px"></td>
-<td><button onclick="this.parentElement.parentElement.remove()">Delete</button></td>`;
-}
-
-function preview(e,input){
-  const file = input.files && input.files[0];
-  if(!file) return;
-  const box = input.closest('.design-box');
-  const img = box.querySelector('img');
-  const reader = new FileReader();
-  reader.onload = function(ev){
-    img.src = ev.target.result;   // show image reliably
-    img.style.display = 'block';
-    box.classList.add('has-image');
-  };
-  reader.readAsDataURL(file);
-
-  img.onclick = ()=>{
-    document.getElementById('popupImg').src = img.src;
-    document.getElementById('popup').style.display = 'flex';
-  };
-}
-}
-// auto add first row on load
-window.onload = () => addRow();
+let count=0,lastDeleted=null;
+function renumber(){document.querySelectorAll('#qTable tr').forEach((r,i)=>{if(i>0)r.cells[0].innerText=i})}
+function addRow(){count++;let t=qTable.insertRow();t.innerHTML=`<td>${count}</td><td><textarea placeholder='Description'></textarea></td><td><div class='design-box'><input type='file' accept='image/*' onchange='preview(this)'><img><div class='removeBtn' onclick='removeImg(this,event)'>X</div></div></td><td><input type='number' value='0' style='width:60px'></td><td><button onclick='deleteRow(this)'>Delete</button></td>`}
+function deleteRow(btn){if(!confirm('Delete item?'))return;lastDeleted=btn.closest('tr').outerHTML;btn.closest('tr').remove();renumber()}
+function undoDelete(){if(lastDeleted){qTable.insertAdjacentHTML('beforeend',lastDeleted);lastDeleted=null;renumber()}}
+function preview(input){let f=input.files[0];if(!f)return;let img=input.nextElementSibling;let r=new FileReader();r.onload=e=>{img.src=e.target.result;img.style.display='block'};r.readAsDataURL(f);img.onclick=()=>{popupImg.src=img.src;popup.style.display='flex'}}
+function removeImg(btn,e){e.stopPropagation();let box=btn.parentElement;box.querySelector('img').style.display='none';box.querySelector('input').value=''}
+window.onload=()=>addRow();
 </script>
-
 </body>
 </html>
