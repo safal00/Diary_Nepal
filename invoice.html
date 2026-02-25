@@ -75,83 +75,89 @@ th { background: #cce0ff; }
 </div>
 
 <script>
-// Add Row Function
-function addItemRow() {
+// Fully working Add Item + Remove + Auto Calc
+(function(){
   const tbody = document.querySelector('#itemsTable tbody');
-  const newRow = document.createElement('tr');
-  newRow.innerHTML = `
-    <td></td>
-    <td><input type="text" placeholder="Item description"></td>
-    <td><input type="text" placeholder="Size"></td>
-    <td><input type="number" value="1" min="0" oninput="calculateAmount(this)"></td>
-    <td><input type="number" value="0" min="0" oninput="calculateAmount(this)"></td>
-    <td><input type="number" value="0" readonly></td>
-    <td><button class="btn removeBtn">Remove</button></td>
-  `;
-  tbody.appendChild(newRow);
-  updateGrandTotal();
-}
+  const grandTotalEl = document.getElementById('grandTotal');
 
-// Calculate Amount
-function calculateAmount(el) {
-  const row = el.closest('tr');
-  const qty = parseFloat(row.cells[3].children[0].value) || 0;
-  const rate = parseFloat(row.cells[4].children[0].value) || 0;
-  row.cells[5].children[0].value = qty * rate;
-  updateGrandTotal();
-}
-
-// Update Serial and Grand Total
-function updateGrandTotal() {
-  let total = 0;
-  const rows = document.querySelectorAll('#itemsTable tbody tr');
-  rows.forEach((row, index) => {
-    row.cells[0].innerText = index + 1;
-    total += parseFloat(row.cells[5].children[0].value) || 0;
-  });
-  document.getElementById('grandTotal').innerText = total;
-}
-
-// Event delegation for Remove
-document.querySelector('#itemsTable tbody').addEventListener('click', function(e){
-  if(e.target && e.target.classList.contains('removeBtn')){
-    e.target.closest('tr').remove();
+  function addItemRow(){
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td></td>
+      <td><input type="text" placeholder="Item description"></td>
+      <td><input type="text" placeholder="Size"></td>
+      <td><input type="number" value="1" min="0"></td>
+      <td><input type="number" value="0" min="0"></td>
+      <td><input type="number" value="0" readonly></td>
+      <td><button class="btn removeBtn">Remove</button></td>
+    `;
+    tbody.appendChild(row);
+    attachRowEvents(row);
     updateGrandTotal();
   }
-});
 
-// Add Item Button click
-document.getElementById('addItemBtn').addEventListener('click', addItemRow);
+  function attachRowEvents(row){
+    const qtyInput = row.cells[3].querySelector('input');
+    const rateInput = row.cells[4].querySelector('input');
+    const removeBtn = row.cells[6].querySelector('button');
 
-// Add first empty row on load
-addItemRow();
-
-// Download as Image
-function downloadImage() {
-  html2canvas(document.getElementById('challan'), { scale: 3 }).then(canvas => {
-    canvas.toBlob(function(blob) {
-      const link = document.createElement('a');
-      link.download = 'Delivery_Challan.png';
-      link.href = URL.createObjectURL(blob);
-      link.click();
-    });
-  });
-}
-
-// WhatsApp share
-function shareWhatsapp() {
-  html2canvas(document.getElementById('challan'), { scale: 2 }).then(canvas => {
-    if(navigator.share){
-      canvas.toBlob(blob=>{
-        const file = new File([blob],"Delivery_Challan.png",{type:"image/png"});
-        navigator.share({files:[file], text:"Delivery Challan"}).catch(e=>console.log(e));
-      });
-    }else{
-      const text = encodeURIComponent("Check this Delivery Challan");
-      window.open(https://web.whatsapp.com/send?text=${text}, '_blank');
+    function recalc(){
+      const qty = parseFloat(qtyInput.value) || 0;
+      const rate = parseFloat(rateInput.value) || 0;
+      row.cells[5].querySelector('input').value = qty * rate;
+      updateGrandTotal();
     }
-  });
-}
+
+    qtyInput.addEventListener('input', recalc);
+    rateInput.addEventListener('input', recalc);
+    removeBtn.addEventListener('click', function(){
+      row.remove();
+      updateGrandTotal();
+    });
+  }
+
+  function updateGrandTotal(){
+    let total = 0;
+    const rows = tbody.querySelectorAll('tr');
+    rows.forEach((row,index)=>{
+      row.cells[0].innerText = index + 1;
+      total += parseFloat(row.cells[5].querySelector('input').value) || 0;
+    });
+    grandTotalEl.innerText = total;
+  }
+
+  document.getElementById('addItemBtn').addEventListener('click', addItemRow);
+
+  // Add first row on load
+  addItemRow();
+
+  // Image download
+  window.downloadImage = function(){
+    html2canvas(document.getElementById('challan'), { scale: 3 }).then(canvas=>{
+      canvas.toBlob(blob=>{
+        const link = document.createElement('a');
+        link.download = 'Delivery_Challan.png';
+        link.href = URL.createObjectURL(blob);
+        link.click();
+      });
+    });
+  };
+
+  // WhatsApp share
+  window.shareWhatsapp = function(){
+    html2canvas(document.getElementById('challan'), { scale: 2 }).then(canvas=>{
+      if(navigator.share){
+        canvas.toBlob(blob=>{
+          const file = new File([blob],"Delivery_Challan.png",{type:"image/png"});
+          navigator.share({files:[file], text:"Delivery Challan"}).catch(e=>console.log(e));
+        });
+      }else{
+        const text = encodeURIComponent("Check this Delivery Challan");
+        window.open(https://web.whatsapp.com/send?text=${text}, '_blank');
+      }
+    });
+  };
+})();
 </script>
 </body>
 </html>
