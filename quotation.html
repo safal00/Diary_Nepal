@@ -6,358 +6,252 @@
 <title>Quotation</title>
 
 <style>
-body { 
-  font-family: Arial, sans-serif; 
-  background:#f0f4ff; 
-  margin:0; 
-  padding:20px; 
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial, sans-serif;
 }
 
-.quotation-container { 
-  max-width:900px; 
-  margin:auto; 
-  background:#fff; 
-  padding:30px 40px; 
-  border-radius:8px; 
-  box-shadow:0 8px 20px rgba(0,0,0,0.1);
+body{
+  padding:15px;
+  background:#f4f4f4;
 }
 
-h1 { 
-  text-align:center; 
-  color:#004080; 
-  margin-bottom:30px; 
+.container{
+  max-width:900px;
+  margin:auto;
+  background:#fff;
+  padding:20px;
+  border-radius:6px;
+  box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
 
-.flex-container { 
-  display:flex; 
-  justify-content:space-between; 
-  gap:20px;
-  margin-bottom:20px; 
+/* Header */
+.header{
+  text-align:center;
+  margin-bottom:15px;
 }
 
-.flex-container .box { width:48%; }
-
-input, textarea { 
-  width:100%; 
-  padding:6px 8px; 
-  margin-top:4px; 
-  margin-bottom:8px; 
-  font-size:14px; 
-  border:1px solid #ccc; 
-  border-radius:4px; 
-  background:#f9f9f9;
+.header h2{
+  font-size:22px;
 }
 
-table { 
-  width:100%; 
-  border-collapse:separate; 
-  border-spacing:6px; 
-  margin-top:12px; 
-}
-
-table th { 
-  padding:8px; 
-  text-align:left; 
-  border-bottom:2px solid #3399ff; 
-  background:#cce0ff; 
-  color:#003366; 
-}
-
-table td { 
-  padding:6px 8px; 
-  vertical-align:middle; 
-}
-
-/* PHOTO DESIGN COLUMN */
-.photo-container { 
-  position: relative; 
-  display:inline-block; 
-  width:80px; 
-  height:70px; 
-}
-
-.photo-container img { 
-  max-width:100%; 
-  max-height:100%; 
-  object-fit:contain; 
-  display:none; 
-  cursor:pointer;
-}
-
-/* Remove button */
-.remove-btn { 
-  position:absolute; 
-  top:-6px; 
-  right:-6px; 
-  background:red; 
-  color:#fff; 
-  border:none; 
-  border-radius:50%; 
-  width:18px; 
-  height:18px; 
-  cursor:pointer; 
-  display:none; 
-  font-size:12px;
-}
-
-/* Hover पछि मात्र देखिने */
-.photo-container:hover .remove-btn { 
-  display:block; 
-}
-
-button { 
-  padding:6px 14px; 
-  background:#0066cc; 
-  color:#fff; 
-  border:none; 
-  border-radius:4px; 
-  cursor:pointer; 
-  margin-top:5px;
-}
-
-button:hover { background:#004080; }
-
-.totals { 
-  margin-top:15px; 
-  display:flex; 
+.section{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:15px;
   gap:15px;
 }
 
-.totals div { 
-  display:flex; 
-  flex-direction:column; 
+.box{
   flex:1;
+  border:1px solid #ccc;
+  padding:10px;
+  border-radius:4px;
 }
 
-.signature-section { 
-  display:flex; 
-  justify-content:space-between; 
-  margin-top:25px; 
+/* Table */
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:15px;
 }
 
-.signature-box { width:48%; }
-
-.stamp-box { 
-  border:1px dashed #333; 
-  height:90px; 
-  width:130px; 
-  display:flex; 
-  align-items:center; 
-  justify-content:center; 
-  position:relative; 
-  background:#f9f9f9;
-  overflow:hidden;
+th, td{
+  border:1px solid #ccc;
+  padding:6px;
+  text-align:center;
+  font-size:13px;
 }
 
-.stamp-box span{
-  position:absolute;
-  color:#777;
+th{
+  background:#f0f0f0;
 }
 
-.stamp-box img { 
-  position:absolute;
-  width:100%; 
-  height:100%; 
+/* Design Column */
+.photo-box{
+  position:relative;
+  width:80px;
+  height:70px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.photo-box img{
+  max-width:100%;
+  max-height:100%;
   object-fit:contain;
   display:none;
-}
-
-.stamp-box input[type=file] { 
-  position:absolute; 
-  opacity:0; 
-  width:100%; 
-  height:100%; 
   cursor:pointer;
 }
 
-.terms { 
-  font-family: 'Times New Roman', serif; 
-  font-size:13px; 
-  margin-top:20px; 
+.remove-btn{
+  position:absolute;
+  top:-5px;
+  right:-5px;
+  background:red;
+  color:#fff;
+  border:none;
+  border-radius:50%;
+  width:18px;
+  height:18px;
+  font-size:12px;
+  cursor:pointer;
+  display:none;
 }
 
-/* MOBILE */
+.photo-box:hover .remove-btn{
+  display:block;
+}
+
+/* Buttons */
+button{
+  padding:6px 10px;
+  margin-top:10px;
+  cursor:pointer;
+}
+
+/* Terms */
+.terms{
+  margin-top:20px;
+  border-top:1px solid #ccc;
+  padding-top:10px;
+  font-size:13px;
+}
+
+/* Mobile */
 @media(max-width:768px){
-  .flex-container{flex-direction:column;}
-  .totals{flex-direction:column;}
-  .signature-section{flex-direction:column;gap:15px;}
+
+.section{
+  flex-direction:column;
 }
 
-/* PRINT */
-@media print{
-  button{display:none;}
-  body{background:#fff;}
-  .quotation-container{box-shadow:none;}
+table{
+  font-size:11px;
+}
+
+.photo-box{
+  width:60px;
+  height:60px;
+}
+
 }
 </style>
 </head>
+
 <body>
 
-<div class="quotation-container">
+<div class="container">
 
-<h1>QUOTATION</h1>
+<div class="header">
+  <h2>QUOTATION</h2>
+</div>
 
-<div class="flex-container">
+<div class="section">
   <div class="box">
-    <h3>Client Details</h3>
-    <input placeholder="Client Name">
-    <input placeholder="Company Name">
-    <input placeholder="Address">
-    <input placeholder="Phone Number">
+    <strong>Company Details</strong><br>
+    Nepal Print Solution Pvt. Ltd.<br>
+    Kathmandu, Nepal
   </div>
+
   <div class="box">
-    <h3>Company Details</h3>
-    <input placeholder="Company Name">
-    <input placeholder="Address">
-    <input placeholder="Email / Phone">
-    <input placeholder="Date">
-    <input placeholder="Quotation No.">
+    <strong>Client Details</strong><br>
+    Client Name<br>
+    Address
   </div>
 </div>
 
-<table id="items-table">
+<table>
 <thead>
 <tr>
 <th>SN</th>
 <th>Description</th>
 <th>Design</th>
-<th>Size</th>
 <th>Qty</th>
-<th>Unit Price</th>
+<th>Rate</th>
 <th>Total</th>
-<th>Action</th>
 </tr>
 </thead>
-<tbody>
+
+<tbody id="itemBody">
 <tr>
 <td>1</td>
-<td><input></td>
+<td><input type="text" style="width:100%"></td>
 
 <td>
-<div class="photo-container">
-<input type="file" accept="image/*" onchange="previewImg(this)">
-<img>
+<div class="photo-box">
+<input type="file" accept="image/*" onchange="showImg(this)">
+<img class="preview">
 <button class="remove-btn" onclick="removeImg(this)">×</button>
 </div>
 </td>
 
-<td><input></td>
-<td><input type="number" oninput="updateRow(this)"></td>
-<td><input type="number" oninput="updateRow(this)"></td>
-<td><input readonly></td>
-<td><button onclick="removeRow(this)">×</button></td>
+<td><input type="number" style="width:60px"></td>
+<td><input type="number" style="width:70px"></td>
+<td>0</td>
 </tr>
 </tbody>
 </table>
 
-<button onclick="addItem()">+ Add Item</button>
-
-<div class="totals">
-<div><label>Subtotal</label><input id="subtotal" readonly></div>
-<div><label>Discount (%)</label><input id="discount" oninput="calculateTotals()"></div>
-<div><label>Grand Total</label><input id="grandtotal" readonly></div>
-<div><label>In Words</label><input id="grandwords" readonly></div>
-</div>
-
-<div class="signature-section">
-<div class="signature-box">
-<label>Signature:</label>
-<input placeholder="Name">
-</div>
-
-<div class="stamp-box">
-<span>Company Stamp</span>
-<input type="file" accept="image/*" onchange="previewStamp(this)">
-<img>
-<button class="remove-btn" onclick="removeStamp(this)">×</button>
-</div>
-</div>
+<button onclick="addRow()">Add Item</button>
 
 <div class="terms">
-<h3>Terms & Conditions</h3>
-<textarea rows="6">
-1. This quotation is valid for 30 days from the date issued.
-2. Delivery within 7 working days.
-3. 50% advance, 50% on delivery.
-4. Items checked before shipment.
-5. VAT extra as applicable.
-</textarea>
+<strong>Terms & Conditions:</strong>
+<ul>
+<li>Goods once sold will not be returned.</li>
+<li>Delivery within 3-5 working days.</li>
+<li>Advance payment required.</li>
+</ul>
 </div>
 
 </div>
 
 <script>
-function previewImg(input){
-  const file=input.files[0];
-  const img=input.nextElementSibling;
+function showImg(input){
+  const file = input.files[0];
+  const img = input.nextElementSibling;
+
   if(file){
-    img.src=URL.createObjectURL(file);
-    img.style.display='block';
-    input.style.display='none';
+    img.src = URL.createObjectURL(file);
+    img.style.display = "block";
+    input.style.display = "none";
   }
 }
 
 function removeImg(btn){
-  const box=btn.parentElement;
-  const img=box.querySelector('img');
-  const input=box.querySelector('input');
-  img.style.display='none';
-  img.src='';
-  input.style.display='block';
-  input.value='';
+  const box = btn.parentElement;
+  const img = box.querySelector("img");
+  const input = box.querySelector("input");
+
+  img.src = "";
+  img.style.display = "none";
+  input.value = "";
+  input.style.display = "block";
 }
 
-function addItem(){
-  const tbody=document.querySelector("#items-table tbody");
-  const row=tbody.insertRow();
-  row.innerHTML=tbody.rows[0].innerHTML;
-  Array.from(tbody.rows).forEach((r,i)=>r.cells[0].innerText=i+1);
-}
+function addRow(){
+  const body = document.getElementById("itemBody");
+  const rowCount = body.rows.length + 1;
 
-function removeRow(btn){
-  btn.closest("tr").remove();
-  const rows=document.querySelectorAll("#items-table tbody tr");
-  rows.forEach((r,i)=>r.cells[0].innerText=i+1);
-  calculateTotals();
-}
+  const row = body.insertRow();
 
-function updateRow(el){
-  const tr=el.closest("tr");
-  const qty=tr.cells[4].querySelector("input").value||0;
-  const price=tr.cells[5].querySelector("input").value||0;
-  tr.cells[6].querySelector("input").value=qty*price;
-  calculateTotals();
-}
-
-function calculateTotals(){
-  let subtotal=0;
-  document.querySelectorAll("#items-table tbody tr").forEach(r=>{
-    subtotal+=Number(r.cells[6].querySelector("input").value)||0;
-  });
-  document.getElementById("subtotal").value=subtotal;
-  const d=document.getElementById("discount").value||0;
-  const grand=subtotal-(subtotal*d/100);
-  document.getElementById("grandtotal").value=grand.toFixed(2);
-  document.getElementById("grandwords").value=grand;
-}
-
-function previewStamp(input){
-  const box=input.parentElement;
-  const img=box.querySelector("img");
-  const text=box.querySelector("span");
-  img.src=URL.createObjectURL(input.files[0]);
-  img.style.display="block";
-  text.style.display="none";
-}
-
-function removeStamp(btn){
-  const box=btn.parentElement;
-  const img=box.querySelector("img");
-  const text=box.querySelector("span");
-  const input=box.querySelector("input");
-  img.style.display="none";
-  text.style.display="block";
-  input.value="";
+  row.innerHTML = `
+  <td>${rowCount}</td>
+  <td><input type="text" style="width:100%"></td>
+  <td>
+    <div class="photo-box">
+      <input type="file" accept="image/*" onchange="showImg(this)">
+      <img class="preview">
+      <button class="remove-btn" onclick="removeImg(this)">×</button>
+    </div>
+  </td>
+  <td><input type="number" style="width:60px"></td>
+  <td><input type="number" style="width:70px"></td>
+  <td>0</td>
+  `;
 }
 </script>
 
