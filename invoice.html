@@ -1,244 +1,125 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Delivery Challan</title>
+<title>Delivery Challan HD</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
 <style>
-body{
-    font-family: Arial;
-    background:#f4f6fb;
-}
-.container{
-    width:900px;
-    margin:auto;
-    background:white;
-    padding:25px;
-}
-h2{
-    text-align:center;
-    letter-spacing:2px;
-}
-.company{
-    text-align:center;
-    color:#1e40af;
-    font-size:22px;
-    font-weight:bold;
-}
-.top-info{
-    width:100%;
-    margin-top:20px;
-}
-.top-info td{
-    padding:5px;
-}
-input{
-    border:none;
-    border-bottom:1px solid #ccc;
-    width:100%;
-}
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-table,th,td{
-    border:1px solid #999;
-}
-th{
-    background:#2563eb;
-    color:white;
-}
-.total-section{
-    text-align:right;
-    font-weight:bold;
-}
-button{
-    background:#2563eb;
-    color:white;
-    padding:6px 12px;
-    border:none;
-    margin:5px;
-}
-.noPrint{
-    margin-top:10px;
-}
-@media print{
-    .noPrint{display:none;}
-}
+  body { font-family: 'Inter', sans-serif; padding: 20px; background: #f5f5f5; }
+  .challan { width: 210mm; min-height: 297mm; margin: auto; background: #fff; padding: 30px; box-sizing: border-box; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+  h1, h2 { text-align: center; margin-bottom: 5px; }
+  .company-info { text-align: center; margin-bottom: 20px; }
+  input { border: none; font-family: 'Inter', sans-serif; font-size: 1em; width: 100%; }
+  input:focus { outline: 1px solid #333; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+  table, th, td { border: 1px solid #333; }
+  th, td { padding: 10px; text-align: left; }
+  th { background: #eee; }
+  .grand-total { text-align: right; font-weight: bold; font-size: 1.2em; }
+  .btn { display: inline-block; margin: 10px 5px; padding: 10px 20px; font-size: 1em; cursor: pointer; }
 </style>
 </head>
-
 <body>
 
-<div id="challan" class="container">
+<div class="challan" id="challan">
+  <div class="company-info">
+    <input type="text" id="companyName" value="Nepal Print Solution Pvt. Ltd." />
+    <input type="text" id="companyAddress" value="Address: Kathmandu, Nepal | Phone: 01-XXXXXXX" />
+  </div>
 
-<h2>DELIVERY CHALLAN</h2>
+  <h2 contenteditable="true">Delivery Challan / Estimate</h2>
 
-<div class="company">
-<input id="companyName" placeholder="Company Name">
-</div>
-<center>
-<input id="address" placeholder="Address"><br>
-Tel: <input id="phone" placeholder="Phone">
-</center>
+  <table id="itemsTable">
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Qty</th>
+        <th>Rate</th>
+        <th>Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><input type="text" value="Item 1"></td>
+        <td><input type="number" value="2" oninput="calculateAmount(this)"></td>
+        <td><input type="number" value="140" oninput="calculateAmount(this)"></td>
+        <td><input type="number" value="280" readonly></td>
+      </tr>
+      <tr>
+        <td><input type="text" value="Item 2"></td>
+        <td><input type="number" value="3" oninput="calculateAmount(this)"></td>
+        <td><input type="number" value="100" oninput="calculateAmount(this)"></td>
+        <td><input type="number" value="300" readonly></td>
+      </tr>
+    </tbody>
+  </table>
 
-<br><hr>
+  <button class="btn" onclick="addRow()">+ Add Item</button>
 
-<table class="top-info">
-<tr>
-<td>Challan No:</td>
-<td><input id="challanNo"></td>
-<td>Buyer's Detail:</td>
-<td><input id="buyer"></td>
-</tr>
-<tr>
-<td>Date:</td>
-<td><input type="date" id="date"></td>
-<td>Buyer's Ph No:</td>
-<td><input id="buyerPhone"></td>
-</tr>
-<tr>
-<td>Terms of Delivery:</td>
-<td colspan="3"><input id="terms"></td>
-</tr>
-</table>
-
-<br>
-
-<table id="items">
-<tr>
-<th>S.N</th>
-<th>Description of Goods</th>
-<th>Quantity</th>
-<th>Size</th>
-<th>Rate</th>
-<th>Total Amount</th>
-<th class="noPrint">Action</th>
-</tr>
-</table>
-
-<div class="noPrint">
-<button onclick="addRow()">Add Row</button>
+  <div class="grand-total">Grand Total: <span id="grandTotal">580</span></div>
 </div>
 
-<br>
-
-<div class="total-section">
-Grand Total: Rs. <span id="grandTotal">0</span>
-</div>
-
-<br><br><br>
-
-Receiver's Signature ________  
-<span style="float:right;">Authorized Signature ________</span>
-
-</div>
-
-<div class="noPrint" style="text-align:center;">
-<button onclick="saveChallan()">Save</button>
-<button onclick="printChallan()">Print</button>
-<button onclick="saveImage()">Save as Image</button>
+<div style="text-align:center;">
+  <button class="btn" onclick="window.print()">Print</button>
+  <button class="btn" onclick="downloadImage()">Save as Image</button>
+  <button class="btn" onclick="shareWhatsapp()">Share on WhatsApp</button>
 </div>
 
 <script>
-
-let editingIndex=null;
-
-function addRow(data=null){
-let table=document.getElementById("items");
-let row=table.insertRow();
-let index=table.rows.length-1;
-
-row.innerHTML=`
-<td>${index}</td>
-<td><input class="desc" value="${data?data.desc:''}"></td>
-<td><input class="qty" value="${data?data.qty:''}"></td>
-<td><input value="${data?data.size:''}"></td>
-<td><input class="rate" value="${data?data.rate:''}"></td>
-<td class="rowTotal">0</td>
-<td class="noPrint"><button onclick="removeRow(this)">X</button></td>
-`;
-
-calculate();
+function calculateAmount(element) {
+  const row = element.closest('tr');
+  const qty = parseFloat(row.cells[1].children[0].value) || 0;
+  const rate = parseFloat(row.cells[2].children[0].value) || 0;
+  row.cells[3].children[0].value = qty * rate;
+  updateGrandTotal();
 }
 
-function removeRow(btn){
-btn.parentNode.parentNode.remove();
-calculate();
+function updateGrandTotal() {
+  let total = 0;
+  const rows = document.querySelectorAll('#itemsTable tbody tr');
+  rows.forEach(row => {
+    total += parseFloat(row.cells[3].children[0].value) || 0;
+  });
+  document.getElementById('grandTotal').innerText = total;
 }
 
-document.addEventListener("input",calculate);
-
-function calculate(){
-let qty=document.querySelectorAll(".qty");
-let rate=document.querySelectorAll(".rate");
-let total=document.querySelectorAll(".rowTotal");
-
-let grand=0;
-
-for(let i=0;i<qty.length;i++){
-let q=parseFloat(qty[i].value)||0;
-let r=parseFloat(rate[i].value)||0;
-let t=q*r;
-total[i].innerText=t;
-grand+=t;
-}
-document.getElementById("grandTotal").innerText=grand;
+function addRow() {
+  const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
+  const newRow = table.insertRow();
+  newRow.innerHTML = `
+    <td><input type="text" value="New Item"></td>
+    <td><input type="number" value="1" oninput="calculateAmount(this)"></td>
+    <td><input type="number" value="0" oninput="calculateAmount(this)"></td>
+    <td><input type="number" value="0" readonly></td>
+  `;
 }
 
-function saveChallan(){
-let items=[];
-document.querySelectorAll("#items tr").forEach((row,i)=>{
-if(i==0)return;
-items.push({
-desc:row.cells[1].children[0].value,
-qty:row.cells[2].children[0].value,
-size:row.cells[3].children[0].value,
-rate:row.cells[4].children[0].value
-});
-});
-
-let challan={
-company:companyName.value,
-address:address.value,
-phone:phone.value,
-challanNo:challanNo.value,
-buyer:buyer.value,
-buyerPhone:buyerPhone.value,
-date:date.value,
-terms:terms.value,
-items:items
-};
-
-let data=JSON.parse(localStorage.getItem("challans")||"[]");
-
-if(editingIndex!==null){
-data[editingIndex]=challan;
-editingIndex=null;
-}else{
-data.push(challan);
+function downloadImage() {
+  html2canvas(document.getElementById('challan'), { scale: 3 }).then(canvas => {
+    canvas.toBlob(function(blob) {
+      const link = document.createElement('a');
+      link.download = 'Delivery_Challan.png';
+      link.href = URL.createObjectURL(blob);
+      link.click();
+    });
+  });
 }
 
-localStorage.setItem("challans",JSON.stringify(data));
-alert("Saved Successfully!");
+function shareWhatsapp() {
+  html2canvas(document.getElementById('challan'), { scale: 3 }).then(canvas => {
+    canvas.toBlob(function(blob) {
+      const file = new File([blob], "Delivery_Challan.png", { type: "image/png" });
+      const reader = new FileReader();
+      reader.onload = function() {
+        const base64data = reader.result.split(',')[1]; // extract base64
+        const waUrl = https://api.whatsapp.com/send?text=Check%20this%20Delivery%20Challan&attachment=${base64data};
+        window.open(waUrl, '_blank');
+      };
+      reader.readAsDataURL(file);
+    });
+  });
 }
-
-function printChallan(){
-window.print();
-}
-
-function saveImage(){
-html2canvas(document.getElementById("challan")).then(canvas=>{
-let link=document.createElement("a");
-link.download="delivery_challan.png";
-link.href=canvas.toDataURL();
-link.click();
-});
-}
-
-addRow();
-
 </script>
 
 </body>
