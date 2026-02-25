@@ -1,82 +1,115 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>Invoice</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
-body { font-family: 'Inter', sans-serif; padding:20px; background:#e6f0ff; }
-
-.challan {
-  width:210mm;
-  min-height:297mm;
-  margin:auto;
-  background:#fff;
-  padding:20px;
-  border-radius:8px;
-  box-shadow:0 0 15px rgba(0,0,0,0.1);
+body{
+    font-family: Arial;
+    background:#f4f4f4;
+    padding:20px;
 }
-
-h1 { text-align:center; color:#004aad; letter-spacing:2px; }
-
+.invoice-box{
+    background:#fff;
+    padding:30px;
+    max-width:900px;
+    margin:auto;
+}
+h1{
+    text-align:center;
+    color:#1f4e79;
+}
+.top{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:20px;
+}
+.section{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:20px;
+}
+.section div{
+    width:48%;
+}
 input{
-  border:none;
-  outline:none;
-  background:transparent;
-  width:100%;
-  text-transform:capitalize;
+    width:100%;
+    border:none;
+    border-bottom:1px solid #999;
+    padding:5px;
+    outline:none;
 }
-
-.header-row{display:flex;justify-content:space-between;margin-bottom:20px;}
-.details{display:flex;justify-content:space-between;margin-bottom:20px;}
-.details div{width:48%;}
-
-table{width:100%;border-collapse:collapse;margin-bottom:10px;}
-table,th,td{border:1px solid #004aad;}
-th{background:#cce0ff;}
-th,td{padding:6px;}
-
-.grand-total{text-align:right;font-size:20px;font-weight:bold;color:#004aad;}
-
-.no-print{text-align:center;margin-top:15px;}
-.btn{padding:6px 12px;margin:5px;background:#004aad;color:white;border:none;border-radius:5px;cursor:pointer;}
-
-@media print{
-.no-print{display:none;}
-th:last-child,td:last-child{display:none;}
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+table,th,td{
+    border:1px solid #999;
+}
+th{
+    background:#e6eef7;
+}
+th,td{
+    padding:8px;
+    text-align:center;
+}
+tfoot td{
+    font-weight:bold;
+}
+.buttons{
+    margin-top:20px;
+    text-align:center;
+}
+button{
+    padding:8px 15px;
+    margin:5px;
+    border:none;
+    background:#1f4e79;
+    color:white;
+    cursor:pointer;
+}
+button:hover{
+    background:#163a5c;
+}
+.hide{
+    display:none;
 }
 </style>
 </head>
 
 <body>
 
-<div class="challan" id="invoice">
+<div class="invoice-box" id="invoice">
 
 <h1>INVOICE</h1>
 
-<div class="header-row">
-<div>Invoice No: <input></div>
-<div>Date: <input></div>
+<div class="top">
+<div>
+Invoice No: <input type="text">
+</div>
+<div>
+Date: <input type="date">
+</div>
 </div>
 
-<div class="details">
+<div class="section">
 <div>
 <b>Company</b><br>
-<input placeholder="Company Name">
+<input placeholder="Company Name"><br>
 <input placeholder="Address / Phone">
 </div>
 
 <div>
 <b>Buyer</b><br>
-<input id="buyerName" list="buyers" placeholder="Buyer Name">
-<datalist id="buyers"></datalist>
-<input placeholder="Buyer Address">
+<input placeholder="Buyer Name"><br>
+<input placeholder="Buyer Address"><br>
 <input placeholder="Buyer Phone">
 </div>
 </div>
 
-<table id="tbl">
+<table id="itemTable">
 <thead>
 <tr>
 <th>S.No</th>
@@ -84,80 +117,102 @@ th:last-child,td:last-child{display:none;}
 <th>Qty</th>
 <th>Rate</th>
 <th>Amount</th>
-<th>Action</th>
 </tr>
 </thead>
-<tbody></tbody>
+<tbody>
+<tr>
+<td>1</td>
+<td contenteditable="true">Item</td>
+<td contenteditable="true" oninput="calculate()">1</td>
+<td contenteditable="true" oninput="calculate()">0</td>
+<td>0</td>
+</tr>
+</tbody>
+
+<tfoot>
+<tr>
+<td colspan="4">Grand Total</td>
+<td id="grandTotal">0</td>
+</tr>
+</tfoot>
 </table>
 
-<div class="grand-total">
-Grand Total: <span id="total">0</span>
-</div>
-
 <br>
-Prepared By:
-<input id="preparedBy" placeholder="Prepared By">
+Prepared By: <input type="text">
 
 </div>
 
-<div class="no-print">
-<button class="btn" onclick="addRow()">+ Add Item</button>
-<button class="btn" onclick="window.print()">Print</button>
+<div class="buttons" id="actionButtons">
+<button onclick="addItem()">+ Add Item</button>
+<button onclick="removeItem()">Remove Last</button>
+<button onclick="printInvoice()">Print</button>
+<button onclick="shareInvoice()">WhatsApp Share</button>
 </div>
 
 <script>
-const tbody=document.querySelector("#tbl tbody");
-const totalEl=document.getElementById("total");
+function calculate(){
+    let table = document.getElementById("itemTable");
+    let rows = table.rows;
+    let total = 0;
 
-function addRow(){
-let r=document.createElement("tr");
-r.innerHTML=`
-<td></td>
-<td><input></td>
-<td><input type=number value=1></td>
-<td><input type=number value=0></td>
-<td><input readonly></td>
-<td><button onclick="this.parentNode.parentNode.remove();calc()">Remove</button></td>`;
-tbody.appendChild(r);
-r.querySelectorAll("input").forEach(i=>i.oninput=calc);
-calc();
-}
-addRow();
-
-function calc(){
-let t=0;
-tbody.querySelectorAll("tr").forEach((r,i)=>{
-r.cells[0].innerText=i+1;
-let q=r.cells[2].firstChild.value||0;
-let rate=r.cells[3].firstChild.value||0;
-let a=q*rate;
-r.cells[4].firstChild.value=a;
-t+=a;
-});
-totalEl.innerText=t;
+    for(let i=1;i<rows.length-1;i++){
+        let qty = parseFloat(rows[i].cells[2].innerText) || 0;
+        let rate = parseFloat(rows[i].cells[3].innerText) || 0;
+        let amount = qty * rate;
+        rows[i].cells[4].innerText = amount;
+        total += amount;
+    }
+    document.getElementById("grandTotal").innerText = total;
 }
 
-/* CUSTOMER HISTORY */
-let buyers=JSON.parse(localStorage.getItem("buyers")||"[]");
-let list=document.getElementById("buyers");
-function load(){
-list.innerHTML="";
-buyers.forEach(b=>{
-let o=document.createElement("option");
-o.value=b;
-list.appendChild(o);
-});
-}
-load();
+function addItem(){
+    let table = document.getElementById("itemTable").getElementsByTagName('tbody')[0];
+    let rowCount = table.rows.length;
+    let row = table.insertRow();
 
-document.getElementById("buyerName").onchange=function(){
-let n=this.value.trim();
-if(n && !buyers.includes(n)){
-buyers.push(n);
-localStorage.setItem("buyers",JSON.stringify(buyers));
-load();
+    row.insertCell(0).innerText = rowCount + 1;
+    row.insertCell(1).contentEditable = true;
+    row.insertCell(2).contentEditable = true;
+    row.cells[2].innerText = 1;
+    row.cells[2].oninput = calculate;
+    row.insertCell(3).contentEditable = true;
+    row.cells[3].innerText = 0;
+    row.cells[3].oninput = calculate;
+    row.insertCell(4).innerText = 0;
 }
-};
+
+function removeItem(){
+    let table = document.getElementById("itemTable").getElementsByTagName('tbody')[0];
+    if(table.rows.length > 1){
+        table.deleteRow(table.rows.length-1);
+        calculate();
+    }
+}
+
+function printInvoice(){
+    document.getElementById("actionButtons").classList.add("hide");
+    window.print();
+    document.getElementById("actionButtons").classList.remove("hide");
+}
+
+async function shareInvoice(){
+    document.getElementById("actionButtons").classList.add("hide");
+
+    const canvas = await html2canvas(document.getElementById("invoice"));
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    const file = new File([blob], "invoice.png", { type: "image/png" });
+
+    if (navigator.share && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+            files: [file],
+            title: "Invoice"
+        });
+    } else {
+        alert("Sharing not supported on this device");
+    }
+
+    document.getElementById("actionButtons").classList.remove("hide");
+}
 </script>
 
 </body>
