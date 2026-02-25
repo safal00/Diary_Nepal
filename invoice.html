@@ -79,18 +79,16 @@ In Words: <span id="words">Zero Rupees Only</span>
 <br>
 
 <div class="row">
-<div>Prepared By: <input id="preparedBy" value="abc"></div>
+<div>Prepared By: <input value="abc"></div>
 <div style="text-align:right;">Authorized Signature</div>
 </div>
 
 </div>
 
 <div style="text-align:center;margin-top:20px;">
-Send To Number:
-<input id="whatsappNumber" placeholder="97798XXXXXXXX" style="width:200px;"><br>
 <button class="btn" onclick="window.print()">Print</button>
 <button class="btn" onclick="downloadPDF()">Download PDF</button>
-<button class="btn" onclick="shareWhatsapp()">Share WhatsApp</button>
+<button class="btn" onclick="shareWhatsapp()">Share Invoice Image</button>
 </div>
 
 <script>
@@ -154,22 +152,24 @@ pdf.addImage(img,"PNG",0,0,210,(canvas.height*210)/canvas.width);
 pdf.save("Invoice.pdf");
 }
 
-function shareWhatsapp(){
-let number=document.getElementById("whatsappNumber").value.trim();
-if(number===""){alert("Enter WhatsApp number with country code");return;}
+async function shareWhatsapp(){
+const canvas=await html2canvas(document.getElementById("invoice"),{scale:2});
+const blob=await new Promise(res=>canvas.toBlob(res));
+const file=new File([blob],"Invoice.png",{type:"image/png"});
 
-let msg="🧾 *TAX INVOICE*\\n";
-msg+="Invoice No: "+document.getElementById("invoiceNo").value+"\\n";
-msg+="Date: "+document.getElementById("invoiceDate").value+"\\n";
-msg+="Buyer: "+document.getElementById("buyerName").value+"\\n\\nItems:\\n";
-
-[...tbody.rows].forEach((r,i)=>{
-msg+=`${i+1}. ${r.cells[1].querySelector("input").value} | Qty:${r.cells[3].querySelector("input").value} | Rate:₹${r.cells[4].querySelector("input").value} | Amt:₹${r.cells[5].querySelector("input").value}\\n`;
+if(navigator.canShare && navigator.canShare({files:[file]})){
+await navigator.share({
+files:[file],
+title:"Invoice",
+text:"Invoice"
 });
-
-msg+="\\nGrand Total: ₹"+document.getElementById("total").innerText;
-
-window.open(`https://wa.me/${number}?text=${encodeURIComponent(msg)}`);
+}else{
+alert("Desktop browser cannot auto-send image.\nImage will download. Send manually in WhatsApp.");
+const a=document.createElement("a");
+a.href=URL.createObjectURL(blob);
+a.download="Invoice.png";
+a.click();
+}
 }
 </script>
 
