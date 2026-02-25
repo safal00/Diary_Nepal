@@ -2,68 +2,42 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Delivery Challan</title>
+<title>Invoice</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body { font-family: 'Inter', sans-serif; padding:20px; background:#e6f0ff; }
-
-.challan{
-  width:210mm;
-  min-height:297mm;
-  margin:auto;
-  background:#fff;
-  padding:20px;
-  box-shadow:0 0 15px rgba(0,0,0,.1);
-}
-
+body{font-family:Inter;padding:20px;background:#e6f0ff;}
+.invoice{width:210mm;min-height:297mm;margin:auto;background:#fff;padding:20px;box-shadow:0 0 15px rgba(0,0,0,.1);}
 h1{text-align:center;color:#004aad;margin-bottom:20px;}
-
-.header-row, .details{display:flex;justify-content:space-between;margin-bottom:15px;}
+.row{display:flex;justify-content:space-between;margin-bottom:10px;}
 .details div{width:48%;}
 input{border:none;border-bottom:1px solid #004aad;width:100%;margin:4px 0;}
-
 table{width:100%;border-collapse:collapse;margin-top:10px;}
 table,th,td{border:1px solid #004aad;}
 th{background:#cce0ff;padding:6px;}
 td{padding:6px;}
-
-.btn{
-  background:#004aad;
-  color:#fff;
-  border:none;
-  padding:6px 12px;
-  margin:4px;
-  cursor:pointer;
-}
-
-.totalBox{width:260px;margin-left:auto;margin-top:15px;font-weight:600;}
-
+.btn{background:#004aad;color:#fff;border:none;padding:6px 12px;margin:4px;cursor:pointer;}
+.total{margin-left:auto;width:300px;margin-top:15px;font-weight:600;font-size:18px;}
 @page{size:A4;margin:10mm;}
-@media print{
-  body{background:#fff;padding:0;}
-  .btn{display:none;}
-  .challan{box-shadow:none;}
-}
+@media print{body{background:#fff;padding:0}.btn{display:none}.invoice{box-shadow:none}}
 </style>
 </head>
 
 <body>
 
-<div class="challan" id="challan">
+<div class="invoice" id="invoice">
 
-<h1>Delivery Challan</h1>
+<h1>TAX INVOICE</h1>
 
-<div class="header-row">
-<div>Challan No: <input></div>
+<div class="row">
+<div>Invoice No: <input></div>
 <div>Date: <input></div>
 </div>
 
-<div class="details">
+<div class="row details">
 <div>
 <b>Company Details</b>
 <input placeholder="Company Name">
@@ -95,13 +69,18 @@ td{padding:6px;}
 <tbody></tbody>
 </table>
 
-<button class="btn" id="addItemBtn">+ Add Item</button>
+<button class="btn" id="addItem">+ Add Item</button>
 
-<div class="totalBox">
-<div>Grand Total: <span id="grandTotal">0</span></div>
-<div>GST % <input id="gstPercent" value="18" style="width:60px;"></div>
-<div>GST Amount: <span id="gstAmount">0</span></div>
-<div style="font-size:18px;">Final Total: <span id="finalTotal">0</span></div>
+<div class="total">
+Grand Total: ₹ <span id="total">0.00</span><br>
+In Words: <span id="words">Zero Rupees Only</span>
+</div>
+
+<br><br>
+
+<div class="row">
+<div>Prepared By: <input id="preparedBy" value="abc"></div>
+<div style="text-align:right;">Authorized Signature</div>
 </div>
 
 </div>
@@ -115,62 +94,67 @@ td{padding:6px;}
 <script>
 const tbody=document.querySelector("#itemsTable tbody");
 
-function addItem(){
-const row=document.createElement("tr");
-row.innerHTML=`
+function addRow(){
+const r=document.createElement("tr");
+r.innerHTML=`
 <td></td>
 <td><input></td>
 <td><input></td>
 <td><input type="number" value="1"></td>
 <td><input type="number" value="0"></td>
 <td><input readonly></td>
-<td><button class="btn">Remove</button></td>
-`;
-tbody.appendChild(row);
+<td><button class="btn">Remove</button></td>`;
+tbody.appendChild(r);
 
-const qty=row.cells[3].querySelector("input");
-const rate=row.cells[4].querySelector("input");
-const amt=row.cells[5].querySelector("input");
+const q=r.cells[3].querySelector("input");
+const rate=r.cells[4].querySelector("input");
+const amt=r.cells[5].querySelector("input");
 
-function calc(){
-amt.value=(qty.value*rate.value)||0;
-updateTotal();
-}
-qty.oninput=calc;
-rate.oninput=calc;
+function calc(){amt.value=(q.value*rate.value)||0;update();}
+q.oninput=calc;rate.oninput=calc;
 
-row.cells[6].onclick=()=>{row.remove();updateTotal();};
-updateTotal();
+r.cells[6].onclick=()=>{r.remove();update();}
+update();
 }
 
-document.getElementById("addItemBtn").onclick=addItem;
-document.getElementById("gstPercent").oninput=updateTotal;
-addItem();
+document.getElementById("addItem").onclick=addRow;
+addRow();
 
-function updateTotal(){
-let total=0;
+function update(){
+let t=0;
 [...tbody.rows].forEach((r,i)=>{
 r.cells[0].innerText=i+1;
-total+=parseFloat(r.cells[5].querySelector("input").value)||0;
+t+=parseFloat(r.cells[5].querySelector("input").value)||0;
 });
+document.getElementById("total").innerText=t.toFixed(2);
+document.getElementById("words").innerText=toWords(t)+" Rupees Only";
+}
 
-document.getElementById("grandTotal").innerText=total.toFixed(2);
-const gst=total*(document.getElementById("gstPercent").value||0)/100;
-document.getElementById("gstAmount").innerText=gst.toFixed(2);
-document.getElementById("finalTotal").innerText=(total+gst).toFixed(2);
+function toWords(num){
+const a=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
+const b=["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
+
+function words(n){
+if(n<20)return a[n];
+if(n<100)return b[Math.floor(n/10)]+" "+a[n%10];
+if(n<1000)return a[Math.floor(n/100)]+" Hundred "+words(n%100);
+if(n<100000)return words(Math.floor(n/1000))+" Thousand "+words(n%1000);
+return words(Math.floor(n/100000))+" Lakh "+words(n%100000);
+}
+return num?words(Math.floor(num)):"Zero";
 }
 
 async function downloadPDF(){
-const canvas=await html2canvas(document.getElementById("challan"),{scale:2});
+const canvas=await html2canvas(document.getElementById("invoice"),{scale:2});
 const img=canvas.toDataURL("image/png");
 const {jsPDF}=window.jspdf;
 const pdf=new jsPDF("p","mm","a4");
 pdf.addImage(img,"PNG",0,0,210,(canvas.height*210)/canvas.width);
-pdf.save("Delivery_Challan.pdf");
+pdf.save("Invoice.pdf");
 }
 
 function shareWhatsapp(){
-const text=encodeURIComponent("Delivery Challan Ready");
+const text=encodeURIComponent("Invoice Ready");
 if(/Android|iPhone/i.test(navigator.userAgent))
 window.open(`https://wa.me/?text=${text}`);
 else
