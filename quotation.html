@@ -7,107 +7,104 @@
 
 <style>
 body{font-family:Arial;background:#eef2f9;margin:0;padding:20px}
+
 .container{max-width:1100px;margin:auto;background:#ffffff;padding:18px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.08)}
-.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding:18px 0;border-bottom:1px solid #e6eaf2}
-.company{line-height:1.6}
-.company b{font-size:18px;color:#1f2d4d}
-.company span{color:#6b768c;font-size:13px}
-.quote-badge{font-size:26px;font-weight:700;color:#2d4da5;padding:8px 18px;border-radius:30px;background:#f2f5ff;border:1px solid #dbe2ff;letter-spacing:1px}
-.title{font-size:28px;font-weight:bold;color:#2d4da5}
+.header{display:flex;align-items:center;justify-content:center;margin-bottom:12px;padding:10px 0;border-bottom:1px solid #e6eaf2}
+.logo-box{width:140px;height:140px;border:none;border-radius:12px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background:transparent;cursor:pointer}
+.logo-box.hasLogo #logoText{display:none}
+.logo-box input{position:absolute;width:100%;height:100%;opacity:0;cursor:pointer}
+.logo-box img{max-width:100%;max-height:100%;object-fit:contain;display:none}
+.quote-badge{font-size:26px;font-weight:700;color:#2d4da5;letter-spacing:.5px}
 button{padding:7px 16px;border:none;border-radius:6px;background:#2d4da5;color:#fff;margin:6px;cursor:pointer}
 button:hover{background:#1f3674}
 .table{width:100%;border-collapse:collapse;margin-top:10px}
 .table th{background:#2d4da5;color:#fff;padding:10px}
 .table td{border:1px solid #ddd;padding:10px;vertical-align:top}
 textarea{width:100%;height:90px;border-radius:6px;padding:6px}
-
-/* CLEAN MINIMAL DESIGN BOX */
-.design-box{
-width:190px;
-height:150px;
-border-radius:18px;
-background:#ffffff;
-border:1px solid #e3e6ef;
-box-shadow:0 4px 12px rgba(0,0,0,.08);
-overflow:hidden;
-position:relative;
-display:flex;
-align-items:center;
-justify-content:center;
-margin:0 auto;
-transition:.25s ease;
-}
-
-.design-box:hover{transform:translateY(-3px)}
-
-.design-box::after{
-content:"Upload Image";
-position:absolute;
-color:#9aa3b2;
-font-size:12px;
-pointer-events:none;
-}
-
+.design-box{width:190px;height:150px;border-radius:18px;background:#fff;border:1px solid #e3e6ef;box-shadow:0 4px 12px rgba(0,0,0,.08);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;margin:auto}
+.cap{ text-transform: capitalize; }
+.design-box::after{content:"Upload Image";position:absolute;color:#9aa3b2;font-size:12px}
 .design-box.hasImg::after{display:none}
-
-.design-box input{
-position:absolute;width:100%;height:100%;opacity:0;cursor:pointer;z-index:3
-}
-
-.design-box img{
-width:100%;
-height:100%;
-object-fit:contain;
-object-position:center;
-border-radius:14px;
-display:none;
-background:#ffffff;
-}
-
-.removeBtn{
-position:absolute;top:6px;right:6px;background:#ff4d4d;color:#fff;border-radius:50%;
-width:22px;height:22px;font-size:13px;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:4
-}
-
+.design-box input{position:absolute;width:100%;height:100%;opacity:0;cursor:pointer;z-index:3}
+.design-box img{width:100%;height:100%;object-fit:contain;border-radius:14px;display:none}
+.removeBtn{position:absolute;top:6px;right:6px;background:#ff4d4d;color:#fff;border-radius:50%;width:22px;height:22px;font-size:13px;display:none;align-items:center;justify-content:center;cursor:pointer}
 .design-box.hasImg:hover .removeBtn{display:flex}
-
-@media(max-width:600px){.design-box{width:130px;height:110px}}
+.footer{margin-top:20px;font-size:13px;color:#555}
+@media print{
+  #logoText{display:none !important;}
+  .logo-box input{display:none !important;}
+  .design-box::after{display:none !important;}
+}
 </style>
 </head>
 <body>
+
 <div class="container">
+
 <div class="header">
-<div class="company">
-<b>Company Name Pvt Ltd</b><br>
-<span>Address Line, City</span><br>
-<span>Phone • Email</span>
+<div contenteditable="true" class="quote-badge">QUOTATION</div>
 </div>
-<div class="quote-badge">QUOTATION</div>
+
+<div style="display:flex;justify-content:space-between;margin-bottom:10px">
+<div>
+<b>Company Details</b><br>
+Company Name: <span contenteditable="true" class="cap" spellcheck="false"></span><br>
+Address: <span contenteditable="true" class="cap" spellcheck="false"></span><br>
+Phone: <span contenteditable="true" spellcheck="false"></span>
 </div>
-<button onclick="addRow()">Add Item</button>
-<button class="undo" onclick="undoDelete()">Undo Delete</button>
+<div>
+<b>Buyer Details</b><br>
+Buyer Name: <span contenteditable="true" class="cap" spellcheck="false"></span><br>
+Address: <span contenteditable="true" class="cap" spellcheck="false"></span><br>
+Phone: <span contenteditable="true" spellcheck="false"></span>
+</div>
+<div>
+Quotation No: <span contenteditable="true" spellcheck="false"></span><br>
+Date: <span contenteditable="true" spellcheck="false"></span>
+</div>
+</div>
+
+<button id="addBtn">Add Item</button>
+<button id="undoBtn">Undo Delete</button>
 <button onclick="window.print()">Print</button>
+
 <table class="table" id="qTable">
 <tr><th>S.No</th><th>Description</th><th>Design</th><th>Size</th><th>Qty</th><th>Rate</th><th>Amount</th><th>Action</th></tr>
 </table>
+
 <div class="footer">
-Prepared By: ____________<br><br>
+Prepared By: <span contenteditable="true" class="cap" spellcheck="false" style="border-bottom:1px solid #aaa;min-width:120px;display:inline-block"></span>
+
+<br><br>
+
+<div style="display:flex;flex-direction:column;align-items:flex-start;gap:10px;margin:10px 0">
+<label class="logo-box">
+<span id="logoText" style="font-size:12px;color:#777">Click to Upload</span>
+<input id="logoUpload" type="file" accept="image/*" onchange="previewLogo(this)">
+<img id="logoImg">
+</label>
+<b>Company Stamp</b>
+</div>
+
+<br>
 <b>Terms & Conditions</b><br>
 1. Goods once sold not returnable.<br>
 2. 50% advance required.<br>
 3. Delivery within 7 days.
 </div>
-</div>
 
-<div class="popup" id="popup" onclick="this.style.display='none'"><img id="popupImg"></div>
+</div>
 
 <script>
 let count=0,lastDeleted=null;
+const qTable=document.getElementById('qTable');
+
+document.getElementById('addBtn').onclick=addRow;
+document.getElementById('undoBtn').onclick=undoDelete;
 
 function renumber(){
-document.querySelectorAll('#qTable tr').forEach((r,i)=>{
-if(i>0) r.cells[0].innerText=i;
-});
+let rows=qTable.querySelectorAll('tr');
+rows.forEach((r,i)=>{ if(i>0) r.cells[0].innerText=i;});
 }
 
 function addRow(){
@@ -115,7 +112,7 @@ count++;
 let t=qTable.insertRow();
 t.innerHTML=`
 <td>${count}</td>
-<td><textarea placeholder='Description'></textarea></td>
+<td><div contenteditable='true' spellcheck='false' style='min-height:60px;max-height:60px;overflow:auto;padding:4px;word-break:break-word;'></div></td>
 <td>
 <div class='design-box'>
 <input type='file' accept='image/*' onchange='preview(this)'>
@@ -123,26 +120,21 @@ t.innerHTML=`
 <div class='removeBtn' onclick='removeImg(this,event)'>×</div>
 </div>
 </td>
-<td><input placeholder='Size' style='width:70px'></td>
-<td><input type='number' value='0' style='width:60px' oninput='calc(this)'></td>
-<td><input type='number' value='0' style='width:70px' oninput='calc(this)'></td>
-<td class='amt'>0</td>
+<td></td>
+<td></td>
+<td></td>
+<td class='amt'></td>
 <td><button onclick='deleteRow(this)'>Delete</button></td>`;
 }
 
 function deleteRow(btn){
-if(!confirm('Delete item?')) return;
 lastDeleted=btn.closest('tr').outerHTML;
 btn.closest('tr').remove();
 renumber();
 }
 
 function undoDelete(){
-if(lastDeleted){
-qTable.insertAdjacentHTML('beforeend',lastDeleted);
-lastDeleted=null;
-renumber();
-}
+if(lastDeleted){qTable.insertAdjacentHTML('beforeend',lastDeleted);lastDeleted=null;renumber();}
 }
 
 function preview(input){
@@ -151,18 +143,8 @@ if(!file) return;
 let box=input.parentElement;
 let img=box.querySelector('img');
 let reader=new FileReader();
-reader.onload=function(e){
-img.src=e.target.result;
-img.style.display='block';
-box.classList.add('hasImg');
-
-};
+reader.onload=e=>{img.src=e.target.result;img.style.display='block';box.classList.add('hasImg');};
 reader.readAsDataURL(file);
-
-img.onclick=function(){
-popupImg.src=img.src;
-popup.style.display='flex';
-};
 }
 
 function removeImg(btn,e){
@@ -173,14 +155,47 @@ box.querySelector('input').value='';
 box.classList.remove('hasImg');
 }
 
-function calc(el){
-let row=el.closest('tr');
-let qty=row.cells[4].querySelector('input').value||0;
-let rate=row.cells[5].querySelector('input').value||0;
-row.querySelector('.amt').innerText=qty*rate;
+function previewLogo(input){
+ let file=input.files[0];
+ if(!file) return;
+ let img=document.getElementById('logoImg');
+ let box=input.parentElement;
+ let text=document.getElementById('logoText');
+ let reader=new FileReader();
+ reader.onload=function(e){
+   img.src=e.target.result;
+   img.style.display='block';
+   if(text) text.style.display='none';
+   box.classList.add('hasLogo');
+ };
+ reader.readAsDataURL(file);
 }
 
-window.onload=()=>addRow();
+window.onload=()=>{addRow();setupCapitalize();runTests();};
+
+function capitalizeWords(text){
+ if(!text) return text;
+ return text
+  .toLowerCase()
+  .split(' ')
+  .map(word=>word.charAt(0).toUpperCase()+word.slice(1))
+  .join(' ');
+}
+
+function setupCapitalize(){
+ document.querySelectorAll('.cap').forEach(el=>{
+  el.addEventListener('blur',()=>{
+    el.innerText=capitalizeWords(el.innerText.trim());
+  });
+ });
+}
+
+function runTests(){
+ console.assert(capitalizeWords('pawan neupane')==='Pawan Neupane','Test1 failed');
+ console.assert(capitalizeWords('PAWAN NEUPANE')==='Pawan Neupane','Test2 failed');
+ console.assert(capitalizeWords('nEpAl print')==='Nepal Print','Test3 failed');
+ console.log('Capitalize tests passed');
+}
 </script>
 </body>
 </html>
