@@ -6,9 +6,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body{font-family:Arial;background:#f4f6fb;margin:0;padding:20px}
-.container{max-width:1100px;margin:auto;background:#fff;padding:25px;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.12)}
-.header{display:flex;justify-content:space-between;border-bottom:2px solid #eee;margin-bottom:20px;padding-bottom:10px}
+body{font-family:Arial;background:#eef2f9;margin:0;padding:20px}
+.container{max-width:1100px;margin:auto;background:#ffffff;padding:18px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.08)}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding:18px 0;border-bottom:1px solid #e6eaf2}
+.company{line-height:1.6}
+.company b{font-size:18px;color:#1f2d4d}
+.company span{color:#6b768c;font-size:13px}
+.quote-badge{font-size:26px;font-weight:700;color:#2d4da5;padding:8px 18px;border-radius:30px;background:#f2f5ff;border:1px solid #dbe2ff;letter-spacing:1px}
 .title{font-size:28px;font-weight:bold;color:#2d4da5}
 button{padding:7px 16px;border:none;border-radius:6px;background:#2d4da5;color:#fff;margin:6px;cursor:pointer}
 button:hover{background:#1f3674}
@@ -17,38 +21,30 @@ button:hover{background:#1f3674}
 .table td{border:1px solid #ddd;padding:10px;vertical-align:top}
 textarea{width:100%;height:90px;border-radius:6px;padding:6px}
 
-/* PREMIUM DESIGN BOX */
+/* CLEAN MINIMAL DESIGN BOX */
 .design-box{
 width:190px;
-height:190px;
-border-radius:26px; /* Rounded premium frame */
-background:rgba(255,255,255,.25);
-backdrop-filter:blur(8px); /* glass effect */
-border:2px solid rgba(255,255,255,.4);
-box-shadow:0 10px 30px rgba(0,0,0,.18), inset 0 0 10px rgba(255,255,255,.4);
+height:150px;
+border-radius:18px;
+background:#ffffff;
+border:1px solid #e3e6ef;
+box-shadow:0 4px 12px rgba(0,0,0,.08);
 overflow:hidden;
 position:relative;
 display:flex;
 align-items:center;
 justify-content:center;
-transition:.35s ease;
-animation:glowPulse 2.5s infinite alternate; /* shadow glow */
+margin:0 auto;
+transition:.25s ease;
 }
 
-@keyframes glowPulse{
-from{box-shadow:0 8px 25px rgba(0,0,0,.18),0 0 0 rgba(45,77,165,.2)}
-to{box-shadow:0 12px 35px rgba(0,0,0,.25),0 0 20px rgba(45,77,165,.45)}
-}
-
-.design-box:hover{
-transform:translateY(-6px) scale(1.03);
-}
+.design-box:hover{transform:translateY(-3px)}
 
 .design-box::after{
 content:"Upload Image";
 position:absolute;
-color:#666;
-font-size:13px;
+color:#9aa3b2;
+font-size:12px;
 pointer-events:none;
 }
 
@@ -59,29 +55,34 @@ position:absolute;width:100%;height:100%;opacity:0;cursor:pointer;z-index:3
 }
 
 .design-box img{
-width:100%;height:100%;object-fit:contain;background:#fff;display:none;
-transition:transform .5s ease; /* auto zoom */
+width:100%;
+height:100%;
+object-fit:contain;
+object-position:center;
+border-radius:14px;
+display:none;
+background:#ffffff;
 }
 
-.design-box:hover img{transform:scale(1.15)} /* zoom hover */
-
 .removeBtn{
-position:absolute;top:8px;right:8px;background:#ff4d4d;color:#fff;border-radius:50%;
-width:26px;height:26px;font-size:14px;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:4
+position:absolute;top:6px;right:6px;background:#ff4d4d;color:#fff;border-radius:50%;
+width:22px;height:22px;font-size:13px;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:4
 }
 
 .design-box.hasImg:hover .removeBtn{display:flex}
 
-@media(max-width:600px){.design-box{width:130px;height:130px}}
+@media(max-width:600px){.design-box{width:130px;height:110px}}
 </style>
 </head>
 <body>
 <div class="container">
 <div class="header">
-<div>
-<b>Company Name Pvt Ltd</b><br>Address Line<br>Phone / Email
+<div class="company">
+<b>Company Name Pvt Ltd</b><br>
+<span>Address Line, City</span><br>
+<span>Phone • Email</span>
 </div>
-<div class="title">QUOTATION</div>
+<div class="quote-badge">QUOTATION</div>
 </div>
 <button onclick="addRow()">Add Item</button>
 <button class="undo" onclick="undoDelete()">Undo Delete</button>
@@ -154,6 +155,7 @@ reader.onload=function(e){
 img.src=e.target.result;
 img.style.display='block';
 box.classList.add('hasImg');
+
 };
 reader.readAsDataURL(file);
 
