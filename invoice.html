@@ -1,219 +1,100 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
+<meta charset='UTF-8'>
 <title>Invoice</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
+<script src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'></script>
 <style>
-body{
-    font-family: Arial;
-    background:#f4f4f4;
-    padding:20px;
-}
-.invoice-box{
-    background:#fff;
-    padding:30px;
-    max-width:900px;
-    margin:auto;
-}
-h1{
-    text-align:center;
-    color:#1f4e79;
-}
-.top{
-    display:flex;
-    justify-content:space-between;
-    margin-bottom:20px;
-}
-.section{
-    display:flex;
-    justify-content:space-between;
-    margin-bottom:20px;
-}
-.section div{
-    width:48%;
-}
-input{
-    width:100%;
-    border:none;
-    border-bottom:1px solid #999;
-    padding:5px;
-    outline:none;
-}
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-table,th,td{
-    border:1px solid #999;
-}
-th{
-    background:#e6eef7;
-}
-th,td{
-    padding:8px;
-    text-align:center;
-}
-tfoot td{
-    font-weight:bold;
-}
-.buttons{
-    margin-top:20px;
-    text-align:center;
-}
-button{
-    padding:8px 15px;
-    margin:5px;
-    border:none;
-    background:#1f4e79;
-    color:white;
-    cursor:pointer;
-}
-button:hover{
-    background:#163a5c;
-}
-.hide{
-    display:none;
-}
+body{font-family:Arial;padding:20px;background:#eef3ff}
+.invoice{width:210mm;min-height:297mm;background:#fff;margin:auto;padding:25px}
+h1{text-align:center;color:#2a5fa5}
+.top{display:flex;justify-content:space-between;margin:20px 0;font-weight:bold}
+.underline{border-bottom:2px solid #333;min-width:150px;display:inline-block;padding:2px}
+.details{display:flex;justify-content:space-between;margin:20px 0}
+.details div{width:48%}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid #666;padding:6px;text-align:left}
+th{background:#cfe0ff}
+.total{text-align:right;font-size:20px;font-weight:bold;margin-top:20px;color:#2a5fa5}
+.buttons{text-align:center;margin-top:20px}
+.btn{padding:8px 14px;margin:5px;border:none;background:#2a5fa5;color:#fff;border-radius:5px;cursor:pointer}
+.btn:hover{background:#1d4a82}
+.whatsapp{background:#25D366}
+.whatsapp:hover{background:#1ebe5d}
 </style>
 </head>
-
 <body>
 
-<div class="invoice-box" id="invoice">
-
+<div class='invoice' id='invoice'>
 <h1>INVOICE</h1>
 
-<div class="top">
-<div>
-Invoice No: <input type="text">
-</div>
-<div>
-Date: <input type="date">
-</div>
+<div class='top'>
+<div>Invoice No: <span contenteditable='true' class='underline'>____</span></div>
+<div>Date: <span contenteditable='true' class='underline'>____</span></div>
 </div>
 
-<div class="section">
+<div class='details'>
 <div>
 <b>Company</b><br>
-<input placeholder="Company Name"><br>
-<input placeholder="Address / Phone">
+<div contenteditable='true'>Company Name</div>
+<div contenteditable='true'>Address / Phone</div>
 </div>
-
 <div>
 <b>Buyer</b><br>
-<input placeholder="Buyer Name"><br>
-<input placeholder="Buyer Address"><br>
-<input placeholder="Buyer Phone">
+<div contenteditable='true'>Buyer Name</div>
+<div contenteditable='true'>Buyer Address</div>
+<div contenteditable='true'>Buyer Phone</div>
 </div>
 </div>
 
-<table id="itemTable">
+<table id='tbl'>
 <thead>
-<tr>
-<th>S.No</th>
-<th>Description</th>
-<th>Qty</th>
-<th>Rate</th>
-<th>Amount</th>
-</tr>
+<tr><th>S.No</th><th>Description</th><th>Qty</th><th>Rate</th><th>Amount</th></tr>
 </thead>
-<tbody>
-<tr>
-<td>1</td>
-<td contenteditable="true">Item</td>
-<td contenteditable="true" oninput="calculate()">1</td>
-<td contenteditable="true" oninput="calculate()">0</td>
-<td>0</td>
-</tr>
-</tbody>
-
-<tfoot>
-<tr>
-<td colspan="4">Grand Total</td>
-<td id="grandTotal">0</td>
-</tr>
-</tfoot>
+<tbody></tbody>
 </table>
 
+<div class='total'>Grand Total: ₹ <span id='gt'>0</span></div>
 <br>
-Prepared By: <input type="text">
-
+Prepared By: <span contenteditable='true' class='underline'>____</span>
 </div>
 
-<div class="buttons" id="actionButtons">
-<button onclick="addItem()">+ Add Item</button>
-<button onclick="removeItem()">Remove Last</button>
-<button onclick="printInvoice()">Print</button>
-<button onclick="shareInvoice()">WhatsApp Share</button>
+<div class='buttons'>
+<button class='btn' onclick='addRow()'>+ Add Item</button>
+<button class='btn' onclick='removeRow()'>Remove Item</button>
+<button class='btn' onclick='window.print()'>Print</button>
+<button class='btn whatsapp' onclick='shareInvoice()'>📱 Share</button>
 </div>
 
 <script>
-function calculate(){
-    let table = document.getElementById("itemTable");
-    let rows = table.rows;
-    let total = 0;
+let tbody=document.querySelector('#tbl tbody');
+function addRow(){
+let r=document.createElement('tr');
+r.innerHTML=`<td></td>
+<td contenteditable='true'>Item</td>
+<td contenteditable='true'>1</td>
+<td contenteditable='true'>0</td>
+<td>0</td>`;
+tbody.appendChild(r);
+calc();}
+function removeRow(){tbody.lastElementChild?.remove();calc();}
+function calc(){let t=0;[...tbody.rows].forEach((r,i)=>{r.cells[0].innerText=i+1;
+let q=parseFloat(r.cells[2].innerText)||0;
+let rate=parseFloat(r.cells[3].innerText)||0;
+let a=q*rate;r.cells[4].innerText=a;t+=a;});
+document.getElementById('gt').innerText=t;}
+setInterval(calc,500);
+addRow();
 
-    for(let i=1;i<rows.length-1;i++){
-        let qty = parseFloat(rows[i].cells[2].innerText) || 0;
-        let rate = parseFloat(rows[i].cells[3].innerText) || 0;
-        let amount = qty * rate;
-        rows[i].cells[4].innerText = amount;
-        total += amount;
-    }
-    document.getElementById("grandTotal").innerText = total;
-}
-
-function addItem(){
-    let table = document.getElementById("itemTable").getElementsByTagName('tbody')[0];
-    let rowCount = table.rows.length;
-    let row = table.insertRow();
-
-    row.insertCell(0).innerText = rowCount + 1;
-    row.insertCell(1).contentEditable = true;
-    row.insertCell(2).contentEditable = true;
-    row.cells[2].innerText = 1;
-    row.cells[2].oninput = calculate;
-    row.insertCell(3).contentEditable = true;
-    row.cells[3].innerText = 0;
-    row.cells[3].oninput = calculate;
-    row.insertCell(4).innerText = 0;
-}
-
-function removeItem(){
-    let table = document.getElementById("itemTable").getElementsByTagName('tbody')[0];
-    if(table.rows.length > 1){
-        table.deleteRow(table.rows.length-1);
-        calculate();
-    }
-}
-
-function printInvoice(){
-    document.getElementById("actionButtons").classList.add("hide");
-    window.print();
-    document.getElementById("actionButtons").classList.remove("hide");
-}
-
-async function shareInvoice(){
-    document.getElementById("actionButtons").classList.add("hide");
-
-    const canvas = await html2canvas(document.getElementById("invoice"));
-    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-    const file = new File([blob], "invoice.png", { type: "image/png" });
-
-    if (navigator.share && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-            files: [file],
-            title: "Invoice"
-        });
-    } else {
-        alert("Sharing not supported on this device");
-    }
-
-    document.getElementById("actionButtons").classList.remove("hide");
-}
+function shareInvoice(){
+let btn=document.querySelector('.buttons');btn.style.display='none';
+html2canvas(document.getElementById('invoice'),{scale:3}).then(c=>{
+ c.toBlob(b=>{
+   if(navigator.share){
+     navigator.share({files:[new File([b],'Invoice.png',{type:'image/png'})]});
+   }else alert('Use mobile for WhatsApp share');
+   btn.style.display='block';
+ });});}
 </script>
-
 </body>
 </html>
