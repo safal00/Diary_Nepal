@@ -2,144 +2,224 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Professional Glass Gallery</title>
+<title>Premium Quotation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body{
-margin:0;
 font-family:Arial, sans-serif;
-background:#eef2ff;
+background:#f4f6fb;
+margin:0;
+padding:20px;
 }
 
-/* GALLERY GRID */
-.gallery{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-gap:25px;
-padding:25px;
-}
-
-/* CARD */
-.card{
-background:rgba(255,255,255,0.35);
-backdrop-filter:blur(12px);
-border-radius:18px;
-padding:15px;
-text-align:center;
-position:relative;
-overflow:hidden;
-box-shadow:0 8px 25px rgba(0,0,0,0.15);
-}
-
-/* ANIMATED BORDER */
-.card::before{
-content:"";
-position:absolute;
-inset:0;
-padding:2px;
-border-radius:18px;
-background:linear-gradient(90deg,#00eaff,#ff00ff,#00eaff);
-background-size:300% 300%;
-animation:borderMove 5s linear infinite;
--webkit-mask:
-linear-gradient(#fff 0 0) content-box,
-linear-gradient(#fff 0 0);
--webkit-mask-composite:xor;
-}
-
-@keyframes borderMove{
-0%{background-position:0%}
-100%{background-position:300%}
-}
-
-/* IMAGE */
-.card img{
-width:100%;
-height:220px;
-object-fit:contain;   /* NO CROP */
-border-radius:12px;
-transition:0.5s;
+.container{
+max-width:1100px;
+margin:auto;
 background:white;
+padding:25px;
+border-radius:14px;
+box-shadow:0 10px 30px rgba(0,0,0,0.12);
+}
+
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+border-bottom:2px solid #eee;
+padding-bottom:15px;
+margin-bottom:20px;
+}
+
+.company{
+font-size:14px;
+line-height:1.6;
+}
+
+.title{
+font-size:28px;
+font-weight:bold;
+color:#2d4da5;
+}
+
+button{
+padding:8px 18px;
+border:none;
+border-radius:6px;
+background:#2d4da5;
+color:white;
+cursor:pointer;
+margin:10px 5px;
+}
+
+button:hover{background:#1f3674}
+
+.table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+}
+
+.table th{
+background:#2d4da5;
+color:white;
+padding:10px;
+}
+
+.table td{
+padding:10px;
+border:1px solid #ddd;
+vertical-align:top;
+}
+
+textarea{
+width:100%;
+height:80px;
+border-radius:6px;
+padding:6px;
+}
+
+/* PREMIUM IMAGE CARD */
+.design-box{
+width:180px;
+height:180px;
+display:flex;
+align-items:center;
+justify-content:center;
+background:rgba(255,255,255,0.4);
+backdrop-filter:blur(10px);
+border-radius:16px;
+box-shadow:0 6px 20px rgba(0,0,0,0.15);
+overflow:hidden;
+position:relative;
+}
+
+.design-box img{
+max-width:100%;
+max-height:100%;
+object-fit:contain;
+transition:0.4s ease;
 cursor:pointer;
 }
 
-/* ZOOM */
-.card:hover img{
-transform:scale(1.08);
+.design-box:hover img{
+transform:scale(1.12);
 }
 
-/* DESCRIPTION */
-.card p{
-margin-top:10px;
-font-size:15px;
+.footer{
+margin-top:30px;
+border-top:2px solid #eee;
+padding-top:15px;
+font-size:13px;
 }
 
-/* POPUP */
-#popup{
+.stamp{
+width:120px;
+height:120px;
+border:2px dashed #bbb;
+display:flex;
+align-items:center;
+justify-content:center;
+margin:auto;
+}
+
+.popup{
 position:fixed;
-inset:0;
-background:rgba(0,0,0,0.85);
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.8);
 display:none;
 align-items:center;
 justify-content:center;
-z-index:999;
 }
 
-#popup img{
+.popup img{
 max-width:90%;
 max-height:90%;
-border-radius:15px;
-animation:zoom 0.4s ease;
+border-radius:12px;
 }
 
-@keyframes zoom{
-from{transform:scale(0.5)}
-to{transform:scale(1)}
-}
-
-/* MOBILE */
 @media(max-width:600px){
-.card img{
-height:180px;
-}
+.design-box{width:120px;height:120px}
+textarea{height:60px}
 }
 </style>
 </head>
 
 <body>
 
-<div class="gallery">
+<div class="container">
 
-<div class="card">
-<img src="https://picsum.photos/500/400" onclick="openPopup(this.src)">
-<p>Product Description 1</p>
+<div class="header">
+<div class="company">
+<b>Company Name Pvt Ltd</b><br>
+Address Line<br>
+Phone / Email
+</div>
+<div class="title">QUOTATION</div>
 </div>
 
-<div class="card">
-<img src="https://picsum.photos/400/600" onclick="openPopup(this.src)">
-<p>Product Description 2</p>
+<button onclick="addRow()">Add Item</button>
+<button onclick="window.print()">Print</button>
+
+<table class="table" id="qTable">
+<tr>
+<th>S.No</th>
+<th>Description</th>
+<th>Design</th>
+<th>Qty</th>
+<th>Action</th>
+</tr>
+</table>
+
+<div class="footer">
+Prepared By: ____________
+<div class="stamp">Stamp</div>
+<br>
+<b>Terms & Conditions</b><br>
+1. Goods once sold not returnable.<br>
+2. 50% advance required.<br>
+3. Delivery within 7 days.
+</div>
 </div>
 
-<div class="card">
-<img src="https://picsum.photos/500/500" onclick="openPopup(this.src)">
-<p>Product Description 3</p>
-</div>
-
-</div>
-
-<!-- POPUP -->
-<div id="popup" onclick="closePopup()">
+<div class="popup" id="popup" onclick="this.style.display='none'">
 <img id="popupImg">
 </div>
 
 <script>
-function openPopup(src){
-document.getElementById("popup").style.display="flex";
-document.getElementById("popupImg").src=src;
+let count=0;
+
+function addRow(){
+count++;
+let table=document.getElementById('qTable');
+let row=table.insertRow();
+
+row.innerHTML=`
+<td>${count}</td>
+<td><textarea placeholder="Description"></textarea></td>
+<td>
+<div class="design-box">
+<input type="file" accept="image/*" onchange="preview(event,this)">
+<img style="display:none">
+</div>
+</td>
+<td><input type="number" value="0" style="width:60px"></td>
+<td><button onclick="this.parentElement.parentElement.remove()">Delete</button></td>`;
 }
 
-function closePopup(){
-document.getElementById("popup").style.display="none";
+function preview(e,input){
+let file=input.files[0];
+let img=input.nextElementSibling;
+img.src=URL.createObjectURL(file);
+img.style.display='block';
+input.style.display='none';
+img.onclick=()=>{
+document.getElementById('popupImg').src=img.src;
+document.getElementById('popup').style.display='flex';
+}
 }
 </script>
 
