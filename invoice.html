@@ -1,163 +1,182 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>Delivery Challan</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
-body { font-family: 'Inter', sans-serif; padding: 20px; background: #e6f0ff; }
-.challan { width: 210mm; min-height: 297mm; margin: auto; background: #fff; padding: 20px; box-sizing: border-box; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
-h1 { text-align: center; margin-bottom: 20px; color: #004aad; }
-.header-row { display: flex; justify-content: space-between; margin-bottom: 20px; }
-.header-row div { font-weight: 600; color: #004aad; }
-.header-row input { border: none; border-bottom: 1px solid #004aad; width: 150px; font-size: 1em; padding: 2px; }
-.details { display: flex; justify-content: space-between; margin-bottom: 20px; }
-.details div { width: 48%; }
-.details input { border: none; border-bottom: 1px solid #004aad; font-size: 1em; width: 100%; margin: 5px 0; box-sizing: border-box; }
-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; table-layout: fixed; }
-table, th, td { border: 1px solid #004aad; }
-th, td { padding: 6px; text-align: left; word-wrap: break-word; }
-th { background: #cce0ff; }
-.grand-total { text-align: right; font-weight: bold; font-size: 1.2em; margin-top: 10px; color: #004aad; }
-.btn { display: inline-block; margin: 5px; padding: 6px 12px; font-size: 0.95em; cursor: pointer; background: #004aad; color: #fff; border: none; border-radius: 5px; }
-.btn:hover { background: #003080; }
+body { font-family: 'Inter', sans-serif; padding:20px; background:#e6f0ff; }
+
+.challan{
+  width:210mm;
+  min-height:297mm;
+  margin:auto;
+  background:#fff;
+  padding:20px;
+  box-shadow:0 0 15px rgba(0,0,0,.1);
+}
+
+h1{text-align:center;color:#004aad;margin-bottom:20px;}
+
+.header-row, .details{display:flex;justify-content:space-between;margin-bottom:15px;}
+.details div{width:48%;}
+input{border:none;border-bottom:1px solid #004aad;width:100%;margin:4px 0;}
+
+table{width:100%;border-collapse:collapse;margin-top:10px;}
+table,th,td{border:1px solid #004aad;}
+th{background:#cce0ff;padding:6px;}
+td{padding:6px;}
+
+.btn{
+  background:#004aad;
+  color:#fff;
+  border:none;
+  padding:6px 12px;
+  margin:4px;
+  cursor:pointer;
+}
+
+.totalBox{width:260px;margin-left:auto;margin-top:15px;font-weight:600;}
+
+@page{size:A4;margin:10mm;}
+@media print{
+  body{background:#fff;padding:0;}
+  .btn{display:none;}
+  .challan{box-shadow:none;}
+}
 </style>
 </head>
+
 <body>
 
 <div class="challan" id="challan">
-  <h1>Delivery Challan</h1>
 
-  <div class="header-row">
-    <div>Challan No: <input type="text" id="challanNo" placeholder="____"></div>
-    <div>Date: <input type="text" id="challanDate" placeholder="____"></div>
-  </div>
+<h1>Delivery Challan</h1>
 
-  <div class="details">
-    <div>
-      <div style="font-weight:600; color:#004aad; margin-bottom:5px;">Company Details</div>
-      <input type="text" id="companyName" placeholder="Company Name">
-      <input type="text" id="companyAddress" placeholder="Address / Phone">
-    </div>
-    <div>
-      <div style="font-weight:600; color:#004aad; margin-bottom:5px;">Buyer Details</div>
-      <input type="text" id="buyerName" placeholder="Buyer Name">
-      <input type="text" id="buyerAddress" placeholder="Buyer Address">
-      <input type="text" id="buyerPhone" placeholder="Buyer Phone">
-    </div>
-  </div>
-
-  <div style="font-weight:600; color:#004aad; margin-bottom:5px;">Items</div>
-  <table id="itemsTable">
-    <thead>
-      <tr>
-        <th style="width:4%;">S.No</th>
-        <th style="width:35%;">Description of Goods</th>
-        <th style="width:15%;">Size</th>
-        <th style="width:10%;">Quantity</th>
-        <th style="width:10%;">Rate</th>
-        <th style="width:10%;">Amount</th>
-        <th style="width:10%;">Action</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  <button class="btn" id="addItemBtn">+ Add Item</button>
-
-  <div class="grand-total">Grand Total: <span id="grandTotal">0</span></div>
+<div class="header-row">
+<div>Challan No: <input></div>
+<div>Date: <input></div>
 </div>
 
-<div style="text-align:center; margin-top:20px;">
-  <button class="btn" onclick="window.print()">Print</button>
-  <button class="btn" onclick="downloadImage()">Save as Image</button>
-  <button class="btn" onclick="shareWhatsapp()">Share on WhatsApp</button>
+<div class="details">
+<div>
+<b>Company Details</b>
+<input placeholder="Company Name">
+<input placeholder="Address / Phone">
+</div>
+
+<div>
+<b>Buyer Details</b>
+<input placeholder="Buyer Name">
+<input placeholder="Buyer Address">
+<input placeholder="Buyer Phone">
+</div>
+</div>
+
+<b>Items</b>
+
+<table id="itemsTable">
+<thead>
+<tr>
+<th>S.No</th>
+<th>Description</th>
+<th>Size</th>
+<th>Qty</th>
+<th>Rate</th>
+<th>Amount</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<button class="btn" id="addItemBtn">+ Add Item</button>
+
+<div class="totalBox">
+<div>Grand Total: <span id="grandTotal">0</span></div>
+<div>GST % <input id="gstPercent" value="18" style="width:60px;"></div>
+<div>GST Amount: <span id="gstAmount">0</span></div>
+<div style="font-size:18px;">Final Total: <span id="finalTotal">0</span></div>
+</div>
+
+</div>
+
+<div style="text-align:center;margin-top:20px;">
+<button class="btn" onclick="window.print()">Print</button>
+<button class="btn" onclick="downloadPDF()">Download PDF</button>
+<button class="btn" onclick="shareWhatsapp()">Share WhatsApp</button>
 </div>
 
 <script>
-// Fully working Add Item + Remove + Auto Calc
-(function(){
-  const tbody = document.querySelector('#itemsTable tbody');
-  const grandTotalEl = document.getElementById('grandTotal');
+const tbody=document.querySelector("#itemsTable tbody");
 
-  function addItemRow(){
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td></td>
-      <td><input type="text" placeholder="Item description"></td>
-      <td><input type="text" placeholder="Size"></td>
-      <td><input type="number" value="1" min="0"></td>
-      <td><input type="number" value="0" min="0"></td>
-      <td><input type="number" value="0" readonly></td>
-      <td><button class="btn removeBtn">Remove</button></td>
-    `;
-    tbody.appendChild(row);
-    attachRowEvents(row);
-    updateGrandTotal();
-  }
+function addItem(){
+const row=document.createElement("tr");
+row.innerHTML=`
+<td></td>
+<td><input></td>
+<td><input></td>
+<td><input type="number" value="1"></td>
+<td><input type="number" value="0"></td>
+<td><input readonly></td>
+<td><button class="btn">Remove</button></td>
+`;
+tbody.appendChild(row);
 
-  function attachRowEvents(row){
-    const qtyInput = row.cells[3].querySelector('input');
-    const rateInput = row.cells[4].querySelector('input');
-    const removeBtn = row.cells[6].querySelector('button');
+const qty=row.cells[3].querySelector("input");
+const rate=row.cells[4].querySelector("input");
+const amt=row.cells[5].querySelector("input");
 
-    function recalc(){
-      const qty = parseFloat(qtyInput.value) || 0;
-      const rate = parseFloat(rateInput.value) || 0;
-      row.cells[5].querySelector('input').value = qty * rate;
-      updateGrandTotal();
-    }
+function calc(){
+amt.value=(qty.value*rate.value)||0;
+updateTotal();
+}
+qty.oninput=calc;
+rate.oninput=calc;
 
-    qtyInput.addEventListener('input', recalc);
-    rateInput.addEventListener('input', recalc);
-    removeBtn.addEventListener('click', function(){
-      row.remove();
-      updateGrandTotal();
-    });
-  }
+row.cells[6].onclick=()=>{row.remove();updateTotal();};
+updateTotal();
+}
 
-  function updateGrandTotal(){
-    let total = 0;
-    const rows = tbody.querySelectorAll('tr');
-    rows.forEach((row,index)=>{
-      row.cells[0].innerText = index + 1;
-      total += parseFloat(row.cells[5].querySelector('input').value) || 0;
-    });
-    grandTotalEl.innerText = total;
-  }
+document.getElementById("addItemBtn").onclick=addItem;
+document.getElementById("gstPercent").oninput=updateTotal;
+addItem();
 
-  document.getElementById('addItemBtn').addEventListener('click', addItemRow);
+function updateTotal(){
+let total=0;
+[...tbody.rows].forEach((r,i)=>{
+r.cells[0].innerText=i+1;
+total+=parseFloat(r.cells[5].querySelector("input").value)||0;
+});
 
-  // Add first row on load
-  addItemRow();
+document.getElementById("grandTotal").innerText=total.toFixed(2);
+const gst=total*(document.getElementById("gstPercent").value||0)/100;
+document.getElementById("gstAmount").innerText=gst.toFixed(2);
+document.getElementById("finalTotal").innerText=(total+gst).toFixed(2);
+}
 
-  // Image download
-  window.downloadImage = function(){
-    html2canvas(document.getElementById('challan'), { scale: 3 }).then(canvas=>{
-      canvas.toBlob(blob=>{
-        const link = document.createElement('a');
-        link.download = 'Delivery_Challan.png';
-        link.href = URL.createObjectURL(blob);
-        link.click();
-      });
-    });
-  };
+async function downloadPDF(){
+const canvas=await html2canvas(document.getElementById("challan"),{scale:2});
+const img=canvas.toDataURL("image/png");
+const {jsPDF}=window.jspdf;
+const pdf=new jsPDF("p","mm","a4");
+pdf.addImage(img,"PNG",0,0,210,(canvas.height*210)/canvas.width);
+pdf.save("Delivery_Challan.pdf");
+}
 
-  // WhatsApp share
-  window.shareWhatsapp = function(){
-    html2canvas(document.getElementById('challan'), { scale: 2 }).then(canvas=>{
-      if(navigator.share){
-        canvas.toBlob(blob=>{
-          const file = new File([blob],"Delivery_Challan.png",{type:"image/png"});
-          navigator.share({files:[file], text:"Delivery Challan"}).catch(e=>console.log(e));
-        });
-      }else{
-        const text = encodeURIComponent("Check this Delivery Challan");
-        window.open(https://web.whatsapp.com/send?text=${text}, '_blank');
-      }
-    });
-  };
-})();
+function shareWhatsapp(){
+const text=encodeURIComponent("Delivery Challan Ready");
+if(/Android|iPhone/i.test(navigator.userAgent))
+window.open(`https://wa.me/?text=${text}`);
+else
+window.open(`https://web.whatsapp.com/send?text=${text}`);
+}
 </script>
+
 </body>
 </html>
