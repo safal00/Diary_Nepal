@@ -4,157 +4,56 @@
 <meta charset="UTF-8">
 <title>Invoice</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
 <style>
-body{
-    font-family:Arial;
-    padding:30px;
-    background:#eef3ff;
-}
+body{font-family:Arial;padding:30px;background:#eef3ff}
+.invoice{background:#fff;padding:30px;max-width:1000px;margin:auto}
+h1{text-align:center;color:#2a5fa5;margin-bottom:30px}
+.top{display:flex;justify-content:flex-end;margin-bottom:15px;font-weight:bold;padding-right:20px}
+.top .row{display:flex;justify-content:flex-end;white-space:nowrap}
+.top .label{display:inline-block;width:120px;text-align:right}
+.top .value{display:inline-block;min-width:80px;text-align:left}
+.line{display:inline-block;min-width:120px} /* underline removed */
+.details{display:grid;grid-template-columns:1fr 1fr;margin-bottom:20px}
+.details .company{text-align:left;padding-left:10px}
+.details .buyer{justify-self:end;text-align:left;padding-right:40px}
+.details .company{grid-column:1}
+.details .buyer{grid-column:2}
+.details .empty{grid-column:3}
 
-.invoice{
-    background:#fff;
-    padding:30px;
-    max-width:1000px;
-    margin:auto;
-}
-
-h1{
-    text-align:center;
-    color:#2a5fa5;
-    margin-bottom:30px;
-}
-
-.top{
-    display:flex;
-    justify-content:flex-end;
-    margin-bottom:15px;
-    font-weight:bold;
-}
-
-.top .row{
-    display:flex;
-    white-space:nowrap;
-}
-
-.top .label{
-    width:120px;
-    text-align:right;
-}
-
-.top .value{
-    min-width:80px;
-    text-align:left;
-}
-
-.details{
-    display:flex;
-    justify-content:space-between;
-    margin-bottom:20px;
-}
-
-.details div{
-    width:45%;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:20px;
-}
-
-th,td{
-    border:1px solid #333;
-    padding:8px;
-    text-align:center;
-}
-
-th{
-    background:#2a5fa5;
-    color:#fff;
-}
-
-.total{
-    font-weight:bold;
-    font-size:18px;
-}
-
-.footer{
-    display:flex;
-    justify-content:space-between;
-    margin-top:60px;
-    font-size:14px;
-}
-
-.thank{
-    text-align:center;
-    margin-top:40px;
-    font-weight:bold;
-    color:#2a5fa5;
-}
-
-.buttons{
-    text-align:center;
-    margin-top:25px;
-}
-
-button{
-    padding:8px 15px;
-    margin:5px;
-    border:none;
-    background:#2a5fa5;
-    color:#fff;
-    cursor:pointer;
-    border-radius:5px;
-}
-
-button:hover{
-    background:#1d4a82;
-}
-
-.whatsapp{
-    background:#25D366;
-}
-
-.whatsapp:hover{
-    background:#1ebe5d;
-}
-
-[contenteditable]:focus{
-    outline:none;
-}
+table{width:100%;border-collapse:collapse;margin-top:20px}
+th,td{border:1px solid #333;padding:8px;text-align:center}
+th{background:#2a5fa5;color:#fff}
+[contenteditable]:focus{outline:none}
+.total{font-weight:bold;font-size:18px}
+.buttons{text-align:center;margin-top:25px}
+button{padding:8px 15px;margin:5px;border:none;background:#2a5fa5;color:#fff;cursor:pointer;border-radius:5px}
+button:hover{background:#1d4a82}
+.whatsapp{background:#25D366}
+.whatsapp:hover{background:#1ebe5d}
+.thank{text-align:center;margin-top:40px;font-weight:bold;color:#2a5fa5}
 </style>
 </head>
-
 <body>
 
 <div class="invoice" id="invoice">
-
 <h1>INVOICE</h1>
 
 <div class="top">
   <div>
-    <div class="row">
-        <span class="label">Invoice No:</span>
-        <span contenteditable="true" class="value"></span>
-    </div>
-
-    <div class="row">
-        <span class="label">Date:</span>
-        <input type="text" style="border:none;background:transparent;font-weight:bold;width:120px">
-    </div>
+    <div class="row"><span class="label">Invoice No:</span><span contenteditable="true" class="value"></span></div>
+    <div class="row"><span class="label">Date:</span><input type="text" class="value"  style="border:none;background:transparent;font-weight:bold;width:120px"></div>
   </div>
 </div>
 
 <div class="details">
-  <div>
+  <div class="company">
     <b>Company Details</b><br>
     <div contenteditable="true">Company Name</div>
     <div contenteditable="true">Address</div>
     <div contenteditable="true">Phone</div>
   </div>
 
-  <div>
+  <div class="buyer">
     <b>Buyer Details</b><br>
     <div contenteditable="true">Buyer Name</div>
     <div contenteditable="true">Address</div>
@@ -162,7 +61,7 @@ button:hover{
   </div>
 </div>
 
-<table>
+<table id="tbl">
 <thead>
 <tr>
 <th>S.No</th>
@@ -173,9 +72,7 @@ button:hover{
 <th>Amount</th>
 </tr>
 </thead>
-
 <tbody id="tbody"></tbody>
-
 <tfoot>
 <tr class="total">
 <td colspan="5">Grand Total</td>
@@ -184,18 +81,10 @@ button:hover{
 </tfoot>
 </table>
 
-<div class="footer">
-    <div>
-        Prepared By: <span contenteditable="true"></span>
-    </div>
-
-    <div>
-        Received By: <span contenteditable="true"></span>
-    </div>
-</div>
+<br>
+Prepared By: <span contenteditable="true" class="line"></span>
 
 <div class="thank">Thank You For Doing Business With Us</div>
-
 </div>
 
 <div class="buttons" id="actions">
@@ -206,16 +95,6 @@ button:hover{
 </div>
 
 <script>
-
-// Auto Invoice Number (only if empty)
-let invField=document.querySelector('.top .value');
-if(!invField.innerText.trim()){
- let last=localStorage.getItem("invoiceNo")||0;
- last++;
- localStorage.setItem("invoiceNo",last);
- invField.innerText=last.toString().padStart(2,'0');
-}
-
 let tbody=document.getElementById("tbody");
 
 function addRow(){
@@ -223,7 +102,7 @@ let n=tbody.rows.length+1;
 let row=tbody.insertRow();
 row.innerHTML=`
 <td>${n}</td>
-<td contenteditable="true"></td>
+<td contenteditable="true" onblur="alignDesc(this)"></td>
 <td contenteditable="true"></td>
 <td contenteditable="true" oninput="calc(this)"></td>
 <td contenteditable="true" oninput="calc(this)"></td>
@@ -254,6 +133,28 @@ document.querySelectorAll(".amt").forEach(a=>{total+=Number(a.innerText)||0;});
 document.getElementById("gt").innerText=total;
 }
 
+/* First Letter Capital */
+function toTitleCase(el){
+let txt=el.innerText;
+txt=txt.toLowerCase().split(" ").map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(" ");
+el.innerText=txt;
+}
+
+document.addEventListener("blur",e=>{
+if(e.target.isContentEditable){toTitleCase(e.target);} 
+},true);
+
+/* Description Alignment */
+function alignDesc(el){
+let text=el.innerText.trim();
+if(text.includes(" ") || text.includes(",")){
+el.style.textAlign="left";
+}else{
+el.style.textAlign="center";
+}
+}
+
+/* WhatsApp Share */
 function shareInvoice(){
 let btn=document.getElementById("actions");
 btn.style.display="none";
@@ -261,14 +162,10 @@ html2canvas(document.getElementById("invoice"),{scale:3}).then(canvas=>{
 canvas.toBlob(function(blob){
 if(navigator.share){
 navigator.share({files:[new File([blob],"Invoice.png",{type:"image/png"})]});
-}else{
-alert("Use Mobile Device For WhatsApp Share");
-}
+}else{alert("Use Mobile Device For WhatsApp Share");}
 btn.style.display="block";
-});
-});
+});});
 }
-
 </script>
 
 </body>
