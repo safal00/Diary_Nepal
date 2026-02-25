@@ -2,34 +2,55 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Delivery Challan HD</title>
+<title>Delivery Challan</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-  body { font-family: 'Inter', sans-serif; padding: 20px; background: #f5f5f5; }
-  .challan { width: 210mm; min-height: 297mm; margin: auto; background: #fff; padding: 30px; box-sizing: border-box; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-  h1, h2 { text-align: center; margin-bottom: 5px; }
-  .company-info { text-align: center; margin-bottom: 20px; }
-  input { border: none; font-family: 'Inter', sans-serif; font-size: 1em; width: 100%; }
-  input:focus { outline: 1px solid #333; }
-  table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-  table, th, td { border: 1px solid #333; }
+  body { font-family: 'Inter', sans-serif; padding: 20px; background: #e6f0ff; }
+  .challan { width: 210mm; min-height: 297mm; margin: auto; background: #fff; padding: 30px; box-sizing: border-box; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+  h1 { text-align: center; margin-bottom: 20px; color: #004aad; }
+  .header-row { display: flex; justify-content: space-between; margin-bottom: 20px; }
+  .header-row div { font-weight: 600; color: #004aad; }
+  .details { display: flex; justify-content: space-between; margin-bottom: 20px; }
+  .details div { width: 48%; }
+  .details input { border: none; border-bottom: 1px solid #004aad; font-size: 1em; width: 100%; margin: 5px 0; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+  table, th, td { border: 1px solid #004aad; }
   th, td { padding: 10px; text-align: left; }
-  th { background: #eee; }
-  .grand-total { text-align: right; font-weight: bold; font-size: 1.2em; }
-  .btn { display: inline-block; margin: 10px 5px; padding: 10px 20px; font-size: 1em; cursor: pointer; }
+  th { background: #cce0ff; }
+  .grand-total { text-align: right; font-weight: bold; font-size: 1.2em; margin-top: 10px; color: #004aad; }
+  .btn { display: inline-block; margin: 5px; padding: 8px 15px; font-size: 0.95em; cursor: pointer; background: #004aad; color: #fff; border: none; border-radius: 5px; }
+  .btn:hover { background: #003080; }
 </style>
 </head>
 <body>
 
 <div class="challan" id="challan">
-  <div class="company-info">
-    <input type="text" id="companyName" value="Nepal Print Solution Pvt. Ltd." />
-    <input type="text" id="companyAddress" value="Address: Kathmandu, Nepal | Phone: 01-XXXXXXX" />
+  <h1>Delivery Challan</h1>
+
+  <!-- Header: Challan No & Date -->
+  <div class="header-row">
+    <div>Challan No: <input type="text" id="challanNo" placeholder="____"></div>
+    <div>Date (BS/AD): <input type="text" id="challanDate" placeholder="____"></div>
   </div>
 
-  <h2 contenteditable="true">Delivery Challan / Estimate</h2>
+  <!-- Company & Buyer Details -->
+  <div class="details">
+    <div>
+      <div style="font-weight:600; color:#004aad; margin-bottom:5px;">Company Details</div>
+      <input type="text" id="companyName" value="Nepal Print Solution Pvt. Ltd.">
+      <input type="text" id="companyAddress" value="Address: Kathmandu, Nepal | Phone: 01-XXXXXXX">
+    </div>
+    <div>
+      <div style="font-weight:600; color:#004aad; margin-bottom:5px;">Buyer Details</div>
+      <input type="text" id="buyerName" placeholder="Buyer Name">
+      <input type="text" id="buyerAddress" placeholder="Buyer Address">
+      <input type="text" id="buyerPhone" placeholder="Buyer Phone">
+    </div>
+  </div>
 
+  <!-- Items Table -->
+  <div style="font-weight:600; color:#004aad; margin-bottom:5px;">Items</div>
   <table id="itemsTable">
     <thead>
       <tr>
@@ -37,6 +58,7 @@
         <th>Qty</th>
         <th>Rate</th>
         <th>Amount</th>
+        <th>Action</th>
       </tr>
     </thead>
     <tbody>
@@ -45,30 +67,25 @@
         <td><input type="number" value="2" oninput="calculateAmount(this)"></td>
         <td><input type="number" value="140" oninput="calculateAmount(this)"></td>
         <td><input type="number" value="280" readonly></td>
-      </tr>
-      <tr>
-        <td><input type="text" value="Item 2"></td>
-        <td><input type="number" value="3" oninput="calculateAmount(this)"></td>
-        <td><input type="number" value="100" oninput="calculateAmount(this)"></td>
-        <td><input type="number" value="300" readonly></td>
+        <td><button class="btn" onclick="removeRow(this)">Remove</button></td>
       </tr>
     </tbody>
   </table>
-
   <button class="btn" onclick="addRow()">+ Add Item</button>
 
-  <div class="grand-total">Grand Total: <span id="grandTotal">580</span></div>
+  <div class="grand-total">Grand Total: <span id="grandTotal">280</span></div>
 </div>
 
-<div style="text-align:center;">
+<!-- Action Buttons -->
+<div style="text-align:center; margin-top:20px;">
   <button class="btn" onclick="window.print()">Print</button>
   <button class="btn" onclick="downloadImage()">Save as Image</button>
   <button class="btn" onclick="shareWhatsapp()">Share on WhatsApp</button>
 </div>
 
 <script>
-function calculateAmount(element) {
-  const row = element.closest('tr');
+function calculateAmount(el) {
+  const row = el.closest('tr');
   const qty = parseFloat(row.cells[1].children[0].value) || 0;
   const rate = parseFloat(row.cells[2].children[0].value) || 0;
   row.cells[3].children[0].value = qty * rate;
@@ -78,21 +95,26 @@ function calculateAmount(element) {
 function updateGrandTotal() {
   let total = 0;
   const rows = document.querySelectorAll('#itemsTable tbody tr');
-  rows.forEach(row => {
-    total += parseFloat(row.cells[3].children[0].value) || 0;
-  });
+  rows.forEach(r => total += parseFloat(r.cells[3].children[0].value) || 0);
   document.getElementById('grandTotal').innerText = total;
 }
 
 function addRow() {
-  const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
-  const newRow = table.insertRow();
+  const tbody = document.querySelector('#itemsTable tbody');
+  const newRow = tbody.insertRow();
   newRow.innerHTML = `
     <td><input type="text" value="New Item"></td>
     <td><input type="number" value="1" oninput="calculateAmount(this)"></td>
     <td><input type="number" value="0" oninput="calculateAmount(this)"></td>
     <td><input type="number" value="0" readonly></td>
+    <td><button class="btn" onclick="removeRow(this)">Remove</button></td>
   `;
+}
+
+function removeRow(button) {
+  const row = button.closest('tr');
+  row.remove();
+  updateGrandTotal();
 }
 
 function downloadImage() {
@@ -110,13 +132,9 @@ function shareWhatsapp() {
   html2canvas(document.getElementById('challan'), { scale: 3 }).then(canvas => {
     canvas.toBlob(function(blob) {
       const file = new File([blob], "Delivery_Challan.png", { type: "image/png" });
-      const reader = new FileReader();
-      reader.onload = function() {
-        const base64data = reader.result.split(',')[1]; // extract base64
-        const waUrl = https://api.whatsapp.com/send?text=Check%20this%20Delivery%20Challan&attachment=${base64data};
-        window.open(waUrl, '_blank');
-      };
-      reader.readAsDataURL(file);
+      // WhatsApp Web cannot automatically attach images via URL, so user needs to attach manually
+      const text = encodeURIComponent("Check this Delivery Challan");
+      window.open(https://web.whatsapp.com/send?text=${text}, '_blank');
     });
   });
 }
