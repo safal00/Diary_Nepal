@@ -16,18 +16,63 @@ button:hover{background:#1f3674}
 .table th{background:#2d4da5;color:#fff;padding:10px}
 .table td{border:1px solid #ddd;padding:10px;vertical-align:top}
 textarea{width:100%;height:90px;border-radius:6px;padding:6px}
-.design-box{width:170px;height:170px;border-radius:16px;background:#fff;box-shadow:0 6px 20px rgba(0,0,0,.15);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center}
-.design-box input{position:absolute;width:100%;height:100%;opacity:0;cursor:pointer}
-.design-box img{width:100%;height:100%;object-fit:contain;display:none;transition:.3s}
-.design-box:hover img{transform:scale(1.08)}
-.removeBtn{position:absolute;top:5px;right:5px;background:red;padding:3px 7px;border-radius:4px;font-size:12px;display:none}
-.design-box:hover .removeBtn{display:block}
-@media print{.removeBtn,button{display:none}}
-.footer{margin-top:25px;border-top:2px solid #eee;padding-top:15px;font-size:13px}
-.undo{background:green}
-.popup{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center}
-.popup img{max-width:90%;max-height:90%;border-radius:10px}
-@media(max-width:600px){.design-box{width:120px;height:120px}}
+
+/* PREMIUM DESIGN BOX */
+.design-box{
+width:190px;
+height:190px;
+border-radius:26px; /* Rounded premium frame */
+background:rgba(255,255,255,.25);
+backdrop-filter:blur(8px); /* glass effect */
+border:2px solid rgba(255,255,255,.4);
+box-shadow:0 10px 30px rgba(0,0,0,.18), inset 0 0 10px rgba(255,255,255,.4);
+overflow:hidden;
+position:relative;
+display:flex;
+align-items:center;
+justify-content:center;
+transition:.35s ease;
+animation:glowPulse 2.5s infinite alternate; /* shadow glow */
+}
+
+@keyframes glowPulse{
+from{box-shadow:0 8px 25px rgba(0,0,0,.18),0 0 0 rgba(45,77,165,.2)}
+to{box-shadow:0 12px 35px rgba(0,0,0,.25),0 0 20px rgba(45,77,165,.45)}
+}
+
+.design-box:hover{
+transform:translateY(-6px) scale(1.03);
+}
+
+.design-box::after{
+content:"Upload Image";
+position:absolute;
+color:#666;
+font-size:13px;
+pointer-events:none;
+}
+
+.design-box.hasImg::after{display:none}
+
+.design-box input{
+position:absolute;width:100%;height:100%;opacity:0;cursor:pointer;z-index:3
+}
+
+.design-box img{
+width:100%;height:100%;object-fit:contain;background:#fff;display:none;
+transition:transform .5s ease; /* auto zoom */
+}
+
+.design-box:hover img{transform:scale(1.15)} /* zoom hover */
+
+.removeBtn{
+position:absolute;top:8px;right:8px;background:#ff4d4d;color:#fff;border-radius:50%;
+width:26px;height:26px;font-size:14px;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:4
+}
+
+.design-box.hasImg:hover .removeBtn{display:flex}
+
+@media(max-width:600px){.design-box{width:130px;height:130px}}
 </style>
 </head>
 <body>
@@ -42,7 +87,7 @@ textarea{width:100%;height:90px;border-radius:6px;padding:6px}
 <button class="undo" onclick="undoDelete()">Undo Delete</button>
 <button onclick="window.print()">Print</button>
 <table class="table" id="qTable">
-<tr><th>S.No</th><th>Description</th><th>Design</th><th>Qty</th><th>Action</th></tr>
+<tr><th>S.No</th><th>Description</th><th>Design</th><th>Size</th><th>Qty</th><th>Rate</th><th>Amount</th><th>Action</th></tr>
 </table>
 <div class="footer">
 Prepared By: ____________<br><br>
@@ -52,15 +97,87 @@ Prepared By: ____________<br><br>
 3. Delivery within 7 days.
 </div>
 </div>
+
 <div class="popup" id="popup" onclick="this.style.display='none'"><img id="popupImg"></div>
+
 <script>
 let count=0,lastDeleted=null;
-function renumber(){document.querySelectorAll('#qTable tr').forEach((r,i)=>{if(i>0)r.cells[0].innerText=i})}
-function addRow(){count++;let t=qTable.insertRow();t.innerHTML=`<td>${count}</td><td><textarea placeholder='Description'></textarea></td><td><div class='design-box'><input type='file' accept='image/*' onchange='preview(this)'><img><div class='removeBtn' onclick='removeImg(this,event)'>X</div></div></td><td><input type='number' value='0' style='width:60px'></td><td><button onclick='deleteRow(this)'>Delete</button></td>`}
-function deleteRow(btn){if(!confirm('Delete item?'))return;lastDeleted=btn.closest('tr').outerHTML;btn.closest('tr').remove();renumber()}
-function undoDelete(){if(lastDeleted){qTable.insertAdjacentHTML('beforeend',lastDeleted);lastDeleted=null;renumber()}}
-function preview(input){let f=input.files[0];if(!f)return;let img=input.nextElementSibling;let r=new FileReader();r.onload=e=>{img.src=e.target.result;img.style.display='block'};r.readAsDataURL(f);img.onclick=()=>{popupImg.src=img.src;popup.style.display='flex'}}
-function removeImg(btn,e){e.stopPropagation();let box=btn.parentElement;box.querySelector('img').style.display='none';box.querySelector('input').value=''}
+
+function renumber(){
+document.querySelectorAll('#qTable tr').forEach((r,i)=>{
+if(i>0) r.cells[0].innerText=i;
+});
+}
+
+function addRow(){
+count++;
+let t=qTable.insertRow();
+t.innerHTML=`
+<td>${count}</td>
+<td><textarea placeholder='Description'></textarea></td>
+<td>
+<div class='design-box'>
+<input type='file' accept='image/*' onchange='preview(this)'>
+<img>
+<div class='removeBtn' onclick='removeImg(this,event)'>×</div>
+</div>
+</td>
+<td><input placeholder='Size' style='width:70px'></td>
+<td><input type='number' value='0' style='width:60px' oninput='calc(this)'></td>
+<td><input type='number' value='0' style='width:70px' oninput='calc(this)'></td>
+<td class='amt'>0</td>
+<td><button onclick='deleteRow(this)'>Delete</button></td>`;
+}
+
+function deleteRow(btn){
+if(!confirm('Delete item?')) return;
+lastDeleted=btn.closest('tr').outerHTML;
+btn.closest('tr').remove();
+renumber();
+}
+
+function undoDelete(){
+if(lastDeleted){
+qTable.insertAdjacentHTML('beforeend',lastDeleted);
+lastDeleted=null;
+renumber();
+}
+}
+
+function preview(input){
+let file=input.files[0];
+if(!file) return;
+let box=input.parentElement;
+let img=box.querySelector('img');
+let reader=new FileReader();
+reader.onload=function(e){
+img.src=e.target.result;
+img.style.display='block';
+box.classList.add('hasImg');
+};
+reader.readAsDataURL(file);
+
+img.onclick=function(){
+popupImg.src=img.src;
+popup.style.display='flex';
+};
+}
+
+function removeImg(btn,e){
+e.stopPropagation();
+let box=btn.parentElement;
+box.querySelector('img').style.display='none';
+box.querySelector('input').value='';
+box.classList.remove('hasImg');
+}
+
+function calc(el){
+let row=el.closest('tr');
+let qty=row.cells[4].querySelector('input').value||0;
+let rate=row.cells[5].querySelector('input').value||0;
+row.querySelector('.amt').innerText=qty*rate;
+}
+
 window.onload=()=>addRow();
 </script>
 </body>
