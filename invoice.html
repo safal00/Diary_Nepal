@@ -7,19 +7,20 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 body { font-family: 'Inter', sans-serif; padding: 20px; background: #e6f0ff; }
-.challan { width: 210mm; min-height: 297mm; margin: auto; background: #fff; padding: 30px; box-sizing: border-box; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+.challan { width: 210mm; min-height: 297mm; margin: auto; background: #fff; padding: 20px; box-sizing: border-box; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
 h1 { text-align: center; margin-bottom: 20px; color: #004aad; }
 .header-row { display: flex; justify-content: space-between; margin-bottom: 20px; }
 .header-row div { font-weight: 600; color: #004aad; }
+.header-row input { border: none; border-bottom: 1px solid #004aad; width: 150px; font-size: 1em; padding: 2px; }
 .details { display: flex; justify-content: space-between; margin-bottom: 20px; }
 .details div { width: 48%; }
-.details input { border: none; border-bottom: 1px solid #004aad; font-size: 1em; width: 100%; margin: 5px 0; }
-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+.details input { border: none; border-bottom: 1px solid #004aad; font-size: 1em; width: 100%; margin: 5px 0; box-sizing: border-box; }
+table { width: 100%; border-collapse: collapse; margin-bottom: 10px; table-layout: fixed; }
 table, th, td { border: 1px solid #004aad; }
-th, td { padding: 8px; text-align: left; }
+th, td { padding: 6px; text-align: left; word-wrap: break-word; }
 th { background: #cce0ff; }
 .grand-total { text-align: right; font-weight: bold; font-size: 1.2em; margin-top: 10px; color: #004aad; }
-.btn { display: inline-block; margin: 5px; padding: 8px 15px; font-size: 0.95em; cursor: pointer; background: #004aad; color: #fff; border: none; border-radius: 5px; }
+.btn { display: inline-block; margin: 5px; padding: 6px 12px; font-size: 0.95em; cursor: pointer; background: #004aad; color: #fff; border: none; border-radius: 5px; }
 .btn:hover { background: #003080; }
 </style>
 </head>
@@ -28,18 +29,16 @@ th { background: #cce0ff; }
 <div class="challan" id="challan">
   <h1>Delivery Challan</h1>
 
-  <!-- Header: Challan No & Date -->
   <div class="header-row">
     <div>Challan No: <input type="text" id="challanNo" placeholder="____"></div>
-    <div>Date (BS/AD): <input type="text" id="challanDate" placeholder="____"></div>
+    <div>Date: <input type="text" id="challanDate" placeholder="____"></div>
   </div>
 
-  <!-- Company & Buyer Details -->
   <div class="details">
     <div>
       <div style="font-weight:600; color:#004aad; margin-bottom:5px;">Company Details</div>
-      <input type="text" id="companyName" value="Nepal Print Solution Pvt. Ltd.">
-      <input type="text" id="companyAddress" value="Address: Kathmandu, Nepal | Phone: 01-XXXXXXX">
+      <input type="text" id="companyName" placeholder="Company Name">
+      <input type="text" id="companyAddress" placeholder="Address / Phone">
     </div>
     <div>
       <div style="font-weight:600; color:#004aad; margin-bottom:5px;">Buyer Details</div>
@@ -49,38 +48,36 @@ th { background: #cce0ff; }
     </div>
   </div>
 
-  <!-- Items Table -->
   <div style="font-weight:600; color:#004aad; margin-bottom:5px;">Items</div>
   <table id="itemsTable">
     <thead>
       <tr>
-        <th>S.No</th>
-        <th>Description of Goods</th>
-        <th>Size</th>
-        <th>Quantity</th>
-        <th>Rate</th>
-        <th>Amount</th>
-        <th>Action</th>
+        <th style="width:4%;">S.No</th>
+        <th style="width:35%;">Description of Goods</th>
+        <th style="width:15%;">Size</th>
+        <th style="width:10%;">Quantity</th>
+        <th style="width:10%;">Rate</th>
+        <th style="width:10%;">Amount</th>
+        <th style="width:10%;">Action</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td>1</td>
-        <td><input type="text" value="Item 1"></td>
-        <td><input type="text" value="Size 1"></td>
-        <td><input type="number" value="2" oninput="calculateAmount(this)"></td>
-        <td><input type="number" value="140" oninput="calculateAmount(this)"></td>
-        <td><input type="number" value="280" readonly></td>
+        <td><input type="text" placeholder="Item description"></td>
+        <td><input type="text" placeholder="Size"></td>
+        <td><input type="number" value="1" oninput="calculateAmount(this)"></td>
+        <td><input type="number" value="0" oninput="calculateAmount(this)"></td>
+        <td><input type="number" value="0" readonly></td>
         <td><button class="btn" onclick="removeRow(this)">Remove</button></td>
       </tr>
     </tbody>
   </table>
   <button class="btn" onclick="addRow()">+ Add Item</button>
 
-  <div class="grand-total">Grand Total: <span id="grandTotal">280</span></div>
+  <div class="grand-total">Grand Total: <span id="grandTotal">0</span></div>
 </div>
 
-<!-- Action Buttons -->
 <div style="text-align:center; margin-top:20px;">
   <button class="btn" onclick="window.print()">Print</button>
   <button class="btn" onclick="downloadImage()">Save as Image</button>
@@ -99,9 +96,11 @@ function calculateAmount(el) {
 function updateGrandTotal() {
   let total = 0;
   const rows = document.querySelectorAll('#itemsTable tbody tr');
-  rows.forEach(r => total += parseFloat(r.cells[5].children[0].value) || 0);
+  rows.forEach((r,i) => {
+    r.cells[0].innerText = i+1; // S.No auto
+    total += parseFloat(r.cells[5].children[0].value) || 0;
+  });
   document.getElementById('grandTotal').innerText = total;
-  updateSerialNumbers();
 }
 
 function addRow() {
@@ -109,25 +108,19 @@ function addRow() {
   const newRow = tbody.insertRow();
   newRow.innerHTML = `
     <td></td>
-    <td><input type="text" value="New Item"></td>
-    <td><input type="text" value=""></td>
+    <td><input type="text" placeholder="Item description"></td>
+    <td><input type="text" placeholder="Size"></td>
     <td><input type="number" value="1" oninput="calculateAmount(this)"></td>
     <td><input type="number" value="0" oninput="calculateAmount(this)"></td>
     <td><input type="number" value="0" readonly></td>
     <td><button class="btn" onclick="removeRow(this)">Remove</button></td>
   `;
-  updateSerialNumbers();
-}
-
-function removeRow(button) {
-  const row = button.closest('tr');
-  row.remove();
   updateGrandTotal();
 }
 
-function updateSerialNumbers() {
-  const rows = document.querySelectorAll('#itemsTable tbody tr');
-  rows.forEach((r,i) => r.cells[0].innerText = i+1);
+function removeRow(btn) {
+  btn.closest('tr').remove();
+  updateGrandTotal();
 }
 
 function downloadImage() {
@@ -142,11 +135,16 @@ function downloadImage() {
 }
 
 function shareWhatsapp() {
-  html2canvas(document.getElementById('challan'), { scale: 3 }).then(canvas => {
-    canvas.toBlob(function(blob) {
-      const text = encodeURIComponent("Check this Delivery Challan");
+  html2canvas(document.getElementById('challan'), { scale: 2 }).then(canvas => {
+    const text = encodeURIComponent("Check this Delivery Challan");
+    if (navigator.share) {
+      canvas.toBlob(blob => {
+        const file = new File([blob], "Delivery_Challan.png", { type: "image/png" });
+        navigator.share({ files: [file], text: "Delivery Challan" }).catch(e=>console.log(e));
+      });
+    } else {
       window.open(https://web.whatsapp.com/send?text=${text}, '_blank');
-    });
+    }
   });
 }
 </script>
