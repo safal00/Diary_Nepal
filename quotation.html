@@ -6,135 +6,149 @@
 
 <style>
 body{
-font-family:Arial;
+font-family:Arial, sans-serif;
+background:#f4f6fb;
 padding:20px;
 }
 
-/* BUTTONS */
-button{cursor:pointer}
-
-.addBtn{
-background:#2a5fa5;
-color:white;
-border:none;
-padding:6px 12px;
+h2{
 margin-bottom:10px;
 }
 
-.undoBtn{
-background:green;
-color:white;
-border:none;
+button{
 padding:6px 12px;
-margin-left:10px;
-}
-
-.delBtn{
-background:red;
-color:white;
 border:none;
-padding:5px 10px;
+background:#2f5ea3;
+color:white;
+cursor:pointer;
+border-radius:4px;
 }
 
-/* TABLE */
+.deleteBtn{
+background:red;
+}
+
 table{
 width:100%;
 border-collapse:collapse;
+background:white;
 margin-top:10px;
 }
 
-th,td{
-border:1px solid #333;
-padding:8px;
-text-align:center;
-}
-
 th{
-background:#2a5fa5;
+background:#2f5ea3;
 color:white;
+padding:10px;
 }
 
-/* PREMIUM DESIGN COLUMN */
+td{
+border:1px solid #ccc;
+padding:8px;
+vertical-align:top;
+}
+
+/* Description */
+textarea{
+width:100%;
+min-height:120px;
+resize:vertical;
+padding:6px;
+}
+
+/* Inputs */
+input[type="number"],
+input[type="text"]{
+width:100%;
+padding:4px;
+}
+
+/* DESIGN BOX */
 .designCell{
 position:relative;
-height:180px;
+width:200px;
+height:200px;
 overflow:hidden;
 border-radius:12px;
+background:#eef1ff;
 box-shadow:0 4px 12px rgba(0,0,0,0.15);
-background:#f5f7ff;
 }
 
-.fileInput{display:none;}
+/* Hide real file input */
+.uploadBtn input{
+display:none;
+}
 
+/* Fake button */
+.uploadBtn{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:#2f5ea3;
+color:white;
+padding:8px 14px;
+border-radius:8px;
+cursor:pointer;
+font-size:14px;
+}
+
+/* Image */
 .designImg{
-width:100%;
-height:100%;
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+min-width:100%;
+min-height:100%;
 object-fit:cover;
 display:none;
-transition:transform 0.4s ease;
+border-radius:12px;
+transition:0.3s;
 }
 
+/* Hover zoom */
 .designCell:hover .designImg{
-transform:scale(1.08);
+transform:translate(-50%,-50%) scale(1.1);
 }
 
-.fileBtn{
-padding:5px 10px;
-}
-
-.removeBtn{
-position:absolute;
-top:6px;
-right:6px;
-background:red;
-color:white;
-border:none;
+/* Hide button after upload */
+.designCell.hasImage .uploadBtn{
 display:none;
 }
 
-.designCell:hover .removeBtn.show{
-display:block;
+/* Total row */
+.totalRow td{
+font-weight:bold;
+background:#f1f3ff;
 }
 
-/* TERMS SECTION */
-.terms{
-margin-top:40px;
-padding:15px;
-border:1px solid #ccc;
-border-radius:8px;
-background:#fafafa;
-}
-
-.terms h3{
-margin-bottom:10px;
-}
-
-/* MOBILE */
-@media(max-width:768px){
-.designCell{height:120px;}
-}
-
-@media(max-width:480px){
-.designCell{height:100px;}
-}
-
-/* PRINT CLEAN */
+/* Print */
 @media print{
-.addBtn,.undoBtn,.delBtn,.removeBtn,.fileBtn{
+button,
+.uploadBtn{
 display:none !important;
+}
+body{
+background:white;
+}
+}
+
+/* Mobile */
+@media(max-width:768px){
+.designCell{
+width:150px;
+height:150px;
 }
 }
 </style>
 </head>
-
 <body>
 
 <h2>QUOTATION</h2>
 
-<button class="addBtn" onclick="addRow()">Add Item</button>
-<button class="undoBtn" onclick="undoDelete()">Undo Delete</button>
+<button onclick="addRow()">Add Item</button>
 
-<table>
+<table id="quotationTable">
 <thead>
 <tr>
 <th>S.No</th>
@@ -147,132 +161,112 @@ display:none !important;
 <th>Action</th>
 </tr>
 </thead>
-<tbody id="tbody"></tbody>
-</table>
+<tbody id="tableBody">
+</tbody>
 
-<!-- TERMS & CONDITIONS -->
-<div class="terms">
-<h3>Terms & Conditions</h3>
-<ol>
-<li>Quotation valid for 7 days from issue date.</li>
-<li>50% advance payment required before work start.</li>
-<li>Final payment must be cleared before delivery.</li>
-<li>Delivery time depends on order quantity.</li>
-<li>Design once approved cannot be changed.</li>
-<li>Transportation cost not included unless mentioned.</li>
-<li>Company is not responsible for damage after delivery.</li>
-</ol>
-</div>
+<tfoot>
+<tr class="totalRow">
+<td colspan="6" align="right">Grand Total</td>
+<td id="grandTotal">0</td>
+<td></td>
+</tr>
+</tfoot>
+</table>
 
 <script>
 
-let tbody=document.getElementById("tbody");
-let lastDeletedRow=null;
-let lastDeletedIndex=null;
-
-addRow();
+let rowCount = 0;
 
 function addRow(){
-let n=tbody.rows.length+1;
+rowCount++;
 
-let row=tbody.insertRow();
+let tbody = document.getElementById("tableBody");
 
-row.innerHTML=`
-<td>${n}</td>
-<td contenteditable></td>
+let row = document.createElement("tr");
 
-<td class="designCell">
-<input type="file" class="fileInput"
-accept="image/*"
-onchange="uploadPhoto(event,this)">
-
-<button class="fileBtn"
-onclick="this.previousElementSibling.click()">
-Choose Photo
-</button>
-
-<img class="designImg">
-
-<button class="removeBtn"
-onclick="removePhoto(this)">✖</button>
-</td>
-
-<td contenteditable></td>
-<td contenteditable></td>
-<td contenteditable></td>
-<td>0</td>
+row.innerHTML = `
+<td>${rowCount}</td>
 
 <td>
-<button class="delBtn"
-onclick="deleteRow(this)">Delete</button>
+<textarea placeholder="Enter description..."></textarea>
+</td>
+
+<td class="designCell">
+<label class="uploadBtn">
+Choose Photo
+<input type="file" accept="image/*" onchange="previewImage(this)">
+</label>
+<img class="designImg">
+</td>
+
+<td><input type="text"></td>
+
+<td>
+<input type="number" value="0" min="0" oninput="calculateRow(this)">
+</td>
+
+<td>
+<input type="number" value="0" min="0" oninput="calculateRow(this)">
+</td>
+
+<td class="amount">0</td>
+
+<td>
+<button class="deleteBtn" onclick="deleteRow(this)">Delete</button>
 </td>
 `;
+
+tbody.appendChild(row);
 }
 
-function uploadPhoto(e,input){
-let file=e.target.files[0];
-if(!file) return;
+function previewImage(input){
+let cell = input.closest(".designCell");
+let img = cell.querySelector(".designImg");
 
-let reader=new FileReader();
-
-reader.onload=function(ev){
-let cell=input.parentElement;
-let img=cell.querySelector(".designImg");
-let remove=cell.querySelector(".removeBtn");
-let btn=cell.querySelector(".fileBtn");
-
-img.src=ev.target.result;
-img.style.display="block";
-btn.style.display="none";
-remove.classList.add("show");
-};
-
-reader.readAsDataURL(file);
-input.value="";
+if(input.files && input.files[0]){
+img.src = URL.createObjectURL(input.files[0]);
+img.style.display = "block";
+cell.classList.add("hasImage");
+}
 }
 
-function removePhoto(btn){
-let cell=btn.parentElement;
-let img=cell.querySelector(".designImg");
-let fileBtn=cell.querySelector(".fileBtn");
+function calculateRow(input){
+let row = input.closest("tr");
 
-img.src="";
-img.style.display="none";
-btn.classList.remove("show");
-fileBtn.style.display="inline-block";
+let qty = parseFloat(row.cells[4].querySelector("input").value) || 0;
+let rate = parseFloat(row.cells[5].querySelector("input").value) || 0;
+
+let amount = qty * rate;
+
+row.querySelector(".amount").innerText = amount;
+
+calculateGrandTotal();
+}
+
+function calculateGrandTotal(){
+let total = 0;
+
+document.querySelectorAll(".amount").forEach(cell=>{
+total += parseFloat(cell.innerText) || 0;
+});
+
+document.getElementById("grandTotal").innerText = total;
 }
 
 function deleteRow(btn){
-if(!confirm("Delete this row?")) return;
-
-let row=btn.closest("tr");
-lastDeletedIndex=[...tbody.rows].indexOf(row);
-lastDeletedRow=row.cloneNode(true);
-
-row.remove();
+if(confirm("Are you sure to delete?")){
+btn.closest("tr").remove();
 updateSerial();
-
-if(tbody.rows.length==0) addRow();
+calculateGrandTotal();
 }
-
-function undoDelete(){
-if(!lastDeletedRow){
-alert("Nothing to undo!");
-return;
-}
-
-if(lastDeletedIndex>=tbody.rows.length)
-tbody.appendChild(lastDeletedRow);
-else
-tbody.insertBefore(lastDeletedRow,tbody.rows[lastDeletedIndex]);
-
-updateSerial();
-lastDeletedRow=null;
 }
 
 function updateSerial(){
-[...tbody.rows].forEach((r,i)=>{
-r.cells[0].innerText=i+1;
+let rows = document.querySelectorAll("#tableBody tr");
+rowCount = rows.length;
+
+rows.forEach((row,index)=>{
+row.cells[0].innerText = index+1;
 });
 }
 
