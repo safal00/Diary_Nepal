@@ -1,320 +1,118 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Premium Quotation</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<title>VAT Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-body{font-family:'Segoe UI',Arial;background:linear-gradient(120deg,#e8ecff,#f5f7ff);margin:0;padding:20px}
-.container{max-width:1100px;margin:auto;background:#fff;padding:22px;border-radius:16px;box-shadow:0 10px 28px rgba(0,0,0,.12)}
-.header{display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;gap:10px;margin-bottom:18px;padding:14px 0;border-bottom:2px solid #edf0f7}
-.logo{display:block}
-.logoBox{position:relative;display:inline-block}
-.logoBox img{max-height:100px;max-width:220px;object-fit:contain;display:none}
-.logoBox .removeX{display:none}
-.logoBox.hasImage:hover .removeX{display:block}
-.fileBtn{padding:6px 14px;background:#e9edff;border-radius:6px;border:1px solid #cfd6ff;cursor:pointer;font-size:13px;display:inline-block}
-.fileBtn input{display:none}
-.quote-badge{font-size:28px;font-weight:800;color:#2d4da5;letter-spacing:1px;text-align:center}
-.quote-info{justify-self:end;text-align:right}
-.info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:10px;font-size:14px}
-button{padding:8px 18px;border:none;border-radius:8px;background:linear-gradient(90deg,#2d4da5,#4b6fe0);color:#fff;margin:6px 6px 6px 0;cursor:pointer;font-weight:600;box-shadow:0 4px 10px rgba(0,0,0,.15)}
-.table{width:100%;border-collapse:collapse;margin-top:14px;font-size:14px}
-.table th{background:linear-gradient(90deg,#2d4da5,#4b6fe0);color:#fff;padding:12px}
-.table td{border:1px solid #e3e7f1;padding:9px;text-align:center}
-.table tr:nth-child(even){background:#f7f9ff}
-input[type='number']{width:70px;padding:5px;border-radius:6px;border:1px solid #ccc}
-.designPreview{width:100%;height:100%;object-fit:cover;border-radius:8px;display:none}
-.designCell{width:140px;height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;padding:0;position:relative}
-.removeX{position:absolute;top:4px;right:6px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:14px;cursor:pointer;display:none;line-height:20px}
-.designCell.hasImage:hover .removeX{display:block;}
-.footer{margin-top:25px;font-size:13px;color:#555;border-top:1px dashed #ddd;padding-top:12px}
-.total-box{margin-top:18px;text-align:right;font-size:20px;font-weight:700;color:#1f3674}
-b{color:#2d4da5}
-@media(max-width:768px){
-.header{grid-template-columns:1fr}
-.info-grid{grid-template-columns:1fr}
-.table{font-size:12px}
-}
-@media print{button,.fileBtn{display:none !important;}body{background:#fff;padding:0}.container{box-shadow:none;border-radius:0}}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
+body{background:#eef1f5;padding:40px;}
+.wrapper{max-width:950px;margin:auto;background:#fff;border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,0.1);}
+.header{background:#1565c0;color:white;padding:28px;font-size:28px;font-weight:700;letter-spacing:.6px;text-align:center;}
+.content{display:flex;}
+.left,.right{flex:1;padding:30px;}
+.right{border-left:1px solid #e5e7eb;}
+.field{margin-bottom:22px;}
+label{font-size:16px;font-weight:700;color:#333;}
+input,select{width:100%;padding:14px;margin-top:6px;border-radius:8px;border:1px solid #ccd6e0;font-size:17px;}
+button{width:100%;padding:16px;margin-top:8px;background:#1565c0;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:17px;cursor:pointer;}
+button:hover{background:#0d47a1;}
+.summary-title{font-weight:700;margin-bottom:20px;color:#1565c0;font-size:20px;}
+.line{display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid #e5e7eb;font-size:17px;}
+.line span:last-child{font-weight:700;}
+.total{display:flex;justify-content:space-between;padding-top:20px;font-size:26px;font-weight:700;color:#1565c0;}
+.footer{background:#000;color:#fff;text-align:center;padding:14px;font-size:13px;}
+@media(max-width:768px){.content{flex-direction:column;}.right{border-left:none;border-top:1px solid #e5e7eb;}}
 </style>
 </head>
 <body>
 
-<div class="container">
+<div class="wrapper">
+<div class="header">VAT Calculator</div>
 
-<div class="header">
-  <div class="logo">
-    <label class="fileBtn">Upload Logo <input type="file" id="logoInput" accept="image/*"></label>
-    <br>
-    <div class="logoBox" id="companyLogoBox">
-      <img id="companyLogo" style="max-height:80px;margin-top:6px;display:none">
-      <button class="removeX" onclick="removeLogo('companyLogo','logoInput','companyLogoBox')">×</button>
-    </div>
-  </div>
-  <div contenteditable="true" class="quote-badge">QUOTATION</div>
-  <div class="quote-info" contenteditable="true">Quotation No: ___<br>Date: ___</div>
+<div class="content">
+
+<div class="left">
+<div class="field">
+<label>Amount</label>
+<input type="number" id="amount" value="5000">
 </div>
 
-<div class="info-grid">
-  <div>
-    <b>Company Details</b><br>
-    Company Name: <span contenteditable="true"></span><br>
-    Address: <span contenteditable="true"></span><br>
-    Phone: <span contenteditable="true"></span>
-  </div>
-
-  <div>
-    <b>Buyer Details</b><br>
-    Buyer Name: <span contenteditable="true"></span><br>
-    Address: <span contenteditable="true"></span><br>
-    Phone: <span contenteditable="true"></span>
-  </div>
-
-  <div style="text-align:right">
-    <b>Quotation Info</b><br>
-    Quotation No: <span contenteditable="true"></span><br>
-    Date: <span contenteditable="true"></span>
-  </div>
+<div class="field">
+<label>Discount</label>
+<input type="number" id="discount" value="0">
 </div>
 
-<button onclick="addRow()">Add Item</button>
-<button onclick="window.print()">Print</button>
-<button onclick="downloadPDF()">Download PDF</button>
-
-<table class="table" id="qTable">
-<tr>
-<th>S.No</th>
-<th>Description</th>
-<th>Design</th>
-<th>Size</th>
-<th>Qty</th>
-<th>Rate</th>
-<th>Amount</th>
-<th>Action</th>
-</tr>
-</table>
-
-<div class="total-box">
-Grand Total: Rs. <span id="grandTotal">0.00</span>
+<div class="field">
+<label>VAT Rate</label>
+<select id="vatRate">
+<option value="13">13% (Standard)</option>
+<option value="5">5%</option>
+<option value="10">10%</option>
+<option value="custom">Custom</option>
+</select>
 </div>
 
-<div class="footer">
-<br>
-<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:40px">
-
-<div>
-Prepared By:<br>
-<span contenteditable="true" id="preparedBy" style="border-bottom:1px solid #aaa;min-width:160px;display:inline-block"></span>
-<br><br>
-<label class="fileBtn">Upload Logo <input type="file" id="preparedLogoInput" accept="image/*"></label>
-<br>
-<div class="logoBox" id="preparedLogoBox">
-  <img id="preparedLogo" style="max-height:80px;margin-top:6px;display:none">
-  <button class="removeX" onclick="removeLogo('preparedLogo','preparedLogoInput','preparedLogoBox')">×</button>
-</div>
+<div class="field">
+<input type="number" id="customVat" placeholder="Enter custom %" style="display:none">
 </div>
 
-<div>
-Approved By (Client):<br>
-<span contenteditable="true" id="approvedBy" style="border-bottom:1px solid #aaa;min-width:160px;display:inline-block"></span>
-<br><br>
-<label class="fileBtn">Upload Logo <input type="file" id="approvedLogoInput" accept="image/*"></label>
-<br>
-<div class="logoBox" id="approvedLogoBox">
-  <img id="approvedLogo" style="max-height:80px;margin-top:6px;display:none">
-  <button class="removeX" onclick="removeLogo('approvedLogo','approvedLogoInput','approvedLogoBox')">×</button>
+<div class="field">
+<label>Mode</label>
+<select id="mode">
+<option value="add">Add VAT</option>
+<option value="remove">Remove VAT</option>
+</select>
 </div>
+
+<button onclick="calculate()">Calculate</button>
+</div>
+
+<div class="right">
+<div class="summary-title">Invoice Summary</div>
+<div class="line"><span>Subtotal</span><span id="sub">Rs. 0</span></div>
+<div class="line"><span>Discount</span><span id="disc">Rs. 0</span></div>
+<div class="line"><span>Taxable Amount</span><span id="taxable">Rs. 0</span></div>
+<div class="line"><span>VAT</span><span id="vat">Rs. 0</span></div>
+<div class="total"><span>Grand Total</span><span id="total">Rs. 0</span></div>
 </div>
 
 </div>
-<br>
-<b>Terms & Conditions</b><br>
-1. Goods once sold not returnable.<br>
-2. 50% advance required.<br>
-3. Delivery within 7 days.
-</div>
-
+<div class="footer">© 2025 Data from official sources</div>
 </div>
 
 <script>
-let count=0;
-const table=document.getElementById('qTable');
+const vatRate = document.getElementById("vatRate");
+const customVat = document.getElementById("customVat");
 
-function addRow(){
- count++;
- let row=table.insertRow();
- row.innerHTML=`
- <td>${count}</td>
- <td contenteditable='true'></td>
- <td class='designCell'>
-   <label class='fileBtn uploadDesignBtn'>Upload Design <input type='file' accept='image/*' class='designInput'></label>
-   <img class='designPreview'>
-   <button class='removeX' title='Remove Photo' onclick='removePhoto(this)'>×</button>
- </td>
- <td contenteditable='true'></td>
- <td><input type='number' min='0' oninput='calculate(this)'></td>
- <td><input type='number' min='0' oninput='calculate(this)'></td>
- <td class='amount'>0.00</td>
- <td><button onclick='deleteRow(this)'>Delete</button></td>
- `;
+vatRate.addEventListener("change",()=>{customVat.style.display = vatRate.value==="custom"?"block":"none";});
+
+function calculate(){
+  let amount = parseFloat(document.getElementById("amount").value) || 0;
+  let discount = parseFloat(document.getElementById("discount").value) || 0;
+  let rate = vatRate.value==="custom" ? parseFloat(customVat.value)||0 : parseFloat(vatRate.value);
+  rate = rate/100;
+
+  let subtotal = amount;
+  let taxable = subtotal - discount;
+  if(taxable<0) taxable = 0;
+
+  let vat=0, total=0;
+  let mode = document.getElementById("mode").value;
+  if(mode==="add"){vat = taxable*rate; total = taxable+vat;} 
+  else {vat = taxable - (taxable/(1+rate)); total = taxable; taxable = total - vat;}
+
+  document.getElementById("sub").innerText = "Rs. "+subtotal.toFixed(2);
+  document.getElementById("disc").innerText = "Rs. "+discount.toFixed(2);
+  document.getElementById("taxable").innerText = "Rs. "+taxable.toFixed(2);
+  document.getElementById("vat").innerText = "Rs. "+vat.toFixed(2);
+  document.getElementById("total").innerText = "Rs. "+total.toFixed(2);
 }
 
-function deleteRow(btn){
- btn.closest('tr').remove();
- renumber();
- calculateTotal();
-}
-
-function renumber(){
- let rows=table.querySelectorAll('tr');
- rows.forEach((r,i)=>{if(i>0) r.cells[0].innerText=i;});
- count=rows.length-1;
-}
-
-function calculate(input){
- let row=input.closest('tr');
- let qty=parseFloat(row.cells[4].querySelector('input').value)||0;
- let rate=parseFloat(row.cells[5].querySelector('input').value)||0;
- let amount=qty*rate;
- row.querySelector('.amount').innerText=amount.toFixed(2);
- calculateTotal();
-}
-
-function calculateTotal(){
- let total=0;
- document.querySelectorAll('.amount').forEach(cell=>{
-  total+=parseFloat(cell.innerText)||0;
- });
- document.getElementById('grandTotal').innerText=total.toFixed(2);
-}
-
-function downloadPDF(){
- window.print();
-}
-
-// ---------- LOGO PREVIEW ----------
-function previewLogoFile(input,file){
- const img=document.getElementById('companyLogo');
- const box=document.getElementById('companyLogoBox');
- if(!img) return;
- const reader=new FileReader();
- reader.onload=function(e){
-   img.src=e.target.result;
-   img.style.display='block';
-   if(box) box.classList.add('hasImage');
-   if(input && input.closest('label')) input.closest('label').style.display='none';
-   input.value='';
- };
- reader.readAsDataURL(file);
-}
-
-// ---------- DESIGN PREVIEW ----------
-function previewDesignFile(input,file){
- const container=input.closest('td');
- if(!container) return;
- let img=container.querySelector('.designPreview');
- let label=container.querySelector('.uploadDesignBtn');
- const reader=new FileReader();
- reader.onload=function(e){
-   img.src=e.target.result;
-   img.style.display='block';
-   if(label) label.style.display='none';
-   container.classList.add('hasImage');
-   input.value=''; // allow re‑upload after remove
- };
- reader.readAsDataURL(file);
-}
-
-function removePhoto(btn){
- const cell=btn.closest('td');
- const img=cell.querySelector('.designPreview');
- const label=cell.querySelector('.uploadDesignBtn');
- const input=cell.querySelector('.designInput');
- img.src='';
- img.style.display='none';
- cell.classList.remove('hasImage');
- if(label) label.style.display='inline-block';
- if(input) input.value=''; // important for re‑upload same photo
-}
-
-function removeLogo(imgId,inputId,boxId){
- const img=document.getElementById(imgId);
- const input=document.getElementById(inputId);
- const box=document.getElementById(boxId);
- if(img){ img.src=''; img.style.display='none'; }
- if(box) box.classList.remove('hasImage');
- if(input){ input.value=''; if(input.closest('label')) input.closest('label').style.display='inline-block'; }
-}
-
-// ---------- CAPITALIZE PREPARED BY ----------
-function capitalizeWords(el){
- if(!el) return;
- let words=el.innerText.toLowerCase().split(' ');
- el.innerText=words.map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
-}
-
-// ---------- EVENTS ----------
-document.addEventListener('change',function(e){
- if(e.target.id==='logoInput' && e.target.files && e.target.files[0]){
-   previewLogoFile(e.target,e.target.files[0]);
- }
- if(e.target.id==='preparedLogoInput' && e.target.files && e.target.files[0]){
-   const img=document.getElementById('preparedLogo');
-   const box=document.getElementById('preparedLogoBox');
-   const reader=new FileReader();
-   reader.onload=function(ev){ 
-     img.src=ev.target.result; 
-     img.style.display='block';
-     if(box) box.classList.add('hasImage');
-     if(e.target.closest('label')) e.target.closest('label').style.display='none';
-     e.target.value='';
-   };
-   reader.readAsDataURL(e.target.files[0]);
- }
- if(e.target.id==='approvedLogoInput' && e.target.files && e.target.files[0]){
-   const img=document.getElementById('approvedLogo');
-   const box=document.getElementById('approvedLogoBox');
-   const reader=new FileReader();
-   reader.onload=function(ev){ 
-     img.src=ev.target.result; 
-     img.style.display='block';
-     if(box) box.classList.add('hasImage');
-     if(e.target.closest('label')) e.target.closest('label').style.display='none';
-     e.target.value='';
-   };
-   reader.readAsDataURL(e.target.files[0]);
- }
- if(e.target.classList.contains('designInput') && e.target.files && e.target.files[0]){
-   previewDesignFile(e.target,e.target.files[0]);
- }
-});
-
-// capitalize when leaving Prepared By
-setTimeout(()=>{
- const prep=document.querySelector('.footer span[contenteditable]');
- if(prep){ prep.addEventListener('blur',()=>capitalizeWords(prep)); }
-},500);
-
-// ---------- TESTS ----------
-function runTests(){
- console.log('TEST 1: Add row');
- addRow();
- console.assert(document.querySelectorAll('#qTable tr').length>1,'Row not added');
-
- console.log('TEST 2: Total calculation');
- const row=document.querySelectorAll('#qTable tr')[1];
- row.cells[4].querySelector('input').value=2;
- row.cells[5].querySelector('input').value=50;
- calculate(row.cells[4].querySelector('input'));
- console.assert(parseFloat(document.getElementById('grandTotal').innerText)>=100,'Total wrong');
-
- console.log('All tests done');
-}
-
-window.onload=function(){ console.log('Quotation system ready'); };
+// Auto calculate on page load
+window.onload = calculate;
 </script>
 
 </body>
 </html>
+
