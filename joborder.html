@@ -2,77 +2,142 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Premium Quotation</title>
+<title>Quotation</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body{font-family:'Segoe UI',Arial;background:linear-gradient(120deg,#e8ecff,#f5f7ff);margin:0;padding:20px}
-.container{max-width:1150px;margin:auto;background:#fff;padding:25px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.12)}
-h1{text-align:center;color:#2d4da5;letter-spacing:2px}
-.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.logo-box img{max-height:70px}
-button{padding:8px 16px;border:none;border-radius:8px;background:linear-gradient(90deg,#2d4da5,#4b6fe0);color:#fff;margin:5px;cursor:pointer;font-weight:600}
-button:hover{opacity:.9}
-.section{display:flex;justify-content:space-between;margin-top:20px}
-.section div{width:32%;font-size:14px}
-table{width:100%;border-collapse:collapse;margin-top:20px;font-size:14px}
-th{background:linear-gradient(90deg,#2d4da5,#4b6fe0);color:#fff;padding:10px}
-td{border:1px solid #e3e7f1;padding:8px;text-align:center;position:relative}
-.designCell{width:120px;height:90px;background:#f4f6ff;border-radius:8px;cursor:pointer;overflow:hidden}
-.designCell span{font-size:11px;color:#7a86b6}
-.designPreview{width:100%;height:100%;object-fit:cover;display:none}
-.designInput{display:none}
-.removeX{position:absolute;top:4px;right:4px;background:red;color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;display:none}
-.designCell:hover .removeX{display:block}
-.rowDelete{display:none;position:absolute;top:4px;left:4px;background:#ff4d4d;color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer}
-tr:hover .rowDelete{display:block}
-.total-box{text-align:right;margin-top:20px;font-size:18px;font-weight:bold;color:#1f3674}
-.footer{margin-top:50px;font-size:14px}
-.footer div{margin-top:25px}
+body{
+    font-family:'Segoe UI',Arial;
+    background:#f4f6fb;
+    margin:0;
+    padding:20px;
+}
+.container{
+    max-width:1100px;
+    margin:auto;
+    background:#fff;
+    padding:25px;
+    border-radius:10px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.08);
+}
+h1{
+    text-align:center;
+    color:#2f4ea1;
+    letter-spacing:2px;
+}
+.top-flex{
+    display:flex;
+    justify-content:space-between;
+    margin-top:20px;
+}
+.section{
+    width:32%;
+    font-size:14px;
+}
+button{
+    background:#3f5fc4;
+    color:white;
+    border:none;
+    padding:8px 14px;
+    border-radius:6px;
+    cursor:pointer;
+    margin-right:8px;
+}
+button:hover{
+    opacity:0.9;
+}
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+th{
+    background:#3f5fc4;
+    color:white;
+    padding:10px;
+}
+td{
+    padding:8px;
+    border-bottom:1px solid #ddd;
+    text-align:center;
+}
+input{
+    width:100%;
+    padding:5px;
+}
+.design-img{
+    width:60px;
+    height:60px;
+    object-fit:cover;
+    border-radius:5px;
+}
+.total{
+    text-align:right;
+    font-size:18px;
+    font-weight:bold;
+    margin-top:15px;
+    color:#2f4ea1;
+}
+.signature{
+    display:flex;
+    justify-content:space-between;
+    margin-top:50px;
+}
+.line{
+    border-top:1px solid #000;
+    width:200px;
+    margin-top:40px;
+}
+.terms{
+    margin-top:30px;
+    font-size:13px;
+}
+@media(max-width:768px){
+    .top-flex{
+        flex-direction:column;
+        gap:15px;
+    }
+    .section{
+        width:100%;
+    }
+}
 </style>
 </head>
 <body>
-<div class="container">
 
-<div class="top-bar">
-<div>
-<input type="file" id="logoInput" accept="image/*" style="display:none" onchange="loadLogo(event)">
-<button onclick="document.getElementById('logoInput').click()">Upload Logo</button>
-</div>
-<div class="logo-box" id="logoBox"></div>
-</div>
+<div class="container">
 
 <h1>QUOTATION</h1>
 
+<div class="top-flex">
 <div class="section">
-<div>
 <b>Company Details</b><br>
 Company Name:<br>
 Address:<br>
 Phone:
 </div>
-<div>
+
+<div class="section">
 <b>Client Details</b><br>
 Client Name:<br>
 Address:<br>
 Phone:
 </div>
-<div>
+
+<div class="section" style="text-align:right">
 <b>Quotation Info</b><br>
 Quotation No:<br>
 Date:
 </div>
 </div>
 
-<div style="margin-top:20px">
+<br>
 <button onclick="addRow()">Add Item</button>
-<button onclick="undoDelete()" id="undoBtn" style="display:none;background:#ff9800">Undo</button>
 <button onclick="window.print()">Print</button>
-</div>
 
 <table id="itemTable">
 <tr>
-<th>S.N</th>
+<th>S.No</th>
 <th>Description</th>
 <th>Design</th>
 <th>Size</th>
@@ -82,139 +147,82 @@ Date:
 </tr>
 </table>
 
-<div class="total-box">
+<div class="total">
 Grand Total: Rs. <span id="grandTotal">0.00</span>
 </div>
 
-<div class="footer">
-<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-top:60px">
-  <div style="width:45%">
-    <div>Prepared By:</div>
-    <div style="border-bottom:1px solid #888;width:260px;margin:10px 0 20px"></div>
-    <img id="prepImg" style="max-width:160px;display:block;margin-top:10px">
-    <input type="file" accept="image/*" onchange="loadSign(event,'prepImg')">
-  </div>
-
-  <div style="width:45%;text-align:right">
-    <div>Approved By (Client):</div>
-    <div style="border-bottom:1px solid #888;width:260px;margin:10px 0 20px  auto"></div>
-    <img id="appImg" style="max-width:160px;display:block;margin-left:auto;margin-top:10px">
-    <input type="file" accept="image/*" onchange="loadSign(event,'appImg')">
-  </div>
+<div class="signature">
+<div>
+Prepared By:
+<div class="line"></div>
 </div>
 
-<div style="margin-top:40px">
+<div>
+Approved By (Client):
+<div class="line"></div>
+</div>
+</div>
+
+<div class="terms">
 <b>Terms & Conditions</b>
-<ol style="margin-top:10px;padding-left:18px">
+<ol>
 <li>Goods once sold not returnable.</li>
 <li>50% advance required.</li>
 <li>Delivery within 7 days.</li>
 </ol>
 </div>
-</div>
 
 </div>
 
 <script>
-let count=0
-let lastDeletedRow=null
-
-function loadLogo(event){
-let logoBox=document.getElementById('logoBox')
-logoBox.innerHTML="<img src='"+URL.createObjectURL(event.target.files[0])+"'>"
-}
-
-function loadSign(e,id){
-let img=document.getElementById(id)
-img.src=URL.createObjectURL(e.target.files[0])
-}
+let count = 0;
 
 function addRow(){
-count++
-let table=document.getElementById('itemTable')
-let row=table.insertRow()
-row.innerHTML=`
-<td>${count}<button class='rowDelete' onclick='deleteRow(this)'>×</button></td>
-<td contenteditable='true'></td>
-<td class='designCell' onclick='triggerFile(this)'>
-<span>Upload</span>
-<input type='file' accept='image/*' class='designInput'>
-<img class='designPreview'>
-<button type='button' class='removeX' onclick='removePhoto(this,event)'>×</button>
-</td>
-<td contenteditable='true'></td>
-<td><input type='number' min='0' oninput='calculate(this)'></td>
-<td><input type='number' min='0' oninput='calculate(this)'></td>
-<td class='amount'>0.00</td>`
+    count++;
+    let table = document.getElementById("itemTable");
+    let row = table.insertRow();
+
+    row.innerHTML = `
+    <td>${count}</td>
+    <td><input type="text"></td>
+    <td>
+        <input type="file" accept="image/*" onchange="previewImage(event,this)">
+        <br>
+        <img class="design-img">
+    </td>
+    <td><input type="text"></td>
+    <td><input type="number" oninput="calculate(this)"></td>
+    <td><input type="number" oninput="calculate(this)"></td>
+    <td class="amount">0.00</td>
+    `;
 }
 
-function triggerFile(cell){
-cell.querySelector('.designInput').click()
-}
-
-function deleteRow(btn){
-let row=btn.closest('tr')
-lastDeletedRow=row.cloneNode(true)
-row.remove()
-renumber()
-calculateTotal()
-document.getElementById('undoBtn').style.display='inline-block'
-}
-
-function undoDelete(){
-if(!lastDeletedRow) return
-let table=document.getElementById('itemTable')
-table.appendChild(lastDeletedRow)
-lastDeletedRow=null
-renumber()
-calculateTotal()
-document.getElementById('undoBtn').style.display='none'
-}
-
-function renumber(){
-let rows=document.querySelectorAll('#itemTable tr')
-count=0
-rows.forEach((r,i)=>{
-if(i===0) return
-count++
-r.cells[0].childNodes[0].nodeValue=count
-})
+function previewImage(event,input){
+    let reader = new FileReader();
+    reader.onload = function(){
+        input.nextElementSibling.nextElementSibling.src = reader.result;
+    }
+    reader.readAsDataURL(event.target.files[0]);
 }
 
 function calculate(el){
-let row=el.closest('tr')
-let qty=parseFloat(row.cells[4].querySelector('input').value)||0
-let rate=parseFloat(row.cells[5].querySelector('input').value)||0
-row.querySelector('.amount').innerText=(qty*rate).toFixed(2)
-calculateTotal()
+    let row = el.parentElement.parentElement;
+    let qty = row.cells[4].querySelector("input").value;
+    let rate = row.cells[5].querySelector("input").value;
+    let amount = qty * rate;
+    row.cells[6].innerText = amount.toFixed(2);
+
+    updateTotal();
 }
 
-function calculateTotal(){
-let total=0
-document.querySelectorAll('.amount').forEach(c=>{
-total+=parseFloat(c.innerText)||0
-})
-document.getElementById('grandTotal').innerText=total.toFixed(2)
+function updateTotal(){
+    let total = 0;
+    document.querySelectorAll(".amount").forEach(cell=>{
+        total += parseFloat(cell.innerText) || 0;
+    });
+    document.getElementById("grandTotal").innerText = total.toFixed(2);
 }
-
-function removePhoto(btn,e){
-e.stopPropagation()
-let cell=btn.closest('td')
-cell.querySelector('.designPreview').style.display='none'
-cell.querySelector('.designPreview').src=''
-cell.querySelector('span').style.display='block'
-cell.querySelector('.designInput').value=''
-}
-
-document.addEventListener('change',function(e){
-if(e.target.classList.contains('designInput') && e.target.files[0]){
-let cell=e.target.closest('td')
-let img=cell.querySelector('.designPreview')
-img.src=URL.createObjectURL(e.target.files[0])
-img.style.display='block'
-cell.querySelector('span').style.display='none'
-}
-})
 </script>
+
 </body>
 </html>
