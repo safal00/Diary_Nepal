@@ -22,8 +22,9 @@ button{padding:8px 18px;border:none;border-radius:8px;background:linear-gradient
 .table td{border:1px solid #e3e7f1;padding:9px;text-align:center}
 .table tr:nth-child(even){background:#f7f9ff}
 input[type='number']{width:70px;padding:5px;border-radius:6px;border:1px solid #ccc}
-.designPreview{max-width:90px;max-height:90px;object-fit:cover;margin:6px auto 0 auto;border-radius:8px;display:none}
-.designCell{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.designPreview{width:100%;height:100%;object-fit:cover;border-radius:8px;display:none}
+.designCell{width:140px;height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;padding:0;position:relative}
+.removeX{position:absolute;top:4px;right:6px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:14px;cursor:pointer;display:none;line-height:20px}
 .footer{margin-top:25px;font-size:13px;color:#555;border-top:1px dashed #ddd;padding-top:12px}
 .total-box{margin-top:18px;text-align:right;font-size:20px;font-weight:700;color:#1f3674}
 b{color:#2d4da5}
@@ -137,7 +138,7 @@ function addRow(){
  <td class='designCell'>
    <label class='fileBtn uploadDesignBtn'>Upload Design <input type='file' accept='image/*' class='designInput'></label>
    <img class='designPreview'>
-   <button class='removePhotoBtn' style='display:none;margin-top:4px' onclick='removePhoto(this)'>Remove</button>
+   <button class='removeX' title='Remove Photo' onclick='removePhoto(this)'>×</button>
  </td>
  <td contenteditable='true'></td>
  <td><input type='number' min='0' oninput='calculate(this)'></td>
@@ -199,14 +200,14 @@ function previewDesignFile(input,file){
  const container=input.closest('td');
  if(!container) return;
  let img=container.querySelector('.designPreview');
- let removeBtn=container.querySelector('.removePhotoBtn');
+ let removeBtn=container.querySelector('.removeX');
  let label=container.querySelector('.uploadDesignBtn');
  const reader=new FileReader();
  reader.onload=function(e){
    img.src=e.target.result;
    img.style.display='block';
    if(label) label.style.display='none';
-   if(removeBtn) removeBtn.style.display='inline-block';
+   if(removeBtn) removeBtn.style.display='block';
  };
  reader.readAsDataURL(file);
 }
