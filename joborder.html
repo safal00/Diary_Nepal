@@ -9,7 +9,7 @@
 body{font-family:'Segoe UI',Arial;background:linear-gradient(120deg,#e8ecff,#f5f7ff);margin:0;padding:20px}
 .container{max-width:1100px;margin:auto;background:#fff;padding:22px;border-radius:16px;box-shadow:0 10px 28px rgba(0,0,0,.12)}
 .header{display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;gap:10px;margin-bottom:18px;padding:14px 0;border-bottom:2px solid #edf0f7}
-.logo{display:flex;flex-direction:column;gap:6px;justify-self:start}
+.logo{display:none}
 .logo img{max-height:100px;max-width:220px;object-fit:contain;display:none}
 .fileBtn{padding:6px 14px;background:#e9edff;border-radius:6px;border:1px solid #cfd6ff;cursor:pointer;font-size:13px;display:inline-block}
 .fileBtn input{display:none}
@@ -22,7 +22,8 @@ button{padding:8px 18px;border:none;border-radius:8px;background:linear-gradient
 .table td{border:1px solid #e3e7f1;padding:9px;text-align:center}
 .table tr:nth-child(even){background:#f7f9ff}
 input[type='number']{width:70px;padding:5px;border-radius:6px;border:1px solid #ccc}
-.designPreview{max-width:70px;max-height:70px;object-fit:cover;margin-top:4px;border-radius:6px;display:none}
+.designPreview{max-width:90px;max-height:90px;object-fit:cover;margin:6px auto 0 auto;border-radius:8px;display:none}
+.designCell{display:flex;flex-direction:column;align-items:center;justify-content:center}
 .footer{margin-top:25px;font-size:13px;color:#555;border-top:1px dashed #ddd;padding-top:12px}
 .total-box{margin-top:18px;text-align:right;font-size:20px;font-weight:700;color:#1f3674}
 b{color:#2d4da5}
@@ -39,12 +40,10 @@ b{color:#2d4da5}
 <div class="container">
 
 <div class="header">
-  <div class="logo">
-    <label class="fileBtn">Upload Logo
-      <input type="file" id="logoInput" accept="image/*">
-    </label>
-    <img id="companyLogo" alt="Company Logo">
-  </div>
+  <div></div>
+  <div contenteditable="true" class="quote-badge">QUOTATION</div>
+  <div class="quote-info"></div>
+</div>
   <div contenteditable="true" class="quote-badge">QUOTATION</div>
   <div class="quote-info"></div>
 </div>
@@ -96,6 +95,15 @@ Grand Total: Rs. <span id="grandTotal">0.00</span>
 <br>
 Prepared By: <span contenteditable="true" style="border-bottom:1px solid #aaa;min-width:120px;display:inline-block"></span>
 <br><br>
+<div style="text-align:left">
+  <label class="fileBtn">Upload Logo
+    <input type="file" id="logoInput" accept="image/*">
+  </label>
+  <br>
+  <img id="companyLogo" style="max-height:100px;display:none;margin-top:8px">
+</div>
+<br>
+<br><br>
 <b>Terms & Conditions</b><br>
 1. Goods once sold not returnable.<br>
 2. 50% advance required.<br>
@@ -114,9 +122,8 @@ function addRow(){
  row.innerHTML=`
  <td>${count}</td>
  <td contenteditable='true'></td>
- <td>
-   <label class='fileBtn'>Upload Design <input type='file' accept='image/*' class='designInput'></label>
-   <br>
+ <td class='designCell'>
+   <label class='fileBtn uploadDesignBtn'>Upload Design <input type='file' accept='image/*' class='designInput'></label>
    <img class='designPreview'>
  </td>
  <td contenteditable='true'></td>
@@ -160,14 +167,27 @@ function downloadPDF(){
  window.print();
 }
 
-// SAFE logo preview
+// SAFE logo preview (fix null error even if DOM changes)
 function previewLogoFile(file){
- const img=document.getElementById('companyLogo');
- if(!img) return; // prevent null error
+ let img=document.getElementById('companyLogo');
+ // if logo img missing, create it dynamically
+ if(!img){
+   const logoDiv=document.querySelector('.logo');
+   if(logoDiv){
+     img=document.createElement('img');
+     img.id='companyLogo';
+     img.alt='Company Logo';
+     logoDiv.appendChild(img);
+   }else{
+     return;
+   }
+ }
  const reader=new FileReader();
  reader.onload=function(e){
    img.src=e.target.result;
    img.style.display='block';
+   const label=img.parentElement.querySelector('.uploadDesignBtn');
+   if(label) label.style.display='none';
  };
  reader.readAsDataURL(file);
 }
@@ -176,28 +196,51 @@ function previewLogoFile(file){
 function previewDesignFile(input,file){
  const container=input.closest('td');
  if(!container) return;
- const img=container.querySelector('.designPreview');
- if(!img) return;
+ let img=container.querySelector('.designPreview');
+ if(!img){
+   img=document.createElement('img');
+   img.className='designPreview';
+   container.appendChild(img);
+ }
  const reader=new FileReader();
  reader.onload=function(e){
    img.src=e.target.result;
    img.style.display='block';
+   const label=img.parentElement.querySelector('.uploadDesignBtn');
+   if(label) label.style.display='none';
  };
  reader.readAsDataURL(file);
 }
 
 // Event delegation (prevents null issues)
 document.addEventListener('change',function(e){
- if(e.target.id==='logoInput' && e.target.files[0]){
+ if(e.target.id==='logoInput' && e.target.files && e.target.files[0]){
    previewLogoFile(e.target.files[0]);
  }
- if(e.target.classList.contains('designInput') && e.target.files[0]){
+ if(e.target.classList.contains('designInput') && e.target.files && e.target.files[0]){
    previewDesignFile(e.target,e.target.files[0]);
  }
 });
 
+// BASIC TESTS
+function runTests(){
+ console.log('TEST 1: Add row');
+ addRow();
+ console.assert(document.querySelectorAll('#qTable tr').length>1,'Row not added');
+
+ console.log('TEST 2: Total calculation');
+ const row=document.querySelectorAll('#qTable tr')[1];
+ row.cells[4].querySelector('input').value=2;
+ row.cells[5].querySelector('input').value=50;
+ calculate(row.cells[4].querySelector('input'));
+ console.assert(parseFloat(document.getElementById('grandTotal').innerText)>=100,'Total wrong');
+
+ console.log('All tests done');
+}
+
 window.onload=function(){
  addRow();
+ setTimeout(runTests,500);
 };
 </script>
 
