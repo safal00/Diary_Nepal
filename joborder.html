@@ -1,118 +1,159 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>VAT Calculator</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<title>Premium Quotation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
-body{background:#eef1f5;padding:40px;}
-.wrapper{max-width:950px;margin:auto;background:#fff;border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,0.1);}
-.header{background:#1565c0;color:white;padding:28px;font-size:28px;font-weight:700;letter-spacing:.6px;text-align:center;}
-.content{display:flex;}
-.left,.right{flex:1;padding:30px;}
-.right{border-left:1px solid #e5e7eb;}
-.field{margin-bottom:22px;}
-label{font-size:16px;font-weight:700;color:#333;}
-input,select{width:100%;padding:14px;margin-top:6px;border-radius:8px;border:1px solid #ccd6e0;font-size:17px;}
-button{width:100%;padding:16px;margin-top:8px;background:#1565c0;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:17px;cursor:pointer;}
-button:hover{background:#0d47a1;}
-.summary-title{font-weight:700;margin-bottom:20px;color:#1565c0;font-size:20px;}
-.line{display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid #e5e7eb;font-size:17px;}
-.line span:last-child{font-weight:700;}
-.total{display:flex;justify-content:space-between;padding-top:20px;font-size:26px;font-weight:700;color:#1565c0;}
-.footer{background:#000;color:#fff;text-align:center;padding:14px;font-size:13px;}
-@media(max-width:768px){.content{flex-direction:column;}.right{border-left:none;border-top:1px solid #e5e7eb;}}
+body{font-family:'Segoe UI',Arial;background:linear-gradient(120deg,#e8ecff,#f5f7ff);margin:0;padding:20px}
+.container{max-width:1100px;margin:auto;background:#fff;padding:22px;border-radius:16px;box-shadow:0 10px 28px rgba(0,0,0,.12)}
+button{padding:8px 18px;border:none;border-radius:8px;background:linear-gradient(90deg,#2d4da5,#4b6fe0);color:#fff;margin:6px 6px 6px 0;cursor:pointer;font-weight:600}
+.table{width:100%;border-collapse:collapse;margin-top:14px;font-size:14px}
+.table th{background:linear-gradient(90deg,#2d4da5,#4b6fe0);color:#fff;padding:12px}
+.table td{border:1px solid #e3e7f1;padding:9px;text-align:center;position:relative}
+
+/* DESIGN CELL */
+.designCell{width:140px;height:110px;overflow:hidden;position:relative;cursor:pointer;background:#f4f6ff;border-radius:8px}
+.designCell span{font-size:12px;color:#7a86b6}
+.designPreview{width:100%;height:100%;object-fit:cover;border-radius:8px;display:none}
+.designInput{display:none}
+.removeX{position:absolute;top:4px;right:6px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:14px;cursor:pointer;display:none}
+.designCell.hasImage:hover .removeX{display:block}
+
+tr:hover .rowDelete{display:inline-block}
+.rowDelete{display:none;background:#ff4d4d;color:#fff;border:none;border-radius:50%;width:26px;height:26px;position:absolute;top:4px;left:4px;cursor:pointer}
+
+.total-box{margin-top:18px;text-align:right;font-size:20px;font-weight:700;color:#1f3674}
 </style>
 </head>
 <body>
 
-<div class="wrapper">
-<div class="header">VAT Calculator</div>
+<div class="container">
 
-<div class="content">
+<button onclick="addRow()">Add Item</button>
+<button onclick="undoDelete()" id="undoBtn" style="display:none;background:#ff9800">Undo</button>
 
-<div class="left">
-<div class="field">
-<label>Amount</label>
-<input type="number" id="amount" value="5000">
+<table class="table" id="qTable">
+<tr>
+<th>S.No</th>
+<th>Description</th>
+<th>Design</th>
+<th>Size</th>
+<th>Qty</th>
+<th>Rate</th>
+<th>Amount</th>
+</tr>
+</table>
+
+<div class="total-box">
+Grand Total: Rs. <span id="grandTotal">0.00</span>
 </div>
 
-<div class="field">
-<label>Discount</label>
-<input type="number" id="discount" value="0">
-</div>
-
-<div class="field">
-<label>VAT Rate</label>
-<select id="vatRate">
-<option value="13">13% (Standard)</option>
-<option value="5">5%</option>
-<option value="10">10%</option>
-<option value="custom">Custom</option>
-</select>
-</div>
-
-<div class="field">
-<input type="number" id="customVat" placeholder="Enter custom %" style="display:none">
-</div>
-
-<div class="field">
-<label>Mode</label>
-<select id="mode">
-<option value="add">Add VAT</option>
-<option value="remove">Remove VAT</option>
-</select>
-</div>
-
-<button onclick="calculate()">Calculate</button>
-</div>
-
-<div class="right">
-<div class="summary-title">Invoice Summary</div>
-<div class="line"><span>Subtotal</span><span id="sub">Rs. 0</span></div>
-<div class="line"><span>Discount</span><span id="disc">Rs. 0</span></div>
-<div class="line"><span>Taxable Amount</span><span id="taxable">Rs. 0</span></div>
-<div class="line"><span>VAT</span><span id="vat">Rs. 0</span></div>
-<div class="total"><span>Grand Total</span><span id="total">Rs. 0</span></div>
-</div>
-
-</div>
-<div class="footer">© 2025 Data from official sources</div>
 </div>
 
 <script>
-const vatRate = document.getElementById("vatRate");
-const customVat = document.getElementById("customVat");
+let count=0
+let lastDeletedRow=null
+const table=document.getElementById('qTable')
 
-vatRate.addEventListener("change",()=>{customVat.style.display = vatRate.value==="custom"?"block":"none";});
-
-function calculate(){
-  let amount = parseFloat(document.getElementById("amount").value) || 0;
-  let discount = parseFloat(document.getElementById("discount").value) || 0;
-  let rate = vatRate.value==="custom" ? parseFloat(customVat.value)||0 : parseFloat(vatRate.value);
-  rate = rate/100;
-
-  let subtotal = amount;
-  let taxable = subtotal - discount;
-  if(taxable<0) taxable = 0;
-
-  let vat=0, total=0;
-  let mode = document.getElementById("mode").value;
-  if(mode==="add"){vat = taxable*rate; total = taxable+vat;} 
-  else {vat = taxable - (taxable/(1+rate)); total = taxable; taxable = total - vat;}
-
-  document.getElementById("sub").innerText = "Rs. "+subtotal.toFixed(2);
-  document.getElementById("disc").innerText = "Rs. "+discount.toFixed(2);
-  document.getElementById("taxable").innerText = "Rs. "+taxable.toFixed(2);
-  document.getElementById("vat").innerText = "Rs. "+vat.toFixed(2);
-  document.getElementById("total").innerText = "Rs. "+total.toFixed(2);
+function addRow(){
+ count++
+ let row=table.insertRow()
+ row.innerHTML=`
+ <td style='position:relative'>${count}
+   <button class='rowDelete' onclick='deleteRow(this)'>×</button>
+ </td>
+ <td contenteditable='true'></td>
+ <td class='designCell' onclick='triggerFile(this)'>
+   <span>Click to Upload</span>
+   <input type='file' accept='image/*' class='designInput'>
+   <img class='designPreview'>
+   <button type='button' class='removeX' onclick='removePhoto(this,event)'>×</button>
+ </td>
+ <td contenteditable='true'></td>
+ <td><input type='number' min='0' oninput='calculate(this)'></td>
+ <td><input type='number' min='0' oninput='calculate(this)'></td>
+ <td class='amount'>0.00</td>`
 }
 
-// Auto calculate on page load
-window.onload = calculate;
+function triggerFile(cell){
+ const input=cell.querySelector('.designInput')
+ input.click()
+}
+
+function deleteRow(btn){
+ const row=btn.closest('tr')
+ lastDeletedRow=row.cloneNode(true)
+ row.remove()
+ renumber()
+ calculateTotal()
+ document.getElementById('undoBtn').style.display='inline-block'
+}
+
+function undoDelete(){
+ if(!lastDeletedRow) return
+ table.appendChild(lastDeletedRow)
+ lastDeletedRow=null
+ renumber()
+ calculateTotal()
+ document.getElementById('undoBtn').style.display='none'
+}
+
+function renumber(){
+ let i=1
+ document.querySelectorAll('#qTable tr').forEach((r,index)=>{
+   if(index===0) return
+   r.cells[0].childNodes[0].nodeValue=i
+   i++
+ })
+ count=i-1
+}
+
+function calculate(el){
+ const row=el.closest('tr')
+ const qty=parseFloat(row.cells[4].querySelector('input').value)||0
+ const rate=parseFloat(row.cells[5].querySelector('input').value)||0
+ row.querySelector('.amount').innerText=(qty*rate).toFixed(2)
+ calculateTotal()
+}
+
+function calculateTotal(){
+ let total=0
+ document.querySelectorAll('.amount').forEach(c=>{
+   total+=parseFloat(c.innerText)||0
+ })
+ document.getElementById('grandTotal').innerText=total.toFixed(2)
+}
+
+function removePhoto(btn,e){
+ e.stopPropagation()
+ const cell=btn.closest('td')
+ const img=cell.querySelector('.designPreview')
+ const input=cell.querySelector('.designInput')
+ const text=cell.querySelector('span')
+ img.src=''
+ img.style.display='none'
+ text.style.display='block'
+ cell.classList.remove('hasImage')
+ input.value=''
+}
+
+// preview design image
+ document.addEventListener('change',e=>{
+  if(e.target.classList.contains('designInput') && e.target.files[0]){
+    const cell=e.target.closest('td')
+    const img=cell.querySelector('.designPreview')
+    const text=cell.querySelector('span')
+    img.src=URL.createObjectURL(e.target.files[0])
+    img.style.display='block'
+    text.style.display='none'
+    cell.classList.add('hasImage')
+  }
+ })
+
+window.onload=()=>console.log('Quotation Ready')
 </script>
 
 </body>
 </html>
-
