@@ -10,7 +10,10 @@ body{font-family:'Segoe UI',Arial;background:linear-gradient(120deg,#e8ecff,#f5f
 .container{max-width:1100px;margin:auto;background:#fff;padding:22px;border-radius:16px;box-shadow:0 10px 28px rgba(0,0,0,.12)}
 .header{display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;gap:10px;margin-bottom:18px;padding:14px 0;border-bottom:2px solid #edf0f7}
 .logo{display:block}
-.logo img{max-height:100px;max-width:220px;object-fit:contain;display:none}
+.logoBox{position:relative;display:inline-block}
+.logoBox img{max-height:100px;max-width:220px;object-fit:contain;display:none}
+.logoBox .removeX{display:none}
+.logoBox.hasImage:hover .removeX{display:block}
 .fileBtn{padding:6px 14px;background:#e9edff;border-radius:6px;border:1px solid #cfd6ff;cursor:pointer;font-size:13px;display:inline-block}
 .fileBtn input{display:none}
 .quote-badge{font-size:28px;font-weight:800;color:#2d4da5;letter-spacing:1px;text-align:center}
@@ -25,6 +28,7 @@ input[type='number']{width:70px;padding:5px;border-radius:6px;border:1px solid #
 .designPreview{width:100%;height:100%;object-fit:cover;border-radius:8px;display:none}
 .designCell{width:140px;height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;padding:0;position:relative}
 .removeX{position:absolute;top:4px;right:6px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:14px;cursor:pointer;display:none;line-height:20px}
+.designCell.hasImage:hover .removeX{display:block;}
 .footer{margin-top:25px;font-size:13px;color:#555;border-top:1px dashed #ddd;padding-top:12px}
 .total-box{margin-top:18px;text-align:right;font-size:20px;font-weight:700;color:#1f3674}
 b{color:#2d4da5}
@@ -44,7 +48,10 @@ b{color:#2d4da5}
   <div class="logo">
     <label class="fileBtn">Upload Logo <input type="file" id="logoInput" accept="image/*"></label>
     <br>
-    <img id="companyLogo" style="max-height:80px;margin-top:6px;display:none">
+    <div class="logoBox" id="companyLogoBox">
+      <img id="companyLogo" style="max-height:80px;margin-top:6px;display:none">
+      <button class="removeX" onclick="removeLogo('companyLogo','logoInput','companyLogoBox')">×</button>
+    </div>
   </div>
   <div contenteditable="true" class="quote-badge">QUOTATION</div>
   <div class="quote-info" contenteditable="true">Quotation No: ___<br>Date: ___</div>
@@ -103,7 +110,10 @@ Prepared By:<br>
 <br><br>
 <label class="fileBtn">Upload Logo <input type="file" id="preparedLogoInput" accept="image/*"></label>
 <br>
-<img id="preparedLogo" style="max-height:80px;margin-top:8px;display:none">
+<div class="logoBox" id="preparedLogoBox">
+  <img id="preparedLogo" style="max-height:80px;margin-top:6px;display:none">
+  <button class="removeX" onclick="removeLogo('preparedLogo','preparedLogoInput','preparedLogoBox')">×</button>
+</div>
 </div>
 
 <div>
@@ -112,7 +122,10 @@ Approved By (Client):<br>
 <br><br>
 <label class="fileBtn">Upload Logo <input type="file" id="approvedLogoInput" accept="image/*"></label>
 <br>
-<img id="approvedLogo" style="max-height:80px;margin-top:8px;display:none">
+<div class="logoBox" id="approvedLogoBox">
+  <img id="approvedLogo" style="max-height:80px;margin-top:6px;display:none">
+  <button class="removeX" onclick="removeLogo('approvedLogo','approvedLogoInput','approvedLogoBox')">×</button>
+</div>
 </div>
 
 </div>
@@ -184,13 +197,15 @@ function downloadPDF(){
 // ---------- LOGO PREVIEW ----------
 function previewLogoFile(input,file){
  const img=document.getElementById('companyLogo');
+ const box=document.getElementById('companyLogoBox');
  if(!img) return;
  const reader=new FileReader();
  reader.onload=function(e){
    img.src=e.target.result;
    img.style.display='block';
-   // hide upload button after upload
+   if(box) box.classList.add('hasImage');
    if(input && input.closest('label')) input.closest('label').style.display='none';
+   input.value='';
  };
  reader.readAsDataURL(file);
 }
@@ -200,14 +215,14 @@ function previewDesignFile(input,file){
  const container=input.closest('td');
  if(!container) return;
  let img=container.querySelector('.designPreview');
- let removeBtn=container.querySelector('.removeX');
  let label=container.querySelector('.uploadDesignBtn');
  const reader=new FileReader();
  reader.onload=function(e){
    img.src=e.target.result;
    img.style.display='block';
    if(label) label.style.display='none';
-   if(removeBtn) removeBtn.style.display='block';
+   container.classList.add('hasImage');
+   input.value=''; // allow re‑upload after remove
  };
  reader.readAsDataURL(file);
 }
@@ -216,10 +231,21 @@ function removePhoto(btn){
  const cell=btn.closest('td');
  const img=cell.querySelector('.designPreview');
  const label=cell.querySelector('.uploadDesignBtn');
+ const input=cell.querySelector('.designInput');
  img.src='';
  img.style.display='none';
- btn.style.display='none';
+ cell.classList.remove('hasImage');
  if(label) label.style.display='inline-block';
+ if(input) input.value=''; // important for re‑upload same photo
+}
+
+function removeLogo(imgId,inputId,boxId){
+ const img=document.getElementById(imgId);
+ const input=document.getElementById(inputId);
+ const box=document.getElementById(boxId);
+ if(img){ img.src=''; img.style.display='none'; }
+ if(box) box.classList.remove('hasImage');
+ if(input){ input.value=''; if(input.closest('label')) input.closest('label').style.display='inline-block'; }
 }
 
 // ---------- CAPITALIZE PREPARED BY ----------
@@ -236,21 +262,27 @@ document.addEventListener('change',function(e){
  }
  if(e.target.id==='preparedLogoInput' && e.target.files && e.target.files[0]){
    const img=document.getElementById('preparedLogo');
+   const box=document.getElementById('preparedLogoBox');
    const reader=new FileReader();
    reader.onload=function(ev){ 
      img.src=ev.target.result; 
      img.style.display='block';
+     if(box) box.classList.add('hasImage');
      if(e.target.closest('label')) e.target.closest('label').style.display='none';
+     e.target.value='';
    };
    reader.readAsDataURL(e.target.files[0]);
  }
  if(e.target.id==='approvedLogoInput' && e.target.files && e.target.files[0]){
    const img=document.getElementById('approvedLogo');
+   const box=document.getElementById('approvedLogoBox');
    const reader=new FileReader();
    reader.onload=function(ev){ 
      img.src=ev.target.result; 
      img.style.display='block';
+     if(box) box.classList.add('hasImage');
      if(e.target.closest('label')) e.target.closest('label').style.display='none';
+     e.target.value='';
    };
    reader.readAsDataURL(e.target.files[0]);
  }
