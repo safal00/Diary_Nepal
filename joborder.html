@@ -90,7 +90,8 @@ Grand Total: Rs. <span id="grandTotal">0.00</span>
 
 <div class="footer">
 <br>
-Prepared By: <span contenteditable="true" style="border-bottom:1px solid #aaa;min-width:120px;display:inline-block"></span>
+Prepared By: <span contenteditable="true" id="preparedBy" style="border-bottom:1px solid #aaa;min-width:140px;display:inline-block"></span>
+&nbsp;&nbsp;&nbsp;&nbsp;Approved By (Client): <span contenteditable="true" id="approvedBy" style="border-bottom:1px solid #aaa;min-width:140px;display:inline-block"></span>
 <br><br>
 <div style="text-align:left">
   <label class="fileBtn">Upload Logo
@@ -165,32 +166,21 @@ function downloadPDF(){
  window.print();
 }
 
-// SAFE logo preview (fix null error even if DOM changes)
-function previewLogoFile(file){
- let img=document.getElementById('companyLogo');
- // if logo img missing, create it dynamically
- if(!img){
-   const logoDiv=document.querySelector('.logo');
-   if(logoDiv){
-     img=document.createElement('img');
-     img.id='companyLogo';
-     img.alt='Company Logo';
-     logoDiv.appendChild(img);
-   }else{
-     return;
-   }
- }
+// ---------- LOGO PREVIEW ----------
+function previewLogoFile(input,file){
+ const img=document.getElementById('companyLogo');
+ if(!img) return;
  const reader=new FileReader();
  reader.onload=function(e){
    img.src=e.target.result;
    img.style.display='block';
-   const label=img.parentElement.querySelector('.uploadDesignBtn');
-   if(label) label.style.display='none';
+   // hide upload button after upload
+   if(input && input.closest('label')) input.closest('label').style.display='none';
  };
  reader.readAsDataURL(file);
 }
 
-// SAFE design preview
+// ---------- DESIGN PREVIEW ----------
 function previewDesignFile(input,file){
  const container=input.closest('td');
  if(!container) return;
@@ -217,17 +207,30 @@ function removePhoto(btn){
  if(label) label.style.display='inline-block';
 }
 
-// Event delegation (prevents null issues)
+// ---------- CAPITALIZE PREPARED BY ----------
+function capitalizeWords(el){
+ if(!el) return;
+ let words=el.innerText.toLowerCase().split(' ');
+ el.innerText=words.map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
+}
+
+// ---------- EVENTS ----------
 document.addEventListener('change',function(e){
  if(e.target.id==='logoInput' && e.target.files && e.target.files[0]){
-   previewLogoFile(e.target.files[0]);
+   previewLogoFile(e.target,e.target.files[0]);
  }
  if(e.target.classList.contains('designInput') && e.target.files && e.target.files[0]){
    previewDesignFile(e.target,e.target.files[0]);
  }
 });
 
-// BASIC TESTS
+// capitalize when leaving Prepared By
+setTimeout(()=>{
+ const prep=document.querySelector('.footer span[contenteditable]');
+ if(prep){ prep.addEventListener('blur',()=>capitalizeWords(prep)); }
+},500);
+
+// ---------- TESTS ----------
 function runTests(){
  console.log('TEST 1: Add row');
  addRow();
@@ -243,10 +246,7 @@ function runTests(){
  console.log('All tests done');
 }
 
-// Do not auto-add row. User will click Add Item manually
-window.onload=function(){
- console.log('Quotation system ready');
-};
+window.onload=function(){ console.log('Quotation system ready'); };
 </script>
 
 </body>
