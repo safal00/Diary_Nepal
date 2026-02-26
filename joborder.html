@@ -9,7 +9,7 @@
 body{font-family:'Segoe UI',Arial;background:linear-gradient(120deg,#e8ecff,#f5f7ff);margin:0;padding:20px}
 .container{max-width:1100px;margin:auto;background:#fff;padding:22px;border-radius:16px;box-shadow:0 10px 28px rgba(0,0,0,.12)}
 .header{display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;gap:10px;margin-bottom:18px;padding:14px 0;border-bottom:2px solid #edf0f7}
-.logo{display:none}
+.logo{display:block}
 .logo img{max-height:100px;max-width:220px;object-fit:contain;display:none}
 .fileBtn{padding:6px 14px;background:#e9edff;border-radius:6px;border:1px solid #cfd6ff;cursor:pointer;font-size:13px;display:inline-block}
 .fileBtn input{display:none}
@@ -40,9 +40,13 @@ b{color:#2d4da5}
 <div class="container">
 
 <div class="header">
-  <div></div>
+  <div class="logo">
+    <label class="fileBtn">Upload Logo <input type="file" id="logoInput" accept="image/*"></label>
+    <br>
+    <img id="companyLogo" style="max-height:80px;margin-top:6px;display:none">
+  </div>
   <div contenteditable="true" class="quote-badge">QUOTATION</div>
-  <div class="quote-info"></div>
+  <div class="quote-info" contenteditable="true">Quotation No: ___<br>Date: ___</div>
 </div>
 
 <div class="info-grid">
@@ -93,15 +97,7 @@ Grand Total: Rs. <span id="grandTotal">0.00</span>
 Prepared By: <span contenteditable="true" id="preparedBy" style="border-bottom:1px solid #aaa;min-width:140px;display:inline-block"></span>
 &nbsp;&nbsp;&nbsp;&nbsp;Approved By (Client): <span contenteditable="true" id="approvedBy" style="border-bottom:1px solid #aaa;min-width:140px;display:inline-block"></span>
 <br><br>
-<div style="text-align:left">
-  <label class="fileBtn">Upload Logo
-    <input type="file" id="logoInput" accept="image/*">
-  </label>
-  <br>
-  <img id="companyLogo" style="max-height:100px;display:none;margin-top:8px">
-</div>
-<br>
-<br><br>
+
 <b>Terms & Conditions</b><br>
 1. Goods once sold not returnable.<br>
 2. 50% advance required.<br>
@@ -218,6 +214,12 @@ function capitalizeWords(el){
 document.addEventListener('change',function(e){
  if(e.target.id==='logoInput' && e.target.files && e.target.files[0]){
    previewLogoFile(e.target,e.target.files[0]);
+ }
+ if(e.target.id==='approvedLogoInput' && e.target.files && e.target.files[0]){
+   const img=document.getElementById('approvedLogo');
+   const reader=new FileReader();
+   reader.onload=function(ev){ img.src=ev.target.result; img.style.display='block'; };
+   reader.readAsDataURL(e.target.files[0]);
  }
  if(e.target.classList.contains('designInput') && e.target.files && e.target.files[0]){
    previewDesignFile(e.target,e.target.files[0]);
