@@ -94,10 +94,28 @@ Grand Total: Rs. <span id="grandTotal">0.00</span>
 
 <div class="footer">
 <br>
-Prepared By: <span contenteditable="true" id="preparedBy" style="border-bottom:1px solid #aaa;min-width:140px;display:inline-block"></span>
-&nbsp;&nbsp;&nbsp;&nbsp;Approved By (Client): <span contenteditable="true" id="approvedBy" style="border-bottom:1px solid #aaa;min-width:140px;display:inline-block"></span>
-<br><br>
+<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:40px">
 
+<div>
+Prepared By:<br>
+<span contenteditable="true" id="preparedBy" style="border-bottom:1px solid #aaa;min-width:160px;display:inline-block"></span>
+<br><br>
+<label class="fileBtn">Upload Logo <input type="file" id="preparedLogoInput" accept="image/*"></label>
+<br>
+<img id="preparedLogo" style="max-height:80px;margin-top:8px;display:none">
+</div>
+
+<div>
+Approved By (Client):<br>
+<span contenteditable="true" id="approvedBy" style="border-bottom:1px solid #aaa;min-width:160px;display:inline-block"></span>
+<br><br>
+<label class="fileBtn">Upload Logo <input type="file" id="approvedLogoInput" accept="image/*"></label>
+<br>
+<img id="approvedLogo" style="max-height:80px;margin-top:8px;display:none">
+</div>
+
+</div>
+<br>
 <b>Terms & Conditions</b><br>
 1. Goods once sold not returnable.<br>
 2. 50% advance required.<br>
@@ -214,6 +232,12 @@ function capitalizeWords(el){
 document.addEventListener('change',function(e){
  if(e.target.id==='logoInput' && e.target.files && e.target.files[0]){
    previewLogoFile(e.target,e.target.files[0]);
+ }
+ if(e.target.id==='preparedLogoInput' && e.target.files && e.target.files[0]){
+   const img=document.getElementById('preparedLogo');
+   const reader=new FileReader();
+   reader.onload=function(ev){ img.src=ev.target.result; img.style.display='block'; };
+   reader.readAsDataURL(e.target.files[0]);
  }
  if(e.target.id==='approvedLogoInput' && e.target.files && e.target.files[0]){
    const img=document.getElementById('approvedLogo');
