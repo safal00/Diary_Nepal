@@ -236,13 +236,21 @@ document.addEventListener('change',function(e){
  if(e.target.id==='preparedLogoInput' && e.target.files && e.target.files[0]){
    const img=document.getElementById('preparedLogo');
    const reader=new FileReader();
-   reader.onload=function(ev){ img.src=ev.target.result; img.style.display='block'; };
+   reader.onload=function(ev){ 
+     img.src=ev.target.result; 
+     img.style.display='block';
+     if(e.target.closest('label')) e.target.closest('label').style.display='none';
+   };
    reader.readAsDataURL(e.target.files[0]);
  }
  if(e.target.id==='approvedLogoInput' && e.target.files && e.target.files[0]){
    const img=document.getElementById('approvedLogo');
    const reader=new FileReader();
-   reader.onload=function(ev){ img.src=ev.target.result; img.style.display='block'; };
+   reader.onload=function(ev){ 
+     img.src=ev.target.result; 
+     img.style.display='block';
+     if(e.target.closest('label')) e.target.closest('label').style.display='none';
+   };
    reader.readAsDataURL(e.target.files[0]);
  }
  if(e.target.classList.contains('designInput') && e.target.files && e.target.files[0]){
