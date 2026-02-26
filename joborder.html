@@ -14,15 +14,13 @@ h1{text-align:center;color:#2d4da5;letter-spacing:2px}
 button{padding:8px 16px;border:none;border-radius:8px;background:linear-gradient(90deg,#2d4da5,#4b6fe0);color:#fff;margin:5px;cursor:pointer;font-weight:600}
 .section{display:flex;justify-content:space-between;margin-top:20px}
 .section div{width:32%;font-size:14px}
-input[type=text]{width:90%;padding:5px;margin:3px 0;border:1px solid #ccc;border-radius:4px;text-transform:capitalize}
 table{width:100%;border-collapse:collapse;margin-top:20px;font-size:14px}
 th{background:linear-gradient(90deg,#2d4da5,#4b6fe0);color:#fff;padding:10px}
 td{border:1px solid #e3e7f1;padding:8px;text-align:center;position:relative}
-.designCell{width:120px;height:90px;background:#f4f6ff;border-radius:8px;cursor:pointer;overflow:hidden}
-.designPreview{width:100%;height:100%;object-fit:cover;display:none}
-.designInput{display:none}
 .total-box{text-align:right;margin-top:20px;font-size:18px;font-weight:bold;color:#1f3674}
-.footer{margin-top:50px;font-size:14px}
+.footer{margin-top:60px;font-size:14px}
+.nameLine{border-bottom:1px solid #888;width:260px;margin:15px 0;display:inline-block}
+.nameEdit{outline:none;min-width:200px;display:inline-block}
 </style>
 </head>
 <body>
@@ -41,20 +39,20 @@ td{border:1px solid #e3e7f1;padding:8px;text-align:center;position:relative}
 <div class="section">
 <div>
 <b>Company Details</b><br>
-<input type="text" placeholder="Company Name"><br>
-<input type="text" placeholder="Address"><br>
-<input type="text" placeholder="Phone">
+Company Name: <span contenteditable="true" class="cap"></span><br>
+Address: <span contenteditable="true" class="cap"></span><br>
+Phone: <span contenteditable="true"></span>
 </div>
 <div>
 <b>Client Details</b><br>
-<input type="text" placeholder="Client Name"><br>
-<input type="text" placeholder="Address"><br>
-<input type="text" placeholder="Phone">
+Client Name: <span contenteditable="true" class="cap"></span><br>
+Address: <span contenteditable="true" class="cap"></span><br>
+Phone: <span contenteditable="true"></span>
 </div>
 <div>
 <b>Quotation Info</b><br>
-<input type="text" placeholder="Quotation No"><br>
-<input type="text" placeholder="Date">
+Quotation No: <span contenteditable="true"></span><br>
+Date: <span contenteditable="true"></span>
 </div>
 </div>
 
@@ -67,7 +65,6 @@ td{border:1px solid #e3e7f1;padding:8px;text-align:center;position:relative}
 <tr>
 <th>S.N</th>
 <th>Description</th>
-<th>Design</th>
 <th>Size</th>
 <th>Qty</th>
 <th>Rate</th>
@@ -75,28 +72,29 @@ td{border:1px solid #e3e7f1;padding:8px;text-align:center;position:relative}
 </tr>
 </table>
 
-<div class="total-box">Grand Total: Rs. <span id="grandTotal">0.00</span></div>
+<div class="total-box">
+Grand Total: Rs. <span id="grandTotal">0.00</span>
+</div>
 
 <div class="footer">
 <div style="display:flex;justify-content:space-between;margin-top:70px">
 
 <div style="width:40%">
 <div>Prepared By:</div>
-<input type="text" id="prepName" placeholder="Enter Name">
-<div id="prepLine" style="border-bottom:1px solid #888;width:260px;margin:10px 0"></div>
-<input type="file" id="prepFile" accept="image/*" style="display:none" onchange="loadSign(event,'prepImg','prepName','prepLine','prepBtn')">
+<div class="nameLine"><span contenteditable="true" id="prepName" class="nameEdit cap"></span></div>
+<input type="file" id="prepFile" accept="image/*" style="display:none" onchange="loadSign(event,'prepImg','prepBtn','prepName')">
 <button id="prepBtn" onclick="document.getElementById('prepFile').click()">Upload Logo</button>
 <img id="prepImg" style="max-width:160px;margin-top:10px;display:none">
 </div>
 
 <div style="width:40%;text-align:right">
 <div>Approved By (Client):</div>
-<input type="text" id="appName" placeholder="Enter Name">
-<div id="appLine" style="border-bottom:1px solid #888;width:260px;margin:10px 0 0 auto"></div>
-<input type="file" id="appFile" accept="image/*" style="display:none" onchange="loadSign(event,'appImg','appName','appLine','appBtn')">
+<div class="nameLine" style="margin-left:auto"><span contenteditable="true" id="appName" class="nameEdit cap"></span></div>
+<input type="file" id="appFile" accept="image/*" style="display:none" onchange="loadSign(event,'appImg','appBtn','appName')">
 <button id="appBtn" onclick="document.getElementById('appFile').click()">Upload Logo</button>
 <img id="appImg" style="max-width:160px;margin-top:10px;margin-left:auto;display:none">
 </div>
+
 </div>
 
 <div style="margin-top:40px">
@@ -108,53 +106,55 @@ td{border:1px solid #e3e7f1;padding:8px;text-align:center;position:relative}
 </ol>
 </div>
 </div>
+
 </div>
 
 <script>
 let count=0
 
-function loadLogo(e){
-document.getElementById('logoBox').innerHTML="<img src='"+URL.createObjectURL(e.target.files[0])+"'>"
+function loadLogo(event){
+let logoBox=document.getElementById('logoBox')
+logoBox.innerHTML="<img src='"+URL.createObjectURL(event.target.files[0])+"'>"
 }
 
-function loadSign(e,imgId,nameId,lineId,btnId){
-let img=document.getElementById(imgId)
+function loadSign(e,id,btnId,nameId){
+let img=document.getElementById(id)
 img.src=URL.createObjectURL(e.target.files[0])
 img.style.display='block'
-document.getElementById(nameId).style.display='none'
-document.getElementById(lineId).style.display='none'
-document.getElementById(btnId).style.display='none'
+let btn=document.getElementById(btnId)
+if(btn) btn.style.display='none'
+let name=document.getElementById(nameId)
+if(name) name.parentElement.style.display='none'   // hide name line after logo
 }
 
 function addRow(){
 count++
-let t=document.getElementById('itemTable')
-let r=t.insertRow()
-r.innerHTML=`<td>${count}</td>
+let table=document.getElementById('itemTable')
+let row=table.insertRow()
+row.innerHTML=`<td>${count}</td>
 <td contenteditable='true'></td>
-<td class='designCell' onclick='this.querySelector("input").click()'>Upload<input type='file' class='designInput' onchange='showImg(this)'><img class='designPreview'></td>
 <td contenteditable='true'></td>
 <td><input type='number' oninput='calc(this)'></td>
 <td><input type='number' oninput='calc(this)'></td>
-<td class='amount'>0.00</td>`
-}
-
-function showImg(i){
-let img=i.nextElementSibling
-img.src=URL.createObjectURL(i.files[0])
-img.style.display='block'
-i.parentElement.firstChild.textContent=''
+<td class='amt'>0.00</td>`
 }
 
 function calc(el){
 let r=el.closest('tr')
-let q=r.cells[4].querySelector('input').value||0
-let ra=r.cells[5].querySelector('input').value||0
-r.cells[6].innerText=(q*ra).toFixed(2)
+let q=r.cells[3].querySelector('input').value||0
+let rate=r.cells[4].querySelector('input').value||0
+r.querySelector('.amt').innerText=(q*rate).toFixed(2)
 let total=0
-document.querySelectorAll('.amount').forEach(a=>total+=parseFloat(a.innerText)||0)
+document.querySelectorAll('.amt').forEach(a=>total+=parseFloat(a.innerText)||0)
 document.getElementById('grandTotal').innerText=total.toFixed(2)
 }
+
+// Capital first letters automatically
+function capWords(el){
+let w=el.innerText.toLowerCase().split(' ')
+el.innerText=w.map(x=>x.charAt(0).toUpperCase()+x.slice(1)).join(' ')
+}
+document.querySelectorAll('.cap').forEach(e=>e.addEventListener('blur',()=>capWords(e)))
 </script>
 </body>
 </html>
