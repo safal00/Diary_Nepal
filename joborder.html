@@ -122,6 +122,7 @@ function addRow(){
  <td class='designCell'>
    <label class='fileBtn uploadDesignBtn'>Upload Design <input type='file' accept='image/*' class='designInput'></label>
    <img class='designPreview'>
+   <button class='removePhotoBtn' style='display:none;margin-top:4px' onclick='removePhoto(this)'>Remove</button>
  </td>
  <td contenteditable='true'></td>
  <td><input type='number' min='0' oninput='calculate(this)'></td>
@@ -194,19 +195,26 @@ function previewDesignFile(input,file){
  const container=input.closest('td');
  if(!container) return;
  let img=container.querySelector('.designPreview');
- if(!img){
-   img=document.createElement('img');
-   img.className='designPreview';
-   container.appendChild(img);
- }
+ let removeBtn=container.querySelector('.removePhotoBtn');
+ let label=container.querySelector('.uploadDesignBtn');
  const reader=new FileReader();
  reader.onload=function(e){
    img.src=e.target.result;
    img.style.display='block';
-   const label=img.parentElement.querySelector('.uploadDesignBtn');
    if(label) label.style.display='none';
+   if(removeBtn) removeBtn.style.display='inline-block';
  };
  reader.readAsDataURL(file);
+}
+
+function removePhoto(btn){
+ const cell=btn.closest('td');
+ const img=cell.querySelector('.designPreview');
+ const label=cell.querySelector('.uploadDesignBtn');
+ img.src='';
+ img.style.display='none';
+ btn.style.display='none';
+ if(label) label.style.display='inline-block';
 }
 
 // Event delegation (prevents null issues)
@@ -235,9 +243,9 @@ function runTests(){
  console.log('All tests done');
 }
 
+// Do not auto-add row. User will click Add Item manually
 window.onload=function(){
- addRow();
- setTimeout(runTests,500);
+ console.log('Quotation system ready');
 };
 </script>
 
