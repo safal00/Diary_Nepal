@@ -73,7 +73,8 @@ Date: <span class="edit" contenteditable></span>
 <div style="margin-top:20px">
 <button onclick="addRow()">Add Item</button>
 <button onclick="window.print()">Print</button>
-<button onclick="alert('PDF Ready')">Download PDF</button>
+<button onclick="downloadPDF()">Download PDF</button>
+<button onclick="shareQuotation()">Share</button>
 </div>
 
 <table id="itemTable">
@@ -88,7 +89,7 @@ Date: <span class="edit" contenteditable></span>
 </tr>
 </table>
 
-<div class="total-box">Grand Total: Rs. <span id="grandTotal">0.00</span></div>
+<div class="total-box" id="totalBox" style="display:none">Grand Total: Rs. <span id="grandTotal">0.00</span></div>
 
 <div class="footer" style="display:flex;justify-content:space-between">
 <div class="signBox">
@@ -146,6 +147,7 @@ document.getElementById(btnId).style.display='inline-block'
 }
 
 function addRow(){
+document.getElementById('totalBox').style.display='block'
 count++
 let row=document.getElementById('itemTable').insertRow()
 row.className='itemRow'
@@ -204,10 +206,53 @@ let r=el.parentElement
 let qty=parseFloat(r.cells[4].innerText)||0
 let rate=parseFloat(r.cells[5].innerText)||0
 r.cells[6].innerText=(qty*rate).toFixed(2)
-let total=0
-Array.from(document.querySelectorAll('.amount')).forEach(a=>total+=parseFloat(a.innerText)||0)
-document.getElementById('grandTotal').innerText=total.toFixed(2)
+updateGrandTotal()
+}
+
+function downloadPDF(){
+  const element = document.querySelector('.container');
+  html2canvas(element,{backgroundColor:'#ffffff'}).then(canvas=>{
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jspdf.jsPDF('p','mm','a4');
+    const imgWidth = 210;
+    const pageHeight = 295;
+    const imgHeight = canvas.height * imgWidth / canvas.width;
+    let heightLeft = imgHeight;
+
+    let position = 0;
+    pdf.addImage(imgData,'PNG',0,position,imgWidth,imgHeight);
+    heightLeft -= pageHeight;
+
+    while(heightLeft>0){
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData,'PNG',0,position,imgWidth,imgHeight);
+      heightLeft -= pageHeight;
+    }
+    pdf.save('Quotation.pdf');
+  });
+}
+
+function shareQuotation(){
+  html2canvas(document.querySelector('.container'),{backgroundColor:'#ffffff'}).then(canvas=>{
+    canvas.toBlob(async function(blob){
+      let file=new File([blob],'quotation.png',{type:'image/png'});
+      if(navigator.canShare && navigator.canShare({files:[file]})){
+        await navigator.share({files:[file],title:'Quotation'});
+      }else{
+        let a=document.createElement('a');
+        a.href=URL.createObjectURL(blob);
+        a.download='quotation.png';
+        a.click();
+      }
+    });
+  });
+}
+})
+})
 }
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
 </html>
