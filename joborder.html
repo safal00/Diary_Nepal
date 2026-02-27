@@ -44,11 +44,9 @@ tr.itemRow:hover .deleteRow{display:inline-block}
 </head>
 <body>
 <div class="container">
-
-
+<div style="background:#f7f7f7;border-radius:14px;padding:25px 10px;margin-bottom:20px;text-align:center">
+<h1 style="margin:0">Quotation</h1>
 </div>
-
-<h1>QUOTATION</h1>
 
 <div class="section">
 <div>
@@ -108,12 +106,12 @@ Approved By (Client): <input type="text" class="edit" placeholder="Client Name H
 </div>
 
 <div class="terms">
-<b>Terms & Conditions</b>
-<div contenteditable>1</div>
-<div contenteditable>2</div>
-<div contenteditable>3</div>
-<div contenteditable>4</div>
-<div contenteditable>5</div>
+<b style="text-transform:capitalize">Terms & Conditions</b>
+<div contenteditable onblur="cap(this)">1</div>
+<div contenteditable onblur="cap(this)">2</div>
+<div contenteditable onblur="cap(this)">3</div>
+<div contenteditable onblur="cap(this)">4</div>
+<div contenteditable onblur="cap(this)">5</div>
 </div>
 
 </div>
