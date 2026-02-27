@@ -4,8 +4,7 @@
 <meta charset="UTF-8">
 <title>Premium Quotation</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
 body{font-family:'Segoe UI',Arial;background:linear-gradient(120deg,#e8ecff,#f5f7ff);margin:0;padding:20px}
 .container{max-width:1100px;margin:auto;background:#fff;padding:25px;border-radius:12px;box-shadow:0 5px 20px rgba(0,0,0,0.08)}
@@ -15,137 +14,177 @@ h1{text-align:center;color:#2d4c9c;letter-spacing:2px}
 input[type=text],input[type=number]{width:100%;border:none;border-bottom:1px solid #999;padding:4px;outline:none}
 .buttons{margin-top:20px}
 button{padding:8px 14px;margin-right:8px;border:none;border-radius:6px;background:#3f5fbf;color:#fff;cursor:pointer}
-.upload-btn{display:inline-block;padding:8px 14px;background:#3f5fbf;color:#fff;border-radius:6px;cursor:pointer}
+.upload-btn{display:inline-block;padding:6px 10px;background:#3f5fbf;color:#fff;border-radius:6px;cursor:pointer;font-size:12px}
 .upload-btn input{display:none}
-button:hover{opacity:.9}
-table{width:100%;border-collapse:collapse;margin-top:20px}
+
+.img-box{position:relative;display:inline-block}
+.img-box img{max-width:90px;border-radius:6px}
+.remove-btn{position:absolute;top:-6px;right:-6px;background:red;color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:12px;display:none;cursor:pointer}
+.img-box:hover .remove-btn{display:block}
+
+ table{width:100%;border-collapse:collapse;margin-top:20px}
 th{background:linear-gradient(90deg,#3f5fbf,#5f7fe0);color:#fff;padding:10px}
 td{border-bottom:1px solid #ddd;padding:8px;text-align:center}
 .amount{font-weight:bold}
 #totals{display:none;margin-top:20px;text-align:right;font-size:18px;font-weight:bold;color:#1d3d8f}
-.logo-row{display:flex;justify-content:space-between;margin-top:30px}
-.logo-box{text-align:center}
-.logo-preview{min-height:120px}
-#signArea{display:none;margin-top:20px;display:flex;justify-content:space-between}
-.sign-box{text-align:center}
-textarea{width:100%;min-height:60px;border:1px solid #ccc;border-radius:6px;padding:6px}
-@media print{button{display:none}body{background:#fff}}
+
+#signArea{display:none;margin-top:30px;display:flex;justify-content:space-between}
+.sign-box{text-align:center;width:45%}
+.sign-logo{margin-top:10px;min-height:100px}
+
+textarea{width:100%;height:60px;border:1px solid #ccc;border-radius:6px;padding:6px}
+
+@media print{button{display:none}}
 </style>
 </head>
 <body>
 <div class="container" id="quoteBox">
 <h1>Quotation</h1>
+
 <div class="top-grid">
 <div>
 <div class="section-title">Company Details</div>
-Company Name:<input type="text"><br><br>
-Address:<input type="text"><br><br>
-Phone:<input type="text">
+Company Name:<input type="text" oninput="cap(this)"><br><br>
+Address:<input type="text" oninput="cap(this)"><br><br>
+Phone:<input type="text" oninput="cap(this)">
 </div>
 <div>
 <div class="section-title">Client Details</div>
-Client Name:<input type="text"><br><br>
-Address:<input type="text"><br><br>
-Phone:<input type="text">
+Client Name:<input type="text" oninput="cap(this)"><br><br>
+Address:<input type="text" oninput="cap(this)"><br><br>
+Phone:<input type="text" oninput="cap(this)">
 </div>
 <div>
 <div class="section-title">Quotation Info</div>
-Quotation No:<input type="text"><br><br>
-Date:<input type="text">
+Quotation No:<input type="text" oninput="cap(this)"><br><br>
+Date:<input type="text" oninput="cap(this)">
 </div>
 </div>
+
 <div class="buttons">
 <button onclick="addRow()">Add Item</button>
+<button onclick="window.print()">Print</button>
 <button onclick="downloadPDF()">Download PDF</button>
 <button onclick="shareQuote()">Share</button>
 </div>
+
 <table id="itemTable">
 <thead>
 <tr>
-<th>S.N</th><th>Description</th><th>Design Upload</th><th>Size</th><th>Qty</th><th>Rate</th><th>Amount</th>
+<th>S.N</th>
+<th>Description</th>
+<th>Design</th>
+<th>Size</th>
+<th>Qty</th>
+<th>Rate</th>
+<th>Amount</th>
+<th>Del</th>
 </tr>
 </thead>
 <tbody></tbody>
 </table>
+
 <div id="totals">Grand Total: Rs. <span id="grandTotal">0.00</span></div>
-<div class="logo-row">
-<div class="logo-box">
-<label class="upload-btn">Upload Company Logo<input type="file" accept="image/*" onchange="previewLogo(event,'logoPreview1')"></label>
-<div id="logoPreview1" class="logo-preview"></div>
-</div>
-<div class="logo-box">
-<label class="upload-btn">Upload Client Logo<input type="file" accept="image/*" onchange="previewLogo(event,'logoPreview2')"></label>
-<div id="logoPreview2" class="logo-preview"></div>
-</div>
-</div>
+
 <div id="signArea">
-<div class="sign-box">Prepared By:<br><input type="text"></div>
-<div class="sign-box">Approved By:<br><input type="text"></div>
+<div class="sign-box">
+Prepared By:<br>
+<input type="text" oninput="cap(this)">
+<div class="sign-logo" id="logoPreview1"></div>
+<label class="upload-btn">Upload Logo<input type="file" accept="image/*" onchange="previewLogo(event,'logoPreview1')"></label>
 </div>
+<div class="sign-box">
+Approved By:<br>
+<input type="text" oninput="cap(this)">
+<div class="sign-logo" id="logoPreview2"></div>
+<label class="upload-btn">Upload Logo<input type="file" accept="image/*" onchange="previewLogo(event,'logoPreview2')"></label>
+</div>
+</div>
+
+<div style="margin-top:30px">
 <div class="section-title">Terms & Conditions</div>
-<textarea placeholder="1. Payment terms...\n2. Delivery time...\n3. Warranty..."></textarea>
+<textarea oninput="cap(this)"></textarea>
 </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <script>
 let count=0;
+
+function cap(el){
+el.value=el.value.replace(/\b\w/g,c=>c.toUpperCase());
+}
+
 function addRow(){
 count++;
-let tbody=document.querySelector('#itemTable tbody');
-let tr=document.createElement('tr');
-tr.innerHTML=`<td>${count}</td>
-<td><textarea placeholder='Description'></textarea></td>
-<td><input type='file' accept='image/*' onchange='showImg(event,this)'><div></div></td>
-<td><input type='text'></td>
+const tbody=document.querySelector('#itemTable tbody');
+const tr=document.createElement('tr');
+tr.innerHTML=`
+<td class='sn'></td>
+<td><textarea oninput='cap(this)'></textarea></td>
+<td>
+<label class='upload-btn'>Upload<input type='file' accept='image/*' onchange='showImg(event,this)'></label>
+<div class='img-box'></div>
+</td>
+<td><input type='text' oninput='cap(this)'></td>
 <td><input type='number' value='0' oninput='calcTotal()'></td>
 <td><input type='number' value='0' oninput='calcTotal()'></td>
-<td class='amount'>0.00</td>`;
+<td class='amount'>0.00</td>
+<td><button onclick='delRow(this)'>X</button></td>`;
 tbody.appendChild(tr);
-document.getElementById('totals').style.display='block';
+renumber();
 document.getElementById('signArea').style.display='flex';
 }
+
+function renumber(){
+document.querySelectorAll('.sn').forEach((e,i)=>e.innerText=i+1);
+}
+
+function delRow(btn){btn.closest('tr').remove();renumber();calcTotal();}
+
 function calcTotal(){
 let grand=0;
 document.querySelectorAll('#itemTable tbody tr').forEach(r=>{
-let qty=r.children[4].querySelector('input').value||0;
+let q=r.children[4].querySelector('input').value||0;
 let rate=r.children[5].querySelector('input').value||0;
-let amt=qty*rate;
+let amt=q*rate;
 r.querySelector('.amount').innerText=amt.toFixed(2);
-grand+=amt;
+if(amt>0)grand+=amt;
 });
+if(grand>0){document.getElementById('totals').style.display='block';}
+else{document.getElementById('totals').style.display='none';}
 document.getElementById('grandTotal').innerText=grand.toFixed(2);
 }
+
 function showImg(e,input){
-let file=e.target.files[0];
-if(!file)return;
-let img=document.createElement('img');
-img.src=URL.createObjectURL(file);
-img.style.maxWidth='70px';
-input.nextElementSibling.innerHTML='';
-input.nextElementSibling.appendChild(img);
+let file=e.target.files[0];if(!file)return;
+let box=input.parentElement.nextElementSibling;
+box.innerHTML=`<div class='img-box'><img src='${URL.createObjectURL(file)}'><button class='remove-btn' onclick='this.parentElement.remove()'>X</button></div>`;
 }
+
 function previewLogo(e,id){
-let file=e.target.files[0];
-if(!file)return;
-let img=document.createElement('img');
-img.src=URL.createObjectURL(file);
-img.style.maxWidth='120px';
-document.getElementById(id).innerHTML='';
-document.getElementById(id).appendChild(img);
+let file=e.target.files[0];if(!file)return;
+document.getElementById(id).innerHTML=`<div class='img-box'><img src='${URL.createObjectURL(file)}'><button class='remove-btn' onclick='this.parentElement.remove()'>X</button></div>`;
 }
+
 async function downloadPDF(){
-let canvas=await html2canvas(document.getElementById('quoteBox'));
-let img=canvas.toDataURL('image/png');
-let {jsPDF}=window.jspdf;
-let pdf=new jsPDF();
-pdf.addImage(img,'PNG',10,10,190,0);
+const canvas=await html2canvas(document.getElementById('quoteBox'));
+const img=canvas.toDataURL('image/png');
+const {jsPDF}=window.jspdf;
+const pdf=new jsPDF('p','mm','a4');
+pdf.addImage(img,'PNG',0,0,210,297);
 pdf.save('quotation.pdf');
 }
+
 async function shareQuote(){
-let canvas=await html2canvas(document.getElementById('quoteBox'));
+const canvas=await html2canvas(document.getElementById('quoteBox'));
 canvas.toBlob(async blob=>{
-let file=new File([blob],'quotation.png',{type:'image/png'});
-if(navigator.share){
-await navigator.share({files:[file],title:'Quotation'});
-}else alert('Sharing not supported');
+const file=new File([blob],'quotation.png',{type:'image/png'});
+if(navigator.canShare && navigator.canShare({files:[file]})){
+navigator.share({files:[file],title:'Quotation'});
+}else{alert('Sharing not supported');}
 });
 }
 </script>
