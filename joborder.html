@@ -29,9 +29,13 @@ tr.itemRow{border-bottom:2px solid #9fb0ff}
 .small{width:70px}
 .amount{width:90px}
 .total-box{text-align:right;margin-top:20px;font-size:18px;font-weight:bold;color:#1f3674}
-.footer{margin-top:60px;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+.footer{margin-top:60px;font-size:14px;display:flex;justify-content:space-between;align-items:flex-start}
+.signBox{width:45%;margin:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
 .signBox{text-align:center}
-.signBox img{max-width:120px;display:none;margin:8px auto}
+.signBox img{max-width:120px;display:none;margin:8px auto;border-radius:6px}
+.logoWrap{position:relative;display:inline-block}
+.logoWrap .removeLogo{position:absolute;top:-6px;right:-6px;background:red;color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:11px;display:none;cursor:pointer}
+.logoWrap:hover .removeLogo{display:block}
 .deleteRow{display:none;background:red;color:#fff;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer}
 tr.itemRow:hover .deleteRow{display:inline-block}
 .terms{margin-top:30px}
@@ -90,14 +94,14 @@ Date: <span class="edit" contenteditable></span>
 <div class="signBox">
 <input type="file" id="prepFile" accept="image/*" style="display:none" onchange="signUpload(event,'prepImg','prepBtn')">
 <button id="prepBtn" onclick="document.getElementById('prepFile').click()">Upload Company Logo</button>
-<img id="prepImg">
+<div class="logoWrap"><img id="prepImg"><button class="removeLogo" onclick="removeLogo('prepImg','prepBtn')">×</button></div>
 <br>
 Prepared By: <input type="text" class="edit" placeholder="Type Name Here" onblur="this.value=this.value.toLowerCase().replace(/\b\w/g,function(l){return l.toUpperCase()})">
 </div>
 <div class="signBox">
 <input type="file" id="appFile" accept="image/*" style="display:none" onchange="signUpload(event,'appImg','appBtn')">
 <button id="appBtn" onclick="document.getElementById('appFile').click()">Upload Company Logo</button>
-<img id="appImg">
+<div class="logoWrap"><img id="appImg"><button class="removeLogo" onclick="removeLogo('appImg','appBtn')">×</button></div>
 <br>
 Approved By (Client): <input type="text" class="edit" placeholder="Client Name Here" onblur="this.value=this.value.toLowerCase().replace(/\b\w/g,function(l){return l.toUpperCase()})">
 </div>
@@ -132,6 +136,13 @@ let img=document.getElementById(imgId)
 img.src=URL.createObjectURL(e.target.files[0])
 img.style.display='block'
 document.getElementById(btnId).style.display='none'
+}
+
+function removeLogo(imgId,btnId){
+let img=document.getElementById(imgId)
+img.src=''
+img.style.display='none'
+document.getElementById(btnId).style.display='inline-block'
 }
 
 function addRow(){
@@ -184,7 +195,7 @@ count=rows.length
 function updateGrandTotal(){
 let total=0
 Array.from(document.querySelectorAll('.amount')).forEach(a=>total+=parseFloat(a.innerText)||0)
-updateGrandTotal()
+document.getElementById('grandTotal').innerText=total.toFixed(2)
 }
 
 
