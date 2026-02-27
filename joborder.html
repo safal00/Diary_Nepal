@@ -16,9 +16,11 @@ button{padding:8px 16px;border:none;border-radius:8px;background:linear-gradient
 .section div{width:32%;font-size:14px}
 .edit{border-bottom:1px solid #888;min-width:160px;display:inline-block;padding:2px 4px}
 table{width:100%;border-collapse:collapse;margin-top:20px;font-size:14px}
-th:first-child, td:first-child{width:45px;min-width:45px;max-width:45px;padding:6px;text-align:center}
+th:first-child, td:first-child{width:40px;min-width:40px;max-width:40px;padding:6px;text-align:center}
+th:nth-child(2), td:nth-child(2){width:220px;max-width:220px}
 th{background:linear-gradient(90deg,#2d4da5,#4b6fe0);color:#fff;padding:10px}
 td{border-bottom:1px solid #cfd6ee;padding:8px;text-align:center}
+.descBox{text-align:left;vertical-align:top;min-height:60px;white-space:pre-wrap;line-height:1.4}
 tr.itemRow{border-bottom:2px solid #9fb0ff}
 .designCell{width:110px;height:80px;background:#f4f6ff;border-radius:8px;cursor:pointer;overflow:hidden;position:relative}
 .designCell span{font-size:11px;color:#7a86b6}
@@ -71,7 +73,8 @@ Date: <span class="edit" contenteditable></span>
 <div style="margin-top:20px">
 <button onclick="addRow()">Add Item</button>
 <button onclick="window.print()">Print</button>
-<button onclick="alert('PDF Ready')">Download PDF</button>
+<button onclick="downloadPDF()">Download PDF</button>
+<button onclick="shareQuotation()">Share</button>
 </div>
 
 <table id="itemTable">
@@ -86,7 +89,7 @@ Date: <span class="edit" contenteditable></span>
 </tr>
 </table>
 
-<div class="total-box">Grand Total: Rs. <span id="grandTotal">0.00</span></div>
+<div class="total-box" id="totalBox" style="display:none">Grand Total: Rs. <span id="grandTotal">0.00</span></div>
 
 <div class="footer" style="display:flex;justify-content:space-between">
 <div class="signBox">
@@ -144,12 +147,13 @@ document.getElementById(btnId).style.display='inline-block'
 }
 
 function addRow(){
+document.getElementById('totalBox').style.display='block'
 count++
 let row=document.getElementById('itemTable').insertRow()
 row.className='itemRow'
 row.innerHTML=`
 <td>${count} <button class='deleteRow' onclick='deleteRow(this)'>×</button></td>
-<td contenteditable onblur='cap(this)'></td>
+<td contenteditable onblur='cap(this)' class='descBox'></td>
 <td class='designCell' onclick='filePick(this)'>
 <span>Upload Photo</span>
 <input type='file' accept='image/*' class='designInput'>
@@ -202,10 +206,26 @@ let r=el.parentElement
 let qty=parseFloat(r.cells[4].innerText)||0
 let rate=parseFloat(r.cells[5].innerText)||0
 r.cells[6].innerText=(qty*rate).toFixed(2)
-let total=0
-Array.from(document.querySelectorAll('.amount')).forEach(a=>total+=parseFloat(a.innerText)||0)
-document.getElementById('grandTotal').innerText=total.toFixed(2)
+updateGrandTotal()
+}
+
+function downloadPDF(){
+window.print()
+}
+
+function shareQuotation(){
+html2canvas(document.querySelector('.container')).then(canvas=>{
+canvas.toBlob(async function(blob){
+let file=new File([blob],'quotation.png',{type:'image/png'})
+if(navigator.canShare && navigator.canShare({files:[file]})){
+await navigator.share({files:[file],title:'Quotation'})
+}else{
+alert('Sharing not supported in this browser')
+}
+})
+})
 }
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </body>
 </html>
