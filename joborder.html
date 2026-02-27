@@ -29,7 +29,9 @@ tr.itemRow{border-bottom:2px solid #9fb0ff}
 .amount{width:90px}
 .total-box{text-align:right;margin-top:20px;font-size:18px;font-weight:bold;color:#1f3674}
 .footer{margin-top:60px;font-size:14px}
-.signBox img{max-width:160px;display:none;margin-top:8px}
+.signBox img{max-width:120px;display:none;margin:8px auto}
+.deleteRow{display:none;background:red;color:#fff;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer}
+tr.itemRow:hover .deleteRow{display:inline-block}
 .terms{margin-top:30px}
 .terms li{margin:4px 0}
 </style>
@@ -37,10 +39,7 @@ tr.itemRow{border-bottom:2px solid #9fb0ff}
 <body>
 <div class="container">
 
-<div class="top-bar">
-<input type="file" id="logoInput" accept="image/*" style="display:none" onchange="loadLogo(event)">
-<button id="logoBtn" onclick="document.getElementById('logoInput').click()">Upload Logo</button>
-<div class="logo-box" id="logoBox"></div>
+
 </div>
 
 <h1>QUOTATION</h1>
@@ -87,28 +86,28 @@ Date: <span class="edit" contenteditable></span>
 
 <div class="footer" style="display:flex;justify-content:space-between">
 <div class="signBox">
-Prepared By: <span class="edit" contenteditable onblur="cap(this)"></span><br>
 <input type="file" id="prepFile" accept="image/*" style="display:none" onchange="signUpload(event,'prepImg','prepBtn')">
-<button id="prepBtn" onclick="document.getElementById('prepFile').click()">Upload Logo</button>
+<button id="prepBtn" onclick="document.getElementById('prepFile').click()">Upload Company Logo</button>
 <img id="prepImg">
+<br>
+Prepared By: <input type="text" class="edit" placeholder="Type Name Here" onblur="this.value=this.value.toLowerCase().replace(/\b\w/g,function(l){return l.toUpperCase()})">
 </div>
 <div class="signBox" style="text-align:right">
-Approved By (Client): <span class="edit" contenteditable onblur="cap(this)"></span><br>
 <input type="file" id="appFile" accept="image/*" style="display:none" onchange="signUpload(event,'appImg','appBtn')">
-<button id="appBtn" onclick="document.getElementById('appFile').click()">Upload Logo</button>
+<button id="appBtn" onclick="document.getElementById('appFile').click()">Upload Company Logo</button>
 <img id="appImg">
+<br>
+Approved By (Client): <input type="text" class="edit" placeholder="Client Name Here" onblur="this.value=this.value.toLowerCase().replace(/\b\w/g,function(l){return l.toUpperCase()})">
 </div>
 </div>
 
 <div class="terms">
 <b>Terms & Conditions</b>
-<ol contenteditable>
-<li>Goods once sold cannot be returned.</li>
-<li>50% advance required.</li>
-<li>Delivery within 7 days.</li>
-<li></li>
-<li></li>
-</ol>
+<div contenteditable>1</div>
+<div contenteditable>2</div>
+<div contenteditable>3</div>
+<div contenteditable>4</div>
+<div contenteditable>5</div>
 </div>
 
 </div>
@@ -138,8 +137,8 @@ count++
 let row=document.getElementById('itemTable').insertRow()
 row.className='itemRow'
 row.innerHTML=`
-<td>${count}</td>
-<td contenteditable></td>
+<td>${count} <button class='deleteRow' onclick='deleteRow(this)'>×</button></td>
+<td contenteditable onblur='cap(this)'></td>
 <td class='designCell' onclick='filePick(this)'>
 <span>Upload Photo</span>
 <input type='file' accept='image/*' class='designInput'>
@@ -165,6 +164,17 @@ img.style.display='block'
 td.querySelector('span').style.display='none'
 }
 })
+
+function deleteRow(btn){
+btn.closest('tr').remove()
+calcTotal()
+}
+
+function calcTotal(){
+let total=0
+Array.from(document.querySelectorAll('.amount')).forEach(a=>total+=parseFloat(a.innerText)||0)
+calcTotal()
+}
 
 function calc(el){
 let r=el.parentElement
