@@ -1,1 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Premium Quotation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{font-family:'Segoe UI',Arial;background:linear-gradient(120deg,#e8ecff,#f5f7ff);margin:0;padding:20px}
+.container{max-width:1100px;margin:auto;background:#fff;padding:25px;border-radius:12px;box-shadow:0 5px 20px rgba(0,0,0,0.08)}
+h1{text-align:center;color:#2d4c9c;letter-spacing:2px}
+.top-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:30px;margin-top:20px}
+.section-title{font-weight:bold;margin-bottom:8px}
+input[type=text],input[type=number]{width:100%;border:none;border-bottom:1px solid #999;padding:4px;outline:none}
+.buttons{margin-top:20px}
+button{padding:8px 14px;margin-right:8px;border:none;border-radius:6px;background:#3f5fbf;color:#fff;cursor:pointer}
+button:hover{opacity:.9}
+
+table{width:100%;border-collapse:collapse;margin-top:20px}
+th{background:linear-gradient(90deg,#3f5fbf,#5f7fe0);color:#fff;padding:10px}
+td{border-bottom:1px solid #ddd;padding:8px;text-align:center}
+.amount{font-weight:bold}
+
+#totals{display:none;margin-top:20px;text-align:right;font-size:18px;font-weight:bold;color:#1d3d8f}
+
+.logo-row{display:flex;justify-content:space-between;margin-top:30px}
+.logo-box{text-align:center}
+.logo-box img{max-width:120px;margin-top:10px}
+
+#signArea{display:none;margin-top:20px;display:flex;justify-content:space-between}
+.sign-box{text-align:center}
+
+.terms{margin-top:30px}
+textarea{width:100%;height:60px;resize:none;border:1px solid #ccc;border-radius:6px;padding:6px}
+
+@media print{
+button{display:none}
+body{background:#fff}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Quotation</h1>
+
+<div class="top-grid">
+<div>
+<div class="section-title">Company Details</div>
+Company Name:<input type="text"><br><br>
+Address:<input type="text"><br><br>
+Phone:<input type="text">
+</div>
+
+<div>
+<div class="section-title">Client Details</div>
+Client Name:<input type="text"><br><br>
+Address:<input type="text"><br><br>
+Phone:<input type="text">
+</div>
+
+<div>
+<div class="section-title">Quotation Info</div>
+Quotation No:<input type="text"><br><br>
+Date:<input type="text">
+</div>
+</div>
+
+<div class="buttons">
+<button onclick="addRow()">Add Item</button>
+<button onclick="window.print()">Print</button>
+<button onclick="downloadPDF()">Download PDF</button>
+<button onclick="shareQuote()">Share</button>
+</div>
+
+<table id="itemTable">
+<thead>
+<tr>
+<th style="width:60px">S.N</th>
+<th>Description</th>
+<th>Design</th>
+<th>Size</th>
+<th>Qty</th>
+<th>Rate</th>
+<th>Amount</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<div id="totals">Grand Total: Rs. <span id="grandTotal">0.00</span></div>
+
+<div class="logo-row">
+<div class="logo-box">
+<button onclick="document.getElementById('logo1').click()">Upload Company Logo</button>
+<input type="file" id="logo1" hidden accept="image/*" onchange="previewLogo(event,'logoPreview1')">
+<div id="logoPreview1"></div>
+</div>
+
+<div class="logo-box">
+<button onclick="document.getElementById('logo2').click()">Upload Company Logo</button>
+<input type="file" id="logo2" hidden accept="image/*" onchange="previewLogo(event,'logoPreview2')">
+<div id="logoPreview2"></div>
+</div>
+</div>
+
+<div id="signArea">
+<div class="sign-box">
+Prepared By:<br>
+<input type="text" placeholder="Type Name Here">
+</div>
+<div class="sign-box">
+Approved By (Client):<br>
+<input type="text" placeholder="Client Name Here">
+</div>
+</div>
+
+<div class="terms">
+<div class="section-title">Terms & Conditions</div>
+1<br>2<br>3<br>4<br>5
+</div>
+
+</div>
+
+<script>
+let count=0;
+
+function addRow(){
+count++;
+const table=document.querySelector('#itemTable tbody');
+const row=document.createElement('tr');
+row.innerHTML=`
+<td>${count}</td>
+<td><textarea placeholder='Enter description'></textarea></td>
+<td><input type='file' accept='image/*' onchange="showImg(event,this)"></td>
+<td><input type='text'></td>
+<td><input type='number' value='0' oninput="calcTotal()"></td>
+<td><input type='number' value='0' oninput="calcTotal()"></td>
+<td class='amount'>0.00</td>`;
+table.appendChild(row);
+
+document.getElementById('totals').style.display='block';
+document.getElementById('signArea').style.display='flex';
+}
+
+function calcTotal(){
+let grand=0;
+document.querySelectorAll('#itemTable tbody tr').forEach(r=>{
+let qty=r.children[4].querySelector('input').value||0;
+let rate=r.children[5].querySelector('input').value||0;
+let amt=qty*rate;
+r.querySelector('.amount').innerText=amt.toFixed(2);
+grand+=amt;
+});
+document.getElementById('grandTotal').innerText=grand.toFixed(2);
+}
+
+function showImg(e,input){
+let file=e.target.files[0];
+if(!file)return;
+let img=document.createElement('img');
+img.src=URL.createObjectURL(file);
+img.style.maxWidth='80px';
+input.parentElement.innerHTML='';
+input.parentElement.appendChild(img);
+}
+
+function previewLogo(e,id){
+let file=e.target.files[0];
+if(!file)return;
+let img=document.createElement('img');
+img.src=URL.createObjectURL(file);
+img.style.maxWidth='120px';
+document.getElementById(id).innerHTML='';
+document.getElementById(id).appendChild(img);
+}
+
+function downloadPDF(){
+window.print();
+}
+
+function shareQuote(){
+if(navigator.share){
+navigator.share({title:'Quotation',text:'Here is your quotation'});
+}else{
+alert('Sharing not supported in this browser');
+}
+}
+</script>
+</body>
+</html>
 
