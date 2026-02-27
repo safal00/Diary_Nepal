@@ -7,56 +7,48 @@
 
 <style>
 body{font-family:'Segoe UI',Arial;background:linear-gradient(120deg,#e8ecff,#f5f7ff);margin:0;padding:20px}
-.container{max-width:1150px;margin:auto;background:#fff;padding:25px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.12)}
-h1{text-align:center;color:#2d4da5;margin:10px 0}
-.section{display:flex;justify-content:space-between;margin-top:20px}
-.section div{width:32%;font-size:14px}
-.edit{border-bottom:1px solid #888;min-width:160px;display:inline-block;padding:2px 4px}
-button{padding:8px 16px;border:none;border-radius:8px;background:linear-gradient(90deg,#2d4da5,#4b6fe0);color:#fff;margin:5px;cursor:pointer;font-weight:600}
-table{width:100%;border-collapse:collapse;margin-top:20px}
-th{background:linear-gradient(90deg,#2d4da5,#4b6fe0);color:#fff;padding:10px}
-td{border-bottom:1px solid #cfd6ee;padding:8px;text-align:center}
-.designCell{width:110px;height:80px;background:#f4f6ff;border-radius:8px;cursor:pointer;overflow:hidden;position:relative}
-.designCell span{font-size:11px;color:#7a86b6}
-.designPreview{width:100%;height:100%;object-fit:cover;display:none}
-.removeX{position:absolute;top:3px;right:3px;background:red;color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:11px;display:none}
-.designCell:hover .removeX{display:block}
-.total-box{text-align:right;margin-top:20px;font-size:18px;font-weight:bold;color:#1f3674}
+.container{max-width:1100px;margin:auto;background:#fff;padding:25px;border-radius:14px;box-shadow:0 10px 25px rgba(0,0,0,.08)}
+h1{text-align:center;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid #ddd;padding:8px;text-align:center}
+th{background:#2f3ee6;color:#fff}
+input,textarea{width:100%;padding:6px;border:1px solid #ccc;border-radius:6px}
+button{background:#2f3ee6;color:#fff;border:none;padding:8px 15px;border-radius:6px;margin:6px;cursor:pointer}
+button:hover{background:#1e2bb8}
+.section{margin-top:25px}
+.flex{display:flex;gap:20px;margin-top:20px}
+.box{flex:1;border:1px solid #ddd;padding:15px;border-radius:10px}
+.logo-preview{max-height:60px;display:block;margin:auto}
 </style>
 </head>
+
 <body>
-<div class="container" id="quoteBox">
-<h1>Quotation</h1>
+<div class="container">
+<h1>QUOTATION</h1>
 
-<div class="section">
-<div>
+<!-- COMPANY + CLIENT -->
+<div class="flex">
+<div class="box">
 <b>Company Details</b><br>
-Company Name: <span class="edit" contenteditable onblur="cap(this)"></span><br>
-Address: <span class="edit" contenteditable onblur="cap(this)"></span><br>
-Phone: <span class="edit" contenteditable></span>
+<input placeholder="Company Name"><br><br>
+<input placeholder="Address"><br><br>
+<input placeholder="Phone"><br><br>
+<input type="file" onchange="showLogo(this,'logo1')"><br>
+<img id="logo1" class="logo-preview">
 </div>
-<div>
+
+<div class="box">
 <b>Client Details</b><br>
-Client Name: <span class="edit" contenteditable onblur="cap(this)"></span><br>
-Address: <span class="edit" contenteditable onblur="cap(this)"></span><br>
-Phone: <span class="edit" contenteditable></span>
-</div>
-<div>
-<b>Quotation Info</b><br>
-Quotation No: <span class="edit" contenteditable></span><br>
-Date: <span class="edit" contenteditable></span>
+<input placeholder="Client Name"><br><br>
+<input placeholder="Address"><br><br>
+<input placeholder="Phone"><br>
 </div>
 </div>
 
-<div style="margin-top:20px">
-<button onclick="addRow()">Add Item</button>
-<button onclick="downloadPDF()">Download PDF</button>
-<button onclick="shareQuotation()">Share</button>
-</div>
-
-<table id="itemTable">
+<!-- TABLE -->
+<table id="items">
 <tr>
-<th>S.N</th>
+<th>SN</th>
 <th>Description</th>
 <th>Design</th>
 <th>Size</th>
@@ -67,41 +59,64 @@ Date: <span class="edit" contenteditable></span>
 </tr>
 </table>
 
-<div class="total-box" id="totalBox" style="display:none">Grand Total: Rs. <span id="grandTotal">0.00</span></div>
+<button onclick="addItem()">Add Item</button>
+
+<!-- TERMS -->
+<div class="section">
+<b>Terms & Conditions</b>
+<textarea rows="5">1. Payment after delivery
+2. Design once approved cannot change
+3. Delivery within 7 days
+4. Transportation extra
+5. Thank you</textarea>
+</div>
+
+<!-- PREPARED + APPROVED -->
+<div class="flex">
+<div class="box">
+<b>Prepared By</b><br>
+<input placeholder="Name"><br><br>
+<input type="file" onchange="showLogo(this,'logo2')"><br>
+<img id="logo2" class="logo-preview">
+</div>
+
+<div class="box">
+<b>Approved By</b><br>
+<input placeholder="Name"><br><br>
+<input type="file" onchange="showLogo(this,'logo3')"><br>
+<img id="logo3" class="logo-preview">
+</div>
+</div>
 
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 <script>
-let count=0
-function cap(el){let w=el.innerText.toLowerCase().split(' ');el.innerText=w.map(x=>x.charAt(0).toUpperCase()+x.slice(1)).join(' ')}
-
-function addRow(){count++;let t=document.getElementById('itemTable');let r=t.insertRow();r.innerHTML=`
-<td>${count} <button onclick='delRow(this)'>x</button></td>
-<td contenteditable onblur='cap(this)'></td>
-<td class='designCell' onclick='pick(this)'><span>Upload</span><input type='file' accept='image/*' style='display:none'><img class='designPreview'><button class='removeX' onclick='removeImg(this,event)'>x</button></td>
-<td contenteditable></td>
-<td contenteditable oninput='calc(this)'></td>
-<td contenteditable oninput='calc(this)'></td>
-<td class='amount'>0</td><td></td>`;
+function addItem(){
+let table=document.getElementById('items');
+let row=table.insertRow();
+let sn=table.rows.length-1;
+row.innerHTML=`
+<td>${sn}</td>
+<td><input></td>
+<td><input type='file' onchange='showDesign(this)'><img style='max-height:60px'></td>
+<td><input></td>
+<td><input type='number' oninput='calc(this)'></td>
+<td><input type='number' oninput='calc(this)'></td>
+<td>0</td>
+<td><button onclick='del(this)'>X</button></td>`;
 }
 
-function pick(td){td.querySelector('input').click()}
-document.addEventListener('change',e=>{if(e.target.type==='file'){let td=e.target.closest('td');let img=td.querySelector('img');img.src=URL.createObjectURL(e.target.files[0]);img.style.display='block';/* hide upload text */td.querySelector('span').style.display='none';}})
+function calc(el){
+let r=el.parentNode.parentNode;
+let qty=r.cells[4].children[0].value||0;
+let rate=r.cells[5].children[0].value||0;
+r.cells[6].innerHTML=qty*rate;
+}
 
-function removeImg(b,e){e.stopPropagation();let td=b.closest('td');td.querySelector('img').style.display='none';td.querySelector('span').style.display='block'}
+function del(btn){btn.parentNode.parentNode.remove();}
 
-function delRow(b){b.closest('tr').remove();renumber();calcTotal()}
-function renumber(){let rows=document.querySelectorAll('#itemTable tr');rows.forEach((r,i)=>{if(i>0)r.cells[0].childNodes[0].nodeValue=i+' '});count=rows.length-1}
-
-function calc(el){let r=el.parentElement;let q=parseFloat(r.cells[4].innerText)||0;let rate=parseFloat(r.cells[5].innerText)||0;r.cells[6].innerText=(q*rate).toFixed(2);calcTotal()}
-function calcTotal(){let tot=0;document.querySelectorAll('.amount').forEach(a=>tot+=parseFloat(a.innerText)||0);document.getElementById('grandTotal').innerText=tot.toFixed(2);document.getElementById('totalBox').style.display=tot>0?'block':'none'}
-
-async function downloadPDF(){const el=document.getElementById('quoteBox');const canvas=await html2canvas(el,{scale:2});const img=canvas.toDataURL('image/png');const {jsPDF}=window.jspdf;let pdf=new jsPDF('p','mm','a4');pdf.addImage(img,'PNG',0,0,210,canvas.height*210/canvas.width);pdf.save('Quotation.pdf')}
-
-async function shareQuotation(){const canvas=await html2canvas(document.getElementById('quoteBox'),{scale:2});canvas.toBlob(async b=>{let f=new File([b],'quotation.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]})}else{let a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='quotation.png';a.click();}})}
+function showDesign(inp){let img=inp.nextElementSibling;img.src=URL.createObjectURL(inp.files[0]);}
+function showLogo(inp,id){document.getElementById(id).src=URL.createObjectURL(inp.files[0]);}
 </script>
 </body>
 </html>
