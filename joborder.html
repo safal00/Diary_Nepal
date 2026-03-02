@@ -75,7 +75,7 @@ transition:.25s}
 </head>
 
 <body>
-<div class="container">
+<div class="container" id="quotation">id="quotation">
 
 <div class="header">
 <div class="company-header">
@@ -109,10 +109,7 @@ transition:.25s}
 <tbody></tbody>
 </table>
 
-<button class="btn" onclick="addRow()">+ Add Item</button>
-<button class="btn" onclick="window.print()">Download PDF</button>
-
-<div class="total-box">Total Amount: Rs <span id="total">0</span></div>
+<button class="btn" onclick="addRow()">+ Add<button class="btn" onclick="downloadPDF()">Download PDF</button>mount: Rs <span id="total">0</span></div>
 
 <div class="signature-area">
 <div class="signature-box">
@@ -199,11 +196,22 @@ document.getElementById('logoTitle').style.display='none';
 e.target.closest('label').style.display='none';
 }
 
-modal.onclick=()=>modal.style.display='none';
+modal.onclick=()=>modal.style.dimodal.onclick=()=>modal.style.display='none';
+
+function downloadPDF(){
+  const element = document.getElementById('quotation');
+  const opt = {
+    margin: 0.4,
+    filename: 'Quotation.pdf',
+    image: { type: 'jpeg', quality: 1 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(element).save();
+}
 </script>
 
-// close modal
-modal.onclick=()=>modal.style.display='none';
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>)=>modal.style.display='none';
 </script>
 </body>
 </html>
