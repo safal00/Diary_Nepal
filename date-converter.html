@@ -1,1 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Luxury Quotation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
+<style>
+*{box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;background:linear-gradient(120deg,#eef2ff,#dbeafe,#f5f3ff);margin:0;padding:15px}
+.container{max-width:794px;width:100%;margin:auto;background:white;border-radius:20px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,.1)}
+
+.header{background:linear-gradient(120deg,#4f46e5,#7c3aed);color:white;padding:25px;border-radius:15px;display:flex;justify-content:space-between;flex-wrap:wrap;margin-bottom:20px;gap:10px}
+.header input{padding:8px;border-radius:8px;border:none;width:150px}
+.company-header h2{margin:0;font-size:28px}
+
+.company{background:#f1f5f9;padding:15px;border-radius:12px;margin-bottom:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.company input{padding:10px;border-radius:8px;border:1px solid #ddd;width:100%}
+
+.table{width:100%;border-collapse:collapse}
+th{background:#1e293b;color:white;padding:10px}
+td{padding:10px;border-bottom:1px solid #eee;text-align:center}
+
+.btn{background:linear-gradient(120deg,#4f46e5,#7c3aed);border:none;padding:10px 18px;border-radius:8px;color:white;cursor:pointer;margin-top:10px}
+.preview-img{max-width:120px;border-radius:8px;margin-top:5px;display:none}
+.img-wrap{position:relative;display:inline-block}
+.remove-img{position:absolute;top:-8px;right:-8px;background:red;color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;display:none}
+.img-wrap:hover .remove-img{display:block}
+.total-box{margin-top:20px;text-align:right;font-size:18px;background:#f1f5f9;padding:12px;border-radius:10px}
+.signature-area{margin-top:25px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.signature-box{flex:1;min-width:220px}
+.upload-btn{background:#e0e7ff;padding:6px 12px;border-radius:6px;cursor:pointer;display:inline-block;margin-top:5px}
+.file-hidden{display:none}
+.terms{margin-top:20px;background:#f8fafc;padding:15px;border-radius:10px}
+.table-wrapper{overflow-x:auto;width:100%}
+
+/* PRINT FIX */
+@media print{
+ body{background:white;margin:0;padding:0}
+ .container{width:100% !important;max-width:100% !important;margin:0;padding:10mm;border-radius:0;box-shadow:none}
+ .btn,.upload-btn,input[type=file]{display:none !important}
+ tr{page-break-inside:avoid}
+}
+
+/* MOBILE FIX */
+@media(max-width:700px){
+ body{padding:5px}
+ .header{flex-direction:column}
+ .header input{width:100%}
+ .company{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+<div class="container" id="quotation">
+
+<div class="header">
+<div class="company-header">
+<h2 contenteditable="true">Your Company Name</h2>
+<div contenteditable="true">Address Line • Phone • Email</div>
+</div>
+<div>
+Date <input type="date"><br><br>
+Quotation No <input type="text" placeholder="Q-001">
+</div>
+</div>
+
+<div class="company">
+<input type="text" placeholder="Client Name">
+<input type="text" placeholder="Client Address">
+<input type="text" placeholder="Client Phone">
+</div>
+
+<div class="table-wrapper">
+<table class="table" id="quoteTable">
+<thead>
+<tr>
+<th>S.N</th>
+<th>Description</th>
+<th>Design</th>
+<th>Qty</th>
+<th>Rate</th>
+<th>Amount</th>
+<th>X</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+<button class="btn" onclick="addRow()">+ Add Item</button>
+<button class="btn" onclick="downloadPDF()">Download PDF</button>
+
+<div class="total-box">Total Amount: Rs <span id="total">0</span></div>
+
+<div class="signature-area">
+<div class="signature-box">
+<b>Prepared By</b><br>
+<input type="text" placeholder="Name"><br>
+<label class="upload-btn">Upload Company Logo
+<input type="file" accept="image/*" class="file-hidden" onchange="previewSign(event,'prepSign')"></label>
+<br><img id="prepSign" style="max-height:80px;display:none">
+</div>
+
+<div class="signature-box">
+<b>Approved By</b><br>
+<input type="text" placeholder="Client Name"><br>
+<label class="upload-btn">Upload Company Logo
+<input type="file" accept="image/*" class="file-hidden" onchange="previewSign(event,'appSign')"></label>
+<br><img id="appSign" style="max-height:80px;display:none">
+</div>
+</div>
+
+<div class="terms" contenteditable="true">
+<b>Terms & Conditions</b>
+<ol>
+<li>Payment after delivery</li>
+<li>Design once approved cannot change</li>
+<li>Delivery within 7 days</li>
+<li>Transportation extra</li>
+</ol>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js">function removeImg(btn){
+let wrap=btn.closest('.img-wrap');
+wrap.querySelector('img').style.display='none';
+let txt=wrap.querySelector('.upload-text'); if(txt) txt.style.display='inline';
+}
+</script>
+<script>
+let sn=1;
+
+function addRow(){
+let t=document.querySelector('#quoteTable tbody');
+let r=t.insertRow();
+r.innerHTML=`
+<td>${sn++}</td>
+<td contenteditable></td>
+<td>
+<div class='img-wrap'>
+<label class='upload-btn'><span class='upload-text'>Upload Design</span>
+<input type='file' class='file-hidden' accept='image/*' onchange='previewPhoto(event,this)'>
+</label>
+<br><img class='preview-img'><button class='remove-img' onclick='removeImg(this)'>X</button>
+</div>
+</td>
+<td contenteditable oninput='calc(this)'></td>
+<td contenteditable oninput='calc(this)'></td>
+<td></td>
+<td><button onclick='deleteRow(this)'>X</button></td>`;
+}
+
+function previewPhoto(e,input){
+let wrap=input.closest('.img-wrap');
+let img=wrap.querySelector('img');
+img.src=URL.createObjectURL(e.target.files[0]);
+img.style.display='block';
+let txt=wrap.querySelector('.upload-text'); if(txt) txt.style.display='none';
+}
+
+function deleteRow(btn){btn.closest('tr').remove();calcTotal();}
+
+function calc(el){
+let r=el.parentElement;
+let q=parseFloat(r.cells[3].innerText)||0;
+let rate=parseFloat(r.cells[4].innerText)||0;
+r.cells[5].innerText=q*rate||'';
+calcTotal();
+}
+
+function calcTotal(){
+let sum=0;
+document.querySelectorAll('#quoteTable tbody tr').forEach(r=>sum+=Number(r.cells[5].innerText)||0);
+document.getElementById('total').innerText=sum;
+}
+
+function previewSign(e,id){
+const img=document.getElementById(id);
+img.src=URL.createObjectURL(e.target.files[0]);
+img.style.display='block';
+}
+
+function downloadPDF(){
+const element=document.getElementById('quotation');
+html2pdf().set({
+ margin:[10,10,10,10],
+ filename:'Quotation.pdf',
+ pagebreak:{mode:['avoid-all','css','legacy']},
+ html2canvas:{scale:2,useCORS:true},
+ jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
+}).from(element).save();
+}
+</script>
+</body>
+</html>
