@@ -12,9 +12,7 @@ font-family:'Poppins',sans-serif;
 background:linear-gradient(120deg,#eef2ff,#dbeafe,#f5f3ff);
 margin:0;padding:35px}
 
-.container{
-max-width:1250px;margin:auto;background:white;border-radius:26px;padding:40px;
-box-shadow:0 40px 120px rgba(0,0,0,.12)}
+.container{max-width:100%;width:100%;margin:auto;background:white;border-radius:26px;padding:40px;box-shadow:0 40px 120px rgba(0,0,0,.12);overflow:visible}
 
 /* PREMIUM HEADER */
 .header{
@@ -294,10 +292,10 @@ function downloadPDF(){
 const element=document.getElementById('quotation');
 
 const opt={
-  margin:5,
+  margin:0,
   filename:'Quotation.pdf',
   image:{type:'jpeg',quality:1},
-  html2canvas:{scale:2,useCORS:true,windowWidth:1200,scrollX:0,scrollY:0},
+  html2canvas:{scale:2,useCORS:true,windowWidth:document.body.scrollWidth,scrollX:0,scrollY:0},
   jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
   pagebreak:{mode:['css','legacy']}
 };
