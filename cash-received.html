@@ -46,6 +46,9 @@ transition:.25s}
 .btn:hover{transform:translateY(-2px);box-shadow:0 15px 25px rgba(79,70,229,.35)}
 
 .preview-img{max-width:180px;height:auto;border-radius:12px;cursor:pointer;margin-top:8px;display:none;border:1px solid #ddd;transition:.25s}
+.img-wrap{position:relative;display:inline-block}
+.img-delete{position:absolute;top:-8px;right:-8px;background:#ef4444;color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:12px;display:none;cursor:pointer}
+.img-wrap:hover .img-delete{display:block}
 .preview-img:hover{transform:scale(1.05)}
 
 .total-box{margin-top:28px;text-align:right;font-size:20px;background:#f1f5f9;padding:18px;border-radius:14px;font-weight:600}
@@ -108,14 +111,14 @@ transition:.25s}
 
 <div class="signature-area">
 <div class="signature-box">
-<b>Prepared By</b><div style="border-bottom:1px solid #999;width:200px;margin:8px 0"></div>
+<b>Prepared By</b><br><input type="text" placeholder="Name" style="margin:6px 0;padding:6px;border-radius:6px;border:1px solid #ccc"><div style="border-bottom:1px solid #999;width:200px;margin:8px 0"></div>
 <label class="upload-btn">Upload Company Logo
 <input type="file" accept="image/*" class="file-hidden" onchange="previewSign(event,'prepSign')"></label><br>
 <img id="prepSign" style="display:none">
 </div>
 
 <div class="signature-box right">
-<b>Approved By (Client)</b><div style="border-bottom:1px solid #999;width:200px;margin:8px 0 8px auto"></div>
+<b>Approved By (Client)</b><br><input type="text" placeholder="Client Name" style="margin:6px 0;padding:6px;border-radius:6px;border:1px solid #ccc"><div style="border-bottom:1px solid #999;width:200px;margin:8px 0 8px auto"></div>
 <label class="upload-btn">Upload Company Logo
 <input type="file" accept="image/*" class="file-hidden" onchange="previewSign(event,'appSign')"></label><br>
 <img id="appSign" style="display:none">
@@ -149,7 +152,7 @@ r.innerHTML=`
 <label class='upload-btn upload-label'>Upload Photo
 <input class='file-hidden' type='file' accept='image/*'>
 </label><br>
-<img class='preview-img'>
+<div class='img-wrap'><img class='preview-img'><button class='img-delete' onclick='removePhoto(this)'>X</button></div>
 </td>
 <td contenteditable oninput='calc(this)'></td>
 <td contenteditable oninput='calc(this)'></td>
@@ -166,6 +169,8 @@ img.style.display="block";
 r.querySelector('.upload-label').style.display='none';
 img.onclick=()=>{document.getElementById('modal').style.display='flex';document.getElementById('modalImg').src=img.src};
 });}
+
+function removePhoto(btn){const wrap=btn.parentElement;wrap.querySelector('img').src='';wrap.querySelector('img').style.display='none';wrap.closest('td').querySelector('.upload-label').style.display='inline-block';}
 
 function deleteRow(btn){btn.closest("tr").remove();calcTotal();resetSN();}
 
