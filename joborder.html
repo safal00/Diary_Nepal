@@ -140,7 +140,7 @@ Invoice Date <input type="text" placeholder="DD/MM/YYYY">
 <button class="btn" onclick="downloadPDF()">Download PDF</button>
 <button class="btn" onclick="printInvoice()">Print</button>
 <button class="btn" onclick="shareInvoice()">Share</button>
-<button class="btn" onclick="downloadJPG()">Save as JPG</button>
+<button class="btn" onclick="savePhoto()">Save as Photo (JPG)</button>
 </div>
 
 </div>
@@ -260,12 +260,20 @@ link.click();
 });
 }
 
-function downloadJPG(){
-html2canvas(document.getElementById('invoice'),{scale:3,backgroundColor:'#ffffff',useCORS:true,scrollY:0}).then(canvas=>{
-let link=document.createElement('a');
-link.download='invoice.jpg';
-link.href=canvas.toDataURL('image/jpeg',1.0);
-link.click();
+function savePhoto(){
+window.scrollTo(0,0);
+html2canvas(document.getElementById('invoice'),{
+  scale:4,
+  backgroundColor:'#ffffff',
+  useCORS:true,
+  scrollY:0,
+  width:document.getElementById('invoice').scrollWidth,
+  height:document.getElementById('invoice').scrollHeight
+}).then(canvas=>{
+  let link=document.createElement('a');
+  link.download='invoice-photo.jpg';
+  link.href=canvas.toDataURL('image/jpeg',1.0);
+  link.click();
 });
 });
 }
