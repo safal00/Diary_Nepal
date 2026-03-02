@@ -32,6 +32,10 @@ td{padding:10px;border-bottom:1px solid #eee;text-align:center}
 .remove-img{position:absolute;top:-8px;right:-8px;background:red;color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;display:none}
 .img-wrap:hover .remove-img{display:block}
 
+/* Hide delete X button until mouse hover */
+#invoiceTable tbody td button{display:none}
+#invoiceTable tbody tr:hover td button{display:inline-block}
+
 .summary{margin-top:20px;width:100%;max-width:350px;margin-left:auto}
 .summary div{display:flex;justify-content:space-between;padding:6px 0}
 .summary input{width:100px;padding:5px;border:1px solid #ddd;border-radius:6px}
