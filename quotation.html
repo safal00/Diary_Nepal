@@ -2,116 +2,167 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Quotation</title>
+<title>Premium Quotation</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
-body{font-family:Arial;background:#eef1ff;padding:20px}
-.container{max-width:1000px;margin:auto;background:#fff;padding:20px;border-radius:10px}
+body{font-family:Segoe UI,Arial;background:#eef1ff;margin:0;padding:15px}
+.container{max-width:1200px;margin:auto;background:white;padding:20px;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,.1)}
+h1{text-align:center;color:#3b4bff;margin:5px}
+.grid{display:flex;gap:20px;flex-wrap:wrap}
+.box{flex:1;background:#f7f8ff;padding:15px;border-radius:10px;min-width:250px}
+input{width:100%;padding:8px;margin-top:6px;margin-bottom:10px;border-radius:6px;border:1px solid #ccc}
+button{background:#3b4bff;color:white;padding:10px 15px;border:none;border-radius:6px;margin:4px;cursor:pointer}
 table{width:100%;border-collapse:collapse;margin-top:20px}
-th,td{border:1px solid #ccc;padding:8px;text-align:center}
-th{background:#2b3cff;color:#fff}
-input[type=text],input[type=number]{width:100%;border:none}
-img.design{max-width:80px;max-height:80px;display:block;margin:auto}
-button{padding:8px 15px;margin:10px;border:none;background:#2b3cff;color:#fff;border-radius:6px;cursor:pointer}
+th,td{border:1px solid #ddd;padding:8px;text-align:center}
+th{background:#3b4bff;color:white}
+img{max-width:120px;border-radius:6px;margin-top:5px}
+.total{text-align:right;font-size:18px;margin-top:10px;color:#3b4bff;font-weight:bold}
+.sign{display:flex;justify-content:space-between;margin-top:40px;border-top:1px dashed #aaa;padding-top:20px}
+@media(max-width:700px){.grid{flex-direction:column}.sign{flex-direction:column;gap:20px}}
 </style>
 </head>
-<body>
-<div class="container" id="quote">
-<h2 style="text-align:center">QUOTATION</h2>
 
-<table id="itemTable">
-<thead>
+<body>
+
+<div class="container" id="quotation">
+
+<h1>Quotation</h1>
+
+<div class="grid">
+<div class="box">
+<b>Company Details</b>
+<input placeholder="Company Name">
+<input placeholder="Address">
+<input placeholder="Phone">
+</div>
+
+<div class="box">
+<b>Client Details</b>
+<input placeholder="Client Name">
+<input placeholder="Address">
+<input placeholder="Phone">
+</div>
+</div>
+
+<br>
+
+<button onclick="addRow()">Add Item</button>
+<button onclick="window.print()">Print</button>
+<button onclick="downloadPDF()">Download PDF</button>
+<button onclick="saveData()">Save</button>
+<button onclick="loadData()">Load</button>
+
+<table id="table">
 <tr>
-<th>SN</th>
+<th>S.N</th>
 <th>Description</th>
 <th>Design</th>
 <th>Size</th>
 <th>Qty</th>
 <th>Rate</th>
 <th>Amount</th>
-<th>Delete</th>
 </tr>
-</thead>
-<tbody></tbody>
 </table>
 
-<button onclick="addItem()">Add Item</button>
-<button onclick="downloadPDF()">Download PDF</button>
-<button onclick="shareQuote()">Share</button>
+<div class="total" id="grand">Grand Total: Rs. 0</div>
+
+<div class="sign">
+
+<div>
+Prepared By:<br>
+<input placeholder="Name"><br><br>
+
+<input type="file" style="display:none" onchange="previewLogo(this,'prepLogo')">
+<img id="prepLogo" src="https://via.placeholder.com/120"
+onclick="this.previousElementSibling.click()" style="cursor:pointer">
+</div>
+
+<div>
+Approved By (Client):<br>
+<input placeholder="Client Name"><br><br>
+
+<input type="file" style="display:none" onchange="previewLogo(this,'appLogo')">
+<img id="appLogo" src="https://via.placeholder.com/120"
+onclick="this.previousElementSibling.click()" style="cursor:pointer">
+</div>
+
+</div>
+
+<h3>Terms & Conditions</h3>
+1. Payment after delivery<br>
+2. Design once approved cannot change<br>
+3. Delivery within 7 days<br>
+4. Transportation extra<br>
+5. Thank you
+
 </div>
 
 <script>
-function updateSerial(){
- document.querySelectorAll('#itemTable tbody tr').forEach((row,i)=>{
-   row.querySelector('.sn').innerText=i+1;
- });
+
+let sn=1
+
+function addRow(){
+let table=document.getElementById('table')
+let row=table.insertRow()
+
+row.innerHTML=`
+<td>${sn++}</td>
+<td><input></td>
+<td>
+<input type='file' style='display:none' onchange='previewImage(this)'>
+<img src='https://via.placeholder.com/120'
+onclick='this.previousElementSibling.click()' style='cursor:pointer'>
+</td>
+<td><input></td>
+<td><input type='number' onchange='calc()'></td>
+<td><input type='number' onchange='calc()'></td>
+<td>0</td>`
 }
 
-function calc(row){
- const q=row.querySelector('.qty').value||0;
- const r=row.querySelector('.rate').value||0;
- row.querySelector('.amt').value=q*r;
+function previewImage(input){
+let img=input.nextElementSibling
+let reader=new FileReader()
+reader.onload=e=>img.src=e.target.result
+reader.readAsDataURL(input.files[0])
 }
 
-function deleteRow(btn){
- btn.closest('tr').remove();
- updateSerial();
+function previewLogo(input,id){
+let reader=new FileReader()
+reader.onload=e=>document.getElementById(id).src=e.target.result
+reader.readAsDataURL(input.files[0])
 }
 
-function preview(input,img){
- if(input.files[0]){
-   img.src=URL.createObjectURL(input.files[0]);
- }
+function calc(){
+let table=document.getElementById('table')
+let total=0
+for(let i=1;i<table.rows.length;i++){
+let qty=table.rows[i].cells[4].children[0].value||0
+let rate=table.rows[i].cells[5].children[0].value||0
+let amt=qty*rate
+table.rows[i].cells[6].innerHTML=amt
+total+=amt
+}
+document.getElementById('grand').innerHTML="Grand Total: Rs. "+total
 }
 
-function addItem(){
- const tbody=document.querySelector('#itemTable tbody');
- const tr=document.createElement('tr');
- tr.innerHTML=`
- <td class="sn"></td>
- <td><input type="text"></td>
- <td>
-   <input type="file" onchange="preview(this,this.nextElementSibling)">
-   <img class="design">
- </td>
- <td><input type="text"></td>
- <td><input class="qty" type="number" oninput="calc(this.parentElement.parentElement)"></td>
- <td><input class="rate" type="number" oninput="calc(this.parentElement.parentElement)"></td>
- <td><input class="amt" type="number" readonly></td>
- <td><button onclick="deleteRow(this)">X</button></td>`;
- tbody.appendChild(tr);
- updateSerial();
+function downloadPDF(){
+html2pdf().from(document.getElementById('quotation')).save("quotation.pdf")
 }
 
-async function downloadPDF(){
- const {jsPDF}=window.jspdf;
- const element=document.getElementById('quote');
- const canvas=await html2canvas(element,{scale:2,useCORS:true,windowWidth:element.scrollWidth,windowHeight:element.scrollHeight});
- const img=canvas.toDataURL('image/png');
- const pdf=new jsPDF('p','mm','a4');
- const w=pdf.internal.pageSize.getWidth();
- const h=canvas.height*w/canvas.width;
- pdf.addImage(img,'PNG',0,0,w,h);
- pdf.save('quotation.pdf');
+function saveData(){
+localStorage.setItem("quotation",document.getElementById('quotation').innerHTML)
+alert("Saved Successfully")
 }
 
-async function shareQuote(){
- const element=document.getElementById('quote');
- const canvas=await html2canvas(element,{scale:2,useCORS:true,windowWidth:element.scrollWidth,windowHeight:element.scrollHeight});
- const img=canvas.toDataURL('image/png');
- if(navigator.share){
-   const res=await fetch(img);
-   const blob=await res.blob();
-   const file=new File([blob],'quotation.png',{type:'image/png'});
-   navigator.share({files:[file],title:'Quotation'});
- }else{
-   window.open(img);
- }
+function loadData(){
+let data=localStorage.getItem("quotation")
+if(data) document.getElementById('quotation').innerHTML=data
 }
+
 </script>
+
 </body>
 </html>
