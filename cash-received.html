@@ -11,23 +11,28 @@
 body{font-family:'Poppins',sans-serif;background:linear-gradient(120deg,#eef2ff,#dbeafe,#f5f3ff);margin:0;padding:15px}
 .container{max-width:100%;width:100%;margin:auto;background:white;border-radius:20px;padding:25px;box-shadow:0 10px 40px rgba(0,0,0,.1);overflow:visible}
 #invoice{width:100%;max-width:100%;margin:0 auto;overflow:visible}
-input,td,th{overflow-wrap:anywhere;word-break:break-word}
+
+/* TEXT CUTTING FIX */
+input,td,th{overflow-wrap:anywhere;word-break:break-word;line-height:1.5;height:auto}
+input{padding:10px 12px;font-size:14px}
+td,th{vertical-align:middle}
+.company-header div{display:flex;align-items:center;margin-bottom:10px;gap:10px;flex-wrap:wrap}
+.header input{white-space:normal}
 
 .header{background:#3b82f6;color:white;padding:25px;border-radius:15px;display:flex;justify-content:space-between;flex-wrap:wrap;margin-bottom:20px;gap:10px;overflow:visible}
-.header input{padding:10px 12px;border-radius:8px;border:none;width:100%;min-width:0;font-size:14px;white-space:normal;word-break:break-word}
+.header input{border:none;width:100%;min-width:0}
 .company-header h2{margin:0;font-size:28px}
-.company-header div{display:flex;align-items:center;margin-bottom:10px;gap:10px}
 .company-header input{flex:1;min-width:200px}
 
 .company{background:#f1f5f9;padding:15px;border-radius:12px;margin-bottom:20px}
-.buyer-row{display:flex;align-items:center;margin-bottom:10px;gap:10px}
-.buyer-row input{flex:1;padding:10px;border-radius:8px;border:1px solid #ddd;word-break:break-word}
-.company input{padding:10px;border-radius:8px;border:1px solid #ddd;width:100%;word-break:break-word}
+.buyer-row{display:flex;align-items:center;margin-bottom:10px;gap:10px;flex-wrap:wrap}
+.buyer-row input{flex:1;border-radius:8px;border:1px solid #ddd}
+.company input{border-radius:8px;border:1px solid #ddd;width:100%}
 
 .table{width:100%;border-collapse:collapse;table-layout:fixed}
-th{background:#3b82f6;color:white;padding:10px;border-right:1px solid #ffffff55;word-break:break-word}
+th{background:#3b82f6;color:white;padding:10px;border-right:1px solid #ffffff55}
 th:last-child{border-right:none}
-td{padding:10px;border:1px solid #cbd5e1;text-align:center;word-break:break-word}
+td{padding:10px;border:1px solid #cbd5e1;text-align:center}
 
 .btn{background:linear-gradient(120deg,#0f172a,#334155);border:none;padding:10px 18px;border-radius:8px;color:white;cursor:pointer;margin-top:10px}
 .preview-img{max-width:100px;border-radius:8px;margin-top:5px;display:none}
@@ -46,14 +51,7 @@ td{padding:10px;border:1px solid #cbd5e1;text-align:center;word-break:break-word
 .notes{margin-top:25px;background:#f8fafc;padding:15px;border-radius:10px}
 .table-wrapper{overflow-x:auto;width:100%}
 
-@media print{
- body{background:white;margin:0;padding:0}
- .container{width:100% !important;max-width:100% !important;margin:0;padding:10mm;border-radius:0;box-shadow:none}
- .btn,input[type=file],.action-buttons{display:none !important}
- tr{page-break-inside:avoid}
-}
-
-@media(max-width:700px){
+@media print{{
  body{padding:5px}
  .header{flex-direction:column}
  .header input{width:100%}
