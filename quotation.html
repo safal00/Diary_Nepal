@@ -293,28 +293,16 @@ modal.onclick=()=>modal.style.display='none';
 function downloadPDF(){
 const element=document.getElementById('quotation');
 
-/* Temporary clean mode for perfect PDF */
-element.style.boxShadow='none';
-element.style.borderRadius='0px';
-element.style.width='210mm';
-element.style.padding='15mm';
-
 const opt={
-margin:0,
-filename:'Quotation.pdf',
-image:{type:'jpeg',quality:1},
-html2canvas:{scale:2,useCORS:true,scrollY:0},
-jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
-pagebreak:{mode:['css','legacy']}
+  margin:5,
+  filename:'Quotation.pdf',
+  image:{type:'jpeg',quality:1},
+  html2canvas:{scale:2,useCORS:true,windowWidth:1200,scrollX:0,scrollY:0},
+  jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
+  pagebreak:{mode:['css','legacy']}
 };
 
-html2pdf().set(opt).from(element).save().then(()=>{
-/* Restore after download */
-element.style.width='';
-element.style.padding='';
-element.style.boxShadow='';
-element.style.borderRadius='26px';
-});
+html2pdf().set(opt).from(element).save();
 }
 </script>
 </body>
