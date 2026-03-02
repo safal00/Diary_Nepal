@@ -106,7 +106,6 @@ Invoice Date <input type="text" placeholder="DD/MM/YYYY">
 <th>Qty</th>
 <th>Rate</th>
 <th>Amount</th>
-<th>X</th>
 </tr>
 </thead>
 <tbody></tbody>
@@ -137,6 +136,7 @@ Invoice Date <input type="text" placeholder="DD/MM/YYYY">
 <!-- ACTION BUTTONS -->
 <div class="action-buttons" style="margin-top:15px;text-align:center">
 <button class="btn" onclick="addRow()">+ Add Item</button>
+<button class="btn" onclick="removeSelectedRow()">Remove Row</button>
 <button class="btn" onclick="downloadPDF()">Download PDF</button>
 <button class="btn" onclick="printInvoice()">Print</button>
 <button class="btn" onclick="shareInvoice()">Share</button>
@@ -150,37 +150,86 @@ Invoice Date <input type="text" placeholder="DD/MM/YYYY">
 <script>
 let sn=1;
 
-function addRow(){
-let t=document.querySelector('#invoiceTable tbody');
-let r=t.insertRow();
-r.innerHTML=`
-<td>${sn++}</td>
-<td contenteditable></td>
-<td contenteditable></td>
-<td contenteditable oninput='calc(this)'></td>
-<td contenteditable oninput='calc(this)'></td>
-<td></td>
-<td><button onclick='deleteRow(this)'>X</button></td>`;
+// auto add first row so Add Item always works visibly
+window.onload=function(){ if(document.querySelector('#invoiceTable tbody').rows.length===0) addRow(); }
+let historyStack=[];
+
+function saveState(){
+  historyStack.push(document.querySelector('#invoiceTable tbody').innerHTML);
+  if(historyStack.length>50) historyStack.shift();
 }
 
-function deleteRow(btn){btn.closest('tr').remove();calcTotal();}
+function undo(){
+  if(historyStack.length>0){
+    document.querySelector('#invoiceTable tbody').innerHTML = historyStack.pop();
+    calcTotal();
+  }
+}
+
+document.addEventListener('keydown',function(e){
+  if(e.ctrlKey && e.key==='z'){
+    e.preventDefault();
+    undo();
+  }
+});
+
+let selectedRow=null;
+
+function addRow(){
+  saveState();
+  let t=document.querySelector('#invoiceTable tbody');
+  let r=t.insertRow();
+  r.innerHTML=`
+  <td></td>
+  <td contenteditable></td>
+  <td contenteditable></td>
+  <td contenteditable oninput='calc(this)'></td>
+  <td contenteditable oninput='calc(this)'></td>
+  <td></td>`;
+
+  // click to select row
+  r.onclick=function(){
+    document.querySelectorAll('#invoiceTable tbody tr').forEach(tr=>tr.style.background='');
+    this.style.background='#dbeafe';
+    selectedRow=this;
+  };
+
+  renumberRows();
+}
+
+function removeSelectedRow(){
+  if(!selectedRow) return alert('Please select a row');
+  saveState();
+  selectedRow.remove();
+  selectedRow=null;
+  renumberRows();
+  calcTotal();
+}
+
+function renumberRows(){
+  let rows=document.querySelectorAll('#invoiceTable tbody tr');
+  rows.forEach((row,index)=>{
+    row.cells[0].innerText=index+1;
+  });
+}
+
 
 function calc(el){
-let r=el.parentElement;
-let q=parseFloat(r.cells[3].innerText)||0;
-let rate=parseFloat(r.cells[4].innerText)||0;
-r.cells[5].innerText=(q*rate)||'';
-calcTotal();
+  let r=el.parentElement;
+  let q=parseFloat(r.cells[3].innerText)||0;
+  let rate=parseFloat(r.cells[4].innerText)||0;
+  r.cells[5].innerText=(q*rate)||'';
+  calcTotal();
 }
 
 function calcTotal(){
-let sum=0;
-document.querySelectorAll('#invoiceTable tbody tr').forEach(r=>sum+=Number(r.cells[5].innerText)||0);
-document.getElementById('subtotal').innerText=sum;
-let tax=parseFloat(document.getElementById('tax').value)||0;
-let discount=parseFloat(document.getElementById('discount').value)||0;
-let grand=sum + (sum*tax/100) - discount;
-document.getElementById('grand').innerText=grand;
+  let sum=0;
+  document.querySelectorAll('#invoiceTable tbody tr').forEach(r=>sum+=Number(r.cells[5].innerText)||0);
+  document.getElementById('subtotal').innerText=sum;
+  let tax=parseFloat(document.getElementById('tax').value)||0;
+  let discount=parseFloat(document.getElementById('discount').value)||0;
+  let grand=sum + (sum*tax/100) - discount;
+  document.getElementById('grand').innerText=grand;
 }
 
 function downloadPDF(){
