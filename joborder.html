@@ -65,6 +65,12 @@ transition:.25s}
 .signature-area img{max-height:80px;margin-top:10px;border-radius:10px}
 
 .terms{margin-top:30px;background:#f8fafc;padding:18px;border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,.05)}
+
+/* FORCE CLEAN PAGE BREAK FOR PDF */
+@media print{
+  .signature-area{page-break-inside:avoid;page-break-after:avoid}
+  .terms{page-break-before:always}
+}
 .file-hidden{display:none}
 .upload-btn{background:#e0e7ff;padding:7px 15px;border-radius:10px;cursor:pointer;font-size:14px}
 
