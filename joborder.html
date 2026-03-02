@@ -81,6 +81,7 @@ transition:.25s}
 
 /* ===== PRINT & PDF FIX ===== */
 @media print{
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   body{background:white;padding:0;margin:0}
   .container{
     box-shadow:none;
@@ -88,8 +89,11 @@ transition:.25s}
     width:210mm;
     min-height:297mm;
     margin:0 auto;
-    padding:15mm;
+    padding:12mm;
   }
+  .header{page-break-inside:avoid}
+  .header input{width:130px!important}
+  input{border:1px solid #999}
   .terms{page-break-inside:avoid;margin-top:20px}
   .signature-area{page-break-inside:avoid}
   .btn,.upload-btn,.row-actions,.img-delete,.sign-delete{display:none!important}
