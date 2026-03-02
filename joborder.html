@@ -84,13 +84,11 @@ transition:.25s}
     margin:0 auto;
     padding:15mm;
   }
+  .terms{page-break-inside:avoid;margin-top:20px}
+  .signature-area{page-break-inside:avoid}
   .btn,.upload-btn,.row-actions,.img-delete,.sign-delete{display:none!important}
 }
 .page-break{page-break-inside:avoid;}
-  .container{box-shadow:none;border-radius:0;width:794px;margin:auto;padding:20px}
-  .btn,.upload-btn,.row-actions,.img-delete,.sign-delete{display:none!important}
-}
-.page-break{page-break-inside:avoid}
 </style>
 </head>
 
@@ -250,20 +248,14 @@ function downloadPDF(){
 const element=document.getElementById('quotation');
 
 const opt={
-margin:0,
+margin:5,
 filename:'Quotation.pdf',
 image:{type:'jpeg',quality:1},
-html2canvas:{scale:1.8,useCORS:true,scrollY:0},
+html2canvas:{scale:2,useCORS:true,scrollY:0},
 jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
 pagebreak:{mode:['css','legacy']}
 };
 
-html2pdf().set(opt).from(element).save();
-},
-html2canvas:{scale:2,useCORS:true},
-jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
-pagebreak:{mode:['avoid-all','css','legacy']}
-};
 html2pdf().set(opt).from(element).save();
 }
 </script>
