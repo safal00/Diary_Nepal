@@ -2,163 +2,97 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Luxury Quotation</title>
+<title>Luxury Invoice</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
-body{
-font-family:'Poppins',sans-serif;
-background:linear-gradient(120deg,#eef2ff,#dbeafe,#f5f3ff);
-margin:0;padding:35px}
+*{box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;background:linear-gradient(120deg,#eef2ff,#dbeafe,#f5f3ff);margin:0;padding:15px}
+.container{max-width:794px;width:100%;margin:auto;background:white;border-radius:20px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,.1)}
 
-.container{
-max-width:1250px;margin:auto;background:white;border-radius:26px;padding:40px;
-box-shadow:0 40px 120px rgba(0,0,0,.12)}
+.header{background:linear-gradient(120deg,#0f172a,#334155);color:white;padding:25px;border-radius:15px;display:flex;justify-content:space-between;flex-wrap:wrap;margin-bottom:20px;gap:10px}
+.header input{padding:8px;border-radius:8px;border:none;width:160px}
+.company-header h2{margin:0;font-size:28px}
+.company-header div{display:flex;align-items:center;margin-bottom:10px;gap:10px}
+.company-header input{flex:1;min-width:200px}
 
-/* PREMIUM HEADER */
-.header{
-background:linear-gradient(120deg,#4f46e5,#7c3aed);
-color:white;padding:35px;border-radius:20px;
-display:flex;justify-content:space-between;flex-wrap:wrap;margin-bottom:30px;
-box-shadow:0 20px 50px rgba(79,70,229,.3)}
-.company-header h2{margin:0;font-size:32px;font-weight:700;letter-spacing:.5px}
-.company-header div{opacity:.9}
+.company{background:#f1f5f9;padding:15px;border-radius:12px;margin-bottom:20px}
+.buyer-row{display:flex;align-items:center;margin-bottom:10px;gap:10px}
+.buyer-row input{flex:1;padding:10px;border-radius:8px;border:1px solid #ddd}
+.company input{padding:10px;border-radius:8px;border:1px solid #ddd;width:100%}
 
-.company{background:linear-gradient(120deg,#f8fafc,#eef2ff);padding:22px;border-radius:18px;margin-bottom:30px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;box-shadow:0 12px 30px rgba(0,0,0,.06)}
-.company input{padding:14px 16px;border-radius:12px;border:1px solid #e5e7eb;font-size:15px;background:white;box-shadow:0 4px 10px rgba(0,0,0,.04);transition:.25s}
-.company input:focus{outline:none;border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,.15)}
-input[type=text],input[type=date]{padding:11px;border-radius:10px;border:1px solid #e2e8f0}
+.table{width:100%;border-collapse:collapse}
+th{background:#1e293b;color:white;padding:10px}
+td{padding:10px;border-bottom:1px solid #eee;text-align:center}
 
-.table{width:100%;border-collapse:separate;border-spacing:0;border-radius:16px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,.05)}
-th{background:#1e293b;color:white;padding:15px;font-weight:600}
-td{padding:14px;border-bottom:1px solid #f1f5f9;text-align:center;transition:.25s}
-tr:hover td{background:#f8fafc}
-
-.row-actions{opacity:0;transition:.35s}
-tr:hover .row-actions{opacity:1}
-.row-actions button{background:#ef4444;border:none;color:white;border-radius:50%;width:26px;height:26px;cursor:pointer}
-
-.btn{
-background:linear-gradient(120deg,#4f46e5,#7c3aed);
-border:none;padding:12px 24px;border-radius:14px;color:white;
-cursor:pointer;margin-top:14px;font-weight:600;
-box-shadow:0 10px 20px rgba(79,70,229,.25);
-transition:.25s}
-.btn:hover{transform:translateY(-2px);box-shadow:0 15px 25px rgba(79,70,229,.35)}
-
-.preview-img{max-width:180px;height:auto;border-radius:12px;cursor:pointer;margin-top:8px;display:none;border:1px solid #ddd;transition:.25s}
+.btn{background:linear-gradient(120deg,#0f172a,#334155);border:none;padding:10px 18px;border-radius:8px;color:white;cursor:pointer;margin-top:10px}
+.preview-img{max-width:100px;border-radius:8px;margin-top:5px;display:none}
 .img-wrap{position:relative;display:inline-block}
-.img-delete{position:absolute;top:-8px;right:-8px;background:#ef4444;color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:12px;display:none;cursor:pointer}
-.img-wrap:hover .img-delete{display:block}
-.preview-img:hover{transform:scale(1.05)}
+.remove-img{position:absolute;top:-8px;right:-8px;background:red;color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;display:none}
+.img-wrap:hover .remove-img{display:block}
 
-.total-box{margin-top:28px;text-align:right;font-size:20px;background:#f1f5f9;padding:18px;border-radius:14px;font-weight:600}
+.summary{margin-top:20px;width:100%;max-width:350px;margin-left:auto}
+.summary div{display:flex;justify-content:space-between;padding:6px 0}
+.summary input{width:100px;padding:5px;border:1px solid #ddd;border-radius:6px}
+.grand{font-weight:700;font-size:18px;border-top:2px solid #000;margin-top:8px;padding-top:8px}
 
-.signature-area{margin-top:40px;display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap}
-.signature-box{flex:1;min-width:260px}
-.signature-box.right{text-align:right;display:flex;flex-direction:column;align-items:flex-end}
-.signature-area img{max-height:80px;margin-top:10px;border-radius:10px}
-.sign-wrap{position:relative;display:inline-block;margin-top:10px}
-.sign-delete{position:absolute;top:-8px;right:-8px;background:#ef4444;color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:11px;display:none;cursor:pointer}
-.sign-wrap:hover .sign-delete{display:block}
-.signature-area img{max-height:80px;margin-top:10px;border-radius:10px}
+.notes{margin-top:25px;background:#f8fafc;padding:15px;border-radius:10px}
+.table-wrapper{overflow-x:auto;width:100%}
 
-.terms{margin-top:30px;background:#f8fafc;padding:18px;border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,.05)}
-
-/* FORCE CLEAN PAGE BREAK FOR PDF */
 @media print{
-  .signature-area{page-break-inside:avoid;page-break-after:avoid}
-  .terms{page-break-before:always}
-}
-.file-hidden{display:none}
-.upload-btn{background:#e0e7ff;padding:7px 15px;border-radius:10px;cursor:pointer;font-size:14px}
-
-/* PHOTO ZOOM MODAL */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center}
-.modal img{max-width:80%;border-radius:14px;box-shadow:0 20px 50px black}
-
-
-/* ===== PRINT & PDF FIX ===== */
-@media print{
-  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  body{background:white;padding:0;margin:0}
-  .container{
-    box-shadow:none;
-    border-radius:0;
-    width:210mm;
-    min-height:297mm;
-    margin:0 auto;
-    padding:12mm;
-  }
-  .header{page-break-inside:avoid}
-  .header input{width:130px!important}
-  input{border:1px solid #999}
-  .terms{page-break-inside:avoid;margin-top:20px}
-  .signature-area{page-break-inside:avoid}
-  .btn,.upload-btn,.row-actions,.img-delete,.sign-delete{display:none!important}
-  .container{padding:10mm!important}
-  .header{margin-bottom:10mm!important}
-  .total-box{page-break-inside:avoid}
-  .company{page-break-inside:avoid}
-}
-.page-break{page-break-inside:avoid;}
-
-/* Hide buttons in PDF */
-@media print{
-  .no-print{display:none!important}
+ body{background:white;margin:0;padding:0}
+ .container{width:100% !important;max-width:100% !important;margin:0;padding:10mm;border-radius:0;box-shadow:none}
+ .btn,input[type=file]{display:none !important}
+ tr{page-break-inside:avoid}
 }
 
-/* ===== MOBILE VIEW ===== */
-@media (max-width:700px){
-  body{padding:6px}
-  .container{padding:12px;border-radius:14px}
-
-  /* Header fix for mobile */
-  .header{flex-direction:column;gap:10px;text-align:left}
-  .header>div:last-child{display:flex;flex-direction:column;gap:8px}
-  .header input{width:100%}
-  .header h2{font-size:22px}
-
-  /* Client box */
-  .company{grid-template-columns:1fr}
-
-  /* Table scroll instead of break */
-  .table{display:block;overflow-x:auto;white-space:nowrap}
-  th,td{padding:8px;font-size:12px}
-  .preview-img{max-width:100px}
-
-  /* Signature stack */
-  .signature-area{flex-direction:column;gap:20px}
-  .signature-box.right{align-items:flex-start;text-align:left}
-
-  .terms{font-size:13px}
-  .terms ol{padding-left:18px}
+@media(max-width:700px){
+ body{padding:5px}
+ .header{flex-direction:column}
+ .header input{width:100%}
+ .company{grid-template-columns:1fr}
 }
 </style>
 </head>
 
 <body>
-<div class="container" id="quotation">
+<div class="container" id="invoice">
 
 <div class="header">
 <div class="company-header">
-<h2 contenteditable="true">Your Company Name</h2>
-<div contenteditable="true">Address Line • Phone • Email</div>
+<div><b>Company Name :</b> <input type="text" placeholder="Company Name"></div>
+<div><b>Address :</b> <input type="text" placeholder="Address"></div>
+<div><b>Phone :</b> <input type="text" placeholder="Phone"></div>
 </div>
+
 <div>
-<div style="margin-bottom:10px">Date <input type="date"></div>
-<div>Quotation No <input type="text" placeholder="Q-001"></div>
+Invoice No <input type="text" placeholder="INV-001"><br><br>
+Invoice Date <input type="text" placeholder="DD/MM/YYYY">
 </div>
 </div>
 
 <div class="company">
+
+<div class="buyer-row">
+<b>Buyers Details :</b>
 <input type="text" placeholder="Client Name">
+</div>
+
+<div class="buyer-row">
+<b>Address :</b>
 <input type="text" placeholder="Client Address">
+</div>
+
+<div class="buyer-row">
+<b>Phone :</b>
 <input type="text" placeholder="Client Phone">
 </div>
 
-<table class="table" id="quoteTable">
+</div>
+
+<div class="table-wrapper">
+<table class="table" id="invoiceTable">
 <thead>
 <tr>
 <th>S.N</th>
@@ -172,83 +106,80 @@ transition:.25s}
 </thead>
 <tbody></tbody>
 </table>
-
-<button class="btn no-print" onclick="addRow()">+ Add Item</button>
-<button class="btn no-print" onclick="downloadPDF()">Download PDF</button>
-
-<div class="total-box">Total Amount: Rs <span id="total">0</span></div>
-
-<div class="signature-area">
-<div class="signature-box">
-<b>Prepared By</b><br><input type="text" placeholder="Name" style="margin:6px 0;padding:6px;border-radius:6px;border:1px solid #ccc"><div style="border-bottom:1px solid #999;width:200px;margin:8px 0"></div>
-<label class="upload-btn">Upload Company Logo
-<input type="file" accept="image/*" class="file-hidden" onchange="previewSign(event,'prepSign')"></label><br>
-<div class='sign-wrap'><img id="prepSign" style="display:none"><button class='sign-delete' onclick="removeSign('prepSign',this)">X</button></div>
 </div>
 
-<div class="signature-box right">
-<b>Approved By (Client)</b><br><input type="text" placeholder="Client Name" style="margin:6px 0;padding:6px;border-radius:6px;border:1px solid #ccc"><div style="border-bottom:1px solid #999;width:200px;margin:8px 0 8px auto"></div>
-<label class="upload-btn">Upload Company Logo
-<input type="file" accept="image/*" class="file-hidden" onchange="previewSign(event,'appSign')"></label><br>
-<div class='sign-wrap'><img id="appSign" style="display:none"><button class='sign-delete' onclick="removeSign('appSign',this)">X</button></div>
-</div>
 </div>
 
-
-<div class="terms">
-<b contenteditable="true">Terms & Conditions</b>
-<ol contenteditable="true">
-<li>Payment after delivery</li>
-<li>Design once approved cannot change</li>
-<li>Delivery within 7 days</li>
-<li>Transportation extra</li>
-</ol>
-</div>
+<div class="action-buttons">
+<button class="btn" onclick="addRow()">+ Add Item</button>
+<button class="btn" onclick="downloadPDF()">Download PDF</button>
+<button class="btn" onclick="printInvoice()">Print</button>
+<button class="btn" onclick="shareInvoice()">Share</button>
 </div>
 
-<div class="modal" id="modal"><img id="modalImg"></div>
+<div class="container" style="display:none"></div>
+
+<div class="summary">
+<div>Subtotal <span>Rs <span id="subtotal">0</span></span></div>
+<div>Tax (%) <input type="number" id="tax" value="0" oninput="calcTotal()"></div>
+<div>Discount <input type="number" id="discount" value="0" oninput="calcTotal()"></div>
+<div class="grand">Grand Total <span>Rs <span id="grand">0</span></span></div>
+</div>
+
+<div class="notes" contenteditable="true">
+<b>Notes</b>
+<ul>
+<li>Payment due within 7 days</li>
+<li>Goods once sold will not be returned</li>
+</ul>
+</div>
+
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
 <script>
 let sn=1;
 
 function addRow(){
-let t=document.querySelector('#quoteTable tbody');
+let t=document.querySelector('#invoiceTable tbody');
 let r=t.insertRow();
 r.innerHTML=`
 <td>${sn++}</td>
 <td contenteditable></td>
 <td>
-<label class='upload-btn upload-label'>Upload Photo
-<input class='file-hidden' type='file' accept='image/*'>
-</label><br>
-<div class='img-wrap'><img class='preview-img'><button class='img-delete' onclick='removePhoto(this)'>X</button></div>
+<div class='img-wrap'>
+<label class='upload-btn'>Upload
+<input type='file' class='file-hidden' accept='image/*' onchange='previewPhoto(event,this)'>
+</label>
+<br><img class='preview-img'><button class='remove-img' onclick='removeImg(this)'>X</button>
+</div>
 </td>
 <td contenteditable oninput='calc(this)'></td>
 <td contenteditable oninput='calc(this)'></td>
 <td></td>
-<td class='row-actions'><button onclick='deleteRow(this)'>X</button></td>`;
-
-const fileInput=r.querySelector("input[type='file']");
-const img=r.querySelector(".preview-img");
-fileInput.addEventListener("change",function(e){
-const file=e.target.files[0];
-if(!file)return;
-img.src=URL.createObjectURL(file);
-img.style.display="block";
-r.querySelector('.upload-label').style.display='none';
-img.onclick=()=>{document.getElementById('modal').style.display='flex';document.getElementById('modalImg').src=img.src};
-});}
-
-function removePhoto(btn){
-const wrap=btn.parentElement;
-wrap.querySelector('img').src='';
-wrap.querySelector('img').style.display='none';
-wrap.closest('td').querySelector('.upload-label').style.display='inline-block';
+<td><button onclick='deleteRow(this)'>X</button></td>`;
 }
 
-function deleteRow(btn){btn.closest("tr").remove();calcTotal();resetSN();}
+function previewPhoto(e,input){
+let wrap=input.closest('.img-wrap');
+let img=wrap.querySelector('img');
+let label=wrap.querySelector('.upload-btn');
+img.src=URL.createObjectURL(e.target.files[0]);
+img.style.display='block';
+label.style.display='none';
+wrap.querySelector('.remove-img').style.display='block';
+}
+
+function removeImg(btn){
+let wrap=btn.closest('.img-wrap');
+let img=wrap.querySelector('img');
+let label=wrap.querySelector('.upload-btn');
+img.style.display='none';
+label.style.display='inline-block';
+btn.style.display='none';
+}
+
+function deleteRow(btn){btn.closest('tr').remove();calcTotal();}
 
 function calc(el){
 let r=el.parentElement;
@@ -260,49 +191,43 @@ calcTotal();
 
 function calcTotal(){
 let sum=0;
-document.querySelectorAll('#quoteTable tbody tr').forEach(r=>{
-sum+=Number(r.cells[5].innerText)||0});
-document.getElementById('total').innerText=sum;
+document.querySelectorAll('#invoiceTable tbody tr').forEach(r=>sum+=Number(r.cells[5].innerText)||0);
+document.getElementById('subtotal').innerText=sum;
+let tax=parseFloat(document.getElementById('tax').value)||0;
+let discount=parseFloat(document.getElementById('discount').value)||0;
+let grand=sum + (sum*tax/100) - discount;
+document.getElementById('grand').innerText=grand;
 }
-
-function resetSN(){
-sn=1;
-document.querySelectorAll('#quoteTable tbody tr').forEach(r=>{
-r.cells[0].innerText=sn++})
-}
-
-function previewSign(e,id){
-const file=e.target.files[0];
-if(!file)return;
-const img=document.getElementById(id);
-img.src=URL.createObjectURL(file);
-img.style.display='block';
-e.target.closest('label').style.display='none';
-}
-
-function removeSign(id,btn){
-const img=document.getElementById(id);
-img.src='';
-img.style.display='none';
-btn.closest('.signature-box').querySelector('.upload-btn').style.display='inline-block';
-}
-
-const modal=document.getElementById('modal');
-modal.onclick=()=>modal.style.display='none';
 
 function downloadPDF(){
-const element=document.getElementById('quotation');
+const element=document.getElementById('invoice');
+html2pdf().set({
+ margin:[10,10,10,10],
+ filename:'Invoice.pdf',
+ pagebreak:{mode:['avoid-all','css','legacy']},
+ html2canvas:{scale:2,useCORS:true},
+ jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
+}).from(element).save();
+}
 
-const opt={
-margin:5,
-filename:'Quotation.pdf',
-image:{type:'jpeg',quality:1},
-html2canvas:{scale:2,useCORS:true,scrollY:0},
-jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
-pagebreak:{mode:['css','legacy']}
-};
+function printInvoice(){
+window.print();
+}
 
-html2pdf().set(opt).from(element).save();
+function shareInvoice(){
+html2canvas(document.getElementById('invoice')).then(canvas=>{
+canvas.toBlob(async blob=>{
+const file=new File([blob],'invoice.png',{type:'image/png'});
+if(navigator.share){
+try{await navigator.share({files:[file],title:'Invoice',text:'Invoice from Diary Nepal'});}catch(e){alert('Share cancelled');}
+}else{
+let link=document.createElement('a');
+link.download='invoice.png';
+link.href=canvas.toDataURL();
+link.click();
+}
+});
+});
 }
 </script>
 </body>
