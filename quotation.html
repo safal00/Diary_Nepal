@@ -12,7 +12,7 @@ font-family:'Poppins',sans-serif;
 background:linear-gradient(120deg,#eef2ff,#dbeafe,#f5f3ff);
 margin:0;padding:35px}
 
-.container{max-width:100%;width:100%;margin:auto;background:white;border-radius:26px;padding:40px;box-shadow:0 40px 120px rgba(0,0,0,.12);overflow:visible}
+.container{max-width:1100px;width:100%;margin:auto;background:white;border-radius:26px;padding:40px;box-shadow:0 40px 120px rgba(0,0,0,.12);overflow:hidden}
 
 /* PREMIUM HEADER */
 .header{
@@ -297,6 +297,13 @@ const opt={
   image:{type:'jpeg',quality:1},
   html2canvas:{scale:2,useCORS:true,windowWidth:document.body.scrollWidth,scrollX:0,scrollY:0},
   jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
+  html2canvas:{scale:2,useCORS:true},
+  pagebreak:{mode:['css','legacy']}
+};
+
+html2pdf().set(opt).from(element).save();
+}
+</script>
   pagebreak:{mode:['css','legacy']}
 };
 
