@@ -2,185 +2,31 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Premium Quotation</title>
+<title>Luxury Quotation</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
-body{
-  font-family:'Segoe UI',Arial;
-  background:linear-gradient(135deg,#eef2ff,#f8fafc);
-  margin:0;
-  padding:30px;
-}
-
-.container{
-  max-width:1150px;
-  margin:auto;
-  background:white;
-  border-radius:18px;
-  padding:30px;
-  box-shadow:0 20px 50px rgba(0,0,0,.08);
-}
-
-.header{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  flex-wrap:wrap;
-  gap:20px;
-  border-bottom:2px solid #eef2ff;
-  padding-bottom:20px;
-}
-
-h2{
-  margin:0 0 10px 0;
-  font-size:28px;
-  color:#1e293b;
-}
-
-input[type="text"],
-input[type="date"]{
-  padding:8px 10px;
-  border-radius:8px;
-  border:1px solid #dbeafe;
-  margin-right:10px;
-}
-
-.logo-upload img{
-  max-height:70px;
-  margin-top:8px;
-}
-
-.table{
-  width:100%;
-  border-collapse:separate;
-  border-spacing:0;
-  margin-top:25px;
-  overflow:hidden;
-  border-radius:14px;
-}
-
-th{
-  background:#4f46e5;
-  color:white;
-  padding:12px;
-  font-weight:500;
-}
-
-th:first-child{border-top-left-radius:14px}
-th:last-child{border-top-right-radius:14px}
-
- td{
-  border-bottom:1px solid #f1f5f9;
-  padding:12px;
-  text-align:center;
-  transition:background .3s ease;
-}
-
-tr:hover td{
-  background:#f8fafc;
-}
-
-.row-actions{
-  opacity:0;
-  transition:opacity .3s ease;
-}
-
-tr:hover .row-actions{
-  opacity:1;
-}
-
-.row-actions button{
-  background:#ef4444;
-  border:none;
-  color:white;
-  border-radius:6px;
-  padding:4px 8px;
-  cursor:pointer;
-}
-
-.btn{
-  padding:10px 18px;
-  border:none;
-  border-radius:10px;
-  background:#4f46e5;
-  color:white;
-  cursor:pointer;
-  font-weight:500;
-  margin-right:10px;
-  box-shadow:0 5px 15px rgba(79,70,229,.2);
-  transition:all .3s ease;
-}
-
-.btn:hover{
-  transform:translateY(-2px);
-  box-shadow:0 10px 25px rgba(79,70,229,.3);
-}
-
-.preview-img{
-  max-width:80px;
-  border-radius:8px;
-  cursor:pointer;
-  transition:transform .3s ease, box-shadow .3s ease;
-}
-
-.preview-img:hover{
-  transform:scale(1.15);
-  box-shadow:0 8px 20px rgba(0,0,0,.2);
-}
-
-.modal{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  display:none;
-  background:rgba(0,0,0,.5);
-  justify-content:center;
-  align-items:center;
-}
-
-.modal-content{
-  background:white;
-  padding:30px;
-  border-radius:14px;
-  text-align:center;
-  box-shadow:0 10px 40px rgba(0,0,0,.2);
-}
-
-.undo{
-  position:fixed;
-  bottom:25px;
-  right:25px;
-  background:#111827;
-  color:white;
-  padding:12px 18px;
-  border-radius:12px;
-  display:none;
-  animation:fadeIn .4s ease;
-}
-
-@keyframes fadeIn{
-  from{opacity:0; transform:translateY(10px)}
-  to{opacity:1; transform:translateY(0)}
-}
-
-.signature-area{
-  margin-top:40px;
-  padding-top:20px;
-  border-top:2px solid #eef2ff;
-}
-
-.signature-area img{
-  max-height:70px;
-  margin-right:30px;
-}
-
-@media(max-width:700px){
-  th,td{font-size:12px;padding:8px}
-  .preview-img{max-width:60px}
-}
+body{font-family:'Poppins',sans-serif;background:linear-gradient(120deg,#eef2ff,#e0e7ff);margin:0;padding:40px}
+.container{max-width:1200px;margin:auto;background:white;border-radius:22px;padding:35px;box-shadow:0 30px 80px rgba(0,0,0,.08)}
+.header{background:linear-gradient(120deg,#4f46e5,#6366f1);color:white;padding:25px 30px;border-radius:18px;display:flex;justify-content:space-between;flex-wrap:wrap;margin-bottom:25px}
+.header h2{margin:0;font-size:30px}
+.company{background:#f8fafc;padding:15px;border-radius:12px;margin-bottom:25px;display:flex;gap:20px;flex-wrap:wrap}
+input[type=text],input[type=date]{padding:10px;border-radius:10px;border:1px solid #e2e8f0;margin:5px 0}
+.table{width:100%;border-collapse:separate;border-spacing:0;border-radius:14px;overflow:hidden}
+th{background:#1e293b;color:white;padding:14px}
+td{padding:12px;border-bottom:1px solid #f1f5f9;text-align:center}
+tr:hover td{background:#f8fafc}
+.row-actions{opacity:0;transition:.3s}
+tr:hover .row-actions{opacity:1}
+.btn{background:linear-gradient(120deg,#4f46e5,#6366f1);border:none;padding:11px 22px;border-radius:12px;color:white;cursor:pointer;margin-top:10px}
+.preview-img{max-width:80px;border-radius:10px;cursor:pointer}
+.total-box{margin-top:25px;text-align:right;font-size:18px;background:#f1f5f9;padding:15px;border-radius:12px}
+.signature-area{margin-top:40px;display:flex;justify-content:space-between;flex-wrap:wrap}
+.signature-area img{max-height:70px}
+.terms{margin-top:30px;background:#f8fafc;padding:15px;border-radius:12px}
+.file-hidden{display:none}
+.upload-btn{background:#e0e7ff;padding:6px 12px;border-radius:8px;cursor:pointer}
 </style>
 </head>
 
@@ -188,21 +34,24 @@ tr:hover .row-actions{
 <div class="container">
 
 <div class="header">
+<h2>Premium Quotation</h2>
 <div>
-<h2>Quotation</h2>
-<label>Date: <input type="date" id="qdate"></label>
-<label>Quotation No: <input type="text" id="qno" placeholder="Q-001"></label>
+Date <input type="date"><br>
+Quotation No <input type="text" placeholder="Q-001">
 </div>
-<div class="logo-upload">
-<label>Upload Logo: <input type="file" onchange="uploadLogo(event)"></label><br>
-<img id="logoPreview">
 </div>
+
+<div class="company">
+<input type="text" placeholder="Company Name">
+<input type="text" placeholder="Address">
+<input type="text" placeholder="Phone">
+<input type="text" placeholder="Client Name">
 </div>
 
 <table class="table" id="quoteTable">
 <thead>
 <tr>
-<th>⇅</th>
+<th>S.N</th>
 <th>Description</th>
 <th>Design</th>
 <th>Qty</th>
@@ -214,101 +63,69 @@ tr:hover .row-actions{
 <tbody></tbody>
 </table>
 
-<br>
-<button class="btn" onclick="addRow()">Add Row</button>
+<button class="btn" onclick="addRow()">+ Add Item</button>
 <button class="btn" onclick="window.print()">Download PDF</button>
-<button class="btn" onclick="saveData()">Save Data</button>
+
+<div class="total-box">Total Amount: Rs <span id="total">0</span></div>
 
 <div class="signature-area">
-<h3>Signatures</h3>
-Prepared By <input type="file" onchange="signUpload(event,'prepSign')"> 
-Approved By <input type="file" onchange="signUpload(event,'appSign')">
-<br><br>
-<img id="prepSign">
-<img id="appSign">
+<div>Prepared By <br><input type="file" onchange="signUpload(event,'prep')"><br><img id="prep"></div>
+<div>Approved By <br><input type="file" onchange="signUpload(event,'app')"><br><img id="app"></div>
+</div>
+
+<div class="terms">
+<b>Terms & Conditions</b>
+<ol>
+<li>Payment after delivery</li>
+<li>Design once approved cannot change</li>
+<li>Delivery within 7 days</li>
+<li>Transportation extra</li>
+<li>Thank You</li>
+</ol>
 </div>
 
 </div>
-
-<div class="modal" id="confirmBox">
-<div class="modal-content">
-<p>Delete this row?</p>
-<button class="btn" onclick="confirmDelete()">Yes</button>
-<button class="btn" onclick="closeConfirm()">No</button>
-</div>
-</div>
-
-<div class="undo" id="undoBox">Row deleted <button onclick="undoDelete()" style="margin-left:10px">Undo</button></div>
 
 <script>
-let deleteRowIndex=null;
-
+let sn=1;
 function addRow(){
-let table=document.querySelector('#quoteTable tbody');
-let row=table.insertRow();
-row.draggable=true;
-row.ondragstart=e=>e.dataTransfer.setData('row',row.rowIndex);
-row.ondrop=e=>swapRows(e,row.rowIndex);
-row.ondragover=e=>e.preventDefault();
-row.innerHTML=`
-<td style='cursor:grab'>⇅</td>
+let t=document.querySelector('#quoteTable tbody');
+let r=t.insertRow();
+r.innerHTML=`
+<td>${sn++}</td>
 <td contenteditable></td>
-<td><input type='file' onchange='uploadImg(event,this)'><br><img class='preview-img'></td>
+<td>
+<label class='upload-btn'>Upload Photo<input class='file-hidden' type='file' onchange='imgUp(event,this)'></label><br>
+<img class='preview-img'>
+</td>
 <td contenteditable oninput='calc(this)'></td>
 <td contenteditable oninput='calc(this)'></td>
-<td class='amt'></td>
-<td class='row-actions'><button onclick='askDelete(this)'>X</button></td>`;
+<td></td>
+<td class='row-actions'><button onclick='this.closest("tr").remove();calcTotal();resetSN()'>X</button></td>`;
+}
+
+function imgUp(e,i){
+let img=i.parentElement.nextElementSibling;
+img.src=URL.createObjectURL(e.target.files[0]);
 }
 
 function calc(el){
-let row=el.parentElement;
-let qty=parseFloat(row.cells[3].innerText)||0;
-let rate=parseFloat(row.cells[4].innerText)||0;
-row.cells[5].innerText=qty*rate||'';
+let r=el.parentElement;
+let q=r.cells[3].innerText||0;
+let rate=r.cells[4].innerText||0;
+r.cells[5].innerText=q*rate||'';
+calcTotal();
 }
 
-function uploadImg(e,input){
-let img=input.nextElementSibling;
-img.src=URL.createObjectURL(e.target.files[0]);
-img.onclick=()=>window.open(img.src);
+function calcTotal(){
+let sum=0;
+document.querySelectorAll('#quoteTable tbody tr').forEach(r=>{sum+=Number(r.cells[5].innerText)||0});
+document.getElementById('total').innerText=sum;
 }
 
-function uploadLogo(e){
-logoPreview.src=URL.createObjectURL(e.target.files[0]);
-}
+function resetSN(){sn=1;document.querySelectorAll('#quoteTable tbody tr').forEach(r=>r.cells[0].innerText=sn++)}
 
-function signUpload(e,id){
-document.getElementById(id).src=URL.createObjectURL(e.target.files[0]);
-}
-
-function askDelete(btn){
-deleteRowIndex=btn.closest('tr').rowIndex;
-document.getElementById('confirmBox').style.display='flex';
-}
-
-function closeConfirm(){
-document.getElementById('confirmBox').style.display='none';
-}
-
-function confirmDelete(){
-document.getElementById('quoteTable').deleteRow(deleteRowIndex);
-document.getElementById('confirmBox').style.display='none';
-let u=document.getElementById('undoBox');
-u.style.display='block';
-setTimeout(()=>u.style.display='none',4000);
-}
-
-function undoDelete(){location.reload()}
-
-function saveData(){
-localStorage.setItem('quotation',document.querySelector('.container').innerHTML);
-alert('Saved Successfully');
-}
-
-window.onload=()=>{
-let d=localStorage.getItem('quotation');
-if(d)document.querySelector('.container').innerHTML=d;
-}
+function signUpload(e,id){document.getElementById(id).src=URL.createObjectURL(e.target.files[0])}
 </script>
 </body>
 </html>
