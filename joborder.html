@@ -237,7 +237,7 @@ const element=document.getElementById('invoice');
 html2pdf().set({
 margin:[10,10,10,10],
 filename:'Invoice.pdf',
-html2canvas:{scale:2,useCORS:true},
+html2canvas:{scale:3,backgroundColor:'#ffffff',useCORS:true,scrollY:0},
 jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
 }).from(element).save();
 }
@@ -245,11 +245,11 @@ jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
 function printInvoice(){window.print();}
 
 function shareInvoice(){
-html2canvas(document.getElementById('invoice')).then(canvas=>{
+html2canvas(document.getElementById('invoice'),{scale:3,backgroundColor:'#ffffff',useCORS:true,scrollY:0}).then(canvas=>{
 canvas.toBlob(async blob=>{
 const file=new File([blob],'invoice.jpg',{type:'image/jpeg'});
 if(navigator.share){
-try{await navigator.share({files:[file],title:'Invoice',text:'Invoice'});}catch(e){}
+try{await navigator.share({files:[file],title:'Invoice',text:'Invoice'});}catch(e){alert('Share not supported in this browser');}
 }else{
 let link=document.createElement('a');
 link.download='invoice.jpg';
@@ -261,11 +261,12 @@ link.click();
 }
 
 function downloadJPG(){
-html2canvas(document.getElementById('invoice')).then(canvas=>{
+html2canvas(document.getElementById('invoice'),{scale:3,backgroundColor:'#ffffff',useCORS:true,scrollY:0}).then(canvas=>{
 let link=document.createElement('a');
 link.download='invoice.jpg';
 link.href=canvas.toDataURL('image/jpeg',1.0);
 link.click();
+});
 });
 }
 </script>
