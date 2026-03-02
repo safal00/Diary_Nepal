@@ -12,7 +12,7 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(120deg,#eef2ff,
 .container{max-width:794px;width:100%;margin:auto;background:white;border-radius:20px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,.1)}
 
 .header{background:linear-gradient(120deg,#0f172a,#334155);color:white;padding:25px;border-radius:15px;display:flex;justify-content:space-between;flex-wrap:wrap;margin-bottom:20px;gap:10px}
-.header input{padding:8px;border-radius:8px;border:none;width:160px}
+.header input{padding:8px;border-radius:8px;border:none;width:100%;min-width:0}
 .company-header h2{margin:0;font-size:28px}
 .company-header div{display:flex;align-items:center;margin-bottom:10px;gap:10px}
 .company-header input{flex:1;min-width:200px}
@@ -257,11 +257,27 @@ jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
 function printInvoice(){window.print();}
 
 function shareInvoice(){
-html2canvas(document.getElementById('invoice'),{scale:3,backgroundColor:'#ffffff',useCORS:true,scrollY:0}).then(canvas=>{
+window.scrollTo(0,0);
+html2canvas(document.getElementById('invoice'),{
+  scale:4,
+  backgroundColor:'#ffffff',
+  useCORS:true,
+  scrollY:0,
+  width:document.getElementById('invoice').scrollWidth,
+  height:document.getElementById('invoice').scrollHeight
+}).then(canvas=>{
 canvas.toBlob(async blob=>{
 const file=new File([blob],'invoice.jpg',{type:'image/jpeg'});
 if(navigator.share){
 try{await navigator.share({files:[file],title:'Invoice',text:'Invoice'});}catch(e){alert('Share not supported in this browser');}
+}else{
+let link=document.createElement('a');
+link.download='invoice.jpg';
+link.href=canvas.toDataURL('image/jpeg',1.0);
+link.click();
+}
+});
+});
 }else{
 let link=document.createElement('a');
 link.download='invoice.jpg';
