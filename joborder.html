@@ -106,6 +106,7 @@ Invoice Date <input type="text" placeholder="DD/MM/YYYY">
 <th>Qty</th>
 <th>Rate</th>
 <th>Amount</th>
+
 </tr>
 </thead>
 <tbody></tbody>
@@ -114,7 +115,7 @@ Invoice Date <input type="text" placeholder="DD/MM/YYYY">
 
 
 
-<div class="summary">
+<div class="summary" id="summaryBox" style="display:none">
 <div>Subtotal <span>Rs <span id="subtotal">0</span></span></div>
 <div>Tax (%) <input type="number" id="tax" value="0" oninput="calcTotal()"></div>
 <div>Discount <input type="number" id="discount" value="0" oninput="calcTotal()"></div>
@@ -140,7 +141,7 @@ Invoice Date <input type="text" placeholder="DD/MM/YYYY">
 <button class="btn" onclick="downloadPDF()">Download PDF</button>
 <button class="btn" onclick="printInvoice()">Print</button>
 <button class="btn" onclick="shareInvoice()">Share</button>
-<button class="btn" onclick="savePhoto()">Save as Photo (JPG)</button>
+<button class="btn" onclick="savePhoto()">Save as Photo</button>
 </div>
 
 </div>
@@ -151,7 +152,8 @@ Invoice Date <input type="text" placeholder="DD/MM/YYYY">
 let sn=1;
 
 // auto add first row so Add Item always works visibly
-window.onload=function(){ if(document.querySelector('#invoiceTable tbody').rows.length===0) addRow(); }
+// Do NOT auto add first row. Summary will show only after adding item
+window.onload=function(){ checkSummary(); }
 let historyStack=[];
 
 function saveState(){
@@ -171,11 +173,21 @@ document.addEventListener('keydown',function(e){
     e.preventDefault();
     undo();
   }
+
+  // Delete selected row using keyboard Delete key
+  if(e.key==='Delete' && selectedRow){
+    saveState();
+    selectedRow.remove();
+    selectedRow=null;
+    renumberRows();
+    calcTotal();
+  }
 });
 
 let selectedRow=null;
 
 function addRow(){
+  checkSummary();
   saveState();
   let t=document.querySelector('#invoiceTable tbody');
   let r=t.insertRow();
@@ -185,7 +197,8 @@ function addRow(){
   <td contenteditable></td>
   <td contenteditable oninput='calc(this)'></td>
   <td contenteditable oninput='calc(this)'></td>
-  <td></td>`;
+  <td></td>
+  `;
 
   // click to select row
   r.onclick=function(){
@@ -206,6 +219,7 @@ function removeSelectedRow(){
   calcTotal();
 }
 
+
 function renumberRows(){
   let rows=document.querySelectorAll('#invoiceTable tbody tr');
   rows.forEach((row,index)=>{
@@ -223,6 +237,7 @@ function calc(el){
 }
 
 function calcTotal(){
+  checkSummary();
   let sum=0;
   document.querySelectorAll('#invoiceTable tbody tr').forEach(r=>sum+=Number(r.cells[5].innerText)||0);
   document.getElementById('subtotal').innerText=sum;
@@ -260,6 +275,11 @@ link.click();
 });
 }
 
+function checkSummary(){
+  let rows=document.querySelectorAll('#invoiceTable tbody tr').length;
+  document.getElementById('summaryBox').style.display = rows>0 ? 'block' : 'none';
+}
+
 function savePhoto(){
 window.scrollTo(0,0);
 html2canvas(document.getElementById('invoice'),{
@@ -274,7 +294,6 @@ html2canvas(document.getElementById('invoice'),{
   link.download='invoice-photo.jpg';
   link.href=canvas.toDataURL('image/jpeg',1.0);
   link.click();
-});
 });
 }
 </script>
