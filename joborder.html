@@ -112,8 +112,6 @@ Invoice Date <input type="text" placeholder="DD/MM/YYYY">
 </table>
 </div>
 
-</div>
-
 <div class="action-buttons">
 <button class="btn" onclick="addRow()">+ Add Item</button>
 <button class="btn" onclick="downloadPDF()">Download PDF</button>
@@ -138,6 +136,11 @@ Invoice Date <input type="text" placeholder="DD/MM/YYYY">
 </ul>
 </div>
 
+</div>
+
+<div style="text-align:center;margin-top:25px;font-weight:600;font-size:18px">Thank You For Doing Business With Us</div>
+
+</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -171,7 +174,7 @@ let label=wrap.querySelector('.upload-btn');
 img.src=URL.createObjectURL(e.target.files[0]);
 img.style.display='block';
 label.style.display='none';
-wrap.querySelector('.remove-img').style.display='block';
+
 }
 
 function removeImg(btn){
