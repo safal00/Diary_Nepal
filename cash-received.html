@@ -9,7 +9,9 @@
 <style>
 *{box-sizing:border-box}
 body{font-family:'Poppins',sans-serif;background:linear-gradient(120deg,#eef2ff,#dbeafe,#f5f3ff);margin:0;padding:15px}
-.container{max-width:794px;width:100%;margin:auto;background:white;border-radius:20px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,.1);overflow:visible}
+.container{max-width:100%;width:100%;margin:auto;background:white;border-radius:20px;padding:25px;box-shadow:0 10px 40px rgba(0,0,0,.1);overflow:visible}
+#invoice{width:100%;max-width:100%;margin:0 auto;overflow:visible}
+input,td,th{overflow-wrap:anywhere;word-break:break-word}
 
 .header{background:#3b82f6;color:white;padding:25px;border-radius:15px;display:flex;justify-content:space-between;flex-wrap:wrap;margin-bottom:20px;gap:10px;overflow:visible}
 .header input{padding:10px 12px;border-radius:8px;border:none;width:100%;min-width:0;font-size:14px;white-space:normal;word-break:break-word}
@@ -55,12 +57,8 @@ td{padding:10px;border:1px solid #cbd5e1;text-align:center;word-break:break-word
  body{padding:5px}
  .header{flex-direction:column}
  .header input{width:100%}
- .company{grid-template-columns:1fr}
 }
- .header{flex-direction:column}
- .header input{width:100%}
- .company{grid-template-columns:1fr}
-}
+
 </style>
 </head>
 
@@ -262,7 +260,7 @@ function printInvoice(){window.print();}
 function shareInvoice(){
   window.scrollTo(0,0);
   const invoice=document.getElementById('invoice');
-  html2canvas(invoice,{scale:4,backgroundColor:'#ffffff',useCORS:true,scrollY:0,width:document.body.scrollWidth,height:document.body.scrollHeight}).then(canvas=>{
+  html2canvas(invoice,{scale:3,backgroundColor:'#ffffff',useCORS:true,scrollY:-window.scrollY,windowWidth:invoice.scrollWidth,windowHeight:invoice.scrollHeight}).then(canvas=>{
     canvas.toBlob(async function(blob){
       const file=new File([blob],'invoice.jpg',{type:'image/jpeg'});
       if(navigator.share){
@@ -287,7 +285,7 @@ function checkSummary(){
 function savePhoto(){
   window.scrollTo(0,0);
   const invoice=document.getElementById('invoice');
-  html2canvas(invoice,{scale:4,backgroundColor:'#ffffff',useCORS:true,scrollY:0,width:document.body.scrollWidth,height:document.body.scrollHeight}).then(canvas=>{
+  html2canvas(invoice,{scale:3,backgroundColor:'#ffffff',useCORS:true,scrollY:-window.scrollY,windowWidth:invoice.scrollWidth,windowHeight:invoice.scrollHeight}).then(canvas=>{
     let link=document.createElement('a');
     link.download='invoice-photo.jpg';
     link.href=canvas.toDataURL('image/jpeg',1.0);
