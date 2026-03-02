@@ -6,203 +6,309 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body{font-family:'Segoe UI',Arial;background:linear-gradient(120deg,#e8ecff,#f5f7ff);margin:0;padding:20px}
-.container{max-width:1100px;margin:auto;background:#fff;padding:25px;border-radius:14px;box-shadow:0 10px 25px rgba(0,0,0,.08)}
-h1{text-align:center;margin-bottom:20px}
+body{
+  font-family:'Segoe UI',Arial;
+  background:linear-gradient(135deg,#eef2ff,#f8fafc);
+  margin:0;
+  padding:30px;
+}
 
-/* TABLE */
-table{width:100%;border-collapse:collapse;margin-top:10px}
-th,td{border:1px solid #ddd;padding:8px;text-align:center}
-th{background:#2f3ee6;color:#fff}
-input,textarea{width:100%;padding:6px;border:1px solid #ccc;border-radius:6px}
-button{background:#2f3ee6;color:#fff;border:none;padding:8px 15px;border-radius:6px;margin:6px;cursor:pointer}
-button:hover{background:#1e2bb8}
-.section{margin-top:25px}
-.flex{display:flex;gap:20px;margin-top:20px}
-.box{flex:1;border:1px solid #ddd;padding:15px;border-radius:10px}
+.container{
+  max-width:1150px;
+  margin:auto;
+  background:white;
+  border-radius:18px;
+  padding:30px;
+  box-shadow:0 20px 50px rgba(0,0,0,.08);
+}
 
-.logo-preview{max-height:90px;display:none;margin:10px auto}
-.design-preview{width:100%;height:90px;object-fit:contain;display:none}
-.design-wrap{position:relative}
-.remove-btn{position:absolute;top:2px;right:2px;background:red;border:none;color:#fff;border-radius:50%;width:18px;height:18px;font-size:11px;display:none;cursor:pointer}
-.design-wrap:hover .remove-btn{display:block}
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  flex-wrap:wrap;
+  gap:20px;
+  border-bottom:2px solid #eef2ff;
+  padding-bottom:20px;
+}
 
-.total{font-weight:bold;text-align:right;margin-top:15px;font-size:18px}
+h2{
+  margin:0 0 10px 0;
+  font-size:28px;
+  color:#1e293b;
+}
+
+input[type="text"],
+input[type="date"]{
+  padding:8px 10px;
+  border-radius:8px;
+  border:1px solid #dbeafe;
+  margin-right:10px;
+}
+
+.logo-upload img{
+  max-height:70px;
+  margin-top:8px;
+}
+
+.table{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  margin-top:25px;
+  overflow:hidden;
+  border-radius:14px;
+}
+
+th{
+  background:#4f46e5;
+  color:white;
+  padding:12px;
+  font-weight:500;
+}
+
+th:first-child{border-top-left-radius:14px}
+th:last-child{border-top-right-radius:14px}
+
+ td{
+  border-bottom:1px solid #f1f5f9;
+  padding:12px;
+  text-align:center;
+  transition:background .3s ease;
+}
+
+tr:hover td{
+  background:#f8fafc;
+}
+
+.row-actions{
+  opacity:0;
+  transition:opacity .3s ease;
+}
+
+tr:hover .row-actions{
+  opacity:1;
+}
+
+.row-actions button{
+  background:#ef4444;
+  border:none;
+  color:white;
+  border-radius:6px;
+  padding:4px 8px;
+  cursor:pointer;
+}
+
+.btn{
+  padding:10px 18px;
+  border:none;
+  border-radius:10px;
+  background:#4f46e5;
+  color:white;
+  cursor:pointer;
+  font-weight:500;
+  margin-right:10px;
+  box-shadow:0 5px 15px rgba(79,70,229,.2);
+  transition:all .3s ease;
+}
+
+.btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 10px 25px rgba(79,70,229,.3);
+}
+
+.preview-img{
+  max-width:80px;
+  border-radius:8px;
+  cursor:pointer;
+  transition:transform .3s ease, box-shadow .3s ease;
+}
+
+.preview-img:hover{
+  transform:scale(1.15);
+  box-shadow:0 8px 20px rgba(0,0,0,.2);
+}
+
+.modal{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  display:none;
+  background:rgba(0,0,0,.5);
+  justify-content:center;
+  align-items:center;
+}
+
+.modal-content{
+  background:white;
+  padding:30px;
+  border-radius:14px;
+  text-align:center;
+  box-shadow:0 10px 40px rgba(0,0,0,.2);
+}
+
+.undo{
+  position:fixed;
+  bottom:25px;
+  right:25px;
+  background:#111827;
+  color:white;
+  padding:12px 18px;
+  border-radius:12px;
+  display:none;
+  animation:fadeIn .4s ease;
+}
+
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(10px)}
+  to{opacity:1; transform:translateY(0)}
+}
+
+.signature-area{
+  margin-top:40px;
+  padding-top:20px;
+  border-top:2px solid #eef2ff;
+}
+
+.signature-area img{
+  max-height:70px;
+  margin-right:30px;
+}
+
+@media(max-width:700px){
+  th,td{font-size:12px;padding:8px}
+  .preview-img{max-width:60px}
+}
 </style>
 </head>
 
 <body>
-<div class="container" id="quotationBox">
-<h1>QUOTATION</h1>
+<div class="container">
 
-<div class="flex">
-<div class="box">
-<b>Company Details</b><br>
-<input placeholder="Company Name"><br><br>
-<input placeholder="Address"><br><br>
-<input placeholder="Phone"><br><br>
-<input type="file" onchange="showLogo(this,'logo1')"><br>
-<img id="logo1" class="logo-preview">
+<div class="header">
+<div>
+<h2>Quotation</h2>
+<label>Date: <input type="date" id="qdate"></label>
+<label>Quotation No: <input type="text" id="qno" placeholder="Q-001"></label>
 </div>
-
-<div class="box">
-<b>Client Details</b><br>
-<input placeholder="Client Name"><br><br>
-<input placeholder="Address"><br><br>
-<input placeholder="Phone"><br>
+<div class="logo-upload">
+<label>Upload Logo: <input type="file" onchange="uploadLogo(event)"></label><br>
+<img id="logoPreview">
 </div>
 </div>
 
-<table id="items">
+<table class="table" id="quoteTable">
+<thead>
 <tr>
-<th>SN</th>
+<th>⇅</th>
 <th>Description</th>
 <th>Design</th>
-<th>Size</th>
 <th>Qty</th>
 <th>Rate</th>
 <th>Amount</th>
-<th>Delete</th>
+<th>X</th>
 </tr>
+</thead>
+<tbody></tbody>
 </table>
 
-<button onclick="addItem()">Add Item</button>
-<button onclick="downloadPDF()">Download PDF</button>
-<button onclick="shareQuotation()">Share</button>
+<br>
+<button class="btn" onclick="addRow()">Add Row</button>
+<button class="btn" onclick="window.print()">Download PDF</button>
+<button class="btn" onclick="saveData()">Save Data</button>
 
-<div class="total" id="grandTotal" style="display:none">Grand Total: 0.00</div>
-
-<div class="section">
-<b>Terms & Conditions</b>
-<textarea rows="5">1. Payment after delivery
-2. Design once approved cannot change
-3. Delivery within 7 days
-4. Transportation extra
-5. Thank you</textarea>
-</div>
-
-<div class="flex">
-<div class="box" style="text-align:center">
-<b>Prepared By</b><br><br>
-<img id="logo2" class="logo-preview"><br>
-<input placeholder="Name"><br>
-<input type="file" onchange="showLogo(this,'logo2')"><br>
+<div class="signature-area">
+<h3>Signatures</h3>
+Prepared By <input type="file" onchange="signUpload(event,'prepSign')"> 
+Approved By <input type="file" onchange="signUpload(event,'appSign')">
+<br><br>
+<img id="prepSign">
+<img id="appSign">
 </div>
 
-<div class="box" style="text-align:center">
-<b>Approved By</b><br><br>
-<img id="logo3" class="logo-preview"><br>
-<input placeholder="Name"><br>
-<input type="file" onchange="showLogo(this,'logo3')"><br>
+</div>
+
+<div class="modal" id="confirmBox">
+<div class="modal-content">
+<p>Delete this row?</p>
+<button class="btn" onclick="confirmDelete()">Yes</button>
+<button class="btn" onclick="closeConfirm()">No</button>
 </div>
 </div>
-</div>
+
+<div class="undo" id="undoBox">Row deleted <button onclick="undoDelete()" style="margin-left:10px">Undo</button></div>
 
 <script>
-function addItem(){
-let table=document.getElementById('items');
+let deleteRowIndex=null;
+
+function addRow(){
+let table=document.querySelector('#quoteTable tbody');
 let row=table.insertRow();
-let sn=table.rows.length-1;
+row.draggable=true;
+row.ondragstart=e=>e.dataTransfer.setData('row',row.rowIndex);
+row.ondrop=e=>swapRows(e,row.rowIndex);
+row.ondragover=e=>e.preventDefault();
 row.innerHTML=`
-<td>${sn}</td>
-<td><input></td>
-<td>
-<div class='design-wrap'>
-<input type='file' onchange='showDesign(this)'>
-<img class='design-preview'>
-<button class='remove-btn' onclick='removeDesign(this,event)'>x</button>
-</div>
-</td>
-<td><input></td>
-<td><input type='number' oninput='calc(this)'></td>
-<td><input type='number' oninput='calc(this)'></td>
-<td>0.00</td>
-<td><button onclick='delRow(this)'>X</button></td>`;
-}
-
-function showDesign(inp){
-if(inp.files[0]){
-let img=inp.parentNode.querySelector('img');
-img.src=URL.createObjectURL(inp.files[0]);
-img.style.display='block';
-inp.style.display='none';
-}
-}
-
-function removeDesign(btn,e){
-e.stopPropagation();
-let wrap=btn.parentNode;
-wrap.querySelector('img').style.display='none';
-wrap.querySelector('input').value='';
-wrap.querySelector('input').style.display='block';
+<td style='cursor:grab'>⇅</td>
+<td contenteditable></td>
+<td><input type='file' onchange='uploadImg(event,this)'><br><img class='preview-img'></td>
+<td contenteditable oninput='calc(this)'></td>
+<td contenteditable oninput='calc(this)'></td>
+<td class='amt'></td>
+<td class='row-actions'><button onclick='askDelete(this)'>X</button></td>`;
 }
 
 function calc(el){
-let r=el.parentNode.parentNode;
-let qty=r.cells[4].children[0].value||0;
-let rate=r.cells[5].children[0].value||0;
-r.cells[6].innerHTML=(qty*rate).toFixed(2);
-updateTotal();
+let row=el.parentElement;
+let qty=parseFloat(row.cells[3].innerText)||0;
+let rate=parseFloat(row.cells[4].innerText)||0;
+row.cells[5].innerText=qty*rate||'';
 }
 
-function updateTotal(){
-let sum=0;
-document.querySelectorAll('#items tr').forEach((r,i)=>{
-if(i>0) sum+=parseFloat(r.cells[6].innerHTML)||0;
-});
-if(sum>0){
-document.getElementById('grandTotal').style.display='block';
-document.getElementById('grandTotal').innerHTML='Grand Total: '+sum.toFixed(2);
-}
+function uploadImg(e,input){
+let img=input.nextElementSibling;
+img.src=URL.createObjectURL(e.target.files[0]);
+img.onclick=()=>window.open(img.src);
 }
 
-function delRow(btn){
-btn.closest('tr').remove();
-renumber();
-updateTotal();
+function uploadLogo(e){
+logoPreview.src=URL.createObjectURL(e.target.files[0]);
 }
 
-function renumber(){
-let rows=document.querySelectorAll('#items tr');
-for(let i=1;i<rows.length;i++) rows[i].cells[0].innerHTML=i;
+function signUpload(e,id){
+document.getElementById(id).src=URL.createObjectURL(e.target.files[0]);
 }
 
-function showLogo(inp,id){
-if(inp.files[0]){
-let img=document.getElementById(id);
-img.src=URL.createObjectURL(inp.files[0]);
-img.style.display='block';
-}
+function askDelete(btn){
+deleteRowIndex=btn.closest('tr').rowIndex;
+document.getElementById('confirmBox').style.display='flex';
 }
 
-function downloadPDF(){
-html2canvas(document.getElementById('quotationBox'),{scale:2}).then(canvas=>{
-const img=canvas.toDataURL('image/png');
-const pdf=new jspdf.jsPDF('p','mm','a4');
-let w=210; let h=canvas.height*w/canvas.width;
-pdf.addImage(img,'PNG',0,0,w,h);
-pdf.save('quotation.pdf');
-});
+function closeConfirm(){
+document.getElementById('confirmBox').style.display='none';
 }
 
-function shareQuotation(){
-html2canvas(document.getElementById('quotationBox'),{scale:2}).then(canvas=>{
-canvas.toBlob(async blob=>{
-let file=new File([blob],'quotation.png',{type:'image/png'});
-if(navigator.canShare && navigator.canShare({files:[file]})){
-await navigator.share({files:[file],title:'Quotation'});
-}else{
-let a=document.createElement('a');
-a.href=URL.createObjectURL(blob);
-a.download='quotation.png';
-a.click();
+function confirmDelete(){
+document.getElementById('quoteTable').deleteRow(deleteRowIndex);
+document.getElementById('confirmBox').style.display='none';
+let u=document.getElementById('undoBox');
+u.style.display='block';
+setTimeout(()=>u.style.display='none',4000);
 }
-});
-});
+
+function undoDelete(){location.reload()}
+
+function saveData(){
+localStorage.setItem('quotation',document.querySelector('.container').innerHTML);
+alert('Saved Successfully');
+}
+
+window.onload=()=>{
+let d=localStorage.getItem('quotation');
+if(d)document.querySelector('.container').innerHTML=d;
 }
 </script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
 </html>
