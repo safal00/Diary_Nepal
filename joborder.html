@@ -97,6 +97,10 @@ transition:.25s}
   .terms{page-break-inside:avoid;margin-top:20px}
   .signature-area{page-break-inside:avoid}
   .btn,.upload-btn,.row-actions,.img-delete,.sign-delete{display:none!important}
+  .container{padding:10mm!important}
+  .header{margin-bottom:10mm!important}
+  .total-box{page-break-inside:avoid}
+  .company{page-break-inside:avoid}
 }
 .page-break{page-break-inside:avoid;}
 
@@ -107,13 +111,18 @@ transition:.25s}
 
 /* ===== MOBILE VIEW ===== */
 @media (max-width:600px){
-  body{padding:10px}
-  .container{padding:18px;border-radius:16px}
-  .header{flex-direction:column;gap:15px}
+  body{padding:6px}
+  .container{padding:14px;border-radius:14px}
+  .header{flex-direction:column;gap:12px}
+  .header h2{font-size:22px}
   .company{grid-template-columns:1fr}
-  table{font-size:12px}
-  th,td{padding:8px}
-  .signature-area{flex-direction:column}
+  table{font-size:11px}
+  th,td{padding:6px}
+  .preview-img{max-width:120px}
+  .signature-area{flex-direction:column;gap:20px}
+  .signature-box.right{align-items:flex-start;text-align:left}
+  .terms{font-size:13px}
+  .terms ol{padding-left:18px}
 }
 </style>
 </head>
