@@ -71,11 +71,20 @@ transition:.25s}
 /* PHOTO ZOOM MODAL */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center}
 .modal img{max-width:80%;border-radius:14px;box-shadow:0 20px 50px black}
+
+
+/* ===== PRINT & PDF FIX ===== */
+@media print{
+  body{background:white;padding:0}
+  .container{box-shadow:none;border-radius:0;width:794px;margin:auto;padding:20px}
+  .btn,.upload-btn,.row-actions,.img-delete,.sign-delete{display:none!important}
+}
+.page-break{page-break-inside:avoid}
 </style>
 </head>
 
 <body>
-<div class="container" id="quotation">id="quotation">
+<div class="container" id="quotation">
 
 <div class="header">
 <div class="company-header">
@@ -109,7 +118,10 @@ transition:.25s}
 <tbody></tbody>
 </table>
 
-<button class="btn" onclick="addRow()">+ Add<button class="btn" onclick="downloadPDF()">Download PDF</button>mount: Rs <span id="total">0</span></div>
+<button class="btn" onclick="addRow()">+ Add Item</button>
+<button class="btn" onclick="downloadPDF()">Download PDF</button>
+
+<div class="total-box">Total Amount: Rs <span id="total">0</span></div>
 
 <div class="signature-area">
 <div class="signature-box">
@@ -196,14 +208,20 @@ document.getElementById('logoTitle').style.display='none';
 e.target.closest('label').style.display='none';
 }
 
-modal.onclick=()=>modal.style.dimodal.onclick=()=>modal.style.display='none';
+modal.onclick=()=>modal.style.display='none';
 
 function downloadPDF(){
   const element = document.getElementById('quotation');
   const opt = {
-    margin: 0.4,
+    margin: 0.3,
     filename: 'Quotation.pdf',
     image: { type: 'jpeg', quality: 1 },
+    html2canvas: { scale: 2, useCORS:true },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak: { mode: ['avoid-all','css','legacy'] }
+  };
+  html2pdf().set(opt).from(element).save();
+},
     html2canvas: { scale: 2 },
     jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
   };
@@ -211,7 +229,10 @@ function downloadPDF(){
 }
 </script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>)=>modal.style.display='none';
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+// close modal
+modal.onclick=()=>modal.style.display='none';
 </script>
 </body>
 </html>
