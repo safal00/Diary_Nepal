@@ -99,6 +99,22 @@ transition:.25s}
   .btn,.upload-btn,.row-actions,.img-delete,.sign-delete{display:none!important}
 }
 .page-break{page-break-inside:avoid;}
+
+/* Hide buttons in PDF */
+@media print{
+  .no-print{display:none!important}
+}
+
+/* ===== MOBILE VIEW ===== */
+@media (max-width:600px){
+  body{padding:10px}
+  .container{padding:18px;border-radius:16px}
+  .header{flex-direction:column;gap:15px}
+  .company{grid-template-columns:1fr}
+  table{font-size:12px}
+  th,td{padding:8px}
+  .signature-area{flex-direction:column}
+}
 </style>
 </head>
 
@@ -137,8 +153,8 @@ transition:.25s}
 <tbody></tbody>
 </table>
 
-<button class="btn" onclick="addRow()">+ Add Item</button>
-<button class="btn" onclick="downloadPDF()">Download PDF</button>
+<button class="btn no-print" onclick="addRow()">+ Add Item</button>
+<button class="btn no-print" onclick="downloadPDF()">Download PDF</button>
 
 <div class="total-box">Total Amount: Rs <span id="total">0</span></div>
 
