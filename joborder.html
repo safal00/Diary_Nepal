@@ -153,6 +153,8 @@ transition:.25s}
 
 <div class="modal" id="modal"><img id="modalImg"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 <script>
 let sn=1;
 
@@ -184,55 +186,67 @@ r.querySelector('.upload-label').style.display='none';
 img.onclick=()=>{document.getElementById('modal').style.display='flex';document.getElementById('modalImg').src=img.src};
 });}
 
-function removePhoto(btn){const wrap=btn.parentElement;wrap.querySelector('img').src='';wrap.querySelector('img').style.display='none';wrap.closest('td').querySelector('.upload-label').style.display='inline-block';}
+function removePhoto(btn){
+const wrap=btn.parentElement;
+wrap.querySelector('img').src='';
+wrap.querySelector('img').style.display='none';
+wrap.closest('td').querySelector('.upload-label').style.display='inline-block';
+}
 
 function deleteRow(btn){btn.closest("tr").remove();calcTotal();resetSN();}
 
-function calc(el){let r=el.parentElement;let q=parseFloat(r.cells[3].innerText)||0;let rate=parseFloat(r.cells[4].innerText)||0;r.cells[5].innerText=q*rate||'';calcTotal();}
+function calc(el){
+let r=el.parentElement;
+let q=parseFloat(r.cells[3].innerText)||0;
+let rate=parseFloat(r.cells[4].innerText)||0;
+r.cells[5].innerText=q*rate||'';
+calcTotal();
+}
 
-function calcTotal(){let sum=0;document.querySelectorAll('#quoteTable tbody tr').forEach(r=>{sum+=Number(r.cells[5].innerText)||0});document.getElementById('total').innerText=sum;}
+function calcTotal(){
+let sum=0;
+document.querySelectorAll('#quoteTable tbody tr').forEach(r=>{
+sum+=Number(r.cells[5].innerText)||0});
+document.getElementById('total').innerText=sum;
+}
 
-function resetSN(){sn=1;document.querySelectorAll('#quoteTable tbody tr').forEach(r=>{r.cells[0].innerText=sn++})}
+function resetSN(){
+sn=1;
+document.querySelectorAll('#quoteTable tbody tr').forEach(r=>{
+r.cells[0].innerText=sn++})
+}
 
-function previewSign(e,id){const file=e.target.files[0];if(!file)return;const img=document.getElementById(id);img.src=URL.createObjectURL(file);img.style.display='block';e.target.closest('label').style.display='none';}
-
-function removeSign(id,btn){const img=document.getElementById(id);img.src='';img.style.display='none';btn.closest('.signature-box').querySelector('.upload-btn').style.display='inline-block';}
-
-function logoUpload(e){
+function previewSign(e,id){
 const file=e.target.files[0];
 if(!file)return;
-const img=document.getElementById('companyLogo');
+const img=document.getElementById(id);
 img.src=URL.createObjectURL(file);
 img.style.display='block';
-document.getElementById('logoTitle').style.display='none';
 e.target.closest('label').style.display='none';
 }
 
+function removeSign(id,btn){
+const img=document.getElementById(id);
+img.src='';
+img.style.display='none';
+btn.closest('.signature-box').querySelector('.upload-btn').style.display='inline-block';
+}
+
+const modal=document.getElementById('modal');
 modal.onclick=()=>modal.style.display='none';
 
 function downloadPDF(){
-  const element = document.getElementById('quotation');
-  const opt = {
-    margin: 0.3,
-    filename: 'Quotation.pdf',
-    image: { type: 'jpeg', quality: 1 },
-    html2canvas: { scale: 2, useCORS:true },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    pagebreak: { mode: ['avoid-all','css','legacy'] }
-  };
-  html2pdf().set(opt).from(element).save();
-},
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-  };
-  html2pdf().set(opt).from(element).save();
+const element=document.getElementById('quotation');
+const opt={
+margin:0.3,
+filename:'Quotation.pdf',
+image:{type:'jpeg',quality:1},
+html2canvas:{scale:2,useCORS:true},
+jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
+pagebreak:{mode:['avoid-all','css','legacy']}
+};
+html2pdf().set(opt).from(element).save();
 }
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-// close modal
-modal.onclick=()=>modal.style.display='none';
 </script>
 </body>
 </html>
