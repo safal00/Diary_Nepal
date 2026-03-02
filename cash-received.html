@@ -25,7 +25,9 @@ box-shadow:0 20px 50px rgba(79,70,229,.3)}
 .company-header h2{margin:0;font-size:32px;font-weight:700;letter-spacing:.5px}
 .company-header div{opacity:.9}
 
-.company{background:#f8fafc;padding:18px;border-radius:16px;margin-bottom:30px;display:flex;gap:15px;flex-wrap:wrap;box-shadow:0 8px 20px rgba(0,0,0,.04)}
+.company{background:linear-gradient(120deg,#f8fafc,#eef2ff);padding:22px;border-radius:18px;margin-bottom:30px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;box-shadow:0 12px 30px rgba(0,0,0,.06)}
+.company input{padding:14px 16px;border-radius:12px;border:1px solid #e5e7eb;font-size:15px;background:white;box-shadow:0 4px 10px rgba(0,0,0,.04);transition:.25s}
+.company input:focus{outline:none;border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,.15)}
 input[type=text],input[type=date]{padding:11px;border-radius:10px;border:1px solid #e2e8f0}
 
 .table{width:100%;border-collapse:separate;border-spacing:0;border-radius:16px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,.05)}
@@ -57,6 +59,9 @@ transition:.25s}
 .signature-box{flex:1;min-width:260px}
 .signature-box.right{text-align:right;display:flex;flex-direction:column;align-items:flex-end}
 .signature-area img{max-height:80px;margin-top:10px;border-radius:10px}
+.sign-wrap{position:relative;display:inline-block;margin-top:10px}
+.sign-delete{position:absolute;top:-8px;right:-8px;background:#ef4444;color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:11px;display:none;cursor:pointer}
+.sign-wrap:hover .sign-delete{display:block}
 .signature-area img{max-height:80px;margin-top:10px;border-radius:10px}
 
 .terms{margin-top:30px;background:#f8fafc;padding:18px;border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,.05)}
@@ -114,14 +119,14 @@ transition:.25s}
 <b>Prepared By</b><br><input type="text" placeholder="Name" style="margin:6px 0;padding:6px;border-radius:6px;border:1px solid #ccc"><div style="border-bottom:1px solid #999;width:200px;margin:8px 0"></div>
 <label class="upload-btn">Upload Company Logo
 <input type="file" accept="image/*" class="file-hidden" onchange="previewSign(event,'prepSign')"></label><br>
-<img id="prepSign" style="display:none">
+<div class='sign-wrap'><img id="prepSign" style="display:none"><button class='sign-delete' onclick="removeSign('prepSign',this)">X</button></div>
 </div>
 
 <div class="signature-box right">
 <b>Approved By (Client)</b><br><input type="text" placeholder="Client Name" style="margin:6px 0;padding:6px;border-radius:6px;border:1px solid #ccc"><div style="border-bottom:1px solid #999;width:200px;margin:8px 0 8px auto"></div>
 <label class="upload-btn">Upload Company Logo
 <input type="file" accept="image/*" class="file-hidden" onchange="previewSign(event,'appSign')"></label><br>
-<img id="appSign" style="display:none">
+<div class='sign-wrap'><img id="appSign" style="display:none"><button class='sign-delete' onclick="removeSign('appSign',this)">X</button></div>
 </div>
 </div>
 
@@ -181,6 +186,8 @@ function calcTotal(){let sum=0;document.querySelectorAll('#quoteTable tbody tr')
 function resetSN(){sn=1;document.querySelectorAll('#quoteTable tbody tr').forEach(r=>{r.cells[0].innerText=sn++})}
 
 function previewSign(e,id){const file=e.target.files[0];if(!file)return;const img=document.getElementById(id);img.src=URL.createObjectURL(file);img.style.display='block';e.target.closest('label').style.display='none';}
+
+function removeSign(id,btn){const img=document.getElementById(id);img.src='';img.style.display='none';btn.closest('.signature-box').querySelector('.upload-btn').style.display='inline-block';}
 
 function logoUpload(e){
 const file=e.target.files[0];
