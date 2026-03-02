@@ -3,4 +3,170 @@
 <head>
 <meta charset="UTF-8">
 <title>Luxury Quotation</title>
-<meta name="viewport" content="width=device-width, initial-sc
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+body{font-family:'Poppins',sans-serif;background:linear-gradient(120deg,#eef2ff,#e0e7ff);margin:0;padding:40px}
+.container{max-width:1200px;margin:auto;background:white;border-radius:22px;padding:35px;box-shadow:0 30px 80px rgba(0,0,0,.08)}
+
+/* HEADER FIXED */
+.header{background:linear-gradient(120deg,#4338ca,#6366f1);color:#ffffff;padding:30px;border-radius:18px;display:flex;justify-content:space-between;flex-wrap:wrap;margin-bottom:25px}
+.company-header h2{margin:0;font-size:30px;font-weight:700;color:#ffffff}
+.company-header div{font-size:15px;color:#e0e7ff}
+.company-header [contenteditable]{outline:none}
+
+.company{background:#f8fafc;padding:15px;border-radius:12px;margin-bottom:25px;display:flex;gap:20px;flex-wrap:wrap}
+input[type=text],input[type=date]{padding:10px;border-radius:10px;border:1px solid #e2e8f0;margin:5px 0}
+
+.table{width:100%;border-collapse:separate;border-spacing:0;border-radius:14px;overflow:hidden}
+th{background:#1e293b;color:white;padding:14px}
+td{padding:12px;border-bottom:1px solid #f1f5f9;text-align:center}
+tr:hover td{background:#f8fafc}
+.row-actions{opacity:0;transition:.3s}
+tr:hover .row-actions{opacity:1}
+
+.btn{background:linear-gradient(120deg,#4338ca,#6366f1);border:none;padding:11px 22px;border-radius:12px;color:white;cursor:pointer;margin-top:10px}
+
+.preview-img{max-width:90px;border-radius:10px;cursor:pointer;margin-top:8px;display:none;border:1px solid #ddd}
+
+.total-box{margin-top:25px;text-align:right;font-size:18px;background:#f1f5f9;padding:15px;border-radius:12px}
+.signature-area{margin-top:40px;display:flex;justify-content:space-between;flex-wrap:wrap}
+.signature-area img{max-height:70px;margin-top:8px}
+
+.terms{margin-top:30px;background:#f8fafc;padding:15px;border-radius:12px}
+.file-hidden{display:none}
+.upload-btn{background:#e0e7ff;padding:6px 14px;border-radius:8px;cursor:pointer;display:inline-block}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<div class="header">
+<div class="company-header">
+<h2 contenteditable="true">Your Company Name</h2>
+<div contenteditable="true">Address Line, Phone Number, Email</div>
+</div>
+<div>
+<div style="margin-bottom:8px">Date <input type="date"></div>
+<div>Quotation No <input type="text" placeholder="Q-001"></div>
+</div>
+</div>
+
+<div class="company">
+<input type="text" placeholder="Client Name">
+<input type="text" placeholder="Client Address">
+<input type="text" placeholder="Client Phone">
+</div>
+
+<table class="table" id="quoteTable">
+<thead>
+<tr>
+<th>S.N</th>
+<th>Description</th>
+<th>Design</th>
+<th>Qty</th>
+<th>Rate</th>
+<th>Amount</th>
+<th>X</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<button class="btn" onclick="addRow()">+ Add Item</button>
+<button class="btn" onclick="window.print()">Download PDF</button>
+
+<div class="total-box">Total Amount: Rs <span id="total">0</span></div>
+
+<div class="signature-area">
+<div>Prepared By <br><input type="file" accept="image/*" onchange="signUpload(event,'prep')"><br><img id="prep"></div>
+<div>Approved By <br><input type="file" accept="image/*" onchange="signUpload(event,'app')"><br><img id="app"></div>
+</div>
+
+<div class="terms">
+<b contenteditable="true">Terms & Conditions</b>
+<ol contenteditable="true">
+<li>Payment after delivery</li>
+<li>Design once approved cannot change</li>
+<li>Delivery within 7 days</li>
+<li>Transportation extra</li>
+<li>Thank You</li>
+</ol>
+</div>
+
+</div>
+
+<script>
+let sn=1;
+
+function addRow(){
+let t=document.querySelector('#quoteTable tbody');
+let r=t.insertRow();
+
+r.innerHTML=`
+<td>${sn++}</td>
+<td contenteditable></td>
+<td>
+<label class='upload-btn'>Upload Photo
+<input class='file-hidden' type='file' accept='image/*'>
+</label>
+<br>
+<img class='preview-img'>
+</td>
+<td contenteditable oninput='calc(this)'></td>
+<td contenteditable oninput='calc(this)'></td>
+<td></td>
+<td class='row-actions'><button onclick='deleteRow(this)'>X</button></td>`;
+
+const fileInput=r.querySelector("input[type='file']");
+const img=r.querySelector(".preview-img");
+
+fileInput.addEventListener("change",function(e){
+const file=e.target.files[0];
+if(!file)return;
+img.src=URL.createObjectURL(file);
+img.style.display="block";
+img.onclick=function(){window.open(img.src)};
+});
+}
+
+function deleteRow(btn){
+btn.closest("tr").remove();
+calcTotal();
+resetSN();
+}
+
+function calc(el){
+let r=el.parentElement;
+let q=parseFloat(r.cells[3].innerText)||0;
+let rate=parseFloat(r.cells[4].innerText)||0;
+r.cells[5].innerText=q*rate||'';
+calcTotal();
+}
+
+function calcTotal(){
+let sum=0;
+document.querySelectorAll('#quoteTable tbody tr').forEach(r=>{
+sum+=Number(r.cells[5].innerText)||0;
+});
+document.getElementById('total').innerText=sum;
+}
+
+function resetSN(){
+sn=1;
+document.querySelectorAll('#quoteTable tbody tr').forEach(r=>{
+r.cells[0].innerText=sn++;
+});
+}
+
+function signUpload(e,id){
+const file=e.target.files[0];
+if(!file)return;
+const img=document.getElementById(id);
+img.src=URL.createObjectURL(file);
+}
+</script>
+</body>
+</html>
