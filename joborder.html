@@ -52,11 +52,6 @@ td{padding:10px;border:1px solid #cbd5e1;text-align:center}
  tr{page-break-inside:avoid}
 }
 
- .container{width:100% !important;max-width:100% !important;margin:0;padding:10mm;border-radius:0;box-shadow:none}
- .btn,input[type=file]{display:none !important}
- tr{page-break-inside:avoid}
-}
-
 @media(max-width:700px){
  body{padding:5px}
  .header{flex-direction:column}
@@ -147,9 +142,9 @@ Invoice Date <input type="text" placeholder="DD/MM/YYYY">
 <div style="text-align:center;margin-top:25px;font-weight:600;font-size:18px">Thank You For Doing Business With Us</div>
 
 </div>
-</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 let sn=1;
 
@@ -164,25 +159,6 @@ r.innerHTML=`
 <td contenteditable oninput='calc(this)'></td>
 <td></td>
 <td><button onclick='deleteRow(this)'>X</button></td>`;
-}
-
-function previewPhoto(e,input){
-let wrap=input.closest('.img-wrap');
-let img=wrap.querySelector('img');
-let label=wrap.querySelector('.upload-btn');
-img.src=URL.createObjectURL(e.target.files[0]);
-img.style.display='block';
-label.style.display='none';
-
-}
-
-function removeImg(btn){
-let wrap=btn.closest('.img-wrap');
-let img=wrap.querySelector('img');
-let label=wrap.querySelector('.upload-btn');
-img.style.display='none';
-label.style.display='inline-block';
-btn.style.display='none';
 }
 
 function deleteRow(btn){btn.closest('tr').remove();calcTotal();}
@@ -208,48 +184,37 @@ document.getElementById('grand').innerText=grand;
 function downloadPDF(){
 const element=document.getElementById('invoice');
 html2pdf().set({
- margin:[10,10,10,10],
- filename:'Invoice.pdf',
- pagebreak:{mode:['avoid-all','css','legacy']},
- html2canvas:{scale:2,useCORS:true},
- jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
+margin:[10,10,10,10],
+filename:'Invoice.pdf',
+html2canvas:{scale:2,useCORS:true},
+jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
 }).from(element).save();
 }
 
-function printInvoice(){
-window.print();
-}
+function printInvoice(){window.print();}
 
 function shareInvoice(){
 html2canvas(document.getElementById('invoice')).then(canvas=>{
 canvas.toBlob(async blob=>{
 const file=new File([blob],'invoice.jpg',{type:'image/jpeg'});
 if(navigator.share){
-try{await navigator.share({files:[file],title:'Invoice',text:'Invoice from Diary Nepal'});}catch(e){alert('Share cancelled');}
+try{await navigator.share({files:[file],title:'Invoice',text:'Invoice'});}catch(e){}
 }else{
 let link=document.createElement('a');
 link.download='invoice.jpg';
 link.href=canvas.toDataURL('image/jpeg',1.0);
 link.click();
 }
-},'image/jpeg',1.0);
+});
 });
 }
 
 function downloadJPG(){
 html2canvas(document.getElementById('invoice')).then(canvas=>{
 let link=document.createElement('a');
-link.download='Invoice.jpg';
+link.download='invoice.jpg';
 link.href=canvas.toDataURL('image/jpeg',1.0);
 link.click();
-});
-}else{
-let link=document.createElement('a');
-link.download='invoice.png';
-link.href=canvas.toDataURL();
-link.click();
-}
-});
 });
 }
 </script>
