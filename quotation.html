@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -66,17 +65,81 @@ transition:.25s}
 .signature-area img{max-height:80px;margin-top:10px;border-radius:10px}
 
 .terms{margin-top:30px;background:#f8fafc;padding:18px;border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,.05)}
+
+/* FORCE CLEAN PAGE BREAK FOR PDF */
+@media print{
+  .signature-area{page-break-inside:avoid;page-break-after:avoid}
+  .terms{page-break-before:always}
+}
 .file-hidden{display:none}
 .upload-btn{background:#e0e7ff;padding:7px 15px;border-radius:10px;cursor:pointer;font-size:14px}
 
 /* PHOTO ZOOM MODAL */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center}
 .modal img{max-width:80%;border-radius:14px;box-shadow:0 20px 50px black}
+
+
+/* ===== PRINT & PDF FIX ===== */
+@media print{
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:white;padding:0;margin:0}
+  .container{
+    box-shadow:none;
+    border-radius:0;
+    width:210mm;
+    min-height:297mm;
+    margin:0 auto;
+    padding:12mm;
+  }
+  .header{page-break-inside:avoid}
+  .header input{width:130px!important}
+  input{border:1px solid #999}
+  .terms{page-break-inside:avoid;margin-top:20px}
+  .signature-area{page-break-inside:avoid}
+  .btn,.upload-btn,.row-actions,.img-delete,.sign-delete{display:none!important}
+  .container{padding:10mm!important}
+  .header{margin-bottom:10mm!important}
+  .total-box{page-break-inside:avoid}
+  .company{page-break-inside:avoid}
+}
+.page-break{page-break-inside:avoid;}
+
+/* Hide buttons in PDF */
+@media print{
+  .no-print{display:none!important}
+}
+
+/* ===== MOBILE VIEW ===== */
+@media (max-width:700px){
+  body{padding:6px}
+  .container{padding:12px;border-radius:14px}
+
+  /* Header fix for mobile */
+  .header{flex-direction:column;gap:10px;text-align:left}
+  .header>div:last-child{display:flex;flex-direction:column;gap:8px}
+  .header input{width:100%}
+  .header h2{font-size:22px}
+
+  /* Client box */
+  .company{grid-template-columns:1fr}
+
+  /* Table scroll instead of break */
+  .table{display:block;overflow-x:auto;white-space:nowrap}
+  th,td{padding:8px;font-size:12px}
+  .preview-img{max-width:100px}
+
+  /* Signature stack */
+  .signature-area{flex-direction:column;gap:20px}
+  .signature-box.right{align-items:flex-start;text-align:left}
+
+  .terms{font-size:13px}
+  .terms ol{padding-left:18px}
+}
 </style>
 </head>
 
 <body>
-<div class="container">
+<div class="container" id="quotation">
 
 <div class="header">
 <div class="company-header">
@@ -110,8 +173,8 @@ transition:.25s}
 <tbody></tbody>
 </table>
 
-<button class="btn" onclick="addRow()">+ Add Item</button>
-<button class="btn" onclick="window.print()">Download PDF</button>
+<button class="btn no-print" onclick="addRow()">+ Add Item</button>
+<button class="btn no-print" onclick="downloadPDF()">Download PDF</button>
 
 <div class="total-box">Total Amount: Rs <span id="total">0</span></div>
 
@@ -145,6 +208,8 @@ transition:.25s}
 
 <div class="modal" id="modal"><img id="modalImg"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 <script>
 let sn=1;
 
@@ -176,35 +241,81 @@ r.querySelector('.upload-label').style.display='none';
 img.onclick=()=>{document.getElementById('modal').style.display='flex';document.getElementById('modalImg').src=img.src};
 });}
 
-function removePhoto(btn){const wrap=btn.parentElement;wrap.querySelector('img').src='';wrap.querySelector('img').style.display='none';wrap.closest('td').querySelector('.upload-label').style.display='inline-block';}
+function removePhoto(btn){
+const wrap=btn.parentElement;
+wrap.querySelector('img').src='';
+wrap.querySelector('img').style.display='none';
+wrap.closest('td').querySelector('.upload-label').style.display='inline-block';
+}
 
 function deleteRow(btn){btn.closest("tr").remove();calcTotal();resetSN();}
 
-function calc(el){let r=el.parentElement;let q=parseFloat(r.cells[3].innerText)||0;let rate=parseFloat(r.cells[4].innerText)||0;r.cells[5].innerText=q*rate||'';calcTotal();}
+function calc(el){
+let r=el.parentElement;
+let q=parseFloat(r.cells[3].innerText)||0;
+let rate=parseFloat(r.cells[4].innerText)||0;
+r.cells[5].innerText=q*rate||'';
+calcTotal();
+}
 
-function calcTotal(){let sum=0;document.querySelectorAll('#quoteTable tbody tr').forEach(r=>{sum+=Number(r.cells[5].innerText)||0});document.getElementById('total').innerText=sum;}
+function calcTotal(){
+let sum=0;
+document.querySelectorAll('#quoteTable tbody tr').forEach(r=>{
+sum+=Number(r.cells[5].innerText)||0});
+document.getElementById('total').innerText=sum;
+}
 
-function resetSN(){sn=1;document.querySelectorAll('#quoteTable tbody tr').forEach(r=>{r.cells[0].innerText=sn++})}
+function resetSN(){
+sn=1;
+document.querySelectorAll('#quoteTable tbody tr').forEach(r=>{
+r.cells[0].innerText=sn++})
+}
 
-function previewSign(e,id){const file=e.target.files[0];if(!file)return;const img=document.getElementById(id);img.src=URL.createObjectURL(file);img.style.display='block';e.target.closest('label').style.display='none';}
-
-function removeSign(id,btn){const img=document.getElementById(id);img.src='';img.style.display='none';btn.closest('.signature-box').querySelector('.upload-btn').style.display='inline-block';}
-
-function logoUpload(e){
+function previewSign(e,id){
 const file=e.target.files[0];
 if(!file)return;
-const img=document.getElementById('companyLogo');
+const img=document.getElementById(id);
 img.src=URL.createObjectURL(file);
 img.style.display='block';
-document.getElementById('logoTitle').style.display='none';
 e.target.closest('label').style.display='none';
 }
 
-modal.onclick=()=>modal.style.display='none';
-</script>
+function removeSign(id,btn){
+const img=document.getElementById(id);
+img.src='';
+img.style.display='none';
+btn.closest('.signature-box').querySelector('.upload-btn').style.display='inline-block';
+}
 
-// close modal
+const modal=document.getElementById('modal');
 modal.onclick=()=>modal.style.display='none';
+
+function downloadPDF(){
+const element=document.getElementById('quotation');
+
+/* Temporary clean mode for perfect PDF */
+element.style.boxShadow='none';
+element.style.borderRadius='0px';
+element.style.width='210mm';
+element.style.padding='15mm';
+
+const opt={
+margin:0,
+filename:'Quotation.pdf',
+image:{type:'jpeg',quality:1},
+html2canvas:{scale:2,useCORS:true,scrollY:0},
+jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
+pagebreak:{mode:['css','legacy']}
+};
+
+html2pdf().set(opt).from(element).save().then(()=>{
+/* Restore after download */
+element.style.width='';
+element.style.padding='';
+element.style.boxShadow='';
+element.style.borderRadius='26px';
+});
+}
 </script>
 </body>
 </html>
