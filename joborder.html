@@ -11,7 +11,7 @@
 body{font-family:'Poppins',sans-serif;background:linear-gradient(120deg,#eef2ff,#dbeafe,#f5f3ff);margin:0;padding:15px}
 .container{max-width:794px;width:100%;margin:auto;background:white;border-radius:20px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,.1)}
 
-.header{background:linear-gradient(120deg,#0f172a,#334155);color:white;padding:25px;border-radius:15px;display:flex;justify-content:space-between;flex-wrap:wrap;margin-bottom:20px;gap:10px}
+.header{background:#3b82f6;color:white;padding:25px;border-radius:15px;display:flex;justify-content:space-between;flex-wrap:wrap;margin-bottom:20px;gap:10px}
 .header input{padding:10px 12px;border-radius:8px;border:none;width:100%;min-width:0;box-sizing:border-box;font-size:14px;overflow:visible}
 .header{overflow:visible}
 .company-header h2{margin:0;font-size:28px}
@@ -24,7 +24,7 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(120deg,#eef2ff,
 .company input{padding:10px;border-radius:8px;border:1px solid #ddd;width:100%}
 
 .table{width:100%;border-collapse:collapse}
-th{background:#2f5fa3;color:white;padding:10px;border-right:1px solid #ffffff55}
+th{background:#3b82f6;color:white;padding:10px;border-right:1px solid #ffffff55}
 th:last-child{border-right:none}
 td{padding:10px;border:1px solid #cbd5e1;text-align:center}
 
@@ -258,44 +258,36 @@ jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
 function printInvoice(){window.print();}
 
 function shareInvoice(){
-window.scrollTo(0,0);
-html2canvas(document.getElementById('invoice'),{
-  scale:4,
-  backgroundColor:'#ffffff',
-  useCORS:true,
-  scrollY:0,
-  width:document.getElementById('invoice').scrollWidth,
-  height:document.getElementById('invoice').scrollHeight
-}).then(canvas=>{
-  canvas.toBlob(async blob=>{
-    const file=new File([blob],'invoice.jpg',{type:'image/jpeg'});
-    if(navigator.share){
-      try{await navigator.share({files:[file],title:'Invoice',text:'Invoice'});}catch(e){alert('Share not supported in this browser');}
-    }else{
-      let link=document.createElement('a');
-      link.download='invoice.jpg';
-      link.href=canvas.toDataURL('image/jpeg',1.0);
-      link.click();
-    }
+  window.scrollTo(0,0);
+  const invoice=document.getElementById('invoice');
+  html2canvas(invoice,{
+    scale:4,
+    backgroundColor:'#ffffff',
+    useCORS:true,
+    scrollY:0,
+    width:invoice.scrollWidth,
+    height:invoice.scrollHeight,
+    windowWidth:invoice.scrollWidth,
+    windowHeight:invoice.scrollHeight
+  }).then(canvas=>{
+    canvas.toBlob(async function(blob){
+      const file=new File([blob],'invoice.jpg',{type:'image/jpeg'});
+      if(navigator.share){
+        try{
+          await navigator.share({files:[file],title:'Invoice',text:'Invoice'});
+        }catch(err){
+          alert('Sharing cancelled or not supported');
+        }
+      }else{
+        const link=document.createElement('a');
+        link.download='invoice.jpg';
+        link.href=canvas.toDataURL('image/jpeg',1.0);
+        link.click();
+      }
+    });
   });
-});
-}else{
-let link=document.createElement('a');
-link.download='invoice.jpg';
-link.href=canvas.toDataURL('image/jpeg',1.0);
-link.click();
 }
-});
-});
-}else{
-let link=document.createElement('a');
-link.download='invoice.jpg';
-link.href=canvas.toDataURL('image/jpeg',1.0);
-link.click();
-}
-});
-});
-}
+
 
 function checkSummary(){
   let rows=document.querySelectorAll('#invoiceTable tbody tr').length;
@@ -303,20 +295,23 @@ function checkSummary(){
 }
 
 function savePhoto(){
-window.scrollTo(0,0);
-html2canvas(document.getElementById('invoice'),{
-  scale:4,
-  backgroundColor:'#ffffff',
-  useCORS:true,
-  scrollY:0,
-  width:document.getElementById('invoice').scrollWidth,
-  height:document.getElementById('invoice').scrollHeight
-}).then(canvas=>{
-  let link=document.createElement('a');
-  link.download='invoice-photo.jpg';
-  link.href=canvas.toDataURL('image/jpeg',1.0);
-  link.click();
-});
+  window.scrollTo(0,0);
+  const invoice=document.getElementById('invoice');
+  html2canvas(invoice,{
+    scale:4,
+    backgroundColor:'#ffffff',
+    useCORS:true,
+    scrollY:0,
+    width:invoice.scrollWidth,
+    height:invoice.scrollHeight,
+    windowWidth:invoice.scrollWidth,
+    windowHeight:invoice.scrollHeight
+  }).then(canvas=>{
+    let link=document.createElement('a');
+    link.download='invoice-photo.jpg';
+    link.href=canvas.toDataURL('image/jpeg',1.0);
+    link.click();
+  });
 }
 </script>
 </body>
