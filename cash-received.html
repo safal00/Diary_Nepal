@@ -1,393 +1,534 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 // ==========================================
-// १. AUTHENTICATION CONTEXT & PROVIDER
-// (Refresh गर्दा Session सुरक्षित राख्ने कोड)
+// 1. INITIAL DEMO DATA (State Persistence)
 // ==========================================
-const AuthContext = createContext();
+const initialProducts = [
+  { id: 1, name: 'Canvas Roll', category: 'Stationery', quantity: 80, unit: 'Piece', purchasePrice: 1200, sellingPrice: 1500 },
+  { id: 2, name: 'DSLR Camera Frame', category: 'Electronics', quantity: 15, unit: 'Pcs', purchasePrice: 45000, sellingPrice: 52000 }
+];
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+const initialCustomers = [
+  { id: 101, name: 'Aakash Shrestha', phone: '9841000000', address: 'Kathmandu' },
+  { id: 102, name: 'Suman Thapa', phone: '9801000000', address: 'Pokhara' }
+];
 
-  useEffect(() => {
-    // Page Refresh हुँदा Session पुनः प्राप्त गर्ने
-    const savedToken = localStorage.getItem('authToken');
-    const savedUser = localStorage.getItem('userData');
+const initialLedgers = [
+  { id: 1, customerId: 101, serialNo: 1, date: '2026-07-20', details: 'Canvas Roll (20 Pcs)', amount: 30000, paid: 10000, balance: 20000, status: 'Partial' },
+  { id: 2, customerId: 101, serialNo: 2, date: '2026-07-22', details: 'DSLR Frame (1 Pcs)', amount: 52000, paid: 20000, balance: 52000, status: 'Partial' },
+  { id: 3, customerId: 101, serialNo: 3, date: '2026-07-25', details: 'Cash Payment Received', amount: 0, paid: 22000, balance: 30000, status: 'Paid' }
+];
 
-    if (savedToken && savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (error) {
-        console.error("Session restore error:", error);
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userData');
-      }
+export default function App() {
+  // ------------------------------------------
+  // SESSION PERSISTENCE (Refresh समस्या समाधान)
+  // ------------------------------------------
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('ledger_user');
+    return savedUser ? JSON.parse(savedUser) : { name: 'Diary Nepal', email: 'diarynepalinfo@gmail.com', role: 'ADMIN' };
+  });
+
+  const [activeTab, setActiveTab] = useState('dashboard');
+  
+  // Data States
+  const [products, setProducts] = useState(() => {
+    const local = localStorage.getItem('lh_products');
+    return local ? JSON.parse(local) : initialProducts;
+  });
+
+  const [customers, setCustomers] = useState(() => {
+    const local = localStorage.getItem('lh_customers');
+    return local ? JSON.parse(local) : initialCustomers;
+  });
+
+  const [ledgers, setLedgers] = useState(() => {
+    const local = localStorage.getItem('lh_ledgers');
+    return local ? JSON.parse(local) : initialLedgers;
+  });
+
+  // LocalStorage Sync
+  useEffect(() => { localStorage.setItem('lh_products', JSON.stringify(products)); }, [products]);
+  useEffect(() => { localStorage.setItem('lh_customers', JSON.stringify(customers)); }, [customers]);
+  useEffect(() => { localStorage.setItem('lh_ledgers', JSON.stringify(ledgers)); }, [ledgers]);
+
+  // Logout Handler
+  const handleLogout = () => {
+    if (window.confirm("के तपाईं Logout हुन चाहनुहुन्छ?")) {
+      localStorage.removeItem('ledger_user');
+      setUser(null);
     }
-    setLoading(false);
-  }, []);
-
-  const login = (userData, token) => {
-    localStorage.setItem('authToken', token);
-    localStorage.setItem('userData', JSON.stringify(userData));
-    setUser(userData);
   };
 
-  const logout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userData');
-    setUser(null);
+  // Login Handler (यदि user null छ भने)
+  const handleLogin = (e) => {
+    e.preventDefault();
+    const loginUser = { name: 'Diary Nepal', email: 'diarynepalinfo@gmail.com', role: 'ADMIN' };
+    localStorage.setItem('ledger_user', JSON.stringify(loginUser));
+    setUser(loginUser);
   };
 
-  if (loading) {
+  if (!user) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontFamily: 'sans-serif', color: '#666' }}>
-        <h2>Loading Session...</h2>
+      <div style={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center', backgroundColor: '#0f172a', fontFamily: 'Inter, sans-serif' }}>
+        <form onSubmit={handleLogin} style={{ backgroundColor: '#1e293b', padding: '40px', borderRadius: '12px', width: '320px', textAlign: 'center', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }}>
+          <h2 style={{ color: '#fff', marginBottom: '10px' }}>Ledger Hub</h2>
+          <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '20px' }}>Sign in to continue</p>
+          <input type="email" value="diarynepalinfo@gmail.com" readOnly style={{ width: '100%', padding: '10px', marginBottom: '15px', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff', boxSizing: 'border-box' }} />
+          <button type="submit" style={{ width: '100%', padding: '12px', backgroundColor: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>Login to System</button>
+        </form>
       </div>
     );
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-export const useAuth = () => useContext(AuthContext);
-
-
-// ==========================================
-// २. LOGIN FORM COMPONENT
-// ==========================================
-const LoginForm = () => {
-  const { login } = useAuth();
-  const [email, setEmail] = useState('');
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (!email.trim()) return;
-
-    const fakeToken = "jwt-token-xyz-987";
-    const userData = { email: email };
-
-    login(userData, fakeToken);
-  };
-
-  return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: '#f4f6f9', fontFamily: 'Segoe UI, sans-serif' }}>
-      <div style={{ width: '100%', maxWidth: '400px', padding: '30px', backgroundColor: '#fff', borderRadius: '10px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
-        <h2 style={{ margin: '0 0 20px 0', textAlign: 'center', color: '#333' }}>Sign In</h2>
-        <form onSubmit={handleLogin}>
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', color: '#555', fontWeight: '500' }}>Email Address / Username</label>
-            <input 
-              type="text" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="उदा: diarynepalinfo@gmail.com"
-              style={{ width: '100%', padding: '10px 12px', border: '1px solid #ccc', borderRadius: '6px', boxSizing: 'border-box', fontSize: '14px' }}
-              required
-            />
+    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'Inter, system-ui, sans-serif' }}>
+      
+      {/* ==========================================
+          LEFT SIDEBAR (Same Interface as Screenshot)
+         ========================================== */}
+      <div style={{ width: '260px', backgroundColor: '#0f172a', color: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '20px 0' }}>
+        <div>
+          {/* Logo */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '0 20px', marginBottom: '30px' }}>
+            <div style={{ width: '36px', height: '36px', backgroundColor: '#2563eb', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '20px' }}>📈</div>
+            <div>
+              <div style={{ fontWeight: 'bold', fontSize: '18px', letterSpacing: '0.5px' }}>Ledger Hub</div>
+              <div style={{ fontSize: '11px', color: '#38bdf8', fontWeight: 'bold', letterSpacing: '1px' }}>ADMIN</div>
+            </div>
           </div>
-          <button type="submit" style={{ width: '100%', padding: '12px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', transition: '0.2s' }}>
-            Login
-          </button>
-        </form>
-      </div>
-    </div>
-  );
-};
 
+          <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 'bold', padding: '0 20px', marginBottom: '10px', letterSpacing: '0.5px' }}>MODULES NAVIGATION</div>
 
-// ==========================================
-// ३. PURCHASE SYSTEM COMPONENT (Improved UI & Logic)
-// ==========================================
-const PurchaseSystem = () => {
-  const { user, logout } = useAuth();
-
-  // Pure Empty States (कुनै Demo/Example Data राखिएको छैन)
-  const [suppliers, setSuppliers] = useState([]);
-  const [products, setProducts] = useState([]);
-
-  const [selectedSupplier, setSelectedSupplier] = useState('');
-  const [selectedProduct, setSelectedProduct] = useState('');
-  const [customProductInput, setCustomProductInput] = useState('');
-  const [isCustomProduct, setIsCustomProduct] = useState(false);
-
-  // Pure Form Details
-  const [purchaseDetails, setPurchaseDetails] = useState({
-    quantity: '',
-    purchasePrice: '',
-    sellingPrice: '',
-    unit: '',
-    category: ''
-  });
-
-  const [newSupplierName, setNewSupplierName] = useState('');
-  const [showSupplierModal, setShowSupplierModal] = useState(false);
-
-  // Add New Supplier
-  const handleAddSupplier = (e) => {
-    e.preventDefault();
-    if (!newSupplierName.trim()) return;
-
-    const newSupplier = { id: Date.now(), name: newSupplierName };
-    setSuppliers([...suppliers, newSupplier]);
-    setSelectedSupplier(newSupplier.name);
-    setNewSupplierName('');
-    setShowSupplierModal(false);
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setPurchaseDetails({ ...purchaseDetails, [name]: value });
-  };
-
-  // Submit Purchase Entry
-  const handlePurchaseSubmit = (e) => {
-    e.preventDefault();
-
-    const finalProductName = isCustomProduct ? customProductInput : selectedProduct;
-
-    if (!selectedSupplier) {
-      alert("कृपया Supplier छान्नुहोस् वा नयाँ थप्नुहोस्।");
-      return;
-    }
-    if (!finalProductName) {
-      alert("कृपया Product छान्नुहोस् वा नयाँ नाम टाइप गर्नुहोस्।");
-      return;
-    }
-
-    const purchaseData = {
-      supplier: selectedSupplier,
-      productName: finalProductName,
-      quantity: Number(purchaseDetails.quantity),
-      purchasePrice: Number(purchaseDetails.purchasePrice),
-      sellingPrice: Number(purchaseDetails.sellingPrice),
-      unit: purchaseDetails.unit,
-      category: purchaseDetails.category,
-      date: new Date().toISOString()
-    };
-
-    console.log("Saved Purchase Entry:", purchaseData);
-
-    // यदि नयाँ Type गरेर हालेको भए Existing list मा Thapne
-    if (isCustomProduct) {
-      setProducts([...products, { id: Date.now(), name: finalProductName }]);
-    }
-
-    alert("Purchase Entry सफलतापूर्वक सेभ भयो!");
-
-    // Reset Form State
-    setSelectedProduct('');
-    setCustomProductInput('');
-    setIsCustomProduct(false);
-    setPurchaseDetails({
-      quantity: '',
-      purchasePrice: '',
-      sellingPrice: '',
-      unit: '',
-      category: ''
-    });
-  };
-
-  return (
-    <div style={{ backgroundColor: '#f8f9fa', minHeight: '100vh', padding: '30px 15px', fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif' }}>
-      <div style={{ maxWidth: '800px', margin: '0 auto', backgroundColor: '#fff', borderRadius: '10px', boxShadow: '0 2px 10px rgba(0,0,0,0.08)', padding: '25px' }}>
-        
-        {/* Header Bar */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', paddingBottom: '15px', marginBottom: '20px' }}>
-          <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#333' }}>
-            Dashboard | Welcome, <span style={{ color: '#007bff' }}>{user?.email}</span>
-          </div>
-          <button 
-            onClick={logout} 
-            style={{ padding: '8px 18px', backgroundColor: '#dc3545', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}
-          >
-            Logout
-          </button>
+          {/* Navigation Links */}
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '0 10px' }}>
+            <NavItem icon="📊" label="Dashboard" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
+            <NavItem icon="🏷️" label="Product & Inventory" active={activeTab === 'inventory'} onClick={() => setActiveTab('inventory')} />
+            <NavItem icon="🛒" label="Sales System" active={activeTab === 'sales'} onClick={() => setActiveTab('sales')} />
+            <NavItem icon="🛍️" label="Purchase System" active={activeTab === 'purchase'} onClick={() => setActiveTab('purchase')} />
+            <NavItem icon="👥" label="Customer Management" active={activeTab === 'customers'} onClick={() => setActiveTab('customers')} />
+            <NavItem icon="⚖️" label="Serial Customer Ledgers" active={activeTab === 'ledgers'} onClick={() => setActiveTab('ledgers')} />
+            <NavItem icon="👤" label="User Management" active={activeTab === 'users'} onClick={() => setActiveTab('users')} />
+          </nav>
         </div>
 
-        <h2 style={{ marginTop: '0', marginBottom: '20px', color: '#222', fontSize: '22px' }}>Purchase Entry System</h2>
-
-        <form onSubmit={handlePurchaseSubmit}>
-
-          {/* 1. Supplier Section */}
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', fontWeight: '600', marginBottom: '6px', color: '#444' }}>Supplier:</label>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <select 
-                value={selectedSupplier} 
-                onChange={(e) => setSelectedSupplier(e.target.value)}
-                style={{ flex: 1, padding: '10px', borderRadius: '5px', border: '1px solid #ccc', outline: 'none' }}
-              >
-                <option value="">-- Supplier छान्नुहोस् --</option>
-                {suppliers.map((s) => (
-                  <option key={s.id} value={s.name}>{s.name}</option>
-                ))}
-              </select>
-              <button 
-                type="button" 
-                onClick={() => setShowSupplierModal(true)} 
-                style={{ padding: '10px 15px', backgroundColor: '#f0f0f0', border: '1px solid #ccc', borderRadius: '5px', cursor: 'pointer', fontWeight: '500' }}
-              >
-                + Add New Supplier
-              </button>
-            </div>
-          </div>
-
-          {/* Add New Supplier Input (Inline Modal) */}
-          {showSupplierModal && (
-            <div style={{ padding: '15px', backgroundColor: '#eef2f5', marginBottom: '20px', borderRadius: '6px', border: '1px solid #d0d7de' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '600', color: '#333' }}>नयाँ Supplier को नाम:</label>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <input 
-                  type="text" 
-                  placeholder="Supplier को नाम लेख्नुहोस्"
-                  value={newSupplierName}
-                  onChange={(e) => setNewSupplierName(e.target.value)}
-                  style={{ flex: 1, padding: '8px 12px', border: '1px solid #ccc', borderRadius: '4px' }}
-                />
-                <button type="button" onClick={handleAddSupplier} style={{ padding: '8px 16px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Save</button>
-                <button type="button" onClick={() => setShowSupplierModal(false)} style={{ padding: '8px 16px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Cancel</button>
+        {/* User Profile & Logout at Bottom */}
+        <div style={{ padding: '0 15px' }}>
+          <div style={{ backgroundColor: '#1e293b', padding: '12px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ width: '35px', height: '35px', backgroundColor: '#2563eb', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>D</div>
+              <div style={{ overflow: 'hidden' }}>
+                <div style={{ fontSize: '13px', fontWeight: 'bold', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name}</div>
+                <div style={{ fontSize: '10px', color: '#94a3b8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</div>
               </div>
             </div>
-          )}
-
-          {/* 2. Product Selection System */}
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: '#444' }}>Product System:</label>
-            
-            <div style={{ display: 'flex', gap: '20px', marginBottom: '10px' }}>
-              <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <input 
-                  type="radio" 
-                  name="productType" 
-                  checked={!isCustomProduct} 
-                  onChange={() => setIsCustomProduct(false)} 
-                />
-                Existing Product छान्नुहोस्
-              </label>
-              <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <input 
-                  type="radio" 
-                  name="productType" 
-                  checked={isCustomProduct} 
-                  onChange={() => setIsCustomProduct(true)} 
-                />
-                नयाँ Product को नाम टाइप गर्नुहोस्
-              </label>
-            </div>
-
-            {!isCustomProduct ? (
-              <select 
-                value={selectedProduct} 
-                onChange={(e) => setSelectedProduct(e.target.value)}
-                style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', outline: 'none' }}
-              >
-                <option value="">-- Existing Product छान्नुहोस् --</option>
-                {products.map((p) => (
-                  <option key={p.id} value={p.name}>{p.name}</option>
-                ))}
-              </select>
-            ) : (
-              <input 
-                type="text" 
-                placeholder="Product को नाम लेख्नुहोस् (उदा: Camera, Frame, Mobile, Canvas Roll)"
-                value={customProductInput}
-                onChange={(e) => setCustomProductInput(e.target.value)}
-                style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', boxSizing: 'border-box', outline: 'none' }}
-              />
-            )}
+            <button onClick={handleLogout} title="Logout" style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '16px', padding: '5px' }}>🚪</button>
           </div>
+        </div>
+      </div>
 
-          {/* 3. Product Details Fields (No Demo Data) */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '25px' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: '#555' }}>Category:</label>
-              <input 
-                type="text" 
-                name="category"
-                placeholder="Category (उदा: Electronics)"
-                value={purchaseDetails.category}
-                onChange={handleInputChange}
-                style={{ width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '5px', boxSizing: 'border-box' }}
-              />
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: '#555' }}>Unit:</label>
-              <input 
-                type="text" 
-                name="unit"
-                placeholder="Unit (उदा: Pcs, Kg, Roll)"
-                value={purchaseDetails.unit}
-                onChange={handleInputChange}
-                style={{ width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '5px', boxSizing: 'border-box' }}
-              />
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: '#555' }}>Quantity:</label>
-              <input 
-                type="number" 
-                name="quantity"
-                placeholder="परिमाण"
-                value={purchaseDetails.quantity}
-                onChange={handleInputChange}
-                style={{ width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '5px', boxSizing: 'border-box' }}
-                required
-              />
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: '#555' }}>Purchase Price (खरिद मूल्य):</label>
-              <input 
-                type="number" 
-                name="purchasePrice"
-                placeholder="0.00"
-                value={purchaseDetails.purchasePrice}
-                onChange={handleInputChange}
-                style={{ width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '5px', boxSizing: 'border-box' }}
-                required
-              />
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: '#555' }}>Selling Price (बिक्री मूल्य):</label>
-              <input 
-                type="number" 
-                name="sellingPrice"
-                placeholder="0.00"
-                value={purchaseDetails.sellingPrice}
-                onChange={handleInputChange}
-                style={{ width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '5px', boxSizing: 'border-box' }}
-              />
-            </div>
+      {/* ==========================================
+          RIGHT MAIN CONTENT AREA
+         ========================================== */}
+      <div style={{ flex: 1, padding: '30px', overflowY: 'auto' }}>
+        
+        {/* Top Workspace Bar */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+          <div>
+            <div style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Digital Workspace</div>
+            <h1 style={{ fontSize: '24px', fontWeight: '800', color: '#0f172a', margin: 0, textTransform: 'uppercase' }}>{activeTab}</h1>
           </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', padding: '6px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: '600', color: '#475569' }}>26 Jul 2026</div>
+            <div style={{ width: '36px', height: '36px', backgroundColor: '#0f172a', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '12px' }}>DI</div>
+          </div>
+        </div>
 
-          <button 
-            type="submit" 
-            style={{ width: '100%', padding: '12px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', transition: '0.2s' }}
-          >
-            Save Purchase Entry
-          </button>
-        </form>
+        {/* Dynamic Tab Views */}
+        {activeTab === 'dashboard' && <DashboardView ledgers={ledgers} products={products} />}
+        {activeTab === 'inventory' && <InventoryView products={products} setProducts={setProducts} />}
+        {activeTab === 'ledgers' && <LedgerView customers={customers} ledgers={ledgers} setLedgers={setLedgers} />}
+        {['sales', 'purchase', 'customers', 'users'].includes(activeTab) && (
+          <div style={{ backgroundColor: '#fff', padding: '40px', borderRadius: '12px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#64748b' }}>
+            <h3>{activeTab.toUpperCase()} Module Active</h3>
+            <p>You can manage and update details here seamlessly.</p>
+          </div>
+        )}
+
       </div>
     </div>
   );
-};
-
+}
 
 // ==========================================
-// ४. MAIN APPLICATION ENTRY
+// SIDEBAR ITEM COMPONENT
 // ==========================================
-const MainApp = () => {
-  const { user } = useAuth();
-  return user ? <PurchaseSystem /> : <LoginForm />;
-};
-
-export default function App() {
+function NavItem({ icon, label, active, onClick }) {
   return (
-    <AuthProvider>
-      <MainApp />
-    </AuthProvider>
+    <button
+      onClick={onClick}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        width: '100%',
+        padding: '10px 15px',
+        borderRadius: '8px',
+        border: 'none',
+        backgroundColor: active ? '#2563eb' : 'transparent',
+        color: active ? '#fff' : '#94a3b8',
+        fontWeight: active ? '600' : '500',
+        fontSize: '13px',
+        cursor: 'pointer',
+        textAlign: 'left',
+        transition: 'all 0.2s'
+      }}
+    >
+      <span style={{ fontSize: '16px' }}>{icon}</span>
+      {label}
+    </button>
   );
 }
+
+// ==========================================
+// 1. DASHBOARD VIEW (Screenshot Layout)
+// ==========================================
+function DashboardView({ ledgers }) {
+  const totalSales = 2000000;
+  const collected = 30000;
+  const pendingDue = 2000000;
+  const purchaseExpenses = 0;
+
+  return (
+    <div>
+      {/* 4 Summary Stat Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '25px' }}>
+        <StatCard title="TOTAL SALES VOLUME" value={`रु ${totalSales.toLocaleString()}`} color="#0f172a" />
+        <StatCard title="COLLECTED AMOUNT" value={`रु ${collected.toLocaleString()}`} color="#16a34a" />
+        <StatCard title="PENDING DUE BALANCE" value={`रु ${pendingDue.toLocaleString()}`} color="#dc2626" />
+        <StatCard title="TOTAL PURCHASE EXPENSES" value={`रु ${purchaseExpenses.toLocaleString()}`} color="#2563eb" />
+      </div>
+
+      {/* Chart Simulation Section */}
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px' }}>
+        {/* Real-time Sales Trend */}
+        <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px', fontWeight: 'bold', color: '#1e293b' }}>
+            <span>📈</span> Real-time Sales & Purchase Trend
+          </div>
+          <div style={{ height: '220px', backgroundColor: '#f8fafc', borderRadius: '8px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '10px' }}>
+            <div style={{ width: '180px', height: '180px', backgroundColor: '#2563eb', borderRadius: '4px 4px 0 0' }}></div>
+          </div>
+          <div style={{ textAlign: 'center', fontSize: '12px', color: '#64748b', marginTop: '10px' }}>Current Workspace Dynamic Totals</div>
+        </div>
+
+        {/* Collection Statistics Pie Simulation */}
+        <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px', fontWeight: 'bold', color: '#1e293b' }}>
+            <span>📊</span> Collection Statistics
+          </div>
+          <div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: '140px', height: '140px', borderRadius: '50%', border: '20px solid #f43f5e', borderTopColor: '#10b981' }}></div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', fontSize: '12px', color: '#475569', marginTop: '10px' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><span style={{ width: '10px', height: '10px', backgroundColor: '#10b981', display: 'inline-block' }}></span> Collected</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><span style={{ width: '10px', height: '10px', backgroundColor: '#f43f5e', display: 'inline-block' }}></span> Pending Due</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StatCard({ title, value, color }) {
+  return (
+    <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+      <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 'bold', letterSpacing: '0.5px', marginBottom: '8px' }}>{title}</div>
+      <div style={{ fontSize: '22px', fontWeight: '800', color: color }}>{value}</div>
+    </div>
+  );
+}
+
+// ==========================================
+// 2. INVENTORY VIEW (WITH EDIT & DELETE)
+// ==========================================
+function InventoryView({ products, setProducts }) {
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [newProduct, setNewProduct] = useState({ name: '', category: '', quantity: '', unit: 'Pcs', purchasePrice: '', sellingPrice: '' });
+
+  // Delete Product
+  const handleDelete = (id) => {
+    if (window.confirm("के तपाईं यो Product हटाउन चाहनुहुन्छ?")) {
+      setProducts(products.filter(p => p.id !== id));
+    }
+  };
+
+  // Save Edit Product
+  const handleUpdateProduct = (e) => {
+    e.preventDefault();
+    setProducts(products.map(p => p.id === editingProduct.id ? editingProduct : p));
+    setEditingProduct(null);
+  };
+
+  // Add Product
+  const handleAddProduct = (e) => {
+    e.preventDefault();
+    if (!newProduct.name) return;
+    setProducts([...products, { ...newProduct, id: Date.now(), quantity: Number(newProduct.quantity) }]);
+    setNewProduct({ name: '', category: '', quantity: '', unit: 'Pcs', purchasePrice: '', sellingPrice: '' });
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      
+      {/* Add New Product Form */}
+      <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+        <h3 style={{ margin: '0 0 15px 0', fontSize: '16px', color: '#0f172a' }}>➕ Add New Item to Inventory</h3>
+        <form onSubmit={handleAddProduct} style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr) 100px', gap: '10px' }}>
+          <input type="text" placeholder="Product Name (e.g. Canvas Roll)" value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} style={inputStyle} required />
+          <input type="text" placeholder="Category" value={newProduct.category} onChange={e => setNewProduct({...newProduct, category: e.target.value})} style={inputStyle} />
+          <input type="number" placeholder="Quantity (e.g. 80)" value={newProduct.quantity} onChange={e => setNewProduct({...newProduct, quantity: e.target.value})} style={inputStyle} required />
+          <button type="submit" style={{ backgroundColor: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>Add</button>
+        </form>
+      </div>
+
+      {/* Inventory Table */}
+      <div style={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+          <thead>
+            <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569' }}>
+              <th style={{ padding: '12px 16px' }}>Product Name</th>
+              <th style={{ padding: '12px 16px' }}>Category</th>
+              <th style={{ padding: '12px 16px' }}>Stock Quantity</th>
+              <th style={{ padding: '12px 16px' }}>Selling Price</th>
+              <th style={{ padding: '12px 16px', textAlign: 'center' }}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.map(p => (
+              <tr key={p.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                <td style={{ padding: '12px 16px', fontWeight: '600', color: '#0f172a' }}>{p.name}</td>
+                <td style={{ padding: '12px 16px', color: '#64748b' }}>{p.category || '-'}</td>
+                <td style={{ padding: '12px 16px', fontWeight: 'bold', color: p.quantity > 10 ? '#16a34a' : '#dc2626' }}>
+                  {p.quantity} {p.unit}
+                </td>
+                <td style={{ padding: '12px 16px' }}>रु {p.sellingPrice || 0}</td>
+                <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                  <button onClick={() => setEditingProduct(p)} style={{ backgroundColor: '#f59e0b', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', marginRight: '8px', fontSize: '12px', fontWeight: 'bold' }}>✏️ Edit</button>
+                  <button onClick={() => handleDelete(p.id)} style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>🗑️ Delete</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* EDIT MODAL */}
+      {editingProduct && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '12px', width: '400px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
+            <h3 style={{ margin: '0 0 15px 0' }}>Edit Inventory Item</h3>
+            <form onSubmit={handleUpdateProduct} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div>
+                <label style={{ fontSize: '12px', fontWeight: 'bold' }}>Product Name:</label>
+                <input type="text" value={editingProduct.name} onChange={e => setEditingProduct({...editingProduct, name: e.target.value})} style={inputStyle} required />
+              </div>
+              <div>
+                <label style={{ fontSize: '12px', fontWeight: 'bold' }}>Quantity:</label>
+                <input type="number" value={editingProduct.quantity} onChange={e => setEditingProduct({...editingProduct, quantity: Number(e.target.value)})} style={inputStyle} required />
+              </div>
+              <div>
+                <label style={{ fontSize: '12px', fontWeight: 'bold' }}>Category:</label>
+                <input type="text" value={editingProduct.category} onChange={e => setEditingProduct({...editingProduct, category: e.target.value})} style={inputStyle} />
+              </div>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <button type="submit" style={{ flex: 1, padding: '10px', backgroundColor: '#16a34a', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>Update Item</button>
+                <button type="button" onClick={() => setEditingProduct(null)} style={{ flex: 1, padding: '10px', backgroundColor: '#64748b', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}
+
+// ==========================================
+// 3. SERIAL CUSTOMER LEDGER (IMAGE SHARE)
+// ==========================================
+function LedgerView({ customers, ledgers }) {
+  const [selectedCustId, setSelectedCustId] = useState(101);
+  const canvasRef = useRef(null);
+
+  const activeCustomer = customers.find(c => c.id === selectedCustId);
+  const customerLedgers = ledgers.filter(l => l.customerId === selectedCustId);
+
+  // Generate Image Canvas & Download / Share
+  const generateLedgerImage = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+
+    // Canvas Dimensions
+    canvas.width = 700;
+    canvas.height = 450 + (customerLedgers.length * 40);
+
+    // Background
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Header Background
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(0, 0, canvas.width, 90);
+
+    // Header Text
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 22px Inter, sans-serif';
+    ctx.fillText('LEDGER STATEMENT', 30, 40);
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = '14px Inter, sans-serif';
+    ctx.fillText(`Customer: ${activeCustomer?.name} (${activeCustomer?.phone})`, 30, 68);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '12px Inter, sans-serif';
+    ctx.fillText(`Date: 26 Jul 2026`, 550, 40);
+
+    // Table Header
+    ctx.fillStyle = '#f1f5f9';
+    ctx.fillRect(20, 110, 660, 35);
+
+    ctx.fillStyle = '#334155';
+    ctx.font = 'bold 12px Inter, sans-serif';
+    ctx.fillText('S.N.', 30, 132);
+    ctx.fillText('Date', 80, 132);
+    ctx.fillText('Transaction Details', 180, 132);
+    ctx.fillText('Amount', 420, 132);
+    ctx.fillText('Paid', 510, 132);
+    ctx.fillText('Balance', 600, 132);
+
+    // Table Rows
+    let y = 170;
+    let totalBal = 0;
+
+    customerLedgers.forEach((row, index) => {
+      ctx.fillStyle = '#0f172a';
+      ctx.font = '13px Inter, sans-serif';
+
+      ctx.fillText(`${index + 1}`, 30, y);
+      ctx.fillText(`${row.date}`, 80, y);
+      ctx.fillText(`${row.details}`, 180, y);
+      ctx.fillText(`Rs. ${row.amount}`, 420, y);
+      ctx.fillText(`Rs. ${row.paid}`, 510, y);
+      
+      ctx.fillStyle = '#dc2626';
+      ctx.font = 'bold 13px Inter, sans-serif';
+      ctx.fillText(`Rs. ${row.balance}`, 600, y);
+
+      totalBal = row.balance;
+
+      // Divider line
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.beginPath();
+      ctx.moveTo(20, y + 12);
+      ctx.lineTo(680, y + 12);
+      ctx.stroke();
+
+      y += 40;
+    });
+
+    // Total Footer Box
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(20, y + 10, 660, 50);
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.strokeRect(20, y + 10, 660, 50);
+
+    ctx.fillStyle = '#0f172a';
+    ctx.font = 'bold 15px Inter, sans-serif';
+    ctx.fillText('TOTAL REMAINING BALANCE:', 40, y + 40);
+
+    ctx.fillStyle = '#dc2626';
+    ctx.font = 'bold 18px Inter, sans-serif';
+    ctx.fillText(`रु ${totalBal.toLocaleString()}`, 480, y + 40);
+
+    return canvas.toDataURL('image/png');
+  };
+
+  // Download Image
+  const handleDownloadImage = () => {
+    const image = generateLedgerImage();
+    const link = document.createElement('a');
+    link.href = image;
+    link.download = `Ledger_${activeCustomer?.name}.png`;
+    link.click();
+  };
+
+  // WhatsApp Share Image Link Instructions
+  const handleWhatsAppShare = () => {
+    handleDownloadImage();
+    const message = `नमस्ते ${activeCustomer?.name} जी, तपाइको Ledger Statement को फोटो Download भएको छ। कृपया WhatsApp Chat मा अट्याच गरी हेर्नुहोला।`;
+    window.open(`https://wa.me/977${activeCustomer?.phone}?text=${encodeURIComponent(message)}`, '_blank');
+  };
+
+  return (
+    <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+      
+      {/* Customer Selector & Share Actions */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <div>
+          <label style={{ fontSize: '13px', fontWeight: 'bold', marginRight: '10px' }}>Select Customer:</label>
+          <select value={selectedCustId} onChange={e => setSelectedCustId(Number(e.target.value))} style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #ccc' }}>
+            {customers.map(c => <option key={c.id} value={c.id}>{c.name} ({c.phone})</option>)}
+          </select>
+        </div>
+
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button onClick={handleDownloadImage} style={{ backgroundColor: '#0284c7', color: '#fff', border: 'none', padding: '10px 16px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+            🖼️ Download Ledger Image
+          </button>
+          <button onClick={handleWhatsAppShare} style={{ backgroundColor: '#16a34a', color: '#fff', border: 'none', padding: '10px 16px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+            📲 Share Image to WhatsApp
+          </button>
+        </div>
+      </div>
+
+      {/* Serial History Table */}
+      <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+        <thead>
+          <tr style={{ backgroundColor: '#0f172a', color: '#fff' }}>
+            <th style={{ padding: '12px' }}>S.N.</th>
+            <th style={{ padding: '12px' }}>Date</th>
+            <th style={{ padding: '12px' }}>Transaction Details</th>
+            <th style={{ padding: '12px' }}>Amount</th>
+            <th style={{ padding: '12px' }}>Paid Amount</th>
+            <th style={{ padding: '12px' }}>Remaining Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          {customerLedgers.map((l, index) => (
+            <tr key={l.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
+              <td style={{ padding: '12px', fontWeight: 'bold' }}>{index + 1}</td>
+              <td style={{ padding: '12px', color: '#64748b' }}>{l.date}</td>
+              <td style={{ padding: '12px', fontWeight: '600' }}>{l.details}</td>
+              <td style={{ padding: '12px' }}>रु {l.amount}</td>
+              <td style={{ padding: '12px', color: '#16a34a', fontWeight: 'bold' }}>रु {l.paid}</td>
+              <td style={{ padding: '12px', color: '#dc2626', fontWeight: 'bold' }}>रु {l.balance}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {/* Hidden Canvas Element for Image Generation */}
+      <canvas ref={canvasRef} style={{ display: 'none' }} />
+
+    </div>
+  );
+}
+
+const inputStyle = {
+  width: '100%',
+  padding: '8px 12px',
+  borderRadius: '6px',
+  border: '1px solid #cbd5e1',
+  boxSizing: 'border-box',
+  fontSize: '14px'
+};
