@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- html2canvas for Ledger Image Share -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -17,26 +19,57 @@
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased">
 
-    <div class="flex h-screen overflow-hidden">
+    <!-- Login Screen (Persistence Check) -->
+    <div id="auth-screen" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-2xl max-w-md w-full p-8 space-y-6 shadow-2xl">
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 bg-indigo-600 text-white rounded-xl mx-auto flex items-center justify-center font-bold text-xl shadow-lg">
+                    <i class="fa-solid fa-cube"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-900">ERP Enterprise Login</h2>
+                <p class="text-xs text-slate-500">Sign in to access your multi-tenant ledger</p>
+            </div>
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Email Address</label>
+                    <input type="email" id="login-email" required class="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" value="admin@erp.com">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Password</label>
+                    <input type="password" id="login-password" required class="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" value="password123">
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-indigo-200">Sign In</button>
+                <button type="button" onclick="handleGoogleLogin()" class="w-full border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold py-2.5 rounded-xl transition flex items-center justify-center gap-3 text-sm">
+                    <i class="fa-brands fa-google text-red-500"></i> Sign in with Google
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application Wrapper -->
+    <div id="app-screen" class="flex h-screen overflow-hidden hidden">
         <!-- Sidebar -->
         <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col transition-all duration-300">
             <div class="h-16 flex items-center px-6 bg-slate-950 text-white font-bold text-lg gap-3">
                 <i class="fa-solid fa-cube text-indigo-500"></i> ERP Enterprise
             </div>
-            <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+            <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto text-sm">
                 <a href="#" onclick="switchTab('dashboard')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg bg-indigo-600 text-white font-medium transition"><i class="fa-solid fa-chart-pie w-5"></i> Dashboard</a>
                 <a href="#" onclick="switchTab('products')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-boxes-stacked w-5"></i> Product & Inventory</a>
                 <a href="#" onclick="switchTab('customers')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-users w-5"></i> Customer Management</a>
                 <a href="#" onclick="switchTab('sales')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-cart-shopping w-5"></i> Sales</a>
                 <a href="#" onclick="switchTab('purchase')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-bag-shopping w-5"></i> Purchase</a>
-                <a href="#" onclick="switchTab('receipts')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-file-invoice-dollar w-5"></i> Receipts</a>
-                <a href="#" onclick="switchTab('payments')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-money-bill-transfer w-5"></i> Payments</a>
-                <a href="#" onclick="switchTab('returns')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-rotate-left w-5"></i> Returns</a>
-                <a href="#" onclick="switchTab('adjustments')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-sliders w-5"></i> Adjustments</a>
-                <a href="#" onclick="switchTab('wastage')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-triangle-exclamation w-5"></i> Damage/Wastage</a>
-                <a href="#" onclick="switchTab('ledger')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-book-open w-5"></i> Serial Customer Ledgers</a>
-                <a href="#" onclick="switchTab('users')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-user-shield w-5"></i> User Management</a>
+                <a href="#" onclick="switchTab('receipts')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-file-invoice-dollar w-5"></i> Payment Receipt</a>
+                <a href="#" onclick="switchTab('payments')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-money-bill-transfer w-5"></i> Payment Paid</a>
+                <a href="#" onclick="switchTab('returns')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-rotate-left w-5"></i> Return</a>
+                <a href="#" onclick="switchTab('adjustments')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-sliders w-5"></i> Adjustment</a>
+                <a href="#" onclick="switchTab('ledger')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-book-open w-5"></i> Customer Ledger</a>
             </nav>
+            <div class="p-4 bg-slate-950">
+                <button onclick="handleLogout()" class="w-full bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white py-2 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-power-off"></i> Logout Session
+                </button>
+            </div>
         </aside>
 
         <!-- Main Content Area -->
@@ -44,7 +77,6 @@
             <!-- Top Header -->
             <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 shadow-sm">
                 <div class="flex items-center gap-4">
-                    <button class="text-slate-500 hover:text-slate-700"><i class="fa-solid fa-bars text-lg"></i></button>
                     <span class="text-sm font-semibold text-slate-600 uppercase tracking-wider" id="current-section-title">Dashboard</span>
                 </div>
                 <div class="flex items-center gap-4">
@@ -54,9 +86,9 @@
             </header>
 
             <!-- Dynamic View Containers -->
-            <main class="flex-1 overflow-y-auto p-6">
+            <main class="flex-1 overflow-y-auto p-6 space-y-6">
 
-                <!-- Dashboard Tab -->
+                <!-- 1. Dashboard Tab -->
                 <div id="tab-dashboard" class="tab-content space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
@@ -64,130 +96,153 @@
                             <h3 class="text-2xl font-bold text-slate-900 mt-2">रु. 45,000</h3>
                         </div>
                         <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                            <p class="text-sm font-medium text-slate-500">Total Collections</p>
-                            <h3 class="text-2xl font-bold text-slate-900 mt-2">रु. 25,000</h3>
+                            <p class="text-sm font-medium text-slate-500">Collected Amount</p>
+                            <h3 class="text-2xl font-bold text-emerald-600 mt-2" id="dash-collected">रु. 5,000</h3>
                         </div>
                         <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                            <p class="text-sm font-medium text-slate-500">Outstanding Receivables</p>
+                            <p class="text-sm font-medium text-slate-500">Outstanding Balance</p>
                             <h3 class="text-2xl font-bold text-indigo-600 mt-2" id="dash-outstanding">रु. 15,000</h3>
                         </div>
                         <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                            <p class="text-sm font-medium text-slate-500">Low Stock Items</p>
-                            <h3 class="text-2xl font-bold text-red-600 mt-2">3</h3>
+                            <p class="text-sm font-medium text-slate-500">Pending Due</p>
+                            <h3 class="text-2xl font-bold text-red-600 mt-2" id="dash-pending">रु. 15,000</h3>
                         </div>
+                    </div>
+                    <!-- Chart Section -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="text-lg font-bold text-slate-800 mb-4">Sales & Purchase Trend</h3>
+                        <div style="height: 280px;"><canvas id="trendChart"></canvas></div>
                     </div>
                 </div>
 
-                <!-- Products Tab -->
+                <!-- 2. Product & Inventory Tab -->
                 <div id="tab-products" class="tab-content hidden space-y-6">
-                    <h2 class="text-xl font-bold text-slate-800">Product & Inventory Management</h2>
-                    <p class="text-sm text-slate-500">Manage products, pricing, and stock levels.</p>
-                </div>
-
-                <!-- Customers Tab -->
-                <div id="tab-customers" class="tab-content hidden space-y-6">
                     <div class="flex justify-between items-center">
-                        <h2 class="text-xl font-bold text-slate-800">Customer Management</h2>
-                        <button onclick="openCustomerModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm"><i class="fa-solid fa-plus mr-2"></i> Add Customer</button>
+                        <h2 class="text-xl font-bold text-slate-800">Product & Inventory Management</h2>
+                        <button onclick="openModal('product-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm"><i class="fa-solid fa-plus mr-2"></i> Add Inventory</button>
                     </div>
-                </div>
-
-                <!-- Sales Tab -->
-                <div id="tab-sales" class="tab-content hidden space-y-6">
-                    <h2 class="text-xl font-bold text-slate-800">Sales Invoices</h2>
-                    <p class="text-sm text-slate-500">Record and review sales transactions.</p>
-                </div>
-
-                <!-- Purchase Tab -->
-                <div id="tab-purchase" class="tab-content hidden space-y-6">
-                    <h2 class="text-xl font-bold text-slate-800">Purchase Management</h2>
-                </div>
-
-                <!-- Receipts Tab -->
-                <div id="tab-receipts" class="tab-content hidden space-y-6">
-                    <h2 class="text-xl font-bold text-slate-800">Payment Receipts (Collections)</h2>
-                    <p class="text-sm text-slate-500">Record incoming payments from customers (Cash, FonePay, Bank Transfer).</p>
-                </div>
-
-                <!-- Payments Tab -->
-                <div id="tab-payments" class="tab-content hidden space-y-6">
-                    <h2 class="text-xl font-bold text-slate-800">Payments Out</h2>
-                </div>
-
-                <!-- Returns Tab -->
-                <div id="tab-returns" class="tab-content hidden space-y-6">
-                    <h2 class="text-xl font-bold text-slate-800">Returns Management</h2>
-                </div>
-
-                <!-- Adjustments Tab -->
-                <div id="tab-adjustments" class="tab-content hidden space-y-6">
-                    <h2 class="text-xl font-bold text-slate-800">Stock Adjustments</h2>
-                </div>
-
-                <!-- Damage/Wastage Tab -->
-                <div id="tab-wastage" class="tab-content hidden space-y-6">
-                    <h2 class="text-xl font-bold text-slate-800">Damage & Wastage</h2>
-                </div>
-
-                <!-- Serial Customer Ledgers Tab (Statement Section) -->
-                <div id="tab-ledger" class="tab-content hidden space-y-6">
-                    <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                        <div>
-                            <h2 class="text-lg font-bold text-slate-800">Customer Ledger / Statement</h2>
-                            <p class="text-sm text-slate-500">Customer: <span class="font-semibold text-slate-700">सुदिल जोशी (Sudil Joshi)</span></p>
-                        </div>
-                        <div class="flex gap-3">
-                            <button onclick="addSampleSale()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-semibold transition"><i class="fa-solid fa-plus mr-1"></i> Add Sales (रु. 20,000)</button>
-                            <button onclick="openPaymentModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg text-xs font-semibold transition"><i class="fa-solid fa-money-bill-wave mr-1"></i> Add Payment Receipt</button>
-                        </div>
-                    </div>
-
-                    <!-- Ledger Table Statement -->
-                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                    <th class="py-3 px-4">Serial No</th>
-                                    <th class="py-3 px-4">Date</th>
-                                    <th class="py-3 px-4">Transaction Type</th>
-                                    <th class="py-3 px-4">Product Details</th>
-                                    <th class="py-3 px-4 text-right">Debit (Sales)</th>
-                                    <th class="py-3 px-4 text-right">Credit / Payment Received</th>
-                                    <th class="py-3 px-4 text-right font-bold text-indigo-700">Running Balance</th>
-                                </tr>
+                    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 border-b border-slate-200 text-xs text-slate-600 uppercase">
+                                <tr><th class="py-3 px-4">Item Name</th><th class="py-3 px-4">Category</th><th class="py-3 px-4">Stock</th><th class="py-3 px-4">Price</th><th class="py-3 px-4 text-right">Actions</th></tr>
                             </thead>
-                            <tbody id="ledger-table-body" class="divide-y divide-slate-100 text-sm">
-                                <!-- Dynamic rows populated via JS -->
+                            <tbody id="inventory-table" class="divide-y divide-slate-100">
+                                <tr><td class="py-3 px-4 font-medium">General Goods / Electronics</td><td class="py-3 px-4">Retail</td><td class="py-3 px-4">50 pcs</td><td class="py-3 px-4">रु. 400</td><td class="py-3 px-4 text-right"><button class="text-blue-600 hover:underline mr-2">Edit</button><button class="text-red-600 hover:underline">Delete</button></td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Users Tab -->
-                <div id="tab-users" class="tab-content hidden space-y-6">
-                    <h2 class="text-xl font-bold text-slate-800">User Management & Permissions</h2>
+                <!-- 3. Customer Management Tab -->
+                <div id="tab-customers" class="tab-content hidden space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-bold text-slate-800">Customer Management</h2>
+                        <button onclick="openModal('customer-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm"><i class="fa-solid fa-plus mr-2"></i> Add Customer</button>
+                    </div>
+                    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 border-b border-slate-200 text-xs text-slate-600 uppercase">
+                                <tr><th class="py-3 px-4">Customer Name</th><th class="py-3 px-4">Phone</th><th class="py-3 px-4">Address</th><th class="py-3 px-4 text-right">Actions</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="py-3 px-4 font-medium">सुदिल जोशी (Sudil Joshi)</td><td class="py-3 px-4">9841000000</td><td class="py-3 px-4">Kathmandu</td><td class="py-3 px-4 text-right"><button class="text-blue-600 hover:underline mr-2">Edit</button><button class="text-red-600 hover:underline">Delete</button></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 4. Sales Tab -->
+                <div id="tab-sales" class="tab-content hidden space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-bold text-slate-800">Sales Invoices</h2>
+                        <button onclick="addSampleSale()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm"><i class="fa-solid fa-plus mr-2"></i> New Sales Entry (रु. 20,000)</button>
+                    </div>
+                    <p class="text-sm text-slate-500">All credit sales automatically populate customer ledgers and update outstanding totals.</p>
+                </div>
+
+                <!-- 5. Purchase Tab -->
+                <div id="tab-purchase" class="tab-content hidden space-y-6">
+                    <h2 class="text-xl font-bold text-slate-800">Purchase Management</h2>
+                    <p class="text-sm text-slate-500">Add, Edit, and Delete Purchase orders seamlessly.</p>
+                </div>
+
+                <!-- 6. Payment Receipt Tab -->
+                <div id="tab-receipts" class="tab-content hidden space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-bold text-slate-800">Payment Receipts (Collections)</h2>
+                        <button onclick="openModal('payment-modal')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm"><i class="fa-solid fa-money-bill-wave mr-2"></i> Record Payment Receipt</button>
+                    </div>
+                    <p class="text-sm text-slate-500">Record payments (Cash, FonePay, Bank) to instantly update customer running balances.</p>
+                </div>
+
+                <!-- 7. Payment Paid Tab -->
+                <div id="tab-payments" class="tab-content hidden space-y-6">
+                    <h2 class="text-xl font-bold text-slate-800">Payment Paid (Outbound)</h2>
+                    <p class="text-sm text-slate-500">Manage supplier payments and vendor expenses.</p>
+                </div>
+
+                <!-- 8. Return Tab -->
+                <div id="tab-returns" class="tab-content hidden space-y-6">
+                    <h2 class="text-xl font-bold text-slate-800">Return Management</h2>
+                    <p class="text-sm text-slate-500">Process sales returns and purchase returns accurately.</p>
+                </div>
+
+                <!-- 9. Adjustment Tab -->
+                <div id="tab-adjustments" class="tab-content hidden space-y-6">
+                    <h2 class="text-xl font-bold text-slate-800">Stock & Account Adjustments</h2>
+                    <p class="text-sm text-slate-500">Reconcile inventory variances and ledger discrepancies.</p>
+                </div>
+
+                <!-- 10. Customer Ledger Tab (Statement & Share Option) -->
+                <div id="tab-ledger" class="tab-content space-y-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm gap-4">
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-800">Customer Ledger / Statement</h2>
+                            <p class="text-sm text-slate-500">Customer: <span class="font-semibold text-slate-700">सुदिल जोशी (Sudil Joshi)</span></p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="shareLedger('whatsapp')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1.5"><i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp</button>
+                            <button onclick="shareLedger('messenger')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1.5"><i class="fa-brands fa-facebook-messenger text-sm"></i> Messenger</button>
+                            <button onclick="shareLedger('email')" class="bg-slate-700 hover:bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1.5"><i class="fa-solid fa-envelope text-sm"></i> Email</button>
+                        </div>
+                    </div>
+
+                    <!-- Printable/Captureable Ledger Card -->
+                    <div id="ledger-printable-area" class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden p-6 space-y-4">
+                        <div class="flex justify-between border-b pb-4">
+                            <div>
+                                <h3 class="font-bold text-slate-900">ACME CORP ENTERPRISE</h3>
+                                <p class="text-xs text-slate-500">Official Account Statement</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs font-semibold text-slate-700">Customer: सुदिल जोशी</p>
+                                <p class="text-xs text-slate-500">Date: 26 July 2026</p>
+                            </div>
+                        </div>
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase">
+                                    <th class="py-3 px-4">S.No</th>
+                                    <th class="py-3 px-4">Date</th>
+                                    <th class="py-3 px-4">Transaction Type</th>
+                                    <th class="py-3 px-4">Details</th>
+                                    <th class="py-3 px-4 text-right">Debit (रु.)</th>
+                                    <th class="py-3 px-4 text-right">Credit / Payment (रु.)</th>
+                                    <th class="py-3 px-4 text-right font-bold text-indigo-700">Running Balance (रु.)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ledger-table-body" class="divide-y divide-slate-100">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
             </main>
         </div>
     </div>
 
-    <!-- Add Customer Modal Example -->
-    <div id="customer-modal" class="fixed inset-0 bg-slate-900/50 hidden flex items-center justify-center z-50">
-        <div class="bg-white rounded-xl max-w-md w-full p-6 space-y-4 shadow-xl">
-            <h3 class="text-lg font-bold text-slate-800">Add New Customer</h3>
-            <div>
-                <label class="block text-xs font-medium text-slate-600 mb-1">Customer Name</label>
-                <input type="text" id="cust-name" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="e.g. Sudil Joshi">
-            </div>
-            <div class="flex justify-end gap-3 pt-3">
-                <button onclick="closeCustomerModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50">Cancel</button>
-                <button onclick="closeCustomerModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium">Save</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Payment Receipt Modal -->
+    <!-- Universal Modals -->
     <div id="payment-modal" class="fixed inset-0 bg-slate-900/50 hidden flex items-center justify-center z-50">
         <div class="bg-white rounded-xl max-w-md w-full p-6 space-y-4 shadow-xl">
             <h3 class="text-lg font-bold text-slate-800">Add Payment Receipt</h3>
@@ -205,51 +260,79 @@
             </div>
             <div>
                 <label class="block text-xs font-medium text-slate-600 mb-1">Amount Received (रु.)</label>
-                <input type="number" id="pay-amount" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none" placeholder="e.g. 5000" value="5000">
+                <input type="number" id="pay-amount" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none" value="5000">
             </div>
             <div class="flex justify-end gap-3 pt-3">
-                <button onclick="closePaymentModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50">Cancel</button>
+                <button onclick="closeModal('payment-modal')" class="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700">Cancel</button>
                 <button onclick="savePaymentReceipt()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium">Save Receipt</button>
             </div>
         </div>
     </div>
 
-    <!-- Script / Logic for Running Ledger Calculations -->
+    <div id="product-modal" class="fixed inset-0 bg-slate-900/50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 space-y-4 shadow-xl">
+            <h3 class="text-lg font-bold text-slate-800">Add Inventory Item</h3>
+            <div><label class="block text-xs font-medium text-slate-600 mb-1">Item Name</label><input type="text" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="Product name"></div>
+            <div class="flex justify-end gap-3 pt-3"><button onclick="closeModal('product-modal')" class="px-4 py-2 border border-slate-300 rounded-lg text-sm">Cancel</button><button onclick="closeModal('product-modal')" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm">Save</button></div>
+        </div>
+    </div>
+
+    <div id="customer-modal" class="fixed inset-0 bg-slate-900/50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 space-y-4 shadow-xl">
+            <h3 class="text-lg font-bold text-slate-800">Add New Customer</h3>
+            <div><label class="block text-xs font-medium text-slate-600 mb-1">Customer Name</label><input type="text" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="e.g. Sudil Joshi"></div>
+            <div class="flex justify-end gap-3 pt-3"><button onclick="closeModal('customer-modal')" class="px-4 py-2 border border-slate-300 rounded-lg text-sm">Cancel</button><button onclick="closeModal('customer-modal')" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm">Save</button></div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
     <script>
-        // Initial Ledger Data matching Sudil Joshi's statement context
         let ledgerData = [
-            {
-                serialNo: 1,
-                date: "26 July 2026",
-                type: "Sales Invoice (Credit)",
-                details: "General Goods / Electronics",
-                debit: 20000,
-                credit: 0
-            },
-            {
-                serialNo: 2,
-                date: "26 July 2026",
-                type: "Payment Received (FonePay)",
-                details: "QR Settlement via FonePay",
-                debit: 0,
-                credit: 5000
-            }
+            { serialNo: 1, date: "26 July 2026", type: "Sales Invoice (Credit)", details: "General Goods", debit: 20000, credit: 0 },
+            { serialNo: 2, date: "26 July 2026", type: "Payment Received (FonePay)", details: "QR Settlement", debit: 0, credit: 5000 }
         ];
 
-        // Render Ledger Table with automated running calculations
+        // Session & Login Handling
+        function handleLogin(e) {
+            e.preventDefault();
+            localStorage.setItem('erp_logged_in', 'true');
+            checkSession();
+        }
+        function handleGoogleLogin() {
+            localStorage.setItem('erp_logged_in', 'true');
+            checkSession();
+        }
+        function handleLogout() {
+            localStorage.removeItem('erp_logged_in');
+            checkSession();
+        }
+        function checkSession() {
+            const isLoggedIn = localStorage.getItem('erp_logged_in');
+            if (isLoggedIn === 'true') {
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('app-screen').classList.remove('hidden');
+                initChart();
+                renderLedger();
+            } else {
+                document.getElementById('auth-screen').classList.remove('hidden');
+                document.getElementById('app-screen').classList.add('hidden');
+            }
+        }
+
+        // Ledger & Outstanding Balance Calculation
         function renderLedger() {
             const tbody = document.getElementById('ledger-table-body');
             tbody.innerHTML = '';
-            
             let runningBalance = 0;
+            let totalCollected = 0;
 
             ledgerData.forEach((item, index) => {
                 item.serialNo = index + 1;
-                // Running Balance Formula: Previous Outstanding + Debit - Credit
                 runningBalance = runningBalance + item.debit - item.credit;
+                if(item.credit > 0) totalCollected += item.credit;
 
                 const row = document.createElement('tr');
-                row.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                row.className = "hover:bg-slate-50 transition border-b border-slate-100 text-sm";
                 row.innerHTML = `
                     <td class="py-3 px-4 font-medium text-slate-600">${item.serialNo}</td>
                     <td class="py-3 px-4 text-slate-600">${item.date}</td>
@@ -262,89 +345,87 @@
                 tbody.appendChild(row);
             });
 
-            // Update Dashboard Outstanding label dynamically
-            const dashOut = document.getElementById('dash-outstanding');
-            if(dashOut) {
-                dashOut.innerText = 'रु. ' + runningBalance.toLocaleString();
-            }
+            // Update Dashboard cards
+            if(document.getElementById('dash-outstanding')) document.getElementById('dash-outstanding').innerText = 'रु. ' + runningBalance.toLocaleString();
+            if(document.getElementById('dash-pending')) document.getElementById('dash-pending').innerText = 'रु. ' + runningBalance.toLocaleString();
+            if(document.getElementById('dash-collected')) document.getElementById('dash-collected').innerText = 'रु. ' + totalCollected.toLocaleString();
         }
 
-        // Add Sample Sale (e.g. 20,000)
         function addSampleSale() {
-            ledgerData.push({
-                serialNo: ledgerData.length + 1,
-                date: "26 July 2026",
-                type: "Sales Invoice (Credit)",
-                details: "Additional Goods Purchase",
-                debit: 20000,
-                credit: 0
-            });
+            ledgerData.push({ serialNo: ledgerData.length + 1, date: "26 July 2026", type: "Sales Invoice (Credit)", details: "Additional Inventory Sale", debit: 20000, credit: 0 });
             renderLedger();
+            alert("New Sales Entry Added Successfully!");
         }
 
-        // Save Payment Receipt from Modal input
         function savePaymentReceipt() {
             const dateInput = document.getElementById('pay-date').value || "26 July 2026";
             const modeInput = document.getElementById('pay-mode').value;
             const amountInput = parseFloat(document.getElementById('pay-amount').value) || 0;
 
-            if (amountInput <= 0) {
-                alert("कृपया सही रकम राख्नुहोस्।");
-                return;
-            }
+            if (amountInput <= 0) { alert("कृपया सही रकम राख्नुहोस्।"); return; }
 
-            ledgerData.push({
-                serialNo: ledgerData.length + 1,
-                date: dateInput,
-                type: `Payment Received (${modeInput})`,
-                details: `Direct settlement via ${modeInput}`,
-                debit: 0,
-                credit: amountInput
-            });
-
+            ledgerData.push({ serialNo: ledgerData.length + 1, date: dateInput, type: `Payment Received (${modeInput})`, details: `Settlement via ${modeInput}`, debit: 0, credit: amountInput });
             renderLedger();
-            closePaymentModal();
+            closeModal('payment-modal');
+            alert("Payment Receipt Saved & Balance Updated Successfully!");
         }
 
-        // Tab Switching Mechanism
+        // Sharing Function (WhatsApp, Messenger, Email with Image formatting)
+        function shareLedger(platform) {
+            const element = document.getElementById('ledger-printable-area');
+            html2canvas(element).then(canvas => {
+                const imageURL = canvas.toDataURL('image/png');
+                let summaryText = `*ACME CORP - Customer Statement*\nCustomer: सुदिल जोशी\nOutstanding Balance: ${document.getElementById('dash-outstanding').innerText}\n\n`;
+
+                if (platform === 'whatsapp') {
+                    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(summaryText + "Please find attached statement snapshot.")}`;
+                    window.open(url, '_blank');
+                } else if (platform === 'messenger') {
+                    window.open(`https://www.facebook.com/dialog/send?link=${encodeURIComponent(window.location.href)}&app_id=291494419107518&redirect_uri=${encodeURIComponent(window.location.href)}`, '_blank');
+                } else if (platform === 'email') {
+                    window.open(`mailto:?subject=Ledger Statement - Sudil Joshi&body=${encodeURIComponent(summaryText)}`);
+                }
+            });
+        }
+
+        // Tab Navigation & Modals
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById('tab-' + tabId).classList.remove('hidden');
-
             document.querySelectorAll('.nav-link').forEach(el => {
                 el.classList.remove('bg-indigo-600', 'text-white');
                 el.classList.add('hover:bg-slate-800', 'hover:text-white');
             });
             event.currentTarget.classList.add('bg-indigo-600', 'text-white');
             event.currentTarget.classList.remove('hover:bg-slate-800', 'hover:text-white');
-
-            const titles = {
-                'dashboard': 'Dashboard',
-                'products': 'Product & Inventory',
-                'customers': 'Customer Management',
-                'sales': 'Sales Invoices',
-                'purchase': 'Purchase Management',
-                'receipts': 'Payment Receipts',
-                'payments': 'Payments Out',
-                'returns': 'Returns Management',
-                'adjustments': 'Stock Adjustments',
-                'wastage': 'Damage & Wastage',
-                'ledger': 'Serial Customer Ledgers / Statement',
-                'users': 'User Management'
-            };
+            
+            const titles = { 'dashboard': 'Dashboard', 'products': 'Product & Inventory', 'customers': 'Customer Management', 'sales': 'Sales Invoices', 'purchase': 'Purchase Management', 'receipts': 'Payment Receipts', 'payments': 'Payment Paid', 'returns': 'Return Management', 'adjustments': 'Adjustment Module', 'ledger': 'Customer Ledger Statement' };
             document.getElementById('current-section-title').innerText = titles[tabId] || 'Dashboard';
         }
 
-        // Modals control
-        function openCustomerModal() { document.getElementById('customer-modal').classList.remove('hidden'); }
-        function closeCustomerModal() { document.getElementById('customer-modal').classList.add('hidden'); }
-        
-        function openPaymentModal() { document.getElementById('payment-modal').classList.remove('hidden'); }
-        function closePaymentModal() { document.getElementById('payment-modal').classList.add('hidden'); }
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-        // Initial trigger on load
+        // Chart Initialization
+        function initChart() {
+            const ctx = document.getElementById('trendChart');
+            if(ctx && !ctx.chart) {
+                ctx.chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [
+                            { label: 'Sales', data: [12000, 19000, 30000, 50000, 20000, 30000, 45000], backgroundColor: '#4f46e5', borderRadius: 4 },
+                            { label: 'Purchase', data: [10000, 15000, 20000, 35000, 15000, 25000, 30000], backgroundColor: '#cbd5e1', borderRadius: 4 }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+        }
+
         window.onload = function() {
-            renderLedger();
+            checkSession();
         };
     </script>
 </body>
