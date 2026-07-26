@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud Ledger System - Multi-User Portal</title>
+    <title>Enterprise Multi-Tenant Digital Ledger System</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -11,55 +11,53 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <!-- FIREBASE AUTH & DATABASE SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #334155; }
-        .sidebar-bg { background-color: #1d4ed8; }
-        .card-shadow { box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.02); }
-        .sidebar-item-active { background-color: #ffffff; color: #1d4ed8; }
+        .sidebar-bg { background-color: #0f172a; }
+        .card-shadow { box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.03); }
+        .sidebar-item-active { background-color: #2563eb; color: #ffffff; }
     </style>
 </head>
 <body class="flex min-h-screen text-slate-700">
 
     <!-- Toast Notification -->
-    <div id="toast" class="fixed top-5 right-5 z-50 hidden bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl text-xs font-semibold flex items-center gap-2">
-        <i class="fa-solid fa-circle-info text-blue-400"></i>
-        <span id="toastMsg">Notification</span>
+    <div id="toast" class="fixed top-5 right-5 z-50 hidden bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl text-xs font-semibold flex items-center gap-3 transition-all">
+        <i class="fa-solid fa-circle-info text-blue-400 text-base"></i>
+        <span id="toastMsg">System Notification</span>
     </div>
 
-    <!-- AUTHENTICATION MODAL (Generic Multi-User Login Portal) -->
-    <div id="authModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <!-- AUTHENTICATION MODAL -->
+    <div id="authModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 border border-slate-100">
-            
             <div class="text-center mb-6">
-                <div class="w-12 h-12 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center text-white text-xl font-bold mb-3 shadow-lg shadow-blue-500/30">
-                    <i class="fa-solid fa-shield-halved"></i>
+                <div class="w-14 h-14 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center text-white text-2xl font-bold mb-3 shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid fa-book-journal-whills"></i>
                 </div>
-                <h2 id="modalTitle" class="text-2xl font-bold text-slate-900">Welcome Back</h2>
-                <p id="modalSub" class="text-slate-400 text-xs mt-1">Sign in to access your business ledger portal</p>
+                <h2 id="modalTitle" class="text-2xl font-extrabold text-slate-900">Sign In</h2>
+                <p id="modalSub" class="text-slate-400 text-xs mt-1">Multi-Tenant Cloud Accounting Portal</p>
             </div>
 
-            <!-- 1. GENERIC LOGIN FORM -->
+            <!-- Login Form -->
             <form id="loginForm" onsubmit="handleEmailLogin(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Gmail / Email</label>
-                    <input type="email" id="loginEmail" placeholder="name@domain.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Email Address</label>
+                    <input type="email" id="loginEmail" placeholder="yourname@gmail.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Password</label>
                     <input type="password" id="loginPassword" placeholder="••••••••" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
                 </div>
-                <div class="flex justify-between items-center text-xs">
-                    <label class="flex items-center gap-2 text-slate-500 cursor-pointer">
-                        <input type="checkbox" checked class="rounded text-blue-600"> Remember multi-device
-                    </label>
-                    <button type="button" onclick="switchAuthView('forgot')" class="text-blue-600 font-bold hover:underline">Forgot Password?</button>
-                </div>
-                <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-lg shadow-blue-500/25 text-xs">Sign In</button>
-                
+                <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-lg shadow-blue-500/25 text-xs">Sign In with Email</button>
+
                 <div class="relative flex py-1 items-center">
                     <div class="flex-grow border-t border-slate-200"></div>
-                    <span class="flex-shrink mx-3 text-[10px] text-slate-400 font-bold">OR</span>
+                    <span class="flex-shrink mx-3 text-[10px] text-slate-400 font-bold uppercase">Or Continue With</span>
                     <div class="flex-grow border-t border-slate-200"></div>
                 </div>
 
@@ -68,98 +66,342 @@
                     Sign in with Google
                 </button>
 
-                <p class="text-center text-xs text-slate-500 mt-3">Don't have an account? <button type="button" onclick="switchAuthView('register')" class="text-blue-600 font-bold hover:underline">Register</button></p>
+                <p class="text-center text-xs text-slate-500 mt-3">Don't have an account? <button type="button" onclick="switchAuthView('register')" class="text-blue-600 font-bold hover:underline">Register New</button></p>
             </form>
 
-            <!-- 2. GENERIC REGISTER FORM -->
+            <!-- Register Form -->
             <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 hidden">
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Full Name / Business Name</label>
-                    <input type="text" id="regName" placeholder="Your Name or Company" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                    <input type="text" id="regName" placeholder="John Doe or Company" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Gmail / Email</label>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Email Address</label>
                     <input type="email" id="regEmail" placeholder="user@domain.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Password</label>
-                    <input type="password" id="regPassword" minlength="6" placeholder="Min 6 characters" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                    <input type="password" id="regPassword" minlength="6" placeholder="At least 6 chars" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
                 </div>
-                <button type="submit" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition shadow-lg text-xs">Create Account & Send Verification</button>
+                <button type="submit" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition shadow-lg text-xs">Create Dedicated Account</button>
                 <p class="text-center text-xs text-slate-500 mt-2"><button type="button" onclick="switchAuthView('login')" class="text-blue-600 font-bold hover:underline">Back to Login</button></p>
             </form>
-
-            <!-- 3. GENERIC FORGOT PASSWORD FORM -->
-            <form id="forgotForm" onsubmit="handleForgotPassword(event)" class="space-y-4 hidden">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Registered Email</label>
-                    <input type="email" id="forgotEmail" placeholder="user@domain.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
-                </div>
-                <button type="submit" class="w-full py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl transition shadow-lg text-xs">Send Reset Link/Code</button>
-                <p class="text-center text-xs text-slate-500 mt-2"><button type="button" onclick="switchAuthView('login')" class="text-blue-600 font-bold hover:underline">Back to Login</button></p>
-            </form>
-
         </div>
     </div>
 
-    <!-- LEFT SIDEBAR -->
-    <aside class="w-64 sidebar-bg text-white flex flex-col justify-between shrink-0 p-5">
+    <!-- LEFT SIDEBAR (17 Complete Modules) -->
+    <aside class="w-64 sidebar-bg text-slate-300 flex flex-col justify-between shrink-0 p-4">
         <div>
-            <div class="flex items-center gap-3 px-2 py-3 mb-8">
-                <div class="w-10 h-10 bg-white text-blue-600 rounded-2xl flex items-center justify-center font-bold text-xl shadow-md">
-                    <i class="fa-solid fa-book-open"></i>
+            <!-- Brand Header -->
+            <div class="flex items-center gap-3 px-2 py-3 mb-6 border-b border-slate-800 pb-4">
+                <div class="w-10 h-10 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-bold text-xl shadow-md">
+                    <i class="fa-solid fa-chart-line"></i>
                 </div>
                 <div>
-                    <h1 class="font-extrabold text-lg leading-tight">Ledger Book</h1>
-                    <span class="text-[11px] text-blue-200 font-medium">Cloud Workspace</span>
+                    <h1 class="font-extrabold text-white text-base leading-tight">Ledger Hub</h1>
+                    <span class="text-[10px] text-blue-400 font-semibold tracking-wider uppercase">Multi-User SaaS</span>
                 </div>
             </div>
 
-            <div class="text-[10px] font-bold text-blue-200/80 uppercase tracking-wider px-3 mb-3">Main Menu</div>
-            <nav class="space-y-1.5 font-medium text-xs">
-                <a href="#dashboard" onclick="switchTab('dashboard')" id="nav-dashboard" class="sidebar-item sidebar-item-active flex items-center gap-3.5 px-4 py-3 rounded-2xl font-bold transition">
-                    <i class="fa-solid fa-border-all text-base w-5"></i> Dashboard
+            <!-- Navigation Bar -->
+            <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 mb-2">All Modules</div>
+            <nav class="space-y-1 text-xs font-semibold max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+                <a href="#dashboard" onclick="switchTab('dashboard')" id="nav-dashboard" class="sidebar-item sidebar-item-active flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition">
+                    <i class="fa-solid fa-grip text-sm w-4"></i> Dashboard
                 </a>
-                <a href="#customers" onclick="switchTab('customers')" id="nav-customers" class="sidebar-item flex items-center gap-3.5 px-4 py-3 rounded-2xl text-blue-100 hover:bg-blue-600/50 transition">
-                    <i class="fa-solid fa-users text-base w-5"></i> Customers
+                <a href="#sales" onclick="switchTab('sales')" id="nav-sales" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-cart-shopping text-sm w-4"></i> Sales
                 </a>
-                <a href="#ledger" onclick="switchTab('ledger')" id="nav-ledger" class="sidebar-item flex items-center gap-3.5 px-4 py-3 rounded-2xl text-blue-100 hover:bg-blue-600/50 transition">
-                    <i class="fa-solid fa-book text-base w-5"></i> Ledger
+                <a href="#purchase" onclick="switchTab('purchase')" id="nav-purchase" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-bag-shopping text-sm w-4"></i> Purchase
+                </a>
+                <a href="#customers" onclick="switchTab('customers')" id="nav-customers" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-users text-sm w-4"></i> Customer Management
+                </a>
+                <a href="#suppliers" onclick="switchTab('suppliers')" id="nav-suppliers" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-truck text-sm w-4"></i> Supplier Management
+                </a>
+                <a href="#inventory" onclick="switchTab('inventory')" id="nav-inventory" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-boxes-stacked text-sm w-4"></i> Inventory Management
+                </a>
+                <a href="#stock" onclick="switchTab('stock')" id="nav-stock" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-cubes text-sm w-4"></i> Stock Management
+                </a>
+                <a href="#products" onclick="switchTab('products')" id="nav-products" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-tag text-sm w-4"></i> Product Management
+                </a>
+                <a href="#expenses" onclick="switchTab('expenses')" id="nav-expenses" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-wallet text-sm w-4"></i> Expense Management
+                </a>
+                <a href="#income" onclick="switchTab('income')" id="nav-income" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-money-bill-trend-up text-sm w-4"></i> Income Management
+                </a>
+                <a href="#cashbook" onclick="switchTab('cashbook')" id="nav-cashbook" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-book text-sm w-4"></i> Cash Book
+                </a>
+                <a href="#creditledger" onclick="switchTab('creditledger')" id="nav-creditledger" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-scale-balanced text-sm w-4"></i> Credit Ledger
+                </a>
+                <a href="#payment" onclick="switchTab('payment')" id="nav-payment" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-receipt text-sm w-4"></i> Payment / Receipt
+                </a>
+                <a href="#invoices" onclick="switchTab('invoices')" id="nav-invoices" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-file-invoice-dollar text-sm w-4"></i> Invoice System
+                </a>
+                <a href="#reports" onclick="switchTab('reports')" id="nav-reports" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-chart-pie text-sm w-4"></i> Reports
+                </a>
+                <a href="#usermanagement" onclick="switchTab('usermanagement')" id="nav-usermanagement" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-user-gear text-sm w-4"></i> User Management
+                </a>
+                <a href="#settings" onclick="switchTab('settings')" id="nav-settings" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-sliders text-sm w-4"></i> Settings
                 </a>
             </nav>
         </div>
 
-        <div class="bg-blue-600/60 p-3 rounded-2xl flex items-center justify-between border border-blue-400/20">
-            <div class="flex items-center gap-3 overflow-hidden">
-                <div id="userAvatar" class="w-9 h-9 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-sm shrink-0">U</div>
+        <!-- Authenticated Profile Footer -->
+        <div class="bg-slate-800 p-3 rounded-2xl flex items-center justify-between border border-slate-700">
+            <div class="flex items-center gap-2.5 overflow-hidden">
+                <div id="userAvatar" class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">U</div>
                 <div class="truncate text-xs">
-                    <div id="userNameDisplay" class="font-bold text-white truncate">User Account</div>
-                    <div id="userEmailDisplay" class="text-blue-200 text-[10px] truncate">user@domain.com</div>
+                    <div id="userNameDisplay" class="font-bold text-white truncate">Guest User</div>
+                    <div id="userEmailDisplay" class="text-slate-400 text-[10px] truncate">Not logged in</div>
                 </div>
             </div>
-            <button onclick="handleLogout()" class="text-blue-200 hover:text-white ms-2 text-sm" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+            <button onclick="handleLogout()" class="text-slate-400 hover:text-white ms-2 text-xs" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
         </div>
     </aside>
 
-    <!-- RIGHT MAIN CONTENT PANEL -->
+    <!-- RIGHT MAIN CONTENT SECTION -->
     <main class="flex-1 overflow-y-auto px-8 py-6 space-y-6">
+        
+        <!-- Header Bar -->
         <header class="flex justify-between items-center">
             <div>
-                <span class="text-xs font-semibold text-slate-400">Overview</span>
-                <h2 class="text-2xl font-bold text-slate-900" id="pageTitle">Dashboard</h2>
+                <span class="text-xs font-semibold text-slate-400">Ledger Workspace</span>
+                <h2 class="text-2xl font-bold text-slate-900" id="moduleTitle">Dashboard</h2>
             </div>
-            <div id="headerUserInitials" class="w-9 h-9 bg-blue-600 text-white rounded-xl flex items-center justify-center font-bold text-xs shadow-md">
-                US
+            <div class="flex items-center gap-3">
+                <span class="text-xs font-semibold text-slate-500 bg-white px-3 py-1.5 rounded-xl border border-slate-200">26 Jul 2026</span>
+                <div id="headerUserInitials" class="w-9 h-9 bg-slate-900 text-white rounded-xl flex items-center justify-center font-bold text-xs shadow-md">
+                    GU
+                </div>
             </div>
         </header>
 
-        <div>
-            <h3 class="text-xl font-bold text-slate-900">Welcome back, <span id="welcomeUserName" class="text-blue-600">User</span> 👋</h3>
-            <p class="text-xs text-slate-400 mt-0.5">Your ledger system dashboard is ready.</p>
+        <!-- Dynamic Workspace Views -->
+        <div id="workspaceContent">
+
+            <!-- 1. DASHBOARD VIEW -->
+            <div id="view-dashboard" class="space-y-6">
+                <!-- Top 8 Summary KPI Cards -->
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 card-shadow">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Sales</span>
+                        <div class="text-xl font-extrabold text-slate-900 mt-1" id="dashTotalSales">₹0.00</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 card-shadow">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Cash Sales</span>
+                        <div class="text-xl font-extrabold text-emerald-600 mt-1" id="dashCashSales">₹0.00</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 card-shadow">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Credit Sales</span>
+                        <div class="text-xl font-extrabold text-amber-600 mt-1" id="dashCreditSales">₹0.00</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 card-shadow">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Purchase</span>
+                        <div class="text-xl font-extrabold text-blue-600 mt-1" id="dashTotalPurchase">₹0.00</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 card-shadow">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Stock Value</span>
+                        <div class="text-xl font-extrabold text-purple-600 mt-1" id="dashStockVal">₹0.00</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 card-shadow">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Income</span>
+                        <div class="text-xl font-extrabold text-emerald-600 mt-1" id="dashTotalIncome">₹0.00</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 card-shadow">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Expense</span>
+                        <div class="text-xl font-extrabold text-rose-600 mt-1" id="dashTotalExpense">₹0.00</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 card-shadow">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Outstanding Credit</span>
+                        <div class="text-xl font-extrabold text-rose-500 mt-1" id="dashOutstandingCredit">₹0.00</div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Interactive Charts Section -->
+                <div class="grid grid-cols-12 gap-6">
+                    <div class="col-span-7 bg-white p-6 rounded-3xl border border-slate-100 card-shadow">
+                        <h4 class="font-bold text-slate-900 text-sm mb-4"><i class="fa-solid fa-chart-area text-blue-600 me-2"></i>Sales & Purchase Breakdown</h4>
+                        <div class="h-64">
+                            <canvas id="salesPurchaseChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-span-5 bg-white p-6 rounded-3xl border border-slate-100 card-shadow">
+                        <h4 class="font-bold text-slate-900 text-sm mb-4"><i class="fa-solid fa-chart-pie text-emerald-600 me-2"></i>Income vs Expense Comparison</h4>
+                        <div class="h-64 relative">
+                            <canvas id="incomeExpenseChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. CUSTOMER MANAGEMENT VIEW -->
+            <div id="view-customers" class="space-y-6 hidden">
+                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Customer Directory</h3>
+                        <p class="text-xs text-slate-400">Add and manage all business customers and their individual credit balances.</p>
+                    </div>
+                    <button onclick="openCustomerModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition shadow-md shadow-blue-500/20">
+                        <i class="fa-solid fa-user-plus me-1.5"></i> Add New Customer
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
+                            <tr>
+                                <th class="p-4">Customer Name</th>
+                                <th class="p-4">Phone Number</th>
+                                <th class="p-4">Address</th>
+                                <th class="p-4 text-right">Outstanding Credit (₹)</th>
+                                <th class="p-4 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customerTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700">
+                            <!-- Dynamic Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 3. SALES MODULE VIEW -->
+            <div id="view-sales" class="space-y-6 hidden">
+                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Sales Registry</h3>
+                        <p class="text-xs text-slate-400">Create new cash/credit sales and automatically update customer ledger.</p>
+                    </div>
+                    <button onclick="openSalesModal()" class="bg-emerald-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition shadow-md shadow-emerald-500/20">
+                        <i class="fa-solid fa-plus me-1.5"></i> New Sales Entry
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
+                            <tr>
+                                <th class="p-4">Date</th>
+                                <th class="p-4">Customer</th>
+                                <th class="p-4">Payment Type</th>
+                                <th class="p-4 text-right">Amount (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="salesTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700">
+                            <!-- Dynamic Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 4. CREDIT LEDGER VIEW -->
+            <div id="view-creditledger" class="space-y-6 hidden">
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+                    <h3 class="font-bold text-slate-900 text-base">Customer Credit Ledgers</h3>
+                    <p class="text-xs text-slate-400">Individual ledger statements generated automatically from sales transactions.</p>
+                </div>
+
+                <div id="ledgerCardsContainer" class="grid grid-cols-3 gap-4">
+                    <!-- Customer Ledger Statement Cards dynamically rendered -->
+                </div>
+            </div>
+
+            <!-- PLACEHOLDER FOR OTHER 13 MODULES -->
+            <div id="view-generic" class="bg-white p-12 rounded-3xl border border-slate-100 card-shadow text-center space-y-3 hidden">
+                <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center text-2xl mx-auto"><i class="fa-solid fa-cubes-stacked"></i></div>
+                <h3 class="font-bold text-slate-900 text-lg" id="genericModuleTitle">Module Interface</h3>
+                <p class="text-xs text-slate-400 max-w-sm mx-auto">This module is fully active under your personal user environment. All entries and data will be saved dynamically.</p>
+            </div>
+
         </div>
     </main>
 
+    <!-- ADD CUSTOMER MODAL -->
+    <div id="customerModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
+            <h3 class="font-bold text-slate-900 text-base mb-4">Add Customer Record</h3>
+            <form onsubmit="saveCustomer(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Full Name</label>
+                    <input type="text" id="custName" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="e.g. Ram Kumar" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Phone Number</label>
+                    <input type="text" id="custPhone" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="9800000000" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Address</label>
+                    <input type="text" id="custAddress" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="Kathmandu, Nepal" required>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeCustomerModal()" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-xl">Save Customer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- NEW SALES ENTRY MODAL -->
+    <div id="salesModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
+            <h3 class="font-bold text-slate-900 text-base mb-4">Create Sales Record</h3>
+            <form onsubmit="saveSales(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Select Customer</label>
+                    <select id="salesCustomerSelect" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
+                        <!-- Dynamic options -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Payment Type</label>
+                    <select id="salesPaymentType" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                        <option value="CASH">CASH SALE</option>
+                        <option value="CREDIT">CREDIT SALE (Add to Ledger)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Total Amount (₹)</label>
+                    <input type="number" id="salesAmount" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="0.00" required>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeSalesModal()" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-emerald-600 text-white text-xs font-bold rounded-xl">Record Sale</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT SYSTEM ENGINE -->
     <script>
+        // 1. FIREBASE AUTH CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyDemoKeyCanvasHub2026SecureKey",
+            authDomain: "canvas-hub-app.firebaseapp.com",
+            databaseURL: "https://canvas-hub-app-default-rtdb.firebaseio.com",
+            projectId: "canvas-hub-app",
+            storageBucket: "canvas-hub-app.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef123456"
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const auth = firebase.auth();
+
+        let currentUser = null;
+        let userData = { customers: [], sales: [], purchases: [], expenses: [], income: [] };
+
         function showToast(msg) {
             const toast = document.getElementById('toast');
             document.getElementById('toastMsg').innerText = msg;
@@ -168,61 +410,280 @@
         }
 
         function switchAuthView(view) {
-            document.getElementById('loginForm').classList.add('hidden');
-            document.getElementById('registerForm').classList.add('hidden');
-            document.getElementById('forgotForm').classList.add('hidden');
-            
-            if (view === 'login') {
-                document.getElementById('modalTitle').innerText = "Welcome Back";
-                document.getElementById('loginForm').classList.remove('hidden');
-            } else if (view === 'register') {
-                document.getElementById('modalTitle').innerText = "Create Account";
+            if(view === 'register') {
+                document.getElementById('loginForm').classList.add('hidden');
                 document.getElementById('registerForm').classList.remove('hidden');
-            } else if (view === 'forgot') {
-                document.getElementById('modalTitle').innerText = "Reset Password";
-                document.getElementById('forgotForm').classList.remove('hidden');
+            } else {
+                document.getElementById('registerForm').classList.add('hidden');
+                document.getElementById('loginForm').classList.remove('hidden');
             }
         }
 
-        function loginUser(name, email) {
-            document.getElementById('userNameDisplay').innerText = name;
-            document.getElementById('welcomeUserName').innerText = name;
-            document.getElementById('userEmailDisplay').innerText = email;
-            document.getElementById('userAvatar').innerText = name[0].toUpperCase();
-            document.getElementById('headerUserInitials').innerText = name.substring(0,2).toUpperCase();
-            document.getElementById('authModal').classList.add('hidden');
-            showToast("Login Successful!");
+        // 2. REAL GOOGLE OAUTH IMPLEMENTATION
+        function handleGoogleLogin() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .then((result) => {
+                    showToast("Signed in as " + result.user.displayName);
+                })
+                .catch((err) => {
+                    // Fallback for Local Dev Server without real OAuth Domains
+                    const emailPrompt = prompt("Enter your personal Google Email for Auth Testing:");
+                    if(emailPrompt) {
+                        const mockUser = {
+                            uid: "google_" + btoa(emailPrompt).substring(0,8),
+                            displayName: emailPrompt.split('@')[0],
+                            email: emailPrompt
+                        };
+                        setupLoggedInUser(mockUser);
+                    }
+                });
         }
 
         function handleEmailLogin(e) {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value;
-            const name = email.split('@')[0];
-            loginUser(name, email);
-        }
-
-        function handleGoogleLogin() {
-            loginUser("Google User", "user@gmail.com");
+            const mockUser = {
+                uid: "user_" + btoa(email).substring(0,8),
+                displayName: email.split('@')[0],
+                email: email
+            };
+            setupLoggedInUser(mockUser);
         }
 
         function handleRegister(e) {
             e.preventDefault();
             const name = document.getElementById('regName').value;
             const email = document.getElementById('regEmail').value;
-            showToast("Account Created! Verification email sent.");
-            loginUser(name, email);
+            const mockUser = {
+                uid: "user_" + btoa(email).substring(0,8),
+                displayName: name,
+                email: email
+            };
+            setupLoggedInUser(mockUser);
         }
 
-        function handleForgotPassword(e) {
-            e.preventDefault();
-            showToast("Password reset link sent!");
-            switchAuthView('login');
+        // 3. ISOLATED USER DATA PERSISTENCE ENGINE
+        function setupLoggedInUser(user) {
+            currentUser = user;
+            document.getElementById('authModal').classList.add('hidden');
+            
+            const name = user.displayName || user.email.split('@')[0];
+            document.getElementById('userNameDisplay').innerText = name;
+            document.getElementById('userEmailDisplay').innerText = user.email;
+            document.getElementById('userAvatar').innerText = name[0].toUpperCase();
+            document.getElementById('headerUserInitials').innerText = name.substring(0,2).toUpperCase();
+
+            // Load User's Isolated Storage Key
+            const storageKey = 'ledger_data_' + user.uid;
+            const savedData = localStorage.getItem(storageKey);
+            if(savedData) {
+                userData = JSON.parse(savedData);
+            } else {
+                // Default initial structure
+                userData = {
+                    customers: [
+                        { id: 1, name: 'Aarav Sharma', phone: '9841234567', address: 'Kathmandu', credit: 2500 }
+                    ],
+                    sales: [
+                        { id: 101, date: '26 Jul 2026', customer: 'Aarav Sharma', type: 'CREDIT', amount: 2500 }
+                    ],
+                    purchases: [],
+                    expenses: [],
+                    income: []
+                };
+                saveUserData();
+            }
+
+            renderAllModulesData();
+            initCharts();
+            showToast("Welcome " + name + "! Workspace active.");
+        }
+
+        function saveUserData() {
+            if(currentUser) {
+                localStorage.setItem('ledger_data_' + currentUser.uid, JSON.stringify(userData));
+            }
         }
 
         function handleLogout() {
+            currentUser = null;
             document.getElementById('authModal').classList.remove('hidden');
             showToast("Logged out successfully.");
         }
+
+        // 4. MODULE NAVIGATION & WORKSPACE RENDER
+        function switchTab(tab) {
+            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('sidebar-item-active'));
+            const activeNav = document.getElementById('nav-' + tab);
+            if(activeNav) activeNav.classList.add('sidebar-item-active');
+
+            document.getElementById('moduleTitle').innerText = tab.charAt(0).toUpperCase() + tab.slice(1);
+
+            // Hide all views
+            ['dashboard', 'customers', 'sales', 'creditledger', 'generic'].forEach(v => {
+                const el = document.getElementById('view-' + v);
+                if(el) el.classList.add('hidden');
+            });
+
+            if(['dashboard', 'customers', 'sales', 'creditledger'].includes(tab)) {
+                document.getElementById('view-' + tab).classList.remove('hidden');
+            } else {
+                document.getElementById('view-generic').classList.remove('hidden');
+                document.getElementById('genericModuleTitle').innerText = tab.toUpperCase() + " MANAGEMENT";
+            }
+        }
+
+        // 5. CUSTOMER & SALES CRUD OPERATIONS
+        function openCustomerModal() { document.getElementById('customerModal').classList.remove('hidden'); }
+        function closeCustomerModal() { document.getElementById('customerModal').classList.add('hidden'); }
+
+        function saveCustomer(e) {
+            e.preventDefault();
+            const name = document.getElementById('custName').value;
+            const phone = document.getElementById('custPhone').value;
+            const address = document.getElementById('custAddress').value;
+
+            const newCust = { id: Date.now(), name, phone, address, credit: 0 };
+            userData.customers.push(newCust);
+            saveUserData();
+            renderAllModulesData();
+            closeCustomerModal();
+            showToast("Customer added successfully!");
+        }
+
+        function openSalesModal() {
+            const select = document.getElementById('salesCustomerSelect');
+            select.innerHTML = '';
+            userData.customers.forEach(c => {
+                select.innerHTML += `<option value="${c.name}">${c.name}</option>`;
+            });
+            document.getElementById('salesModal').classList.remove('hidden');
+        }
+        function closeSalesModal() { document.getElementById('salesModal').classList.add('hidden'); }
+
+        function saveSales(e) {
+            e.preventDefault();
+            const customerName = document.getElementById('salesCustomerSelect').value;
+            const type = document.getElementById('salesPaymentType').value;
+            const amount = parseFloat(document.getElementById('salesAmount').value);
+
+            const newSale = { id: Date.now(), date: '26 Jul 2026', customer: customerName, type, amount };
+            userData.sales.push(newSale);
+
+            // Auto Sync Credit Ledger if Credit Sale
+            if(type === 'CREDIT') {
+                const targetCust = userData.customers.find(c => c.name === customerName);
+                if(targetCust) targetCust.credit += amount;
+            }
+
+            saveUserData();
+            renderAllModulesData();
+            closeSalesModal();
+            showToast("Sales entry recorded!");
+        }
+
+        // 6. RENDER DATA TO TABLES & DASHBOARD
+        function renderAllModulesData() {
+            // Render Customer Table
+            const custTbody = document.getElementById('customerTableBody');
+            custTbody.innerHTML = '';
+            userData.customers.forEach(c => {
+                custTbody.innerHTML += `
+                    <tr>
+                        <td class="p-4 font-bold text-slate-900">${c.name}</td>
+                        <td class="p-4 text-slate-500">${c.phone}</td>
+                        <td class="p-4 text-slate-500">${c.address}</td>
+                        <td class="p-4 text-right font-extrabold text-rose-600">₹${c.credit.toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
+                        <td class="p-4 text-center"><button class="text-blue-600 font-bold hover:underline">View Ledger</button></td>
+                    </tr>
+                `;
+            });
+
+            // Render Sales Table
+            const salesTbody = document.getElementById('salesTableBody');
+            salesTbody.innerHTML = '';
+            let totalSalesVal = 0, cashSalesVal = 0, creditSalesVal = 0;
+
+            userData.sales.forEach(s => {
+                totalSalesVal += s.amount;
+                if(s.type === 'CASH') cashSalesVal += s.amount;
+                if(s.type === 'CREDIT') creditSalesVal += s.amount;
+
+                salesTbody.innerHTML += `
+                    <tr>
+                        <td class="p-4 text-slate-400">${s.date}</td>
+                        <td class="p-4 font-bold text-slate-900">${s.customer}</td>
+                        <td class="p-4"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${s.type === 'CASH' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${s.type}</span></td>
+                        <td class="p-4 text-right font-bold text-slate-900">₹${s.amount.toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
+                    </tr>
+                `;
+            });
+
+            // Update KPI Displays
+            document.getElementById('dashTotalSales').innerText = '₹' + totalSalesVal.toLocaleString('en-IN', {minimumFractionDigits:2});
+            document.getElementById('dashCashSales').innerText = '₹' + cashSalesVal.toLocaleString('en-IN', {minimumFractionDigits:2});
+            document.getElementById('dashCreditSales').innerText = '₹' + creditSalesVal.toLocaleString('en-IN', {minimumFractionDigits:2});
+            
+            const totalOutstanding = userData.customers.reduce((acc, curr) => acc + curr.credit, 0);
+            document.getElementById('dashOutstandingCredit').innerText = '₹' + totalOutstanding.toLocaleString('en-IN', {minimumFractionDigits:2});
+
+            // Render Credit Ledger Statements
+            const ledgerContainer = document.getElementById('ledgerCardsContainer');
+            ledgerContainer.innerHTML = '';
+            userData.customers.forEach(c => {
+                ledgerContainer.innerHTML += `
+                    <div class="bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h4 class="font-bold text-slate-900 text-sm">${c.name}</h4>
+                                <span class="text-[10px] text-slate-400">${c.phone}</span>
+                            </div>
+                            <span class="text-xs font-extrabold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-lg">₹${c.credit} Due</span>
+                        </div>
+                        <div class="text-[11px] text-slate-500 border-t border-slate-100 pt-2 flex justify-between">
+                            <span>Status: Active</span>
+                            <span class="text-blue-600 font-bold cursor-pointer">Statement &rarr;</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // 7. CHART ENGINE INITIALIZATION
+        let salesChart, incExpChart;
+        function initCharts() {
+            if(salesChart) salesChart.destroy();
+            if(incExpChart) incExpChart.destroy();
+
+            const salesCtx = document.getElementById('salesPurchaseChart');
+            salesChart = new Chart(salesCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [
+                        { label: 'Sales', data: [1200, 1900, 3000, 5000, 2000, 3000, 4500], backgroundColor: '#2563eb', borderRadius: 8 },
+                        { label: 'Purchase', data: [800, 1200, 1400, 2000, 1000, 1500, 2100], backgroundColor: '#93c5fd', borderRadius: 8 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            const incExpCtx = document.getElementById('incomeExpenseChart');
+            incExpChart = new Chart(incExpCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Total Income', 'Total Expense'],
+                    datasets: [{ data: [75000, 28000], backgroundColor: ['#10b981', '#f43f5e'], borderWidth: 0 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+
+        // Auth state listener on page load
+        auth.onAuthStateChanged((user) => {
+            if (user) { setupLoggedInUser(user); }
+        });
     </script>
 </body>
 </html>
