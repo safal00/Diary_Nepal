@@ -1,1 +1,114 @@
 http://localhost/ledger-system/dashboard.php
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI',sans-serif;
+}
+
+body{
+background:#f4f7fb;
+color:#222;
+}
+
+a{
+text-decoration:none;
+}
+
+.sidebar{
+position:fixed;
+left:0;
+top:0;
+width:250px;
+height:100%;
+background:#0d5be1;
+color:#fff;
+padding:20px;
+}
+
+.logo{
+font-size:24px;
+font-weight:bold;
+margin-bottom:40px;
+}
+
+.logo span{
+font-size:13px;
+display:block;
+opacity:.8;
+}
+
+.menu a{
+display:block;
+padding:14px 18px;
+color:#fff;
+border-radius:12px;
+margin-bottom:10px;
+transition:.3s;
+}
+
+.menu a:hover{
+background:white;
+color:#0d5be1;
+}
+
+.content{
+margin-left:250px;
+padding:30px;
+}
+
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:25px;
+}
+
+.cards{
+display:grid;
+grid-template-columns:repeat(6,1fr);
+gap:20px;
+}
+
+.card{
+background:white;
+padding:25px;
+border-radius:18px;
+box-shadow:0 8px 20px rgba(0,0,0,.05);
+}
+
+.card h4{
+font-size:15px;
+color:#666;
+margin-bottom:10px;
+}
+
+.card h2{
+font-size:30px;
+color:#0d5be1;
+}
+
+.table-box{
+background:white;
+margin-top:30px;
+padding:25px;
+border-radius:18px;
+box-shadow:0 8px 20px rgba(0,0,0,.05);
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+th{
+background:#0d5be1;
+color:white;
+padding:12px;
+}
+
+td{
+padding:12px;
+border-bottom:1px solid #eee;
+}
