@@ -3,13 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Canvas Hub - Ledger Book</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Pro Ledger & Inventory System</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Chart.js for Charts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -20,482 +17,393 @@
     <!-- Sidebar -->
     <aside class="w-64 bg-blue-600 text-white flex flex-col justify-between shrink-0">
         <div>
-            <!-- Logo -->
-            <div class="p-5 flex items-center gap-3 border-b border-blue-500/30">
-                <div class="bg-white text-blue-600 p-2 rounded-lg">
-                    <i data-lucide="book-open" class="w-6 h-6"></i>
+            <!-- Company Logo & Name Header -->
+            <div class="p-5 flex items-center justify-between border-b border-blue-500/30">
+                <div class="flex items-center gap-3">
+                    <img id="companyLogo" src="https://via.placeholder.com/40" class="w-9 h-9 rounded-lg bg-white object-cover" alt="Logo">
+                    <div>
+                        <h1 id="companyNameDisplay" class="font-bold text-base leading-tight">My Business</h1>
+                        <p class="text-[10px] text-blue-200">Ledger System</p>
+                    </div>
                 </div>
-                <div>
-                    <h1 class="font-bold text-lg leading-tight">Canvas Hub</h1>
-                    <p class="text-xs text-blue-200">Ledger Book</p>
-                </div>
+                <button onclick="openSettings()" class="text-blue-200 hover:text-white" title="Change Company Info">
+                    <i data-lucide="settings" class="w-4 h-4"></i>
+                </button>
             </div>
 
             <!-- Navigation Links -->
-            <div class="px-4 py-3">
-                <p class="text-[10px] uppercase font-bold text-blue-200 tracking-wider mb-2">Main Menu</p>
-                <nav class="space-y-1">
-                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white text-blue-600 font-semibold text-sm shadow-sm">
-                        <i data-lucide="layout-grid" class="w-4 h-4"></i> Dashboard
-                    </a>
-                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
-                        <i data-lucide="users" class="w-4 h-4"></i> Customers
-                    </a>
-                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
-                        <i data-lucide="book" class="w-4 h-4"></i> Ledger
-                    </a>
-                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
-                        <i data-lucide="box" class="w-4 h-4"></i> Inventory
-                    </a>
-                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
-                        <i data-lucide="shopping-cart" class="w-4 h-4"></i> Purchase
-                    </a>
-                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
-                        <i data-lucide="tag" class="w-4 h-4"></i> Sales
-                    </a>
-                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
-                        <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Reports
-                    </a>
-                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
-                        <i data-lucide="settings" class="w-4 h-4"></i> Settings
-                    </a>
-                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
-                        <i data-lucide="user-cog" class="w-4 h-4"></i> Users
-                    </a>
-                </nav>
+            <div class="px-4 py-4 space-y-1">
+                <button onclick="switchTab('dashboard')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white text-blue-600 font-semibold text-sm shadow-sm">
+                    <i data-lucide="layout-grid" class="w-4 h-4"></i> Dashboard
+                </button>
+                <button onclick="switchTab('customers')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
+                    <i data-lucide="users" class="w-4 h-4"></i> Customers
+                </button>
+                <button onclick="switchTab('ledger')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
+                    <i data-lucide="book-open" class="w-4 h-4"></i> Ledger / Entry
+                </button>
+                <button onclick="switchTab('inventory')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
+                    <i data-lucide="box" class="w-4 h-4"></i> Inventory
+                </button>
             </div>
         </div>
 
-        <!-- User Profile Bottom -->
         <div class="p-4 border-t border-blue-500/30">
-            <div class="bg-blue-700/50 p-3 rounded-xl flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-sm">
-                        A
-                    </div>
-                    <div>
-                        <p class="text-sm font-semibold leading-tight">Administrator</p>
-                        <p class="text-xs text-blue-200">admin</p>
-                    </div>
+            <div class="bg-blue-700/50 p-3 rounded-xl flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-800 font-bold flex items-center justify-center text-xs">Admin</div>
+                <div class="text-xs">
+                    <p class="font-semibold leading-tight">Active User</p>
+                    <p class="text-blue-200 text-[10px]">Owner</p>
                 </div>
-                <i data-lucide="chevron-down" class="w-4 h-4 text-blue-200"></i>
             </div>
         </div>
     </aside>
 
-    <!-- Main Content Area -->
+    <!-- Main Section -->
     <div class="flex-1 flex flex-col overflow-y-auto">
-        <!-- Top Navbar -->
-        <header class="bg-white border-b px-8 py-3 flex justify-between items-center sticky top-0 z-10">
-            <div>
-                <p class="text-xs text-slate-400">Overview</p>
-                <h2 class="text-lg font-bold text-slate-800">Dashboard</h2>
-            </div>
-            <div class="flex items-center gap-3">
-                <div class="flex items-center gap-2 text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg">
-                    <i data-lucide="calendar" class="w-4 h-4 text-slate-500"></i>
-                    <span>Sun, 26 Jul 2026</span>
-                </div>
-                <div class="w-8 h-8 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs">
-                    CH
-                </div>
+        <!-- Header -->
+        <header class="bg-white border-b px-8 py-4 flex justify-between items-center sticky top-0 z-10">
+            <h2 id="pageTitle" class="text-xl font-bold text-slate-800">Dashboard</h2>
+            <div class="text-xs font-medium text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg flex items-center gap-2">
+                <i data-lucide="calendar" class="w-4 h-4"></i>
+                <span id="currentDate"></span>
             </div>
         </header>
 
         <main class="p-8 space-y-6">
-            <!-- Welcome Header -->
-            <div class="flex justify-between items-center">
-                <div>
-                    <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                        Welcome back 👋
-                    </h2>
-                    <p class="text-xs text-slate-500 mt-1">Financial snapshot for Canvas Hub.</p>
-                </div>
-                <div class="flex items-center gap-3">
-                    <button class="bg-slate-100 hover:bg-slate-200 text-blue-600 font-semibold px-4 py-2 rounded-lg text-sm transition">
-                        View Customers
-                    </button>
-                    <button class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg text-sm flex items-center gap-2 shadow-sm transition">
-                        <i data-lucide="plus" class="w-4 h-4"></i> New Entry
-                    </button>
-                </div>
-            </div>
 
-            <!-- Top Metric Cards -->
-            <div class="grid grid-cols-6 gap-4">
-                <!-- Total Customers -->
-                <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col justify-between">
-                    <div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
-                        <i data-lucide="users" class="w-5 h-5"></i>
-                    </div>
-                    <div>
+            <!-- 1. DASHBOARD VIEW -->
+            <div id="tab-dashboard" class="tab-content space-y-6">
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
                         <p class="text-xs text-slate-500 font-medium">Total Customers</p>
-                        <h3 class="text-2xl font-bold text-slate-800 mt-1">125</h3>
-                        <p class="text-[11px] text-slate-400 mt-1">Active accounts</p>
+                        <h3 id="dashTotalCustomers" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
                     </div>
-                </div>
-
-                <!-- Total Debit -->
-                <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col justify-between">
-                    <div class="w-9 h-9 rounded-lg bg-red-50 text-red-500 flex items-center justify-center mb-3">
-                        <i data-lucide="arrow-down" class="w-5 h-5"></i>
+                    <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
+                        <p class="text-xs text-slate-500 font-medium">Total Debit (पाउन बाँकी)</p>
+                        <h3 id="dashTotalDebit" class="text-2xl font-bold text-red-600 mt-1">Rs. 0</h3>
                     </div>
-                    <div>
-                        <p class="text-xs text-slate-500 font-medium">Total Debit</p>
-                        <h3 class="text-2xl font-bold text-slate-800 mt-1">₹58,450.00</h3>
-                        <p class="text-[11px] text-slate-400 mt-1">Amount charged</p>
+                    <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
+                        <p class="text-xs text-slate-500 font-medium">Total Credit (तिर्न बाँकी)</p>
+                        <h3 id="dashTotalCredit" class="text-2xl font-bold text-emerald-600 mt-1">Rs. 0</h3>
                     </div>
-                </div>
-
-                <!-- Total Credit -->
-                <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col justify-between">
-                    <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center mb-3">
-                        <i data-lucide="arrow-up" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs text-slate-500 font-medium">Total Credit</p>
-                        <h3 class="text-2xl font-bold text-slate-800 mt-1">₹72,850.00</h3>
-                        <p class="text-[11px] text-slate-400 mt-1">Amount received</p>
-                    </div>
-                </div>
-
-                <!-- Total Balance -->
-                <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col justify-between">
-                    <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
-                        <i data-lucide="building-2" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs text-slate-500 font-medium">Total Balance</p>
-                        <h3 class="text-2xl font-bold text-slate-800 mt-1">₹14,400.00 <span class="text-sm font-normal">Cr</span></h3>
-                        <p class="text-[11px] text-slate-400 mt-1">Receivable</p>
-                    </div>
-                </div>
-
-                <!-- Today's Entries -->
-                <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col justify-between">
-                    <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-500 flex items-center justify-center mb-3">
-                        <i data-lucide="clock" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs text-slate-500 font-medium">Today's Entries</p>
-                        <h3 class="text-2xl font-bold text-slate-800 mt-1">8</h3>
-                        <p class="text-[11px] text-slate-400 mt-1">26 Jul 2026</p>
-                    </div>
-                </div>
-
-                <!-- Total Entries -->
-                <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col justify-between">
-                    <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-500 flex items-center justify-center mb-3">
-                        <i data-lucide="smartphone" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs text-slate-500 font-medium">Total Entries</p>
-                        <h3 class="text-2xl font-bold text-slate-800 mt-1">320</h3>
-                        <p class="text-[11px] text-slate-400 mt-1">All time records</p>
+                    <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
+                        <p class="text-xs text-slate-500 font-medium">Total Stock Items</p>
+                        <h3 id="dashTotalStock" class="text-2xl font-bold text-blue-600 mt-1">0</h3>
                     </div>
                 </div>
             </div>
 
-            <!-- Middle Section: Recent Transactions & Top Outstanding -->
-            <div class="grid grid-cols-3 gap-6">
-                <!-- Recent Transactions -->
-                <div class="col-span-2 bg-white rounded-xl border border-slate-100 shadow-sm p-5">
+            <!-- 2. CUSTOMERS VIEW -->
+            <div id="tab-customers" class="tab-content hidden space-y-6">
+                <div class="flex justify-between items-center bg-white p-4 rounded-xl border">
+                    <h3 class="font-bold text-lg">Customer List</h3>
+                    <button onclick="toggleModal('customerModal')" class="bg-blue-600 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center gap-2">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Add Customer
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 border-b text-xs uppercase text-slate-500 font-semibold">
+                            <tr>
+                                <th class="p-4">Name</th>
+                                <th class="p-4">Phone</th>
+                                <th class="p-4">Address</th>
+                                <th class="p-4 text-right">Balance</th>
+                                <th class="p-4 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customerTableBody" class="divide-y divide-slate-100">
+                            <!-- Dynamic Content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 3. LEDGER & TRANSACTION ENTRY VIEW -->
+            <div id="tab-ledger" class="tab-content hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl border shadow-sm space-y-4">
+                    <h3 class="font-bold text-base">New Ledger Entry (कारोबार थप्नुहोस्)</h3>
+                    <form id="ledgerForm" onsubmit="addTransaction(event)" class="grid grid-cols-5 gap-4">
+                        <div>
+                            <label class="text-xs font-semibold text-slate-600">Select Customer</label>
+                            <select id="ledgerCustomer" class="w-full mt-1 p-2 border rounded-lg text-sm" required></select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-slate-600">Type</label>
+                            <select id="ledgerType" class="w-full mt-1 p-2 border rounded-lg text-sm">
+                                <option value="DEBIT">Debit (उधारो दिइएको/लानु पर्ने)</option>
+                                <option value="CREDIT">Credit (रकम प्राप्त/भुक्तानी)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-slate-600">Amount (Rs.)</label>
+                            <input type="number" id="ledgerAmount" class="w-full mt-1 p-2 border rounded-lg text-sm" placeholder="0.00" required />
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-slate-600">Description</label>
+                            <input type="text" id="ledgerDesc" class="w-full mt-1 p-2 border rounded-lg text-sm" placeholder="Details..." />
+                        </div>
+                        <div class="flex items-end">
+                            <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg text-sm">Save Entry</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Ledger History -->
+                <div class="bg-white rounded-xl border shadow-sm p-4">
                     <div class="flex justify-between items-center mb-4">
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="clock" class="w-4 h-4 text-blue-600"></i>
-                            <h3 class="font-bold text-sm text-slate-800">Recent Transactions</h3>
-                        </div>
-                        <button class="text-xs text-blue-600 font-semibold hover:underline">View All</button>
+                        <h3 class="font-bold text-base">Recent Transactions Log</h3>
+                        <button onclick="window.print()" class="text-xs bg-slate-100 px-3 py-1.5 rounded font-semibold flex items-center gap-1">
+                            <i data-lucide="printer" class="w-3.5 h-3.5"></i> Print Report
+                        </button>
                     </div>
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="text-[11px] text-blue-600 font-bold uppercase tracking-wider border-b border-slate-100">
-                                <th class="pb-3">Date</th>
-                                <th class="pb-3">Customer</th>
-                                <th class="pb-3">Description</th>
-                                <th class="pb-3 text-right">Debit</th>
-                                <th class="pb-3 text-right">Credit</th>
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 border-b text-xs uppercase text-slate-500">
+                            <tr>
+                                <th class="p-3">Date</th>
+                                <th class="p-3">Customer</th>
+                                <th class="p-3">Description</th>
+                                <th class="p-3 text-right">Debit</th>
+                                <th class="p-3 text-right">Credit</th>
                             </tr>
                         </thead>
-                        <tbody class="text-xs text-slate-700 font-medium divide-y divide-slate-50">
-                            <tr>
-                                <td class="py-3 text-slate-500">26 Jul 2026</td>
-                                <td class="py-3 font-semibold">Aarav Traders</td>
-                                <td class="py-3 text-slate-500">Purchase Payment</td>
-                                <td class="py-3 text-right text-slate-800">₹2,500.00</td>
-                                <td class="py-3 text-right text-slate-400">-</td>
-                            </tr>
-                            <tr>
-                                <td class="py-3 text-slate-500">26 Jul 2026</td>
-                                <td class="py-3 font-semibold">Shree Enterprises</td>
-                                <td class="py-3 text-slate-500">Sales Payment</td>
-                                <td class="py-3 text-right text-slate-400">-</td>
-                                <td class="py-3 text-right text-emerald-600 font-semibold">₹3,200.00</td>
-                            </tr>
-                            <tr>
-                                <td class="py-3 text-slate-500">26 Jul 2026</td>
-                                <td class="py-3 font-semibold">Buddha Store</td>
-                                <td class="py-3 text-slate-500">Purchase Payment</td>
-                                <td class="py-3 text-right text-slate-800">₹1,800.00</td>
-                                <td class="py-3 text-right text-slate-400">-</td>
-                            </tr>
-                            <tr>
-                                <td class="py-3 text-slate-500">25 Jul 2026</td>
-                                <td class="py-3 font-semibold">Mero Kirana</td>
-                                <td class="py-3 text-slate-500">Sales Payment</td>
-                                <td class="py-3 text-right text-slate-400">-</td>
-                                <td class="py-3 text-right text-emerald-600 font-semibold">₹4,500.00</td>
-                            </tr>
-                            <tr>
-                                <td class="py-3 text-slate-500">25 Jul 2026</td>
-                                <td class="py-3 font-semibold">Om Suppliers</td>
-                                <td class="py-3 text-slate-500">Purchase Payment</td>
-                                <td class="py-3 text-right text-slate-800">₹3,750.00</td>
-                                <td class="py-3 text-right text-slate-400">-</td>
-                            </tr>
-                        </tbody>
+                        <tbody id="ledgerTableBody" class="divide-y divide-slate-100"></tbody>
                     </table>
                 </div>
-
-                <!-- Top Outstanding -->
-                <div class="bg-white rounded-xl border border-slate-100 shadow-sm p-5 flex flex-col justify-between">
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="landmark" class="w-4 h-4 text-blue-600"></i>
-                            <h3 class="font-bold text-sm text-slate-800">Top Outstanding</h3>
-                        </div>
-                        <button class="text-xs text-blue-600 font-semibold hover:underline">View All</button>
-                    </div>
-
-                    <div class="flex items-center gap-4 py-2">
-                        <div class="w-36 h-36 relative flex-shrink-0">
-                            <canvas id="donutChart"></canvas>
-                        </div>
-                        <div class="space-y-2 text-xs w-full">
-                            <div class="flex justify-between items-center">
-                                <span class="flex items-center gap-1.5 font-medium"><span class="w-2.5 h-2.5 rounded-full bg-blue-600 inline-block"></span> Aarav Traders</span>
-                                <span class="font-bold">₹5,450.00</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="flex items-center gap-1.5 font-medium"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> Shree Enterprises</span>
-                                <span class="font-bold">₹3,200.00</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="flex items-center gap-1.5 font-medium"><span class="w-2.5 h-2.5 rounded-full bg-indigo-500 inline-block"></span> Mero Kirana</span>
-                                <span class="font-bold">₹2,800.00</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="flex items-center gap-1.5 font-medium"><span class="w-2.5 h-2.5 rounded-full bg-purple-500 inline-block"></span> Buddha Store</span>
-                                <span class="font-bold">₹1,750.00</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="flex items-center gap-1.5 font-medium"><span class="w-2.5 h-2.5 rounded-full bg-slate-400 inline-block"></span> Others</span>
-                                <span class="font-bold">₹1,200.00</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
-            <!-- Bottom Section Grid -->
-            <div class="grid grid-cols-4 gap-6">
-                <!-- Monthly Summary -->
-                <div class="bg-white rounded-xl border border-slate-100 shadow-sm p-4">
-                    <div class="flex justify-between items-center mb-3">
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="trending-up" class="w-4 h-4 text-blue-600"></i>
-                            <h3 class="font-bold text-xs text-slate-800">Monthly Summary</h3>
-                        </div>
-                        <select class="text-[11px] bg-slate-50 border border-slate-200 rounded px-2 py-0.5 text-blue-600 font-semibold">
-                            <option>July 2026</option>
-                        </select>
-                    </div>
-                    <div class="h-32">
-                        <canvas id="lineChart"></canvas>
-                    </div>
+            <!-- 4. INVENTORY VIEW -->
+            <div id="tab-inventory" class="tab-content hidden space-y-6">
+                <div class="flex justify-between items-center bg-white p-4 rounded-xl border">
+                    <h3 class="font-bold text-lg">Inventory & Stock</h3>
+                    <button onclick="toggleModal('inventoryModal')" class="bg-blue-600 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center gap-2">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Add Item
+                    </button>
                 </div>
 
-                <!-- Inventory Overview -->
-                <div class="bg-white rounded-xl border border-slate-100 shadow-sm p-4 flex flex-col justify-between">
-                    <div>
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <div class="flex items-center gap-2">
-                                    <i data-lucide="box" class="w-4 h-4 text-emerald-600"></i>
-                                    <h3 class="font-bold text-xs text-slate-800">Inventory Overview</h3>
-                                </div>
-                                <h2 class="text-2xl font-bold text-slate-800 mt-2">156</h2>
-                                <p class="text-[11px] text-slate-400">Total Items</p>
-                            </div>
-                            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                                <i data-lucide="package" class="w-5 h-5"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex justify-between border-t border-slate-100 pt-2 text-xs">
-                        <div>
-                            <p class="text-[10px] text-slate-400">Low Stock Items</p>
-                            <p class="font-bold text-red-500">12</p>
-                        </div>
-                        <div>
-                            <p class="text-[10px] text-slate-400">Out of Stock</p>
-                            <p class="font-bold text-red-600">3</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Purchase Overview -->
-                <div class="bg-white rounded-xl border border-slate-100 shadow-sm p-4 flex flex-col justify-between">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <i data-lucide="shopping-cart" class="w-4 h-4 text-amber-500"></i>
-                                <h3 class="font-bold text-xs text-slate-800">Purchase Overview</h3>
-                            </div>
-                            <h2 class="text-2xl font-bold text-slate-800 mt-2">₹45,320.00</h2>
-                            <p class="text-[11px] text-slate-400">This Month</p>
-                        </div>
-                        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center">
-                            <i data-lucide="shopping-bag" class="w-5 h-5"></i>
-                        </div>
-                    </div>
-                    <div class="border-t border-slate-100 pt-2">
-                        <span class="text-xs font-semibold text-emerald-500 flex items-center gap-1">
-                            <i data-lucide="arrow-up-right" class="w-3 h-3"></i> 12.5%
-                            <span class="text-[10px] text-slate-400 font-normal">vs last month</span>
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Sales Overview -->
-                <div class="bg-white rounded-xl border border-slate-100 shadow-sm p-4 flex flex-col justify-between">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <i data-lucide="shopping-bag" class="w-4 h-4 text-amber-500"></i>
-                                <h3 class="font-bold text-xs text-slate-800">Sales Overview</h3>
-                            </div>
-                            <h2 class="text-2xl font-bold text-slate-800 mt-2">₹67,850.00</h2>
-                            <p class="text-[11px] text-slate-400">This Month</p>
-                        </div>
-                        <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center">
-                            <i data-lucide="shopping-bag" class="w-5 h-5"></i>
-                        </div>
-                    </div>
-                    <div class="border-t border-slate-100 pt-2">
-                        <span class="text-xs font-semibold text-emerald-500 flex items-center gap-1">
-                            <i data-lucide="arrow-up-right" class="w-3 h-3"></i> 18.6%
-                            <span class="text-[10px] text-slate-400 font-normal">vs last month</span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Bottom Alerts Row -->
-            <div class="grid grid-cols-2 gap-6">
-                <!-- Low Stock Alert -->
-                <div class="bg-white rounded-xl border border-slate-100 shadow-sm p-4">
-                    <div class="flex justify-between items-center mb-3">
-                        <div class="flex items-center gap-2 text-red-500">
-                            <i data-lucide="alert-triangle" class="w-4 h-4"></i>
-                            <h3 class="font-bold text-xs text-slate-800">Low Stock Alert</h3>
-                        </div>
-                        <button class="text-xs text-blue-600 font-semibold hover:underline">View All</button>
-                    </div>
-                    <table class="w-full text-left">
-                        <thead>
-                            <tr class="text-[10px] text-blue-600 font-bold uppercase border-b border-slate-100">
-                                <th class="pb-2">Product</th>
-                                <th class="pb-2">Current Stock</th>
-                                <th class="pb-2">Status</th>
+                <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 border-b text-xs uppercase text-slate-500 font-semibold">
+                            <tr>
+                                <th class="p-4">Item Name</th>
+                                <th class="p-4">Stock Quantity</th>
+                                <th class="p-4">Unit Price</th>
+                                <th class="p-4 text-center">Action</th>
                             </tr>
                         </thead>
-                        <tbody class="text-xs text-slate-700">
-                            <tr>
-                                <td class="py-2">A4 Paper (Pack)</td>
-                                <td class="py-2">5</td>
-                                <td class="py-2"><span class="bg-amber-100 text-amber-700 font-medium text-[10px] px-2 py-0.5 rounded-full">Low Stock</span></td>
-                            </tr>
-                        </tbody>
+                        <tbody id="inventoryTableBody" class="divide-y divide-slate-100"></tbody>
                     </table>
                 </div>
-
-                <!-- Recent Activity -->
-                <div class="bg-white rounded-xl border border-slate-100 shadow-sm p-4">
-                    <div class="flex justify-between items-center mb-3">
-                        <div class="flex items-center gap-2 text-blue-600">
-                            <i data-lucide="activity" class="w-4 h-4"></i>
-                            <h3 class="font-bold text-xs text-slate-800">Recent Activity</h3>
-                        </div>
-                        <button class="text-xs text-blue-600 font-semibold hover:underline">View All</button>
-                    </div>
-                    <div class="flex items-center justify-between text-xs py-1">
-                        <div class="flex items-center gap-3">
-                            <div class="w-6 h-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
-                                <i data-lucide="file-text" class="w-3 h-3"></i>
-                            </div>
-                            <div>
-                                <p class="font-semibold text-slate-800">New Sale Invoice Created</p>
-                                <p class="text-[10px] text-slate-400">Invoice No: INV-2026-0320</p>
-                            </div>
-                        </div>
-                        <span class="text-[10px] text-slate-400">2 min ago</span>
-                    </div>
-                </div>
             </div>
+
         </main>
     </div>
 
-    <!-- Script to render icons and charts -->
+    <!-- MODAL: Customer Add -->
+    <div id="customerModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 w-96 space-y-4">
+            <h3 class="font-bold text-lg">Add New Customer</h3>
+            <input id="custName" type="text" placeholder="Customer Name" class="w-full p-2 border rounded-lg text-sm" />
+            <input id="custPhone" type="text" placeholder="Phone Number" class="w-full p-2 border rounded-lg text-sm" />
+            <input id="custAddress" type="text" placeholder="Address" class="w-full p-2 border rounded-lg text-sm" />
+            <div class="flex justify-end gap-2">
+                <button onclick="toggleModal('customerModal')" class="px-4 py-2 text-xs font-semibold text-slate-500">Cancel</button>
+                <button onclick="saveCustomer()" class="px-4 py-2 text-xs font-semibold bg-blue-600 text-white rounded-lg">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Inventory Add -->
+    <div id="inventoryModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 w-96 space-y-4">
+            <h3 class="font-bold text-lg">Add Stock Item</h3>
+            <input id="itemName" type="text" placeholder="Product Name" class="w-full p-2 border rounded-lg text-sm" />
+            <input id="itemQty" type="number" placeholder="Quantity" class="w-full p-2 border rounded-lg text-sm" />
+            <input id="itemPrice" type="number" placeholder="Price per unit" class="w-full p-2 border rounded-lg text-sm" />
+            <div class="flex justify-end gap-2">
+                <button onclick="toggleModal('inventoryModal')" class="px-4 py-2 text-xs font-semibold text-slate-500">Cancel</button>
+                <button onclick="saveInventory()" class="px-4 py-2 text-xs font-semibold bg-blue-600 text-white rounded-lg">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT APPLICATION LOGIC -->
     <script>
-        // Render Icons
-        lucide.createIcons();
+        // Init Storage Engine
+        let db = {
+            company: JSON.parse(localStorage.getItem('company')) || { name: 'Canvas Hub', logo: 'https://via.placeholder.com/40' },
+            customers: JSON.parse(localStorage.getItem('customers')) || [],
+            transactions: JSON.parse(localStorage.getItem('transactions')) || [],
+            inventory: JSON.parse(localStorage.getItem('inventory')) || []
+        };
 
-        // Top Outstanding Donut Chart
-        const ctxDonut = document.getElementById('donutChart').getContext('2d');
-        new Chart(ctxDonut, {
-            type: 'doughnut',
-            data: {
-                labels: ['Aarav Traders', 'Shree Enterprises', 'Mero Kirana', 'Buddha Store', 'Others'],
-                datasets: [{
-                    data: [5450, 3200, 2800, 1750, 1200],
-                    backgroundColor: ['#2563eb', '#10b981', '#6366f1', '#a855f7', '#94a3b8'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                cutout: '70%'
-            }
+        function saveData() {
+            localStorage.setItem('company', JSON.stringify(db.company));
+            localStorage.setItem('customers', JSON.stringify(db.customers));
+            localStorage.setItem('transactions', JSON.stringify(db.transactions));
+            localStorage.setItem('inventory', JSON.stringify(db.inventory));
+            renderAll();
+        }
+
+        // Initialize UI
+        document.addEventListener("DOMContentLoaded", () => {
+            lucide.createIcons();
+            document.getElementById('currentDate').innerText = new Date().toDateString();
+            renderAll();
         });
 
-        // Monthly Summary Line Chart
-        const ctxLine = document.getElementById('lineChart').getContext('2d');
-        new Chart(ctxLine, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-                datasets: [{
-                    data: [5, 12, 12, 22, 21, 28, 42],
-                    borderColor: '#2563eb',
-                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { grid: { display: false }, ticks: { font: { size: 10 } } },
-                    y: { grid: { borderDash: [2, 4] }, ticks: { font: { size: 10 } } }
-                }
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            document.getElementById('pageTitle').innerText = tabId.toUpperCase();
+        }
+
+        function toggleModal(id) {
+            document.getElementById(id).classList.toggle('hidden');
+        }
+
+        // Company Settings
+        function openSettings() {
+            const newName = prompt("Company Name:", db.company.name);
+            const newLogo = prompt("Company Logo URL:", db.company.logo);
+            if(newName) db.company.name = newName;
+            if(newLogo) db.company.logo = newLogo;
+            saveData();
+        }
+
+        // Customers CRUD
+        function saveCustomer() {
+            const name = document.getElementById('custName').value;
+            const phone = document.getElementById('custPhone').value;
+            const address = document.getElementById('custAddress').value;
+            if(!name) return alert("Enter Customer Name!");
+
+            db.customers.push({ id: Date.now(), name, phone, address, balance: 0 });
+            toggleModal('customerModal');
+            saveData();
+        }
+
+        function deleteCustomer(id) {
+            if(confirm("Confirm Delete Customer?")) {
+                db.customers = db.customers.filter(c => c.id !== id);
+                saveData();
             }
-        });
+        }
+
+        // Transactions / Ledger
+        function addTransaction(e) {
+            e.preventDefault();
+            const customerId = Number(document.getElementById('ledgerCustomer').value);
+            const type = document.getElementById('ledgerType').value;
+            const amount = Number(document.getElementById('ledgerAmount').value);
+            const desc = document.getElementById('ledgerDesc').value;
+
+            const cust = db.customers.find(c => c.id === customerId);
+            if(!cust) return alert("Select a Customer!");
+
+            if(type === 'DEBIT') cust.balance += amount;
+            else cust.balance -= amount;
+
+            db.transactions.unshift({
+                id: Date.now(),
+                date: new Date().toLocaleDateString(),
+                customerName: cust.name,
+                type,
+                amount,
+                desc
+            });
+
+            document.getElementById('ledgerForm').reset();
+            saveData();
+        }
+
+        // Inventory CRUD
+        function saveInventory() {
+            const name = document.getElementById('itemName').value;
+            const qty = Number(document.getElementById('itemQty').value);
+            const price = Number(document.getElementById('itemPrice').value);
+
+            if(!name) return alert("Product Name Required!");
+            db.inventory.push({ id: Date.now(), name, qty, price });
+            toggleModal('inventoryModal');
+            saveData();
+        }
+
+        function deleteInventory(id) {
+            db.inventory = db.inventory.filter(i => i.id !== id);
+            saveData();
+        }
+
+        // Render Views
+        function renderAll() {
+            // Render Company Info
+            document.getElementById('companyNameDisplay').innerText = db.company.name;
+            document.getElementById('companyLogo').src = db.company.logo;
+
+            // Render Customer Table & Dropdown
+            const custBody = document.getElementById('customerTableBody');
+            const custSelect = document.getElementById('ledgerCustomer');
+            custBody.innerHTML = '';
+            custSelect.innerHTML = '<option value="">Select Customer</option>';
+
+            let totalDebit = 0, totalCredit = 0;
+
+            db.customers.forEach(c => {
+                if(c.balance > 0) totalDebit += c.balance;
+                else totalCredit += Math.abs(c.balance);
+
+                custBody.innerHTML += `
+                    <tr>
+                        <td class="p-4 font-semibold">${c.name}</td>
+                        <td class="p-4 text-slate-500">${c.phone}</td>
+                        <td class="p-4 text-slate-500">${c.address}</td>
+                        <td class="p-4 text-right font-bold ${c.balance >= 0 ? 'text-red-600' : 'text-emerald-600'}">Rs. ${Math.abs(c.balance)} ${c.balance >= 0 ? 'Dr' : 'Cr'}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="deleteCustomer(${c.id})" class="text-red-500 hover:underline text-xs">Delete</button>
+                        </td>
+                    </tr>`;
+                custSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+            });
+
+            // Render Dashboard Stats
+            document.getElementById('dashTotalCustomers').innerText = db.customers.length;
+            document.getElementById('dashTotalDebit').innerText = "Rs. " + totalDebit;
+            document.getElementById('dashTotalCredit').innerText = "Rs. " + totalCredit;
+            document.getElementById('dashTotalStock').innerText = db.inventory.length;
+
+            // Render Transactions
+            const ledgerBody = document.getElementById('ledgerTableBody');
+            ledgerBody.innerHTML = '';
+            db.transactions.forEach(t => {
+                ledgerBody.innerHTML += `
+                    <tr>
+                        <td class="p-3 text-slate-500">${t.date}</td>
+                        <td class="p-3 font-semibold">${t.customerName}</td>
+                        <td class="p-3 text-slate-500">${t.desc || '-'}</td>
+                        <td class="p-3 text-right font-semibold">${t.type === 'DEBIT' ? 'Rs. ' + t.amount : '-'}</td>
+                        <td class="p-3 text-right font-semibold text-emerald-600">${t.type === 'CREDIT' ? 'Rs. ' + t.amount : '-'}</td>
+                    </tr>`;
+            });
+
+            // Render Inventory
+            const invBody = document.getElementById('inventoryTableBody');
+            invBody.innerHTML = '';
+            db.inventory.forEach(i => {
+                invBody.innerHTML += `
+                    <tr>
+                        <td class="p-4 font-semibold">${i.name}</td>
+                        <td class="p-4 font-bold text-blue-600">${i.qty}</td>
+                        <td class="p-4">Rs. ${i.price}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="deleteInventory(${i.id})" class="text-red-500 hover:underline text-xs">Delete</button>
+                        </td>
+                    </tr>`;
+            });
+
+            lucide.createIcons();
+        }
     </script>
 </body>
 </html>
