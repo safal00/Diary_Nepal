@@ -1,198 +1,916 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Luxury Quotation</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Multi-Tenant Digital Ledger & ERP System</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<style>
-*{box-sizing:border-box}
-body{font-family:'Poppins',sans-serif;background:linear-gradient(120deg,#eef2ff,#dbeafe,#f5f3ff);margin:0;padding:15px}
-.container{max-width:794px;width:100%;margin:auto;background:white;border-radius:20px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,.1)}
-
-.header{background:linear-gradient(120deg,#4f46e5,#7c3aed);color:white;padding:25px;border-radius:15px;display:flex;justify-content:space-between;flex-wrap:wrap;margin-bottom:20px;gap:10px}
-.header input{padding:8px;border-radius:8px;border:none;width:150px}
-.company-header h2{margin:0;font-size:28px}
-
-.company{background:#f1f5f9;padding:15px;border-radius:12px;margin-bottom:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
-.company input{padding:10px;border-radius:8px;border:1px solid #ddd;width:100%}
-
-.table{width:100%;border-collapse:collapse}
-th{background:#1e293b;color:white;padding:10px}
-td{padding:10px;border-bottom:1px solid #eee;text-align:center}
-
-.btn{background:linear-gradient(120deg,#4f46e5,#7c3aed);border:none;padding:10px 18px;border-radius:8px;color:white;cursor:pointer;margin-top:10px}
-.preview-img{max-width:120px;border-radius:8px;margin-top:5px;display:none}
-.img-wrap{position:relative;display:inline-block}
-.remove-img{position:absolute;top:-8px;right:-8px;background:red;color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;display:none}
-.img-wrap:hover .remove-img{display:block}
-.total-box{margin-top:20px;text-align:right;font-size:18px;background:#f1f5f9;padding:12px;border-radius:10px}
-.signature-area{margin-top:25px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
-.signature-box{flex:1;min-width:220px}
-.upload-btn{background:#e0e7ff;padding:6px 12px;border-radius:6px;cursor:pointer;display:inline-block;margin-top:5px}
-.file-hidden{display:none}
-.terms{margin-top:20px;background:#f8fafc;padding:15px;border-radius:10px}
-.table-wrapper{overflow-x:auto;width:100%}
-
-/* PRINT FIX */
-@media print{
- body{background:white;margin:0;padding:0}
- .container{width:100% !important;max-width:100% !important;margin:0;padding:10mm;border-radius:0;box-shadow:none}
- .btn,.upload-btn,input[type=file]{display:none !important}
- tr{page-break-inside:avoid}
-}
-
-/* MOBILE FIX */
-@media(max-width:700px){
- body{padding:5px}
- .header{flex-direction:column}
- .header input{width:100%}
- .company{grid-template-columns:1fr}
-}
-</style>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #334155; }
+        .sidebar-bg { background-color: #0f172a; }
+        .card-shadow { box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.03); }
+        .sidebar-item-active { background-color: #2563eb; color: #ffffff; }
+        @media print {
+            body * { visibility: hidden; }
+            #printableShareLedger, #printableShareLedger * { visibility: visible; }
+            #printableShareLedger { position: absolute; left: 0; top: 0; width: 100%; }
+        }
+    </style>
 </head>
+<body class="flex min-h-screen text-slate-700">
 
-<body>
-<div class="container" id="quotation">
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-5 right-5 z-50 hidden bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl text-xs font-semibold flex items-center gap-3 transition-all">
+        <i class="fa-solid fa-circle-info text-blue-400 text-base"></i>
+        <span id="toastMsg">System Notification</span>
+    </div>
 
-<div class="header">
-<div class="company-header">
-<h2 contenteditable="true">Your Company Name</h2>
-<div contenteditable="true">Address Line • Phone • Email</div>
-</div>
-<div>
-Date <input type="date"><br><br>
-Quotation No <input type="text" placeholder="Q-001">
-</div>
-</div>
+    <!-- AUTHENTICATION MODAL -->
+    <div id="authModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 border border-slate-100">
+            <div class="text-center mb-6">
+                <div class="w-14 h-14 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center text-white text-2xl font-bold mb-3 shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid fa-book-journal-whills"></i>
+                </div>
+                <h2 id="modalTitle" class="text-2xl font-extrabold text-slate-900">Sign In</h2>
+                <p id="modalSub" class="text-slate-400 text-xs mt-1">Multi-Tenant Ledger & ERP Portal</p>
+            </div>
 
-<div class="company">
-<input type="text" placeholder="Client Name">
-<input type="text" placeholder="Client Address">
-<input type="text" placeholder="Client Phone">
-</div>
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleEmailLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Email Address</label>
+                    <input type="email" id="loginEmail" placeholder="yourname@domain.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                </div>
+                <div id="authError" class="text-rose-600 text-xs font-bold hidden bg-rose-50 p-3 rounded-xl border border-rose-200 text-center"></div>
+                <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-lg shadow-blue-500/25 text-xs">Sign In</button>
 
-<div class="table-wrapper">
-<table class="table" id="quoteTable">
-<thead>
-<tr>
-<th>S.N</th>
-<th>Description</th>
-<th>Design</th>
-<th>Qty</th>
-<th>Rate</th>
-<th>Amount</th>
-<th>X</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
-</div>
+                <p class="text-center text-xs text-slate-500 mt-4">Don't have an account? <button type="button" onclick="switchAuthView('register')" class="text-blue-600 font-bold hover:underline">Register New Company</button></p>
+            </form>
 
-<button class="btn" onclick="addRow()">+ Add Item</button>
-<button class="btn" onclick="downloadPDF()">Download PDF</button>
+            <!-- Register Form -->
+            <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Company / Full Name</label>
+                    <input type="text" id="regName" placeholder="ABC Company" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Email Address</label>
+                    <input type="email" id="regEmail" placeholder="user@domain.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Set Password</label>
+                    <input type="password" id="regPassword" minlength="6" placeholder="At least 6 chars" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                </div>
+                <button type="submit" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition shadow-lg text-xs">Create Dedicated Account</button>
+                <p class="text-center text-xs text-slate-500 mt-2"><button type="button" onclick="switchAuthView('login')" class="text-blue-600 font-bold hover:underline">Back to Login</button></p>
+            </form>
+        </div>
+    </div>
 
-<div class="total-box">Total Amount: Rs <span id="total">0</span></div>
+    <!-- LEFT SIDEBAR -->
+    <aside class="w-64 sidebar-bg text-slate-300 flex flex-col justify-between shrink-0 p-4">
+        <div>
+            <!-- Brand Header -->
+            <div class="flex items-center gap-3 px-2 py-3 mb-6 border-b border-slate-800 pb-4">
+                <div class="w-10 h-10 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-bold text-xl shadow-md">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-white text-base leading-tight">Ledger Hub</h1>
+                    <span class="text-[10px] text-blue-400 font-semibold tracking-wider uppercase" id="userRoleBadge">ADMIN</span>
+                </div>
+            </div>
 
-<div class="signature-area">
-<div class="signature-box">
-<b>Prepared By</b><br>
-<input type="text" placeholder="Name"><br>
-<label class="upload-btn">Upload Company Logo
-<input type="file" accept="image/*" class="file-hidden" onchange="previewSign(event,'prepSign')"></label>
-<br><img id="prepSign" style="max-height:80px;display:none">
-</div>
+            <!-- Navigation Bar -->
+            <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 mb-2">Modules Navigation</div>
+            <nav class="space-y-1 text-xs font-semibold max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+                <a href="#dashboard" onclick="switchTab('dashboard')" id="nav-dashboard" class="sidebar-item sidebar-item-active flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition">
+                    <i class="fa-solid fa-grip text-sm w-4"></i> Dashboard
+                </a>
+                <a href="#products" onclick="switchTab('products')" id="nav-products" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-tag text-sm w-4"></i> Product & Inventory
+                </a>
+                <a href="#sales" onclick="switchTab('sales')" id="nav-sales" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-cart-shopping text-sm w-4"></i> Sales System
+                </a>
+                <a href="#purchase" onclick="switchTab('purchase')" id="nav-purchase" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-bag-shopping text-sm w-4"></i> Purchase System
+                </a>
+                <a href="#customers" onclick="switchTab('customers')" id="nav-customers" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-users text-sm w-4"></i> Customer Management
+                </a>
+                <a href="#creditledger" onclick="switchTab('creditledger')" id="nav-creditledger" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-scale-balanced text-sm w-4"></i> Serial Customer Ledgers
+                </a>
+                <a href="#usermanagement" onclick="switchTab('usermanagement')" id="nav-usermanagement" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-user-gear text-sm w-4"></i> User Management
+                </a>
+            </nav>
+        </div>
 
-<div class="signature-box">
-<b>Approved By</b><br>
-<input type="text" placeholder="Client Name"><br>
-<label class="upload-btn">Upload Company Logo
-<input type="file" accept="image/*" class="file-hidden" onchange="previewSign(event,'appSign')"></label>
-<br><img id="appSign" style="max-height:80px;display:none">
-</div>
-</div>
+        <!-- User Profile Footer -->
+        <div class="bg-slate-800 p-3 rounded-2xl flex items-center justify-between border border-slate-700">
+            <div class="flex items-center gap-2.5 overflow-hidden">
+                <div id="userAvatar" class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">U</div>
+                <div class="truncate text-xs">
+                    <div id="userNameDisplay" class="font-bold text-white truncate">Guest User</div>
+                    <div id="userEmailDisplay" class="text-slate-400 text-[10px] truncate">Not logged in</div>
+                </div>
+            </div>
+            <button onclick="handleLogout()" class="text-slate-400 hover:text-white ms-2 text-xs" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+        </div>
+    </aside>
 
-<div class="terms" contenteditable="true">
-<b>Terms & Conditions</b>
-<ol>
-<li>Payment after delivery</li>
-<li>Design once approved cannot change</li>
-<li>Delivery within 7 days</li>
-<li>Transportation extra</li>
-</ol>
-</div>
-</div>
+    <!-- RIGHT MAIN CONTENT SECTION -->
+    <main class="flex-1 overflow-y-auto px-8 py-6 space-y-6">
+        
+        <!-- Header Bar -->
+        <header class="flex justify-between items-center">
+            <div>
+                <span class="text-xs font-semibold text-slate-400">Digital Workspace</span>
+                <h2 class="text-2xl font-bold text-slate-900" id="moduleTitle">Dashboard</h2>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-xs font-semibold text-slate-500 bg-white px-3 py-1.5 rounded-xl border border-slate-200">26 Jul 2026</span>
+                <div id="headerUserInitials" class="w-9 h-9 bg-slate-900 text-white rounded-xl flex items-center justify-center font-bold text-xs shadow-md">
+                    GU
+                </div>
+            </div>
+        </header>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js">function removeImg(btn){
-let wrap=btn.closest('.img-wrap');
-wrap.querySelector('img').style.display='none';
-let txt=wrap.querySelector('.upload-text'); if(txt) txt.style.display='inline';
-}
-</script>
-<script>
-let sn=1;
+        <!-- Dynamic Workspace Views -->
+        <div id="workspaceContent">
 
-function addRow(){
-let t=document.querySelector('#quoteTable tbody');
-let r=t.insertRow();
-r.innerHTML=`
-<td>${sn++}</td>
-<td contenteditable></td>
-<td>
-<div class='img-wrap'>
-<label class='upload-btn'><span class='upload-text'>Upload Design</span>
-<input type='file' class='file-hidden' accept='image/*' onchange='previewPhoto(event,this)'>
-</label>
-<br><img class='preview-img'><button class='remove-img' onclick='removeImg(this)'>X</button>
-</div>
-</td>
-<td contenteditable oninput='calc(this)'></td>
-<td contenteditable oninput='calc(this)'></td>
-<td></td>
-<td><button onclick='deleteRow(this)'>X</button></td>`;
-}
+            <!-- 1. DASHBOARD VIEW -->
+            <div id="view-dashboard" class="space-y-6">
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 card-shadow">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Sales Volume</span>
+                        <div class="text-xl font-extrabold text-slate-900 mt-1" id="dashTotalSales">रु 0.00</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 card-shadow">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Collected Amount</span>
+                        <div class="text-xl font-extrabold text-emerald-600 mt-1" id="dashCashSales">रु 0.00</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 card-shadow">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Pending Due Balance</span>
+                        <div class="text-xl font-extrabold text-rose-600 mt-1" id="dashOutstandingCredit">रु 0.00</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 card-shadow">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Purchase Expenses</span>
+                        <div class="text-xl font-extrabold text-blue-600 mt-1" id="dashTotalPurchase">रु 0.00</div>
+                    </div>
+                </div>
 
-function previewPhoto(e,input){
-let wrap=input.closest('.img-wrap');
-let img=wrap.querySelector('img');
-img.src=URL.createObjectURL(e.target.files[0]);
-img.style.display='block';
-let txt=wrap.querySelector('.upload-text'); if(txt) txt.style.display='none';
-}
+                <!-- Dashboard Charts -->
+                <div class="grid grid-cols-12 gap-6">
+                    <div class="col-span-8 bg-white p-6 rounded-3xl border border-slate-100 card-shadow">
+                        <h4 class="font-bold text-slate-900 text-sm mb-4"><i class="fa-solid fa-chart-area text-blue-600 me-2"></i>Real-time Sales & Purchase Trend</h4>
+                        <div class="h-64"><canvas id="salesPurchaseChart"></canvas></div>
+                    </div>
+                    <div class="col-span-4 bg-white p-6 rounded-3xl border border-slate-100 card-shadow">
+                        <h4 class="font-bold text-slate-900 text-sm mb-4"><i class="fa-solid fa-chart-pie text-emerald-600 me-2"></i>Collection Statistics</h4>
+                        <div class="h-64 relative"><canvas id="incomeExpenseChart"></canvas></div>
+                    </div>
+                </div>
+            </div>
 
-function deleteRow(btn){btn.closest('tr').remove();calcTotal();}
+            <!-- 2. PRODUCT & INVENTORY MANAGEMENT VIEW -->
+            <div id="view-products" class="space-y-6 hidden">
+                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Product & Inventory Catalog</h3>
+                        <p class="text-xs text-slate-400">Add products and manage real-time stock levels.</p>
+                    </div>
+                    <button onclick="openProductModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
+                        <i class="fa-solid fa-plus me-1.5"></i> Add New Product
+                    </button>
+                </div>
 
-function calc(el){
-let r=el.parentElement;
-let q=parseFloat(r.cells[3].innerText)||0;
-let rate=parseFloat(r.cells[4].innerText)||0;
-r.cells[5].innerText=q*rate||'';
-calcTotal();
-}
+                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
+                            <tr>
+                                <th class="p-4">Product Name</th>
+                                <th class="p-4">Purchase Rate</th>
+                                <th class="p-4">Selling Rate</th>
+                                <th class="p-4">Available Stock</th>
+                                <th class="p-4 text-center">Status</th>
+                                <th class="p-4 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
+                    </table>
+                </div>
+            </div>
 
-function calcTotal(){
-let sum=0;
-document.querySelectorAll('#quoteTable tbody tr').forEach(r=>sum+=Number(r.cells[5].innerText)||0);
-document.getElementById('total').innerText=sum;
-}
+            <!-- 3. CUSTOMER MANAGEMENT VIEW -->
+            <div id="view-customers" class="space-y-6 hidden">
+                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Customer Directory</h3>
+                        <p class="text-xs text-slate-400">Manage customers and view total outstanding balances.</p>
+                    </div>
+                    <button onclick="openCustomerModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
+                        <i class="fa-solid fa-user-plus me-1.5"></i> Add Customer
+                    </button>
+                </div>
 
-function previewSign(e,id){
-const img=document.getElementById(id);
-img.src=URL.createObjectURL(e.target.files[0]);
-img.style.display='block';
-}
+                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
+                            <tr>
+                                <th class="p-4">Customer Name</th>
+                                <th class="p-4">Phone</th>
+                                <th class="p-4">Address</th>
+                                <th class="p-4 text-right">Outstanding Balance</th>
+                                <th class="p-4 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customerTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
+                    </table>
+                </div>
+            </div>
 
-function downloadPDF(){
-const element=document.getElementById('quotation');
-html2pdf().set({
- margin:[10,10,10,10],
- filename:'Quotation.pdf',
- pagebreak:{mode:['avoid-all','css','legacy']},
- html2canvas:{scale:2,useCORS:true},
- jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
-}).from(element).save();
-}
-</script>
+            <!-- 4. SALES SYSTEM VIEW -->
+            <div id="view-sales" class="space-y-6 hidden">
+                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Sales Registry</h3>
+                        <p class="text-xs text-slate-400">Record cash/credit sales with itemized quantity and auto stock deduction.</p>
+                    </div>
+                    <button onclick="openSalesModal()" class="bg-emerald-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition">
+                        <i class="fa-solid fa-cart-plus me-1.5"></i> New Sales Invoice Entry
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
+                            <tr>
+                                <th class="p-4">Date</th>
+                                <th class="p-4">Customer</th>
+                                <th class="p-4">Product Details</th>
+                                <th class="p-4">Mode</th>
+                                <th class="p-4 text-right">Total Amount</th>
+                                <th class="p-4 text-right">Paid</th>
+                                <th class="p-4 text-right">Remaining</th>
+                            </tr>
+                        </thead>
+                        <tbody id="salesTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 5. FULLY FUNCTIONAL PURCHASE SYSTEM -->
+            <div id="view-purchase" class="space-y-6 hidden">
+                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Purchase System Engine</h3>
+                        <p class="text-xs text-slate-400">Record purchases from suppliers to auto-increase inventory stock.</p>
+                    </div>
+                    <button onclick="openPurchaseModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
+                        <i class="fa-solid fa-bag-shopping me-1.5"></i> Add New Purchase Entry
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
+                            <tr>
+                                <th class="p-4">Date</th>
+                                <th class="p-4">Supplier Name</th>
+                                <th class="p-4">Product Name</th>
+                                <th class="p-4">Quantity</th>
+                                <th class="p-4 text-right">Rate</th>
+                                <th class="p-4 text-right">Total Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="purchaseTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 6. SERIAL CUSTOMER LEDGERS & SHARE ENGINE -->
+            <div id="view-creditledger" class="space-y-6 hidden">
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 card-shadow flex justify-between items-center">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Serial Customer Ledger Statements</h3>
+                        <p class="text-xs text-slate-400">Chronological history of Sales and Payments with dynamic balance calculation.</p>
+                    </div>
+                </div>
+
+                <div id="ledgerCardsContainer" class="space-y-6"></div>
+            </div>
+
+            <!-- 7. USER MANAGEMENT VIEW -->
+            <div id="view-usermanagement" class="space-y-6 hidden">
+                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Sub-User Accounts & Role Permissions</h3>
+                        <p class="text-xs text-slate-400">Create Sales Users, Purchase Users, or Admins with restricted permissions.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
+                            <tr>
+                                <th class="p-4">User Email</th>
+                                <th class="p-4">Role</th>
+                                <th class="p-4">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700">
+                            <tr>
+                                <td class="p-4">admin@ledgerhub.com</td>
+                                <td class="p-4"><span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-[10px] font-bold">ADMIN</span></td>
+                                <td class="p-4"><span class="text-emerald-600 font-bold">Active Session</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- MODAL: ADD / EDIT PRODUCT -->
+    <div id="productModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
+            <h3 id="productModalTitle" class="font-bold text-slate-900 text-base mb-4">Add New Product</h3>
+            <form onsubmit="saveProduct(event)" class="space-y-3">
+                <input type="hidden" id="editProductId" value="">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Product Name</label>
+                    <input type="text" id="prodName" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="e.g. Rice 25kg Bag" required>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Purchase Price (रु)</label>
+                        <input type="number" id="prodCost" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="1000" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Selling Price (रु)</label>
+                        <input type="number" id="prodPrice" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="1200" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Stock Quantity</label>
+                    <input type="number" id="prodStock" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="50" required>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('productModal')" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-xl">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD CUSTOMER -->
+    <div id="customerModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
+            <h3 class="font-bold text-slate-900 text-base mb-4">Add Customer Record</h3>
+            <form onsubmit="saveCustomer(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Full Name</label>
+                    <input type="text" id="custName" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="e.g. Sudil Joshi" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Phone Number</label>
+                    <input type="text" id="custPhone" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="9800000000" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Address</label>
+                    <input type="text" id="custAddress" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="Kathmandu, Nepal" required>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('customerModal')" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-xl">Save Customer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: NEW SALES ENTRY -->
+    <div id="salesModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
+            <h3 class="font-bold text-slate-900 text-base mb-4">Create Sales Invoice</h3>
+            <form onsubmit="saveSales(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Customer</label>
+                    <select id="salesCustomerSelect" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Select Product</label>
+                    <select id="salesProductSelect" onchange="updateSalesCalculation()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required></select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Quantity</label>
+                        <input type="number" id="salesQty" min="1" value="1" oninput="updateSalesCalculation()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Rate (रु)</label>
+                        <input type="number" id="salesRate" oninput="updateSalesCalculation()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
+                    </div>
+                </div>
+                <div class="p-3 bg-slate-100 rounded-xl text-xs flex justify-between font-bold">
+                    <span>Total Amount:</span>
+                    <span id="salesTotalCalc" class="text-blue-600">रु 0</span>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Payment Mode</label>
+                    <select id="salesPaymentType" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                        <option value="CASH">CASH SALE</option>
+                        <option value="CREDIT">CREDIT SALE (Add to Customer Ledger)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Paid Amount Right Now (रु)</label>
+                    <input type="number" id="salesPaidNow" value="0" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('salesModal')" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-emerald-600 text-white text-xs font-bold rounded-xl">Save Sales Invoice</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD PURCHASE ENTRY -->
+    <div id="purchaseModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
+            <h3 class="font-bold text-slate-900 text-base mb-4">Add Purchase Entry</h3>
+            <form onsubmit="savePurchase(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Supplier Name</label>
+                    <input type="text" id="purSupplier" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="Supplier Company" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Select Product</label>
+                    <select id="purProductSelect" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required></select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Quantity</label>
+                        <input type="number" id="purQty" min="1" value="1" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Purchase Rate (रु)</label>
+                        <input type="number" id="purRate" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="0" required>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('purchaseModal')" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-xl">Save Purchase</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        let currentUser = { name: "Admin User", email: "admin@ledgerhub.com", role: "ADMIN" };
+        let products = JSON.parse(localStorage.getItem('lh_products')) || [
+            { id: 1, name: "Basmati Rice 25kg", cost: 2200, price: 2500, stock: 40 },
+            { id: 2, name: "Sunflower Oil 1L", cost: 180, price: 210, stock: 100 }
+        ];
+        let customers = JSON.parse(localStorage.getItem('lh_customers')) || [
+            { id: 1, name: "Ram Shrestha", phone: "9841000000", address: "Kathmandu" }
+        ];
+        let sales = JSON.parse(localStorage.getItem('lh_sales')) || [];
+        let purchases = JSON.parse(localStorage.getItem('lh_purchases')) || [];
+
+        let spChart = null, ieChart = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            updateUserInfo();
+            switchTab('dashboard');
+            renderAll();
+        });
+
+        function updateUserInfo() {
+            document.getElementById('userNameDisplay').innerText = currentUser.name;
+            document.getElementById('userEmailDisplay').innerText = currentUser.email;
+            document.getElementById('userRoleBadge').innerText = currentUser.role;
+            document.getElementById('userAvatar').innerText = currentUser.name.charAt(0);
+            document.getElementById('headerUserInitials').innerText = currentUser.name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('sidebar-item-active', 'bg-slate-800'));
+            
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if(activeNav) activeNav.classList.add('sidebar-item-active');
+            
+            document.getElementById('moduleTitle').innerText = activeNav ? activeNav.innerText.trim() : "Dashboard";
+            
+            if(tabId === 'dashboard') renderCharts();
+            if(tabId === 'creditledger') renderLedgers();
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            t.classList.remove('hidden');
+            setTimeout(() => t.classList.add('hidden'), 3000);
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        // Product Management
+        function openProductModal() {
+            document.getElementById('editProductId').value = '';
+            document.getElementById('prodName').value = '';
+            document.getElementById('prodCost').value = '';
+            document.getElementById('prodPrice').value = '';
+            document.getElementById('prodStock').value = '';
+            openModal('productModal');
+        }
+
+        function saveProduct(e) {
+            e.preventDefault();
+            const id = document.getElementById('editProductId').value;
+            const name = document.getElementById('prodName').value;
+            const cost = parseFloat(document.getElementById('prodCost').value);
+            const price = parseFloat(document.getElementById('prodPrice').value);
+            const stock = parseInt(document.getElementById('prodStock').value);
+
+            if(id) {
+                const p = products.find(item => item.id == id);
+                if(p) { p.name = name; p.cost = cost; p.price = price; p.stock = stock; }
+            } else {
+                products.push({ id: Date.now(), name, cost, price, stock });
+            }
+            localStorage.setItem('lh_products', JSON.stringify(products));
+            closeModal('productModal');
+            renderProducts();
+            showToast('Product saved successfully!');
+        }
+
+        function editProduct(id) {
+            const p = products.find(item => item.id == id);
+            if(!p) return;
+            document.getElementById('editProductId').value = p.id;
+            document.getElementById('prodName').value = p.name;
+            document.getElementById('prodCost').value = p.cost;
+            document.getElementById('prodPrice').value = p.price;
+            document.getElementById('prodStock').value = p.stock;
+            openModal('productModal');
+        }
+
+        function deleteProduct(id) {
+            products = products.filter(item => item.id != id);
+            localStorage.setItem('lh_products', JSON.stringify(products));
+            renderProducts();
+            showToast('Product deleted.');
+        }
+
+        function renderProducts() {
+            const tbody = document.getElementById('productTableBody');
+            tbody.innerHTML = products.map(p => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-4 font-bold text-slate-900">${p.name}</td>
+                    <td class="p-4">रु ${p.cost.toFixed(2)}</td>
+                    <td class="p-4">रु ${p.price.toFixed(2)}</td>
+                    <td class="p-4">${p.stock} units</td>
+                    <td class="p-4 text-center"><span class="px-2 py-1 rounded text-[10px] ${p.stock > 5 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">${p.stock > 5 ? 'In Stock' : 'Low Stock'}</span></td>
+                    <td class="p-4 text-center space-x-2">
+                        <button onclick="editProduct(${p.id})" class="text-blue-600 hover:underline"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deleteProduct(${p.id})" class="text-rose-600 hover:underline"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Customer Management
+        function openCustomerModal() {
+            document.getElementById('custName').value = '';
+            document.getElementById('custPhone').value = '';
+            document.getElementById('custAddress').value = '';
+            openModal('customerModal');
+        }
+
+        function saveCustomer(e) {
+            e.preventDefault();
+            const name = document.getElementById('custName').value;
+            const phone = document.getElementById('custPhone').value;
+            const address = document.getElementById('custAddress').value;
+
+            customers.push({ id: Date.now(), name, phone, address });
+            localStorage.setItem('lh_customers', JSON.stringify(customers));
+            closeModal('customerModal');
+            renderCustomers();
+            showToast('Customer added successfully!');
+        }
+
+        function deleteCustomer(id) {
+            customers = customers.filter(c => c.id != id);
+            localStorage.setItem('lh_customers', JSON.stringify(customers));
+            renderCustomers();
+            showToast('Customer removed.');
+        }
+
+        function renderCustomers() {
+            const tbody = document.getElementById('customerTableBody');
+            tbody.innerHTML = customers.map(c => {
+                const due = sales.filter(s => s.customerId == c.id).reduce((acc, s) => acc + (s.total - s.paid), 0);
+                return `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-4 font-bold text-slate-900">${c.name}</td>
+                        <td class="p-4">${c.phone}</td>
+                        <td class="p-4">${c.address}</td>
+                        <td class="p-4 text-right font-bold text-rose-600">रु ${due.toFixed(2)}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="deleteCustomer(${c.id})" class="text-rose-600 hover:underline"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Sales Management
+        function openSalesModal() {
+            const cSel = document.getElementById('salesCustomerSelect');
+            cSel.innerHTML = customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+            const pSel = document.getElementById('salesProductSelect');
+            pSel.innerHTML = products.map(p => `<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (Stock: ${p.stock})</option>`).join('');
+
+            document.getElementById('salesQty').value = 1;
+            updateSalesCalculation();
+            openModal('salesModal');
+        }
+
+        function updateSalesCalculation() {
+            const pSel = document.getElementById('salesProductSelect');
+            const opt = pSel.options[pSel.selectedIndex];
+            if(!opt) return;
+            const price = parseFloat(opt.getAttribute('data-price')) || 0;
+            document.getElementById('salesRate').value = price;
+            const qty = parseInt(document.getElementById('salesQty').value) || 0;
+            const total = qty * price;
+            document.getElementById('salesTotalCalc').innerText = `रु ${total.toFixed(2)}`;
+            document.getElementById('salesPaidNow').value = total;
+        }
+
+        function saveSales(e) {
+            e.preventDefault();
+            const customerId = document.getElementById('salesCustomerSelect').value;
+            const productId = document.getElementById('salesProductSelect').value;
+            const qty = parseInt(document.getElementById('salesQty').value);
+            const rate = parseFloat(document.getElementById('salesRate').value);
+            const total = qty * rate;
+            const paymentType = document.getElementById('salesPaymentType').value;
+            const paid = parseFloat(document.getElementById('salesPaidNow').value);
+
+            const prod = products.find(p => p.id == productId);
+            if(!prod || prod.stock < qty) {
+                showToast('Error: Insufficient stock!');
+                return;
+            }
+
+            prod.stock -= qty;
+            sales.push({
+                id: Date.now(),
+                date: new Date().toISOString().split('T')[0],
+                customerId,
+                productId,
+                qty,
+                rate,
+                total,
+                paymentType,
+                paid
+            });
+
+            localStorage.setItem('lh_products', JSON.stringify(products));
+            localStorage.setItem('lh_sales', JSON.stringify(sales));
+            closeModal('salesModal');
+            renderSales();
+            renderProducts();
+            updateDashboardMetrics();
+            showToast('Sales invoice recorded successfully!');
+        }
+
+        function renderSales() {
+            const tbody = document.getElementById('salesTableBody');
+            tbody.innerHTML = sales.map(s => {
+                const c = customers.find(cust => cust.id == s.customerId);
+                const p = products.find(prod => prod.id == s.productId);
+                const remaining = s.total - s.paid;
+                return `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-4">${s.date}</td>
+                        <td class="p-4 font-bold">${c ? c.name : 'Unknown'}</td>
+                        <td class="p-4">${p ? p.name : 'Item'} (${s.qty}x)</td>
+                        <td class="p-4"><span class="px-2 py-0.5 rounded text-[10px] ${s.paymentType === 'CASH' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${s.paymentType}</span></td>
+                        <td class="p-4 text-right">रु ${s.total.toFixed(2)}</td>
+                        <td class="p-4 text-right text-emerald-600">रु ${s.paid.toFixed(2)}</td>
+                        <td class="p-4 text-right text-rose-600">रु ${remaining.toFixed(2)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Purchase Management
+        function openPurchaseModal() {
+            const pSel = document.getElementById('purProductSelect');
+            pSel.innerHTML = products.map(p => `<option value="${p.id}" data-cost="${p.cost}">${p.name}</option>`).join('');
+            document.getElementById('purSupplier').value = '';
+            document.getElementById('purQty').value = 1;
+            document.getElementById('purRate').value = '';
+            openModal('purchaseModal');
+        }
+
+        function savePurchase(e) {
+            e.preventDefault();
+            const supplier = document.getElementById('purSupplier').value;
+            const productId = document.getElementById('purProductSelect').value;
+            const qty = parseInt(document.getElementById('purQty').value);
+            const rate = parseFloat(document.getElementById('purRate').value);
+            const total = qty * rate;
+
+            const prod = products.find(p => p.id == productId);
+            if(prod) {
+                prod.stock += qty;
+                prod.cost = rate;
+            }
+
+            purchases.push({
+                id: Date.now(),
+                date: new Date().toISOString().split('T')[0],
+                supplier,
+                productId,
+                qty,
+                rate,
+                total
+            });
+
+            localStorage.setItem('lh_products', JSON.stringify(products));
+            localStorage.setItem('lh_purchases', JSON.stringify(purchases));
+            closeModal('purchaseModal');
+            renderPurchases();
+            renderProducts();
+            updateDashboardMetrics();
+            showToast('Purchase recorded & stock updated!');
+        }
+
+        function renderPurchases() {
+            const tbody = document.getElementById('purchaseTableBody');
+            tbody.innerHTML = purchases.map(pur => {
+                const p = products.find(prod => prod.id == pur.productId);
+                return `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-4">${pur.date}</td>
+                        <td class="p-4 font-bold">${pur.supplier}</td>
+                        <td class="p-4">${p ? p.name : 'Item'}</td>
+                        <td class="p-4">${pur.qty}</td>
+                        <td class="p-4 text-right">रु ${pur.rate.toFixed(2)}</td>
+                        <td class="p-4 text-right font-bold text-blue-600">रु ${pur.total.toFixed(2)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Ledgers
+        function renderLedgers() {
+            const container = document.getElementById('ledgerCardsContainer');
+            container.innerHTML = customers.map(c => {
+                const custSales = sales.filter(s => s.customerId == c.id);
+                const totalSales = custSales.reduce((acc, s) => acc + s.total, 0);
+                const totalPaid = custSales.reduce((acc, s) => acc + s.paid, 0);
+                const totalDue = totalSales - totalPaid;
+
+                return `
+                    <div class="bg-white p-6 rounded-3xl border border-slate-100 card-shadow space-y-4">
+                        <div class="flex justify-between items-center border-b pb-3">
+                            <div>
+                                <h4 class="font-bold text-slate-900 text-sm">${c.name}</h4>
+                                <p class="text-xs text-slate-400">Phone: ${c.phone} | Address: ${c.address}</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs font-bold text-slate-400">Net Due Balance</span>
+                                <div class="text-base font-extrabold text-rose-600">रु ${totalDue.toFixed(2)}</div>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px]">
+                                    <tr>
+                                        <th class="p-3">Date</th>
+                                        <th class="p-3">Particulars / Mode</th>
+                                        <th class="p-3 text-right">Invoice Total</th>
+                                        <th class="p-3 text-right">Paid Amount</th>
+                                        <th class="p-3 text-right">Due Balance</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    ${custSales.length === 0 ? `<tr><td colspan="5" class="p-4 text-center text-slate-400">No transactions recorded yet.</td></tr>` : 
+                                      custSales.map(s => `
+                                        <tr>
+                                            <td class="p-3">${s.date}</td>
+                                            <td class="p-3 font-semibold">${s.paymentType}</td>
+                                            <td class="p-3 text-right">रु ${s.total.toFixed(2)}</td>
+                                            <td class="p-3 text-right text-emerald-600">रु ${s.paid.toFixed(2)}</td>
+                                            <td class="p-3 text-right text-rose-600">रु ${(s.total - s.paid).toFixed(2)}</td>
+                                        </tr>
+                                      `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Dashboard Metrics & Charts
+        function updateDashboardMetrics() {
+            const totalSales = sales.reduce((acc, s) => acc + s.total, 0);
+            const collected = sales.reduce((acc, s) => acc + s.paid, 0);
+            const due = totalSales - collected;
+            const totalPur = purchases.reduce((acc, p) => acc + p.total, 0);
+
+            document.getElementById('dashTotalSales').innerText = `रु ${totalSales.toFixed(2)}`;
+            document.getElementById('dashCashSales').innerText = `रु ${collected.toFixed(2)}`;
+            document.getElementById('dashOutstandingCredit').innerText = `रु ${due.toFixed(2)}`;
+            document.getElementById('dashTotalPurchase').innerText = `रु ${totalPur.toFixed(2)}`;
+        }
+
+        function renderCharts() {
+            updateDashboardMetrics();
+            
+            const totalSales = sales.reduce((acc, s) => acc + s.total, 0);
+            const totalPur = purchases.reduce((acc, p) => acc + p.total, 0);
+            const collected = sales.reduce((acc, s) => acc + s.paid, 0);
+            const due = totalSales - collected;
+
+            if(spChart) spChart.destroy();
+            const ctx1 = document.getElementById('salesPurchaseChart').getContext('2d');
+            spChart = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['Sales Volume', 'Purchase Expenses'],
+                    datasets: [{
+                        label: 'Amount in रु',
+                        data: [totalSales, totalPur],
+                        backgroundColor: ['#2563eb', '#3b82f6'],
+                        borderRadius: 8
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            if(ieChart) ieChart.destroy();
+            const ctx2 = document.getElementById('incomeExpenseChart').getContext('2d');
+            ieChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Collected', 'Pending Due'],
+                    datasets: [{
+                        data: [collected, due > 0 ? due : 0],
+                        backgroundColor: ['#10b981', '#f43f5e']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function renderAll() {
+            renderProducts();
+            renderCustomers();
+            renderSales();
+            renderPurchases();
+            updateDashboardMetrics();
+        }
+
+        function handleEmailLogin(e) { e.preventDefault(); closeModal('authModal'); showToast('Signed in successfully!'); }
+        function handleRegister(e) { e.preventDefault(); closeModal('authModal'); showToast('Account created successfully!'); }
+        function handleLogout() { openModal('authModal'); }
+        function switchAuthView(view) {
+            if(view === 'register') {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('registerForm').classList.remove('hidden');
+            } else {
+                document.getElementById('registerForm').classList.add('hidden');
+                document.getElementById('loginForm').classList.remove('hidden');
+            }
+        }
+    </script>
 </body>
 </html>
