@@ -6,20 +6,44 @@
     <title>Enterprise Multi-Tenant Digital Ledger & ERP System</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS for XLSX export -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #334155; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .sidebar-bg { background-color: #0f172a; }
         .card-shadow { box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.03); }
         .sidebar-item-active { background-color: #2563eb; color: #ffffff; }
+        
+        /* Print Stylesheet */
+        @media print {
+            aside, header, .no-print, button, input, select { display: none !important; }
+            main { padding: 0 !important; margin: 0 !important; width: 100% !important; overflow: visible !important; }
+            body { background: white !important; color: black !important; }
+            .card-shadow { box-shadow: none !important; border: 1px solid #ccc !important; }
+            .print-only { display: block !important; }
+        }
+        .print-only { display: none; }
     </style>
 </head>
-<body class="flex min-h-screen text-slate-700">
+<body class="flex min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-200 transition-colors duration-200">
 
     <!-- Toast Notification -->
     <div id="toast" class="fixed top-5 right-5 z-50 hidden bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl text-xs font-semibold flex items-center gap-3 transition-all">
@@ -29,24 +53,24 @@
 
     <!-- AUTHENTICATION MODAL -->
     <div id="authModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 border border-slate-100">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-md w-full p-8 border border-slate-100 dark:border-slate-700">
             <div class="text-center mb-6">
                 <div class="w-14 h-14 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center text-white text-2xl font-bold mb-3 shadow-lg shadow-blue-500/30">
                     <i class="fa-solid fa-book-journal-whills"></i>
                 </div>
-                <h2 id="modalTitle" class="text-2xl font-extrabold text-slate-900">Sign In</h2>
+                <h2 id="modalTitle" class="text-2xl font-extrabold text-slate-900 dark:text-white">Sign In</h2>
                 <p id="modalSub" class="text-slate-400 text-xs mt-1">Multi-Tenant Ledger & ERP Portal</p>
             </div>
 
             <!-- Login Form -->
             <form id="loginForm" onsubmit="handleEmailLogin(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Email Address</label>
-                    <input type="email" id="loginEmail" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="enter your email" required>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Email Address</label>
+                    <input type="email" id="loginEmail" value="admin@ledger.com" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="enter your email" required>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Password</label>
-                    <input type="password" id="loginPassword" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="••••••••" required>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Password</label>
+                    <input type="password" id="loginPassword" value="admin123" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="••••••••" required>
                 </div>
                 <div id="authError" class="text-rose-600 text-xs font-bold hidden bg-rose-50 p-3 rounded-xl border border-rose-200 text-center"></div>
                 <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-lg shadow-blue-500/25 text-xs">Sign In</button>
@@ -63,16 +87,31 @@
                     <i class="fa-solid fa-chart-line"></i>
                 </div>
                 <div>
-                    <h1 class="font-extrabold text-white text-base leading-tight">Ledger Hub</h1>
+                    <h1 class="font-extrabold text-white text-base leading-tight" id="sidebarCompName">Ledger Hub</h1>
                     <span class="text-[10px] text-blue-400 font-semibold tracking-wider uppercase" id="userRoleBadge">ADMIN</span>
                 </div>
             </div>
 
             <!-- Navigation Bar -->
             <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 mb-2">Modules Navigation</div>
-            <nav class="space-y-1 text-xs font-semibold max-h-[calc(100vh-200px)] overflow-y-auto pr-1">
+            <nav class="space-y-1 text-xs font-semibold max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
                 <a href="#dashboard" onclick="switchTab('dashboard')" id="nav-dashboard" class="sidebar-item sidebar-item-active flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition">
                     <i class="fa-solid fa-grip text-sm w-4"></i> Dashboard
+                </a>
+                <a href="#customers" onclick="switchTab('customers')" id="nav-customers" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-users text-sm w-4"></i> Customer Information
+                </a>
+                <a href="#creditledger" onclick="switchTab('creditledger')" id="nav-creditledger" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-book text-sm w-4"></i> Ledger Entries & Customer Ledger
+                </a>
+                <a href="#reports" onclick="switchTab('reports')" id="nav-reports" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-chart-pie text-sm w-4 text-emerald-400"></i> Reports & Analytics
+                </a>
+                <a href="#backup" onclick="switchTab('backup')" id="nav-backup" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-database text-sm w-4 text-amber-400"></i> Backup & Restore
+                </a>
+                <a href="#settings" onclick="switchTab('settings')" id="nav-settings" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-gear text-sm w-4 text-purple-400"></i> Settings & Preferences
                 </a>
                 <a href="#products" onclick="switchTab('products')" id="nav-products" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
                     <i class="fa-solid fa-tag text-sm w-4"></i> Product & Inventory
@@ -95,12 +134,6 @@
                 <a href="#adjustments" onclick="switchTab('adjustments')" id="nav-adjustments" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
                     <i class="fa-solid fa-sliders text-sm w-4 text-purple-400"></i> Adjustment
                 </a>
-                <a href="#customers" onclick="switchTab('customers')" id="nav-customers" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-users text-sm w-4"></i> Customer Management
-                </a>
-                <a href="#creditledger" onclick="switchTab('creditledger')" id="nav-creditledger" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-scale-balanced text-sm w-4"></i> Serial Customer Ledgers
-                </a>
                 <a href="#usermanagement" onclick="switchTab('usermanagement')" id="nav-usermanagement" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
                     <i class="fa-solid fa-user-gear text-sm w-4"></i> User Management
                 </a>
@@ -110,10 +143,10 @@
         <!-- User Profile Footer -->
         <div class="bg-slate-800 p-3 rounded-2xl flex items-center justify-between border border-slate-700">
             <div class="flex items-center gap-2.5 overflow-hidden">
-                <div id="userAvatar" class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">U</div>
+                <div id="userAvatar" class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">A</div>
                 <div class="truncate text-xs">
-                    <div id="userNameDisplay" class="font-bold text-white truncate">User</div>
-                    <div id="userEmailDisplay" class="text-slate-400 text-[10px] truncate">Not Logged In</div>
+                    <div id="userNameDisplay" class="font-bold text-white truncate">Admin</div>
+                    <div id="userEmailDisplay" class="text-slate-400 text-[10px] truncate">admin@ledger.com</div>
                 </div>
             </div>
             <button onclick="handleLogout()" class="text-slate-400 hover:text-white ms-2 text-xs" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
@@ -123,16 +156,26 @@
     <!-- RIGHT MAIN CONTENT SECTION -->
     <main class="flex-1 overflow-y-auto px-8 py-6 space-y-6">
         
+        <!-- Printable Header (Only shows in Print Mode) -->
+        <div class="print-only mb-6 border-b pb-4">
+            <h1 class="text-2xl font-bold text-slate-900" id="printCompName">Digital Ledger System</h1>
+            <p class="text-sm text-slate-600" id="printCompAddress">Kathmandu, Nepal | PAN/VAT: N/A</p>
+            <p class="text-xs text-slate-500 mt-1">Generated Statement Date: <span id="printDate"></span></p>
+        </div>
+
         <!-- Header Bar -->
-        <header class="flex justify-between items-center">
+        <header class="flex justify-between items-center no-print">
             <div>
                 <span class="text-xs font-semibold text-slate-400">Digital Workspace</span>
-                <h2 class="text-2xl font-bold text-slate-900" id="moduleTitle">Dashboard</h2>
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white" id="moduleTitle">Dashboard</h2>
             </div>
             <div class="flex items-center gap-3">
-                <span class="text-xs font-semibold text-slate-500 bg-white px-3 py-1.5 rounded-xl border border-slate-200" id="currentDateDisplay"></span>
-                <div id="headerUserInitials" class="w-9 h-9 bg-slate-900 text-white rounded-xl flex items-center justify-center font-bold text-xs shadow-md">
-                    --
+                <button onclick="toggleDarkMode()" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold bg-white dark:bg-slate-800 dark:text-white shadow-sm hover:bg-slate-100 transition">
+                    <i class="fa-solid fa-moon dark:hidden text-indigo-600"></i><i class="fa-solid fa-sun hidden dark:inline text-amber-400"></i>
+                </button>
+                <span class="text-xs font-semibold text-slate-500 dark:text-slate-300 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700" id="currentDateDisplay"></span>
+                <div id="headerUserInitials" class="w-9 h-9 bg-slate-900 dark:bg-slate-700 text-white rounded-xl flex items-center justify-center font-bold text-xs shadow-md">
+                    AD
                 </div>
             </div>
         </header>
@@ -142,43 +185,338 @@
 
             <!-- 1. DASHBOARD VIEW -->
             <div id="view-dashboard" class="space-y-6">
-                <div class="grid grid-cols-4 gap-4">
-                    <div class="bg-white p-4 rounded-2xl border border-slate-100 card-shadow">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Sales Volume</span>
-                        <div class="text-xl font-extrabold text-slate-900 mt-1" id="dashTotalSales">रु 0.00</div>
+                <!-- Top Metric Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Customers</span>
+                        <div class="text-xl font-extrabold text-slate-900 dark:text-white mt-1" id="dashTotalCustomers">0</div>
                     </div>
-                    <div class="bg-white p-4 rounded-2xl border border-slate-100 card-shadow">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase">Collected Amount</span>
-                        <div class="text-xl font-extrabold text-emerald-600 mt-1" id="dashCashSales">रु 0.00</div>
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Receivable (उठाउन बाँकी)</span>
+                        <div class="text-xl font-extrabold text-rose-600 mt-1" id="dashTotalReceivable">रु 0.00</div>
                     </div>
-                    <div class="bg-white p-4 rounded-2xl border border-slate-100 card-shadow">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase">Pending Due Balance</span>
-                        <div class="text-xl font-extrabold text-rose-600 mt-1" id="dashOutstandingCredit">रु 0.00</div>
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Payable (तिर्न बाँकी)</span>
+                        <div class="text-xl font-extrabold text-amber-600 mt-1" id="dashTotalPayable">रु 0.00</div>
                     </div>
-                    <div class="bg-white p-4 rounded-2xl border border-slate-100 card-shadow">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Purchase Expenses</span>
-                        <div class="text-xl font-extrabold text-blue-600 mt-1" id="dashTotalPurchase">रु 0.00</div>
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Today's Transactions</span>
+                        <div class="text-xl font-extrabold text-emerald-600 mt-1" id="dashTodayTransactions">रु 0.00</div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">This Month Summary</span>
+                        <div class="text-xl font-extrabold text-blue-600 mt-1" id="dashMonthSummary">रु 0.00</div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Purchases</span>
+                        <div class="text-xl font-extrabold text-purple-600 mt-1" id="dashTotalPurchase">रु 0.00</div>
                     </div>
                 </div>
 
                 <!-- Dashboard Charts -->
                 <div class="grid grid-cols-12 gap-6">
-                    <div class="col-span-8 bg-white p-6 rounded-3xl border border-slate-100 card-shadow">
-                        <h4 class="font-bold text-slate-900 text-sm mb-4"><i class="fa-solid fa-chart-area text-blue-600 me-2"></i>Real-time Sales & Purchase Trend</h4>
+                    <div class="col-span-12 lg:col-span-8 bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 card-shadow">
+                        <h4 class="font-bold text-slate-900 dark:text-white text-sm mb-4"><i class="fa-solid fa-chart-area text-blue-600 me-2"></i>Real-time Sales & Financial Trend</h4>
                         <div class="h-64"><canvas id="salesPurchaseChart"></canvas></div>
                     </div>
-                    <div class="col-span-4 bg-white p-6 rounded-3xl border border-slate-100 card-shadow">
-                        <h4 class="font-bold text-slate-900 text-sm mb-4"><i class="fa-solid fa-chart-pie text-emerald-600 me-2"></i>Collection Statistics</h4>
+                    <div class="col-span-12 lg:col-span-4 bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 card-shadow">
+                        <h4 class="font-bold text-slate-900 dark:text-white text-sm mb-4"><i class="fa-solid fa-chart-pie text-emerald-600 me-2"></i>Receivables vs Payables Breakdown</h4>
                         <div class="h-64 relative"><canvas id="incomeExpenseChart"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions Table -->
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 card-shadow">
+                    <h4 class="font-bold text-slate-900 dark:text-white text-sm mb-4"><i class="fa-solid fa-clock-rotate-left text-blue-600 me-2"></i>Recent Transactions</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
+                                <tr>
+                                    <th class="p-3">Date</th>
+                                    <th class="p-3">Voucher No.</th>
+                                    <th class="p-3">Customer / Party</th>
+                                    <th class="p-3">Description</th>
+                                    <th class="p-3 text-right">Debit (रु)</th>
+                                    <th class="p-3 text-right">Credit (रु)</th>
+                                    <th class="p-3">Payment Method</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentTxTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
-            <!-- 2. PRODUCT & INVENTORY MANAGEMENT VIEW -->
-            <div id="view-products" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+            <!-- 2. CUSTOMER INFORMATION VIEW -->
+            <div id="view-customers" class="space-y-6 hidden">
+                <div class="flex flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow gap-4">
                     <div>
-                        <h3 class="font-bold text-slate-900 text-base">Product & Inventory Catalog</h3>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Customer Directory</h3>
+                        <p class="text-xs text-slate-400">Manage customer profile, contact details, opening balance and PAN/VAT.</p>
+                    </div>
+                    <button onclick="openCustomerModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
+                        <i class="fa-solid fa-user-plus me-1.5"></i> Add New Customer
+                    </button>
+                </div>
+
+                <!-- Customer Search & Filter Bar -->
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow flex flex-wrap gap-3">
+                    <input type="text" id="custSearchName" oninput="renderCustomers()" placeholder="Search by Customer Name..." class="px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none flex-1 min-w-[200px]">
+                    <input type="text" id="custSearchMobile" oninput="renderCustomers()" placeholder="Search by Mobile..." class="px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none flex-1 min-w-[150px]">
+                    <select id="custFilterBalance" onchange="renderCustomers()" class="px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none">
+                        <option value="ALL">All Balances</option>
+                        <option value="DUE">Outstanding Due (>0)</option>
+                        <option value="ZERO">Zero Balance</option>
+                        <option value="ADVANCE">Advance Paid (<0)</option>
+                    </select>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
+                            <tr>
+                                <th class="p-4">Customer ID</th>
+                                <th class="p-4">Customer Name</th>
+                                <th class="p-4">Mobile</th>
+                                <th class="p-4">Address</th>
+                                <th class="p-4">PAN/VAT</th>
+                                <th class="p-4 text-right">Opening Bal.</th>
+                                <th class="p-4 text-right">Current Balance</th>
+                                <th class="p-4 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customerTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 3 & 4. LEDGER ENTRIES & CUSTOMER LEDGER PAGE VIEW -->
+            <div id="view-creditledger" class="space-y-6 hidden">
+                <div class="flex flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow gap-4">
+                    <div>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Ledger Entries & Statements</h3>
+                        <p class="text-xs text-slate-400">Complete Ledger Entries with auto-voucher, debit/credit, running balance, & filters.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="openLedgerEntryModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
+                            <i class="fa-solid fa-plus me-1.5"></i> Add New Entry
+                        </button>
+                        <button onclick="window.print()" class="bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-slate-900 transition">
+                            <i class="fa-solid fa-print me-1.5"></i> Print Ledger
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Customer Ledger Filter & Header Details -->
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Select Customer</label>
+                            <select id="ledgerCustomerSelect" onchange="renderCustomerLedgerView()" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-bold">
+                                <option value="ALL">-- All Customer Entries --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Filter Payment Method</label>
+                            <select id="ledgerFilterPayment" onchange="renderCustomerLedgerView()" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none">
+                                <option value="ALL">All Methods</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Bank">Bank</option>
+                                <option value="QR">QR</option>
+                                <option value="Cheque">Cheque</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">From Date</label>
+                            <input type="date" id="ledgerStartDate" onchange="renderCustomerLedgerView()" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">To Date</label>
+                            <input type="date" id="ledgerEndDate" onchange="renderCustomerLedgerView()" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Selected Customer Statement Header Card -->
+                    <div id="customerHeaderDetails" class="hidden p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600 grid grid-cols-2 md:grid-cols-5 gap-4 text-xs font-semibold">
+                        <div><span class="text-slate-400 block text-[10px]">CUSTOMER NAME</span><span id="custHeadName" class="text-slate-900 dark:text-white font-bold"></span></div>
+                        <div><span class="text-slate-400 block text-[10px]">OPENING BAL.</span><span id="custHeadOpening"></span></div>
+                        <div><span class="text-slate-400 block text-[10px]">TOTAL DEBIT</span><span id="custHeadTotalDebit" class="text-rose-600 font-bold"></span></div>
+                        <div><span class="text-slate-400 block text-[10px]">TOTAL CREDIT</span><span id="custHeadTotalCredit" class="text-emerald-600 font-bold"></span></div>
+                        <div><span class="text-slate-400 block text-[10px]">CLOSING BALANCE</span><span id="custHeadClosing" class="text-blue-600 font-bold"></span></div>
+                    </div>
+                </div>
+
+                <!-- Main Ledger Table -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
+                            <tr>
+                                <th class="p-4">Date</th>
+                                <th class="p-4">Voucher No.</th>
+                                <th class="p-4">Customer</th>
+                                <th class="p-4">Description / Remarks</th>
+                                <th class="p-4 text-right">Debit (उधार)</th>
+                                <th class="p-4 text-right">Credit (प्राप्त)</th>
+                                <th class="p-4 text-right">Running Balance</th>
+                                <th class="p-4">Method</th>
+                                <th class="p-4 text-center">Attach</th>
+                                <th class="p-4 text-center no-print">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledgerTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
+                    </table>
+                </div>
+
+                <!-- Export & Reminders Bar -->
+                <div class="flex flex-wrap gap-2 justify-between items-center bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow no-print">
+                    <div class="flex gap-2">
+                        <button onclick="exportLedgerToExcel()" class="px-3.5 py-2 bg-emerald-600 text-white font-bold text-xs rounded-xl hover:bg-emerald-700 transition"><i class="fa-solid fa-file-excel me-1.5"></i> Export Excel</button>
+                        <button onclick="exportLedgerToCSV()" class="px-3.5 py-2 bg-slate-700 text-white font-bold text-xs rounded-xl hover:bg-slate-800 transition"><i class="fa-solid fa-file-csv me-1.5"></i> Export CSV</button>
+                        <button onclick="window.print()" class="px-3.5 py-2 bg-rose-600 text-white font-bold text-xs rounded-xl hover:bg-rose-700 transition"><i class="fa-solid fa-file-pdf me-1.5"></i> Download PDF/Print</button>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="sendDueReminder('whatsapp')" class="px-3.5 py-2 bg-emerald-500 text-white font-bold text-xs rounded-xl hover:bg-emerald-600 transition"><i class="fa-brands fa-whatsapp me-1.5"></i> WhatsApp Reminder</button>
+                        <button onclick="sendDueReminder('sms')" class="px-3.5 py-2 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700 transition"><i class="fa-solid fa-comment-sms me-1.5"></i> SMS Reminder</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. REPORTS VIEW -->
+            <div id="view-reports" class="space-y-6 hidden">
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                    <h3 class="font-bold text-slate-900 dark:text-white text-base">Comprehensive Financial Reports</h3>
+                    <p class="text-xs text-slate-400">Generate Daily, Weekly, Monthly, Custom Date, and Outstanding Ledger Summaries.</p>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow space-y-4">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button onclick="generateReport('daily')" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-blue-600 hover:text-white text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl transition">Daily Report</button>
+                        <button onclick="generateReport('weekly')" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-blue-600 hover:text-white text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl transition">Weekly Report</button>
+                        <button onclick="generateReport('monthly')" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-blue-600 hover:text-white text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl transition">Monthly Report</button>
+                        <button onclick="generateReport('outstanding')" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-blue-600 hover:text-white text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl transition">Outstanding Report</button>
+                        <button onclick="generateReport('income_expense')" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-blue-600 hover:text-white text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl transition">Income/Expense Summary</button>
+                    </div>
+
+                    <div class="flex flex-wrap items-end gap-3 pt-2 border-t border-slate-100 dark:border-slate-700">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Custom Start</label>
+                            <input type="date" id="repStartDate" class="px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Custom End</label>
+                            <input type="date" id="repEndDate" class="px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none">
+                        </div>
+                        <button onclick="generateReport('custom')" class="px-4 py-2 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700 transition">Filter Custom Date</button>
+                    </div>
+                </div>
+
+                <!-- Report Render Container -->
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-3">
+                        <h4 class="font-bold text-slate-900 dark:text-white text-sm" id="reportTitleHeader">Daily Activity Summary</h4>
+                        <button onclick="window.print()" class="px-3 py-1.5 bg-slate-800 text-white text-xs font-bold rounded-xl no-print"><i class="fa-solid fa-print me-1"></i> Print Report</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
+                                <tr>
+                                    <th class="p-3">Date / Item</th>
+                                    <th class="p-3">Voucher / Party</th>
+                                    <th class="p-3">Category</th>
+                                    <th class="p-3 text-right">Debit / Out (रु)</th>
+                                    <th class="p-3 text-right">Credit / In (रु)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8. BACKUP & RESTORE VIEW -->
+            <div id="view-backup" class="space-y-6 hidden">
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                    <h3 class="font-bold text-slate-900 dark:text-white text-base">Local Data Backup & Restore Engine</h3>
+                    <p class="text-xs text-slate-400">Save, export, import JSON backups or reset database securely.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 card-shadow space-y-3">
+                        <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-lg font-bold"><i class="fa-solid fa-download"></i></div>
+                        <h4 class="font-bold text-slate-900 dark:text-white text-sm">Export System Backup</h4>
+                        <p class="text-xs text-slate-400">Download complete ledger data, customer info, transactions, and settings into a .JSON file.</p>
+                        <button onclick="exportBackupJSON()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition shadow-lg shadow-blue-500/20">Download JSON Backup</button>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 card-shadow space-y-3">
+                        <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-lg font-bold"><i class="fa-solid fa-upload"></i></div>
+                        <h4 class="font-bold text-slate-900 dark:text-white text-sm">Import / Restore Backup</h4>
+                        <p class="text-xs text-slate-400">Upload a saved JSON file to restore customer profiles, ledger entries, and ERP data.</p>
+                        <input type="file" id="importJsonFile" accept=".json" class="hidden" onchange="importBackupJSON(event)">
+                        <button onclick="document.getElementById('importJsonFile').click()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow-lg shadow-emerald-500/20">Select JSON File</button>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 card-shadow space-y-3">
+                        <div class="w-10 h-10 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center text-lg font-bold"><i class="fa-solid fa-trash-can"></i></div>
+                        <h4 class="font-bold text-slate-900 dark:text-white text-sm">Clear / Reset Database</h4>
+                        <p class="text-xs text-slate-400">Warning: Permanently erases all local storage data and resets system to default state.</p>
+                        <button onclick="resetSystemData()" class="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition shadow-lg shadow-rose-500/20">Reset System Data</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 9. SETTINGS VIEW -->
+            <div id="view-settings" class="space-y-6 hidden">
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                    <h3 class="font-bold text-slate-900 dark:text-white text-base">System Settings & Company Configuration</h3>
+                    <p class="text-xs text-slate-400">Configure business information, print headers, currency, date formats, and dark mode.</p>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 card-shadow max-w-2xl space-y-4">
+                    <form onsubmit="saveCompanySettings(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Company / Shop Name</label>
+                            <input type="text" id="setCompName" class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" required>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Phone Number</label>
+                                <input type="text" id="setCompPhone" class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">PAN / VAT Number</label>
+                                <input type="text" id="setCompPan" class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Address</label>
+                            <input type="text" id="setCompAddress" class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Currency Symbol</label>
+                                <input type="text" id="setCompCurrency" value="रु" class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Date Format</label>
+                                <select id="setDateFormat" class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold">
+                                    <option value="YYYY-MM-DD">YYYY-MM-DD (AD Standard)</option>
+                                    <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md transition">Save Settings</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- EXISTING ERP VIEWS (PRODUCTS, SALES, PURCHASE, RECEIPT, PAID, RETURNS, ADJUSTMENTS, USER MANAGEMENT) -->
+
+            <!-- PRODUCT & INVENTORY VIEW -->
+            <div id="view-products" class="space-y-6 hidden">
+                <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                    <div>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Product & Inventory Catalog</h3>
                         <p class="text-xs text-slate-400">Add products and manage real-time stock levels.</p>
                     </div>
                     <button onclick="openProductModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
@@ -186,57 +524,27 @@
                     </button>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden">
                     <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
+                        <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
                             <tr>
                                 <th class="p-4">Product Name</th>
                                 <th class="p-4">Purchase Rate</th>
                                 <th class="p-4">Selling Rate</th>
                                 <th class="p-4">Available Stock</th>
                                 <th class="p-4 text-center">Status</th>
-                                <th class="p-4 text-center">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="productTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
+                        <tbody id="productTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- 3. CUSTOMER MANAGEMENT VIEW -->
-            <div id="view-customers" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
-                    <div>
-                        <h3 class="font-bold text-slate-900 text-base">Customer Directory</h3>
-                        <p class="text-xs text-slate-400">Manage customers and view total outstanding balances & last active dates.</p>
-                    </div>
-                    <button onclick="openCustomerModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
-                        <i class="fa-solid fa-user-plus me-1.5"></i> Add Customer
-                    </button>
-                </div>
-
-                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
-                            <tr>
-                                <th class="p-4">Customer Name</th>
-                                <th class="p-4">Phone</th>
-                                <th class="p-4">Address</th>
-                                <th class="p-4">Last Transaction Date</th>
-                                <th class="p-4 text-right">Outstanding Balance</th>
-                                <th class="p-4 text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="customerTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- 4. SALES SYSTEM VIEW -->
+            <!-- SALES SYSTEM VIEW -->
             <div id="view-sales" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+                <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
                     <div>
-                        <h3 class="font-bold text-slate-900 text-base">Sales Registry</h3>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Sales Registry</h3>
                         <p class="text-xs text-slate-400">Record cash/credit sales with itemized quantity and auto stock deduction.</p>
                     </div>
                     <button onclick="openSalesModal()" class="bg-emerald-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition">
@@ -244,29 +552,27 @@
                     </button>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden">
                     <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
+                        <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
                             <tr>
                                 <th class="p-4">Date</th>
                                 <th class="p-4">Customer</th>
                                 <th class="p-4">Product Details</th>
                                 <th class="p-4">Mode</th>
                                 <th class="p-4 text-right">Total Amount</th>
-                                <th class="p-4 text-right">Paid</th>
-                                <th class="p-4 text-right">Remaining</th>
                             </tr>
                         </thead>
-                        <tbody id="salesTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
+                        <tbody id="salesTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- 5. PURCHASE SYSTEM VIEW -->
+            <!-- PURCHASE SYSTEM VIEW -->
             <div id="view-purchase" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+                <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
                     <div>
-                        <h3 class="font-bold text-slate-900 text-base">Purchase System Engine</h3>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Purchase System Engine</h3>
                         <p class="text-xs text-slate-400">Record purchases from suppliers to auto-increase inventory stock.</p>
                     </div>
                     <button onclick="openPurchaseModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
@@ -274,167 +580,92 @@
                     </button>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden">
                     <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
+                        <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
                             <tr>
                                 <th class="p-4">Date</th>
                                 <th class="p-4">Supplier Name</th>
                                 <th class="p-4">Product Name</th>
                                 <th class="p-4">Quantity</th>
-                                <th class="p-4 text-right">Rate</th>
                                 <th class="p-4 text-right">Total Amount</th>
                             </tr>
                         </thead>
-                        <tbody id="purchaseTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
+                        <tbody id="purchaseTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
                     </table>
                 </div>
             </div>
 
             <!-- PAYMENT RECEIPT VIEW -->
             <div id="view-receipt" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+                <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
                     <div>
-                        <h3 class="font-bold text-slate-900 text-base">Payment Receipt Module</h3>
-                        <p class="text-xs text-slate-400">Record payments received from credit customers. Auto-updates outstanding balance & ledger.</p>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Payment Receipt Module</h3>
+                        <p class="text-xs text-slate-400">Record payments received from credit customers.</p>
                     </div>
-                    <button onclick="openReceiptModal()" class="bg-emerald-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition">
-                        <i class="fa-solid fa-hand-holding-dollar me-1.5"></i> Receive Payment
-                    </button>
                 </div>
-
-                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
-                            <tr>
-                                <th class="p-4">Date</th>
-                                <th class="p-4">Customer Name</th>
-                                <th class="p-4">Amount Received</th>
-                                <th class="p-4">Payment Mode</th>
-                                <th class="p-4">Remarks</th>
-                            </tr>
-                        </thead>
-                        <tbody id="receiptTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
-                    </table>
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden p-4">
+                    <p class="text-xs text-slate-500">Payment receipt records are integrated dynamically into Customer Ledger Entries.</p>
                 </div>
             </div>
 
             <!-- PAYMENT PAID VIEW -->
             <div id="view-paymentpaid" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+                <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
                     <div>
-                        <h3 class="font-bold text-slate-900 text-base">Payment Paid Module</h3>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Payment Paid Module</h3>
                         <p class="text-xs text-slate-400">Record outgoing payments paid to suppliers or vendors.</p>
                     </div>
-                    <button onclick="openPaidModal()" class="bg-rose-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-rose-700 transition">
-                        <i class="fa-solid fa-paper-plane me-1.5"></i> Add Paid Record
-                    </button>
                 </div>
-
-                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
-                            <tr>
-                                <th class="p-4">Date</th>
-                                <th class="p-4">Paid To (Vendor/Supplier)</th>
-                                <th class="p-4 text-right">Amount Paid</th>
-                                <th class="p-4">Payment Mode</th>
-                                <th class="p-4">Remarks</th>
-                            </tr>
-                        </thead>
-                        <tbody id="paidTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
-                    </table>
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden p-4">
+                    <p class="text-xs text-slate-500">Outgoing payment entries are maintained in system logs and reports.</p>
                 </div>
             </div>
 
             <!-- RETURN VIEW -->
             <div id="view-returns" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+                <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
                     <div>
-                        <h3 class="font-bold text-slate-900 text-base">Sales & Purchase Return Engine</h3>
-                        <p class="text-xs text-slate-400">Manage item returns and auto-adjust customer balances.</p>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Sales & Purchase Return Engine</h3>
+                        <p class="text-xs text-slate-400">Manage item returns and auto-adjust balances.</p>
                     </div>
-                    <button onclick="openReturnModal()" class="bg-amber-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-amber-700 transition">
-                        <i class="fa-solid fa-arrow-rotate-left me-1.5"></i> Process Return
-                    </button>
-                </div>
-
-                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
-                            <tr>
-                                <th class="p-4">Date</th>
-                                <th class="p-4">Party Name</th>
-                                <th class="p-4">Type</th>
-                                <th class="p-4">Product</th>
-                                <th class="p-4">Qty</th>
-                                <th class="p-4 text-right">Credit Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody id="returnTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
-                    </table>
                 </div>
             </div>
 
             <!-- ADJUSTMENT VIEW -->
             <div id="view-adjustments" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+                <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
                     <div>
-                        <h3 class="font-bold text-slate-900 text-base">Ledger Adjustment Module</h3>
-                        <p class="text-xs text-slate-400">Manual Debit/Credit entries for discounts, bad debt write-offs, or stock adjustments.</p>
-                    </div>
-                    <button onclick="openAdjustmentModal()" class="bg-purple-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-purple-700 transition">
-                        <i class="fa-solid fa-sliders me-1.5"></i> Add Adjustment Entry
-                    </button>
-                </div>
-
-                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
-                            <tr>
-                                <th class="p-4">Date</th>
-                                <th class="p-4">Customer Name</th>
-                                <th class="p-4">Adjustment Type</th>
-                                <th class="p-4 text-right">Amount</th>
-                                <th class="p-4">Reason / Remarks</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adjustmentTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- SERIAL CUSTOMER LEDGERS -->
-            <div id="view-creditledger" class="space-y-6 hidden">
-                <div class="bg-white p-5 rounded-2xl border border-slate-100 card-shadow flex justify-between items-center">
-                    <div>
-                        <h3 class="font-bold text-slate-900 text-base">Serial Customer Ledger Statements</h3>
-                        <p class="text-xs text-slate-400">Chronological history of Sales and Payments with dynamic balance calculation.</p>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Ledger Adjustment Module</h3>
+                        <p class="text-xs text-slate-400">Manual Debit/Credit entries for discounts or bad debts.</p>
                     </div>
                 </div>
-
-                <div id="ledgerCardsContainer" class="space-y-6"></div>
             </div>
 
             <!-- USER MANAGEMENT VIEW -->
             <div id="view-usermanagement" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+                <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
                     <div>
-                        <h3 class="font-bold text-slate-900 text-base">Sub-User Accounts & Role Permissions</h3>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Sub-User Accounts & Role Permissions</h3>
                         <p class="text-xs text-slate-400">Active session profile information.</p>
                     </div>
                 </div>
-
-                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden">
                     <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
+                        <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
                             <tr>
                                 <th class="p-4">User Email</th>
                                 <th class="p-4">Role</th>
                                 <th class="p-4">Status</th>
                             </tr>
                         </thead>
-                        <tbody id="userTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
+                        <tbody id="userTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300">
+                            <tr>
+                                <td class="p-4">admin@ledger.com</td>
+                                <td class="p-4"><span class="px-2 py-1 bg-blue-100 text-blue-600 rounded-md text-[10px] font-bold">ADMIN</span></td>
+                                <td class="p-4"><span class="text-emerald-600 font-bold">Active</span></td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -442,1245 +673,811 @@
         </div>
     </main>
 
-    <!-- MODAL: ADD / EDIT PRODUCT -->
-    <div id="productModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <h3 id="productModalTitle" class="font-bold text-slate-900 text-base mb-4">Add New Product</h3>
-            <form onsubmit="saveProduct(event)" class="space-y-3">
-                <input type="hidden" id="editProductId" value="">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Product Name</label>
-                    <input type="text" id="prodName" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="e.g. Rice 25kg Bag" required>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Purchase Price (रु)</label>
-                        <input type="number" id="prodCost" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="1000" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Selling Price (रु)</label>
-                        <input type="number" id="prodPrice" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="1200" required>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Initial Stock Quantity</label>
-                    <input type="number" id="prodStock" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="50" required>
-                </div>
-                <div class="flex gap-2 pt-2">
-                    <button type="button" onclick="closeModal('productModal')" class="w-1/2 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs">Cancel</button>
-                    <button type="submit" class="w-1/2 py-3 bg-blue-600 text-white font-bold rounded-xl text-xs">Save Product</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    <!-- MODALS SECTION -->
 
-    <!-- MODAL: ADD CUSTOMER -->
+    <!-- MODAL 1: ADD / EDIT CUSTOMER MODAL -->
     <div id="customerModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <h3 class="font-bold text-slate-900 text-base mb-4">Add New Customer</h3>
+        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100 dark:border-slate-700">
+            <h3 id="customerModalTitle" class="font-bold text-slate-900 dark:text-white text-base mb-4">Add New Customer</h3>
             <form onsubmit="saveCustomer(event)" class="space-y-3">
+                <input type="hidden" id="editCustIndex" value="">
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Customer Full Name</label>
-                    <input type="text" id="custName" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="e.g. Ram Kumar" required>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Customer ID (Auto Generated)</label>
+                    <input type="text" id="custAutoId" class="w-full p-2.5 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-bold" readonly>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Phone Number</label>
-                    <input type="text" id="custPhone" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="98XXXXXXXX" required>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Customer Name *</label>
+                    <input type="text" id="custName" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="e.g. Ram Kumar" required>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Mobile Number *</label>
+                        <input type="text" id="custMobile" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="9800000000" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">PAN/VAT (Optional)</label>
+                        <input type="text" id="custPan" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="600000000">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Address</label>
+                        <input type="text" id="custAddress" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="Kathmandu">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Email (Optional)</label>
+                        <input type="email" id="custEmail" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="ram@email.com">
+                    </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Address</label>
-                    <input type="text" id="custAddress" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="Kathmandu, Nepal">
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Opening Balance (रु)</label>
+                    <input type="number" step="any" id="custOpeningBal" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="0.00">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Notes / Remarks</label>
+                    <textarea id="custNotes" rows="2" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="Additional details..."></textarea>
                 </div>
                 <div class="flex gap-2 pt-2">
-                    <button type="button" onclick="closeModal('customerModal')" class="w-1/2 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs">Cancel</button>
-                    <button type="submit" class="w-1/2 py-3 bg-blue-600 text-white font-bold rounded-xl text-xs">Save Customer</button>
+                    <button type="button" onclick="closeCustomerModal()" class="w-1/2 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs rounded-xl">Cancel</button>
+                    <button type="submit" class="w-1/2 py-2.5 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700">Save Customer</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL: SALES INVOICE -->
-    <div id="salesModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <h3 class="font-bold text-slate-900 text-base mb-4">New Sales Entry</h3>
-            <form onsubmit="saveSales(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Select Customer</label>
-                    <select id="salesCustomerSelect" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold" required></select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Select Product</label>
-                    <select id="salesProductSelect" onchange="updateSalesRate()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold" required></select>
-                </div>
+    <!-- MODAL 2: LEDGER ENTRY MODAL -->
+    <div id="ledgerEntryModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100 dark:border-slate-700">
+            <h3 id="ledgerModalTitle" class="font-bold text-slate-900 dark:text-white text-base mb-4">Add Ledger Transaction</h3>
+            <form onsubmit="saveLedgerEntry(event)" class="space-y-3">
+                <input type="hidden" id="editLedgerId" value="">
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Quantity</label>
-                        <input type="number" id="salesQty" min="1" value="1" oninput="calculateSalesTotal()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Voucher No. (Auto)</label>
+                        <input type="text" id="ledVoucherNo" class="w-full p-2.5 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-bold" readonly>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Unit Rate (रु)</label>
-                        <input type="number" id="salesRate" oninput="calculateSalesTotal()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Total Amount (रु)</label>
-                        <input type="number" id="salesTotal" class="w-full p-3 bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold" readonly>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Amount Paid Now (रु)</label>
-                        <input type="number" id="salesPaid" value="0" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Date *</label>
+                        <input type="date" id="ledDate" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" required>
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Payment Mode</label>
-                    <select id="salesMode" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-                        <option value="CREDIT">CREDIT (उधारो)</option>
-                        <option value="CASH">CASH (नगद)</option>
-                        <option value="ONLINE">ONLINE / FONEPAY</option>
-                    </select>
-                </div>
-                <div class="flex gap-2 pt-2">
-                    <button type="button" onclick="closeModal('salesModal')" class="w-1/2 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs">Cancel</button>
-                    <button type="submit" class="w-1/2 py-3 bg-emerald-600 text-white font-bold rounded-xl text-xs">Complete Sale</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL: PURCHASE ENTRY -->
-    <div id="purchaseModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <h3 class="font-bold text-slate-900 text-base mb-4">Add Purchase Entry</h3>
-            <form onsubmit="savePurchase(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Supplier / Vendor Name</label>
-                    <input type="text" id="purchSupplier" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="e.g. ABC Suppliers" required>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Select Customer *</label>
+                    <select id="ledCustSelect" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" required></select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Select Product</label>
-                    <select id="purchProductSelect" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold" required></select>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Purchase Qty</label>
-                        <input type="number" id="purchQty" min="1" value="1" oninput="calcPurchTotal()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Cost Rate (रु)</label>
-                        <input type="number" id="purchRate" oninput="calcPurchTotal()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Total Expenses Amount (रु)</label>
-                    <input type="number" id="purchTotal" class="w-full p-3 bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold" readonly>
-                </div>
-                <div class="flex gap-2 pt-2">
-                    <button type="button" onclick="closeModal('purchaseModal')" class="w-1/2 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs">Cancel</button>
-                    <button type="submit" class="w-1/2 py-3 bg-blue-600 text-white font-bold rounded-xl text-xs">Save Purchase</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL: RECEIPT -->
-    <div id="receiptModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <h3 class="font-bold text-slate-900 text-base mb-4">Receive Payment</h3>
-            <form onsubmit="saveReceipt(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Select Customer</label>
-                    <select id="receiptCustomerSelect" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold" required></select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Amount Received (रु)</label>
-                    <input type="number" id="receiptAmount" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Payment Mode</label>
-                    <select id="receiptMode" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-                        <option value="CASH">CASH (नगद)</option>
-                        <option value="ONLINE">ONLINE / FONEPAY</option>
-                        <option value="BANK_CHEQUE">CHEQUE</option>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Transaction Type *</label>
+                    <select id="ledType" onchange="toggleDebitCreditInput()" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold">
+                        <option value="DEBIT">Debit (उधार दिएको / Sale Credit)</option>
+                        <option value="CREDIT">Credit (पैसा प्राप्त गरेको / Payment Received)</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Remarks</label>
-                    <input type="text" id="receiptRemarks" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="e.g. Partial payment received">
-                </div>
-                <div class="flex gap-2 pt-2">
-                    <button type="button" onclick="closeModal('receiptModal')" class="w-1/2 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs">Cancel</button>
-                    <button type="submit" class="w-1/2 py-3 bg-emerald-600 text-white font-bold rounded-xl text-xs">Record Receipt</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL: PAYMENT PAID -->
-    <div id="paidModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <h3 class="font-bold text-slate-900 text-base mb-4">Record Payment Paid</h3>
-            <form onsubmit="savePaid(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Vendor / Supplier Name</label>
-                    <input type="text" id="paidVendor" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Amount (रु) *</label>
+                    <input type="number" step="any" id="ledAmount" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="0.00" required>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Amount Paid (रु)</label>
-                    <input type="number" id="paidAmount" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Payment Mode</label>
-                    <select id="paidMode" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-                        <option value="CASH">CASH</option>
-                        <option value="BANK_TRANSFER">BANK TRANSFER</option>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Payment Method</label>
+                    <select id="ledPaymentMethod" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold">
+                        <option value="Cash">Cash</option>
+                        <option value="Bank">Bank Transfer</option>
+                        <option value="QR">QR Payment Record</option>
+                        <option value="Cheque">Cheque</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Remarks</label>
-                    <input type="text" id="paidRemarks" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Description / Remarks</label>
+                    <input type="text" id="ledRemarks" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="Transaction details...">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Bill/Image Attachment (Optional)</label>
+                    <input type="file" id="ledAttachment" accept="image/*" class="w-full text-xs text-slate-500">
                 </div>
                 <div class="flex gap-2 pt-2">
-                    <button type="button" onclick="closeModal('paidModal')" class="w-1/2 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs">Cancel</button>
-                    <button type="submit" class="w-1/2 py-3 bg-rose-600 text-white font-bold rounded-xl text-xs">Record Paid</button>
+                    <button type="button" onclick="closeLedgerEntryModal()" class="w-1/2 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs rounded-xl">Cancel</button>
+                    <button type="submit" class="w-1/2 py-2.5 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700">Save Ledger Entry</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL: RETURN -->
-    <div id="returnModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <h3 class="font-bold text-slate-900 text-base mb-4">Process Item Return</h3>
-            <form onsubmit="saveReturn(event)" class="space-y-3">
+    <!-- PRODUCT MODAL -->
+    <div id="productModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100 dark:border-slate-700">
+            <h3 class="font-bold text-slate-900 dark:text-white text-base mb-4">Add New Product</h3>
+            <form onsubmit="saveProduct(event)" class="space-y-3">
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Select Customer</label>
-                    <select id="returnCustomerSelect" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold" required></select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Select Product</label>
-                    <select id="returnProductSelect" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold" required></select>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Product Name</label>
+                    <input type="text" id="prodName" class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="e.g. Rice 25kg Bag" required>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Returned Qty</label>
-                        <input type="number" id="returnQty" min="1" value="1" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Purchase Price (रु)</label>
+                        <input type="number" id="prodCost" class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="1000" required>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Credit Amount (रु)</label>
-                        <input type="number" id="returnAmount" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold" required>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Selling Price (रु)</label>
+                        <input type="number" id="prodPrice" class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="1200" required>
                     </div>
                 </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Initial Stock Quantity</label>
+                    <input type="number" id="prodStock" class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="50" required>
+                </div>
                 <div class="flex gap-2 pt-2">
-                    <button type="button" onclick="closeModal('returnModal')" class="w-1/2 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs">Cancel</button>
-                    <button type="submit" class="w-1/2 py-3 bg-amber-600 text-white font-bold rounded-xl text-xs">Save Return</button>
+                    <button type="button" onclick="closeProductModal()" class="w-1/2 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs rounded-xl">Cancel</button>
+                    <button type="submit" class="w-1/2 py-2.5 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700">Save Product</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL: ADJUSTMENT -->
-    <div id="adjustmentModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <h3 class="font-bold text-slate-900 text-base mb-4">Add Ledger Adjustment</h3>
-            <form onsubmit="saveAdjustment(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Select Customer</label>
-                    <select id="adjCustomerSelect" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold" required></select>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Adjustment Type</label>
-                        <select id="adjType" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold">
-                            <option value="DISCOUNT">DISCOUNT (घटाउने)</option>
-                            <option value="BAD_DEBT">BAD DEBT (राइट अफ)</option>
-                            <option value="CHARGE">EXTRA CHARGE (थप्ने)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Amount (रु)</label>
-                        <input type="number" id="adjAmount" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold" required>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Remarks</label>
-                    <input type="text" id="adjRemarks" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="e.g. Discount allowed">
-                </div>
-                <div class="flex gap-2 pt-2">
-                    <button type="button" onclick="closeModal('adjustmentModal')" class="w-1/2 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs">Cancel</button>
-                    <button type="submit" class="w-1/2 py-3 bg-purple-600 text-white font-bold rounded-xl text-xs">Save Adjustment</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-
-    <!-- SYSTEM CORE JAVASCRIPT LOGIC -->
+    <!-- JAVASCRIPT APPLICATION CORE LOGIC -->
     <script>
-        // DATA PERSISTENCE INITIALIZATION
-        let db = {
-            currentUser: JSON.parse(localStorage.getItem('lh_currentUser')) || null,
-            products: JSON.parse(localStorage.getItem('lh_products')) || [],
-            customers: JSON.parse(localStorage.getItem('lh_customers')) || [],
-            sales: JSON.parse(localStorage.getItem('lh_sales')) || [],
-            purchases: JSON.parse(localStorage.getItem('lh_purchases')) || [],
-            receipts: JSON.parse(localStorage.getItem('lh_receipts')) || [],
-            paids: JSON.parse(localStorage.getItem('lh_paids')) || [],
-            returns: JSON.parse(localStorage.getItem('lh_returns')) || [],
-            adjustments: JSON.parse(localStorage.getItem('lh_adjustments')) || []
+        // CORE STATE STORED IN LOCALSTORAGE
+        let state = {
+            settings: JSON.parse(localStorage.getItem('sys_settings')) || {
+                companyName: 'Digital Ledger ERP',
+                phone: '9800000000',
+                pan: '600123456',
+                address: 'Kathmandu, Nepal',
+                currency: 'रु',
+                dateFormat: 'YYYY-MM-DD',
+                darkMode: false
+            },
+            customers: JSON.parse(localStorage.getItem('sys_customers')) || [
+                { id: 'CUST-1001', name: 'Ramesh Sharma', mobile: '9841234567', address: 'Kathmandu', email: 'ramesh@gmail.com', pan: '600112233', openingBal: 5000, notes: 'VIP Client' },
+                { id: 'CUST-1002', name: 'Sita Thapa', mobile: '9808765432', address: 'Lalitpur', email: 'sita@yahoo.com', pan: '', openingBal: 0, notes: '' }
+            ],
+            ledger: JSON.parse(localStorage.getItem('sys_ledger')) || [
+                { id: '1', voucherNo: 'VOUCH-1001', customerId: 'CUST-1001', date: '2026-07-20', description: 'Goods purchased on credit', debit: 2500, credit: 0, method: 'Cash', attachment: '' },
+                { id: '2', voucherNo: 'VOUCH-1002', customerId: 'CUST-1001', date: '2026-07-22', description: 'Payment via QR', debit: 0, credit: 1500, method: 'QR', attachment: '' },
+                { id: '3', voucherNo: 'VOUCH-1003', customerId: 'CUST-1002', date: '2026-07-25', description: 'Initial Sales', debit: 4000, credit: 0, method: 'Cash', attachment: '' }
+            ],
+            products: JSON.parse(localStorage.getItem('sys_products')) || [
+                { id: '1', name: 'Rice 25kg Bag', cost: 1800, price: 2100, stock: 45 },
+                { id: '2', name: 'Sunflower Oil 5L', cost: 1100, price: 1300, stock: 30 }
+            ],
+            deletedStack: []
         };
 
-        function saveData(key) {
-            localStorage.setItem('lh_' + key, JSON.stringify(db[key]));
-        }
+        let salesChartInstance = null;
+        let pieChartInstance = null;
 
-        // Global Chart References
-        let salesPurchaseChartObj = null;
-        let incomeExpenseChartObj = null;
-
-        // Date Display
-        document.getElementById('currentDateDisplay').innerText = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-
-        // INITIAL APPLICATION STATE
+        // INITIALIZATION
         window.addEventListener('DOMContentLoaded', () => {
-            if (!db.currentUser) {
-                document.getElementById('authModal').classList.remove('hidden');
-            } else {
-                document.getElementById('authModal').classList.add('hidden');
-                updateUserProfileUI();
-                renderAllData();
-            }
+            initSystemSettings();
+            renderDashboard();
+            renderCustomers();
+            renderCustomerLedgerView();
+            renderProducts();
+            updateCurrentDate();
+            checkAuthStatus();
         });
 
-        // 1. AUTHENTICATION MODULE (Strict No Hardcoding / Persistent Session)
-        function handleEmailLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            const errorDiv = document.getElementById('authError');
-
-            if (!email || !password) {
-                errorDiv.innerText = "Please enter both Email Address and Password.";
-                errorDiv.classList.remove('hidden');
-                return;
-            }
-
-            // Create or Authenticate User Session
-            const username = email.split('@')[0];
-            db.currentUser = {
-                email: email,
-                name: username.charAt(0).toUpperCase() + username.slice(1),
-                role: 'ADMIN'
-            };
-            saveData('currentUser');
-
-            errorDiv.classList.add('hidden');
-            document.getElementById('authModal').classList.add('hidden');
-            showToast("Successfully Logged In!");
-
-            updateUserProfileUI();
-            renderAllData();
+        function saveState() {
+            localStorage.setItem('sys_settings', JSON.stringify(state.settings));
+            localStorage.setItem('sys_customers', JSON.stringify(state.customers));
+            localStorage.setItem('sys_ledger', JSON.stringify(state.ledger));
+            localStorage.setItem('sys_products', JSON.stringify(state.products));
         }
 
-        function handleLogout() {
-            db.currentUser = null;
-            localStorage.removeItem('lh_currentUser');
-            document.getElementById('userEmailDisplay').innerText = 'Not Logged In';
-            document.getElementById('userNameDisplay').innerText = 'User';
-            document.getElementById('userAvatar').innerText = 'U';
-            document.getElementById('headerUserInitials').innerText = '--';
-            document.getElementById('authModal').classList.remove('hidden');
-            showToast("Logged Out Successfully.");
-        }
-
-        function updateUserProfileUI() {
-            if (!db.currentUser) return;
-            document.getElementById('userEmailDisplay').innerText = db.currentUser.email;
-            document.getElementById('userNameDisplay').innerText = db.currentUser.name;
-            const initials = db.currentUser.name.substring(0, 2).toUpperCase();
-            document.getElementById('userAvatar').innerText = initials.charAt(0);
-            document.getElementById('headerUserInitials').innerText = initials;
-
-            // Render User Table
-            const tbody = document.getElementById('userTableBody');
-            tbody.innerHTML = `
-                <tr>
-                    <td class="p-4">${db.currentUser.email}</td>
-                    <td class="p-4"><span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-[10px] font-bold">${db.currentUser.role}</span></td>
-                    <td class="p-4"><span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle text-[8px] me-1"></i>Active Session</span></td>
-                </tr>
-            `;
-        }
-
-        // NAVIGATION TAB SWITCHING
-        function switchTab(tabId) {
-            const views = ['dashboard', 'products', 'customers', 'sales', 'purchase', 'receipt', 'paymentpaid', 'returns', 'adjustments', 'creditledger', 'usermanagement'];
-            views.forEach(v => {
-                const el = document.getElementById('view-' + v);
-                const nav = document.getElementById('nav-' + v);
-                if (el) el.classList.add('hidden');
-                if (nav) {
-                    nav.classList.remove('sidebar-item-active');
-                    nav.classList.add('hover:bg-slate-800');
-                }
-            });
-
-            const activeView = document.getElementById('view-' + tabId);
-            const activeNav = document.getElementById('nav-' + tabId);
-            if (activeView) activeView.classList.remove('hidden');
-            if (activeNav) {
-                activeNav.classList.add('sidebar-item-active');
-                activeNav.classList.remove('hover:bg-slate-800');
-            }
-
-            const titleMap = {
-                'dashboard': 'Dashboard Overview',
-                'products': 'Product & Inventory Management',
-                'customers': 'Customer Directory & Accounts',
-                'sales': 'Sales System Engine',
-                'purchase': 'Purchase System Engine',
-                'receipt': 'Payment Receipt Portal',
-                'paymentpaid': 'Payment Paid Records',
-                'returns': 'Sales & Purchase Returns',
-                'adjustments': 'Ledger Adjustments',
-                'creditledger': 'Serial Customer Ledgers',
-                'usermanagement': 'User Account Settings'
-            };
-            document.getElementById('moduleTitle').innerText = titleMap[tabId] || 'Digital Workspace';
-
-            if (tabId === 'dashboard') {
-                calculateDashboardMetrics();
-            }
-        }
-
-        // TOAST NOTIFICATIONS
         function showToast(msg) {
             const toast = document.getElementById('toast');
             document.getElementById('toastMsg').innerText = msg;
             toast.classList.remove('hidden');
-            setTimeout(() => { toast.classList.add('hidden'); }, 3000);
+            setTimeout(() => toast.classList.add('hidden'), 3000);
         }
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
+        function updateCurrentDate() {
+            const now = new Date();
+            document.getElementById('currentDateDisplay').innerText = now.toDateString();
+            document.getElementById('printDate').innerText = now.toLocaleString();
         }
 
-        // RE-RENDER ALL DATA & TABLES
-        function renderAllData() {
-            renderProducts();
-            renderCustomers();
-            renderSales();
-            renderPurchases();
-            renderReceipts();
-            renderPaids();
-            renderReturns();
-            renderAdjustments();
-            renderLedgerStatements();
-            calculateDashboardMetrics();
+        // NAVIGATION LOGIC
+        function switchTab(tabId) {
+            const views = ['dashboard', 'customers', 'creditledger', 'reports', 'backup', 'settings', 'products', 'sales', 'purchase', 'receipt', 'paymentpaid', 'returns', 'adjustments', 'usermanagement'];
+            views.forEach(v => {
+                const el = document.getElementById(`view-${v}`);
+                if(el) el.classList.add('hidden');
+                const nav = document.getElementById(`nav-${v}`);
+                if(nav) nav.classList.remove('sidebar-item-active');
+            });
+
+            const activeView = document.getElementById(`view-${tabId}`);
+            if(activeView) activeView.classList.remove('hidden');
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if(activeNav) activeNav.classList.add('sidebar-item-active');
+
+            const titleMap = {
+                dashboard: 'Dashboard', customers: 'Customer Information', creditledger: 'Ledger Entries & Customer Ledger',
+                reports: 'Reports & Analytics', backup: 'Backup & Restore', settings: 'Settings & Preferences',
+                products: 'Product & Inventory', sales: 'Sales System', purchase: 'Purchase System'
+            };
+            document.getElementById('moduleTitle').innerText = titleMap[tabId] || 'Workspace';
+
+            if(tabId === 'dashboard') renderDashboard();
+            if(tabId === 'customers') renderCustomers();
+            if(tabId === 'creditledger') renderCustomerLedgerView();
+            if(tabId === 'reports') generateReport('daily');
         }
 
-        // 2. PRODUCT MANAGEMENT
-        function openProductModal() {
-            document.getElementById('editProductId').value = '';
-            document.getElementById('prodName').value = '';
-            document.getElementById('prodCost').value = '';
-            document.getElementById('prodPrice').value = '';
-            document.getElementById('prodStock').value = '';
-            document.getElementById('productModalTitle').innerText = 'Add New Product';
-            document.getElementById('productModal').classList.remove('hidden');
+        // SETTINGS & DARK MODE
+        function initSystemSettings() {
+            if(state.settings.darkMode) document.documentElement.classList.add('dark');
+            document.getElementById('sidebarCompName').innerText = state.settings.companyName;
+            document.getElementById('printCompName').innerText = state.settings.companyName;
+            document.getElementById('printCompAddress').innerText = `${state.settings.address} | PAN: ${state.settings.pan}`;
+            
+            document.getElementById('setCompName').value = state.settings.companyName;
+            document.getElementById('setCompPhone').value = state.settings.phone;
+            document.getElementById('setCompPan').value = state.settings.pan;
+            document.getElementById('setCompAddress').value = state.settings.address;
+            document.getElementById('setCompCurrency').value = state.settings.currency;
+            document.getElementById('setDateFormat').value = state.settings.dateFormat;
         }
 
-        function saveProduct(e) {
+        function toggleDarkMode() {
+            state.settings.darkMode = !state.settings.darkMode;
+            document.documentElement.classList.toggle('dark', state.settings.darkMode);
+            saveState();
+        }
+
+        function saveCompanySettings(e) {
             e.preventDefault();
-            const id = document.getElementById('editProductId').value;
-            const name = document.getElementById('prodName').value.trim();
-            const cost = parseFloat(document.getElementById('prodCost').value) || 0;
-            const price = parseFloat(document.getElementById('prodPrice').value) || 0;
-            const stock = parseInt(document.getElementById('prodStock').value) || 0;
-
-            if (id) {
-                const p = db.products.find(x => x.id === id);
-                if (p) { p.name = name; p.cost = cost; p.price = price; p.stock = stock; }
-            } else {
-                db.products.push({
-                    id: 'PROD-' + Date.now(),
-                    name: name,
-                    cost: cost,
-                    price: price,
-                    stock: stock
-                });
-            }
-            saveData('products');
-            closeModal('productModal');
-            renderProducts();
-            calculateDashboardMetrics();
-            showToast("Product saved successfully!");
+            state.settings.companyName = document.getElementById('setCompName').value;
+            state.settings.phone = document.getElementById('setCompPhone').value;
+            state.settings.pan = document.getElementById('setCompPan').value;
+            state.settings.address = document.getElementById('setCompAddress').value;
+            state.settings.currency = document.getElementById('setCompCurrency').value;
+            state.settings.dateFormat = document.getElementById('setDateFormat').value;
+            saveState();
+            initSystemSettings();
+            showToast('Settings Saved Successfully!');
         }
 
-        function renderProducts() {
-            const tbody = document.getElementById('productTableBody');
-            tbody.innerHTML = '';
-            if (db.products.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">No products added yet.</td></tr>`;
-                return;
-            }
-            db.products.forEach(p => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="p-4 font-bold">${p.name}</td>
-                    <td class="p-4">रु ${p.cost.toFixed(2)}</td>
-                    <td class="p-4">रु ${p.price.toFixed(2)}</td>
-                    <td class="p-4 font-extrabold ${p.stock <= 5 ? 'text-rose-600' : 'text-slate-800'}">${p.stock} Units</td>
-                    <td class="p-4 text-center"><span class="${p.stock > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'} px-2 py-1 rounded text-[10px] font-bold">${p.stock > 0 ? 'IN STOCK' : 'OUT OF STOCK'}</span></td>
-                    <td class="p-4 text-center">
-                        <button onclick="editProduct('${p.id}')" class="text-blue-600 hover:text-blue-800 font-bold"><i class="fa-solid fa-pen-to-square"></i></button>
-                    </td>
+        // 1. DASHBOARD LOGIC
+        function renderDashboard() {
+            const curr = state.settings.currency;
+            let totalReceivable = 0;
+            let totalPayable = 0;
+            let todayTx = 0;
+            let monthSummary = 0;
+
+            const todayStr = new Date().toISOString().split('T')[0];
+            const currentMonthStr = todayStr.substring(0, 7);
+
+            // Compute customer balances
+            state.customers.forEach(cust => {
+                let bal = Number(cust.openingBal || 0);
+                state.ledger.filter(l => l.customerId === cust.id).forEach(l => {
+                    bal += (Number(l.debit) - Number(l.credit));
+                });
+                if(bal > 0) totalReceivable += bal;
+                else if(bal < 0) totalPayable += Math.abs(bal);
+            });
+
+            // Calculate Today & Month Tx
+            state.ledger.forEach(l => {
+                const amount = Number(l.debit) + Number(l.credit);
+                if(l.date === todayStr) todayTx += amount;
+                if(l.date.startsWith(currentMonthStr)) monthSummary += amount;
+            });
+
+            document.getElementById('dashTotalCustomers').innerText = state.customers.length;
+            document.getElementById('dashTotalReceivable').innerText = `${curr} ${totalReceivable.toFixed(2)}`;
+            document.getElementById('dashTotalPayable').innerText = `${curr} ${totalPayable.toFixed(2)}`;
+            document.getElementById('dashTodayTransactions').innerText = `${curr} ${todayTx.toFixed(2)}`;
+            document.getElementById('dashMonthSummary').innerText = `${curr} ${monthSummary.toFixed(2)}`;
+            document.getElementById('dashTotalPurchase').innerText = `${curr} 0.00`;
+
+            // Recent Transactions Table
+            const recent = [...state.ledger].reverse().slice(0, 5);
+            const tbody = document.getElementById('recentTxTableBody');
+            tbody.innerHTML = recent.map(l => {
+                const cust = state.customers.find(c => c.id === l.customerId);
+                return `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                        <td class="p-3">${l.date}</td>
+                        <td class="p-3 font-bold text-blue-600">${l.voucherNo}</td>
+                        <td class="p-3">${cust ? cust.name : 'N/A'}</td>
+                        <td class="p-3">${l.description}</td>
+                        <td class="p-3 text-right text-rose-600">${curr} ${Number(l.debit).toFixed(2)}</td>
+                        <td class="p-3 text-right text-emerald-600">${curr} ${Number(l.credit).toFixed(2)}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-[10px]">${l.method}</span></td>
+                    </tr>
                 `;
-                tbody.appendChild(tr);
+            }).join('');
+
+            initCharts(totalReceivable, totalPayable);
+        }
+
+        function initCharts(receivable, payable) {
+            if(salesChartInstance) salesChartInstance.destroy();
+            if(pieChartInstance) pieChartInstance.destroy();
+
+            const ctx1 = document.getElementById('salesPurchaseChart').getContext('2d');
+            salesChartInstance = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                    datasets: [{
+                        label: 'Sales / Debit',
+                        data: [12000, 19000, 15000, 25000, 22000, 30000, 28000],
+                        borderColor: '#2563eb',
+                        tension: 0.3,
+                        fill: false
+                    }, {
+                        label: 'Receipts / Credit',
+                        data: [10000, 15000, 14000, 20000, 21000, 28000, 25000],
+                        borderColor: '#10b981',
+                        tension: 0.3,
+                        fill: false
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            const ctx2 = document.getElementById('incomeExpenseChart').getContext('2d');
+            pieChartInstance = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Receivables', 'Payables'],
+                    datasets: [{
+                        data: [receivable || 100, payable || 0],
+                        backgroundColor: ['#e11d48', '#f59e0b']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
             });
         }
 
-        function editProduct(id) {
-            const p = db.products.find(x => x.id === id);
-            if (!p) return;
-            document.getElementById('editProductId').value = p.id;
-            document.getElementById('prodName').value = p.name;
-            document.getElementById('prodCost').value = p.cost;
-            document.getElementById('prodPrice').value = p.price;
-            document.getElementById('prodStock').value = p.stock;
-            document.getElementById('productModalTitle').innerText = 'Edit Product Details';
-            document.getElementById('productModal').classList.remove('hidden');
+        // 2. CUSTOMER MANAGEMENT LOGIC
+        function renderCustomers() {
+            const nameSearch = document.getElementById('custSearchName').value.toLowerCase();
+            const mobileSearch = document.getElementById('custSearchMobile').value;
+            const filterBal = document.getElementById('custFilterBalance').value;
+            const curr = state.settings.currency;
+
+            const tbody = document.getElementById('customerTableBody');
+            tbody.innerHTML = '';
+
+            state.customers.filter(cust => {
+                let bal = Number(cust.openingBal || 0);
+                state.ledger.filter(l => l.customerId === cust.id).forEach(l => bal += (Number(l.debit) - Number(l.credit)));
+                
+                const matchName = cust.name.toLowerCase().includes(nameSearch);
+                const matchMobile = cust.mobile.includes(mobileSearch);
+                let matchBal = true;
+                if(filterBal === 'DUE') matchBal = bal > 0;
+                if(filterBal === 'ZERO') matchBal = bal === 0;
+                if(filterBal === 'ADVANCE') matchBal = bal < 0;
+
+                return matchName && matchMobile && matchBal;
+            }).forEach((cust, index) => {
+                let bal = Number(cust.openingBal || 0);
+                state.ledger.filter(l => l.customerId === cust.id).forEach(l => bal += (Number(l.debit) - Number(l.credit)));
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                        <td class="p-4 font-bold text-blue-600">${cust.id}</td>
+                        <td class="p-4 font-bold">${cust.name}</td>
+                        <td class="p-4">${cust.mobile}</td>
+                        <td class="p-4">${cust.address || '-'}</td>
+                        <td class="p-4">${cust.pan || '-'}</td>
+                        <td class="p-4 text-right">${curr} ${Number(cust.openingBal || 0).toFixed(2)}</td>
+                        <td class="p-4 text-right font-extrabold ${bal > 0 ? 'text-rose-600' : 'text-emerald-600'}">${curr} ${bal.toFixed(2)}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="editCustomer('${cust.id}')" class="text-blue-600 hover:text-blue-800 me-2"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteCustomer('${cust.id}')" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
         }
 
-        // 3. CUSTOMER MANAGEMENT
         function openCustomerModal() {
+            document.getElementById('editCustIndex').value = '';
+            document.getElementById('custModalTitle').innerText = 'Add New Customer';
+            document.getElementById('custAutoId').value = `CUST-${1001 + state.customers.length}`;
             document.getElementById('custName').value = '';
-            document.getElementById('custPhone').value = '';
+            document.getElementById('custMobile').value = '';
+            document.getElementById('custPan').value = '';
             document.getElementById('custAddress').value = '';
+            document.getElementById('custEmail').value = '';
+            document.getElementById('custOpeningBal').value = '';
+            document.getElementById('custNotes').value = '';
             document.getElementById('customerModal').classList.remove('hidden');
+        }
+
+        function closeCustomerModal() {
+            document.getElementById('customerModal').classList.add('hidden');
         }
 
         function saveCustomer(e) {
             e.preventDefault();
-            const name = document.getElementById('custName').value.trim();
-            const phone = document.getElementById('custPhone').value.trim();
-            const address = document.getElementById('custAddress').value.trim();
+            const id = document.getElementById('custAutoId').value;
+            const name = document.getElementById('custName').value;
+            const mobile = document.getElementById('custMobile').value;
+            const pan = document.getElementById('custPan').value;
+            const address = document.getElementById('custAddress').value;
+            const email = document.getElementById('custEmail').value;
+            const openingBal = Number(document.getElementById('custOpeningBal').value || 0);
+            const notes = document.getElementById('custNotes').value;
 
-            const customer = {
-                id: 'CUST-' + Date.now(),
-                name: name,
-                phone: phone,
-                address: address,
-                createdAt: new Date().toLocaleDateString('en-GB')
-            };
+            const existingIndex = state.customers.findIndex(c => c.id === id);
+            if(existingIndex > -1) {
+                state.customers[existingIndex] = { id, name, mobile, pan, address, email, openingBal, notes };
+            } else {
+                state.customers.push({ id, name, mobile, pan, address, email, openingBal, notes });
+            }
 
-            db.customers.push(customer);
-            saveData('customers');
-            closeModal('customerModal');
+            saveState();
+            closeCustomerModal();
             renderCustomers();
-            renderLedgerStatements();
-            calculateDashboardMetrics();
-            showToast("Customer added and saved safely!");
+            renderCustomerLedgerView();
+            showToast('Customer Profile Saved Successfully!');
         }
 
-        function calculateCustomerBalance(customerId) {
-            let balance = 0;
-            let lastDate = 'N/A';
-
-            // Sales (Credit additions)
-            db.sales.filter(s => s.customerId === customerId).forEach(s => {
-                const remaining = s.total - s.paid;
-                balance += remaining;
-                lastDate = s.date;
-            });
-
-            // Receipts (Payments subtracted)
-            db.receipts.filter(r => r.customerId === customerId).forEach(r => {
-                balance -= r.amount;
-                lastDate = r.date;
-            });
-
-            // Returns (Subtracted)
-            db.returns.filter(rt => rt.customerId === customerId).forEach(rt => {
-                balance -= rt.amount;
-                lastDate = rt.date;
-            });
-
-            // Adjustments
-            db.adjustments.filter(a => a.customerId === customerId).forEach(a => {
-                if (a.type === 'DISCOUNT' || a.type === 'BAD_DEBT') balance -= a.amount;
-                else if (a.type === 'CHARGE') balance += a.amount;
-                lastDate = a.date;
-            });
-
-            return { balance, lastDate };
+        function editCustomer(custId) {
+            const cust = state.customers.find(c => c.id === custId);
+            if(!cust) return;
+            document.getElementById('custModalTitle').innerText = 'Edit Customer Profile';
+            document.getElementById('custAutoId').value = cust.id;
+            document.getElementById('custName').value = cust.name;
+            document.getElementById('custMobile').value = cust.mobile;
+            document.getElementById('custPan').value = cust.pan || '';
+            document.getElementById('custAddress').value = cust.address || '';
+            document.getElementById('custEmail').value = cust.email || '';
+            document.getElementById('custOpeningBal').value = cust.openingBal || 0;
+            document.getElementById('custNotes').value = cust.notes || '';
+            document.getElementById('customerModal').classList.remove('hidden');
         }
 
-        function renderCustomers() {
-            const tbody = document.getElementById('customerTableBody');
-            tbody.innerHTML = '';
-            if (db.customers.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">No customers registered yet.</td></tr>`;
-                return;
-            }
-
-            db.customers.forEach(c => {
-                const { balance, lastDate } = calculateCustomerBalance(c.id);
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="p-4 font-bold text-slate-900">${c.name}</td>
-                    <td class="p-4">${c.phone}</td>
-                    <td class="p-4">${c.address || '-'}</td>
-                    <td class="p-4">${lastDate}</td>
-                    <td class="p-4 text-right font-extrabold ${balance > 0 ? 'text-rose-600' : 'text-emerald-600'}">रु ${balance.toFixed(2)}</td>
-                    <td class="p-4 text-center">
-                        <button onclick="switchTab('creditledger')" class="text-blue-600 hover:underline font-bold">View Ledger</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // 4. SALES ENGINE
-        function openSalesModal() {
-            if (db.customers.length === 0) {
-                alert("Please add at least one Customer first!");
-                return;
-            }
-            if (db.products.length === 0) {
-                alert("Please add at least one Product first!");
-                return;
-            }
-
-            const cSelect = document.getElementById('salesCustomerSelect');
-            cSelect.innerHTML = db.customers.map(c => `<option value="${c.id}">${c.name} (${c.phone})</option>`).join('');
-
-            const pSelect = document.getElementById('salesProductSelect');
-            pSelect.innerHTML = db.products.map(p => `<option value="${p.id}">${p.name} (Stock: ${p.stock})</option>`).join('');
-
-            updateSalesRate();
-            document.getElementById('salesModal').classList.remove('hidden');
-        }
-
-        function updateSalesRate() {
-            const pId = document.getElementById('salesProductSelect').value;
-            const prod = db.products.find(x => x.id === pId);
-            if (prod) {
-                document.getElementById('salesRate').value = prod.price;
-                calculateSalesTotal();
-            }
-        }
-
-        function calculateSalesTotal() {
-            const qty = parseFloat(document.getElementById('salesQty').value) || 0;
-            const rate = parseFloat(document.getElementById('salesRate').value) || 0;
-            const total = qty * rate;
-            document.getElementById('salesTotal').value = total.toFixed(2);
-        }
-
-        function saveSales(e) {
-            e.preventDefault();
-            const customerId = document.getElementById('salesCustomerSelect').value;
-            const productId = document.getElementById('salesProductSelect').value;
-            const qty = parseInt(document.getElementById('salesQty').value) || 0;
-            const rate = parseFloat(document.getElementById('salesRate').value) || 0;
-            const total = parseFloat(document.getElementById('salesTotal').value) || 0;
-            const paid = parseFloat(document.getElementById('salesPaid').value) || 0;
-            const mode = document.getElementById('salesMode').value;
-
-            const product = db.products.find(p => p.id === productId);
-            if (!product || product.stock < qty) {
-                alert("Insufficient stock available!");
-                return;
-            }
-
-            // Deduct Stock
-            product.stock -= qty;
-            saveData('products');
-
-            const customer = db.customers.find(c => c.id === customerId);
-
-            const sale = {
-                id: 'INV-' + Date.now(),
-                date: new Date().toLocaleDateString('en-GB'),
-                customerId: customerId,
-                customerName: customer ? customer.name : 'Unknown',
-                productId: productId,
-                productName: product.name,
-                qty: qty,
-                rate: rate,
-                total: total,
-                paid: paid,
-                mode: mode
-            };
-
-            db.sales.push(sale);
-            saveData('sales');
-
-            closeModal('salesModal');
-            renderProducts();
-            renderSales();
+        function deleteCustomer(custId) {
+            if(!confirm('Are you sure you want to delete this customer?')) return;
+            state.customers = state.customers.filter(c => c.id !== custId);
+            saveState();
             renderCustomers();
-            renderLedgerStatements();
-            calculateDashboardMetrics();
-            showToast("Sales entry saved & stock updated!");
+            showToast('Customer Deleted');
         }
 
-        function renderSales() {
-            const tbody = document.getElementById('salesTableBody');
-            tbody.innerHTML = '';
-            if (db.sales.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">No sales recorded yet.</td></tr>`;
-                return;
-            }
+        // 3 & 4. LEDGER ENTRIES & CUSTOMER LEDGER LOGIC
+        function renderCustomerLedgerView() {
+            const selectCust = document.getElementById('ledgerCustomerSelect');
+            const selectedCustId = selectCust.value;
+            const curr = state.settings.currency;
 
-            db.sales.slice().reverse().forEach(s => {
-                const remaining = s.total - s.paid;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="p-4">${s.date}</td>
-                    <td class="p-4 font-bold text-slate-900">${s.customerName}</td>
-                    <td class="p-4">${s.productName} (x${s.qty})</td>
-                    <td class="p-4"><span class="bg-slate-100 text-slate-700 px-2 py-1 rounded text-[10px] font-bold">${s.mode}</span></td>
-                    <td class="p-4 text-right font-bold">रु ${s.total.toFixed(2)}</td>
-                    <td class="p-4 text-right text-emerald-600 font-bold">रु ${s.paid.toFixed(2)}</td>
-                    <td class="p-4 text-right font-extrabold ${remaining > 0 ? 'text-rose-600' : 'text-slate-400'}">रु ${remaining.toFixed(2)}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
+            // Populate customer dropdown
+            selectCust.innerHTML = '<option value="ALL">-- All Customer Entries --</option>' + 
+                state.customers.map(c => `<option value="${c.id}">${c.name} (${c.id})</option>`).join('');
+            selectCust.value = selectedCustId || 'ALL';
 
-        // 5. PURCHASE ENGINE
-        function openPurchaseModal() {
-            if (db.products.length === 0) {
-                alert("Please add at least one Product first!");
-                return;
-            }
-            const pSelect = document.getElementById('purchProductSelect');
-            pSelect.innerHTML = db.products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+            const methodFilter = document.getElementById('ledgerFilterPayment').value;
+            const startDate = document.getElementById('ledgerStartDate').value;
+            const endDate = document.getElementById('ledgerEndDate').value;
 
-            document.getElementById('purchSupplier').value = '';
-            document.getElementById('purchQty').value = 1;
-            document.getElementById('purchRate').value = db.products[0].cost;
-            calcPurchTotal();
-            document.getElementById('purchaseModal').classList.remove('hidden');
-        }
+            const custHeaderDiv = document.getElementById('customerHeaderDetails');
 
-        function calcPurchTotal() {
-            const qty = parseFloat(document.getElementById('purchQty').value) || 0;
-            const rate = parseFloat(document.getElementById('purchRate').value) || 0;
-            document.getElementById('purchTotal').value = (qty * rate).toFixed(2);
-        }
+            if(selectedCustId !== 'ALL') {
+                custHeaderDiv.classList.remove('hidden');
+                const cust = state.customers.find(c => c.id === selectedCustId);
+                document.getElementById('custHeadName').innerText = cust.name;
+                document.getElementById('custHeadOpening').innerText = `${curr} ${Number(cust.openingBal || 0).toFixed(2)}`;
 
-        function savePurchase(e) {
-            e.preventDefault();
-            const supplier = document.getElementById('purchSupplier').value.trim();
-            const productId = document.getElementById('purchProductSelect').value;
-            const qty = parseInt(document.getElementById('purchQty').value) || 0;
-            const rate = parseFloat(document.getElementById('purchRate').value) || 0;
-            const total = parseFloat(document.getElementById('purchTotal').value) || 0;
-
-            const product = db.products.find(p => p.id === productId);
-            if (product) {
-                product.stock += qty;
-                saveData('products');
-            }
-
-            const purchase = {
-                id: 'PUR-' + Date.now(),
-                date: new Date().toLocaleDateString('en-GB'),
-                supplier: supplier,
-                productId: productId,
-                productName: product ? product.name : 'Item',
-                qty: qty,
-                rate: rate,
-                total: total
-            };
-
-            db.purchases.push(purchase);
-            saveData('purchases');
-
-            closeModal('purchaseModal');
-            renderProducts();
-            renderPurchases();
-            calculateDashboardMetrics();
-            showToast("Purchase entry recorded & inventory increased!");
-        }
-
-        function renderPurchases() {
-            const tbody = document.getElementById('purchaseTableBody');
-            tbody.innerHTML = '';
-            if (db.purchases.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">No purchases recorded yet.</td></tr>`;
-                return;
-            }
-
-            db.purchases.slice().reverse().forEach(p => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="p-4">${p.date}</td>
-                    <td class="p-4 font-bold text-slate-900">${p.supplier}</td>
-                    <td class="p-4">${p.productName}</td>
-                    <td class="p-4">${p.qty}</td>
-                    <td class="p-4 text-right">रु ${p.rate.toFixed(2)}</td>
-                    <td class="p-4 text-right font-bold text-blue-600">रु ${p.total.toFixed(2)}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // 6. PAYMENT RECEIPT
-        function openReceiptModal() {
-            if (db.customers.length === 0) {
-                alert("Please add customers first!");
-                return;
-            }
-            const cSelect = document.getElementById('receiptCustomerSelect');
-            cSelect.innerHTML = db.customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-            document.getElementById('receiptAmount').value = '';
-            document.getElementById('receiptRemarks').value = '';
-            document.getElementById('receiptModal').classList.remove('hidden');
-        }
-
-        function saveReceipt(e) {
-            e.preventDefault();
-            const customerId = document.getElementById('receiptCustomerSelect').value;
-            const amount = parseFloat(document.getElementById('receiptAmount').value) || 0;
-            const mode = document.getElementById('receiptMode').value;
-            const remarks = document.getElementById('receiptRemarks').value.trim();
-
-            const customer = db.customers.find(c => c.id === customerId);
-
-            const receipt = {
-                id: 'RCT-' + Date.now(),
-                date: new Date().toLocaleDateString('en-GB'),
-                customerId: customerId,
-                customerName: customer ? customer.name : 'Customer',
-                amount: amount,
-                mode: mode,
-                remarks: remarks
-            };
-
-            db.receipts.push(receipt);
-            saveData('receipts');
-
-            closeModal('receiptModal');
-            renderReceipts();
-            renderCustomers();
-            renderLedgerStatements();
-            calculateDashboardMetrics();
-            showToast("Payment receipt recorded!");
-        }
-
-        function renderReceipts() {
-            const tbody = document.getElementById('receiptTableBody');
-            tbody.innerHTML = '';
-            if (db.receipts.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">No receipts recorded yet.</td></tr>`;
-                return;
-            }
-
-            db.receipts.slice().reverse().forEach(r => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="p-4">${r.date}</td>
-                    <td class="p-4 font-bold text-slate-900">${r.customerName}</td>
-                    <td class="p-4 font-extrabold text-emerald-600">रु ${r.amount.toFixed(2)}</td>
-                    <td class="p-4"><span class="bg-emerald-50 text-emerald-700 px-2 py-1 rounded text-[10px] font-bold">${r.mode}</span></td>
-                    <td class="p-4 text-slate-500">${r.remarks || '-'}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // 7. PAYMENT PAID
-        function openPaidModal() {
-            document.getElementById('paidVendor').value = '';
-            document.getElementById('paidAmount').value = '';
-            document.getElementById('paidRemarks').value = '';
-            document.getElementById('paidModal').classList.remove('hidden');
-        }
-
-        function savePaid(e) {
-            e.preventDefault();
-            const vendor = document.getElementById('paidVendor').value.trim();
-            const amount = parseFloat(document.getElementById('paidAmount').value) || 0;
-            const mode = document.getElementById('paidMode').value;
-            const remarks = document.getElementById('paidRemarks').value.trim();
-
-            const paid = {
-                id: 'PAD-' + Date.now(),
-                date: new Date().toLocaleDateString('en-GB'),
-                vendor: vendor,
-                amount: amount,
-                mode: mode,
-                remarks: remarks
-            };
-
-            db.paids.push(paid);
-            saveData('paids');
-
-            closeModal('paidModal');
-            renderPaids();
-            calculateDashboardMetrics();
-            showToast("Paid entry recorded!");
-        }
-
-        function renderPaids() {
-            const tbody = document.getElementById('paidTableBody');
-            tbody.innerHTML = '';
-            if (db.paids.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">No outgoing payments recorded yet.</td></tr>`;
-                return;
-            }
-
-            db.paids.slice().reverse().forEach(p => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="p-4">${p.date}</td>
-                    <td class="p-4 font-bold text-slate-900">${p.vendor}</td>
-                    <td class="p-4 font-bold text-rose-600 text-right">रु ${p.amount.toFixed(2)}</td>
-                    <td class="p-4"><span class="bg-rose-50 text-rose-700 px-2 py-1 rounded text-[10px] font-bold">${p.mode}</span></td>
-                    <td class="p-4 text-slate-500">${p.remarks || '-'}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // 8. RETURN ENGINE
-        function openReturnModal() {
-            if (db.customers.length === 0 || db.products.length === 0) {
-                alert("Ensure Customers and Products are registered!");
-                return;
-            }
-            const cSelect = document.getElementById('returnCustomerSelect');
-            cSelect.innerHTML = db.customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-
-            const pSelect = document.getElementById('returnProductSelect');
-            pSelect.innerHTML = db.products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-
-            document.getElementById('returnAmount').value = '';
-            document.getElementById('returnModal').classList.remove('hidden');
-        }
-
-        function saveReturn(e) {
-            e.preventDefault();
-            const customerId = document.getElementById('returnCustomerSelect').value;
-            const productId = document.getElementById('returnProductSelect').value;
-            const qty = parseInt(document.getElementById('returnQty').value) || 0;
-            const amount = parseFloat(document.getElementById('returnAmount').value) || 0;
-
-            const customer = db.customers.find(c => c.id === customerId);
-            const product = db.products.find(p => p.id === productId);
-
-            if (product) {
-                product.stock += qty;
-                saveData('products');
-            }
-
-            const ret = {
-                id: 'RET-' + Date.now(),
-                date: new Date().toLocaleDateString('en-GB'),
-                customerId: customerId,
-                customerName: customer ? customer.name : 'Party',
-                productId: productId,
-                productName: product ? product.name : 'Item',
-                qty: qty,
-                amount: amount,
-                type: 'SALES_RETURN'
-            };
-
-            db.returns.push(ret);
-            saveData('returns');
-
-            closeModal('returnModal');
-            renderProducts();
-            renderReturns();
-            renderCustomers();
-            renderLedgerStatements();
-            calculateDashboardMetrics();
-            showToast("Return processed successfully!");
-        }
-
-        function renderReturns() {
-            const tbody = document.getElementById('returnTableBody');
-            tbody.innerHTML = '';
-            if (db.returns.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">No returns processed yet.</td></tr>`;
-                return;
-            }
-
-            db.returns.slice().reverse().forEach(r => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="p-4">${r.date}</td>
-                    <td class="p-4 font-bold text-slate-900">${r.customerName}</td>
-                    <td class="p-4"><span class="bg-amber-100 text-amber-700 px-2 py-1 rounded text-[10px] font-bold">${r.type}</span></td>
-                    <td class="p-4">${r.productName}</td>
-                    <td class="p-4">${r.qty}</td>
-                    <td class="p-4 text-right font-bold text-amber-600">रु ${r.amount.toFixed(2)}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // 9. ADJUSTMENT MODULE
-        function openAdjustmentModal() {
-            if (db.customers.length === 0) {
-                alert("Please add customers first!");
-                return;
-            }
-            const cSelect = document.getElementById('adjCustomerSelect');
-            cSelect.innerHTML = db.customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-
-            document.getElementById('adjAmount').value = '';
-            document.getElementById('adjRemarks').value = '';
-            document.getElementById('adjustmentModal').classList.remove('hidden');
-        }
-
-        function saveAdjustment(e) {
-            e.preventDefault();
-            const customerId = document.getElementById('adjCustomerSelect').value;
-            const type = document.getElementById('adjType').value;
-            const amount = parseFloat(document.getElementById('adjAmount').value) || 0;
-            const remarks = document.getElementById('adjRemarks').value.trim();
-
-            const customer = db.customers.find(c => c.id === customerId);
-
-            const adj = {
-                id: 'ADJ-' + Date.now(),
-                date: new Date().toLocaleDateString('en-GB'),
-                customerId: customerId,
-                customerName: customer ? customer.name : 'Customer',
-                type: type,
-                amount: amount,
-                remarks: remarks
-            };
-
-            db.adjustments.push(adj);
-            saveData('adjustments');
-
-            closeModal('adjustmentModal');
-            renderAdjustments();
-            renderCustomers();
-            renderLedgerStatements();
-            calculateDashboardMetrics();
-            showToast("Ledger adjustment saved!");
-        }
-
-        function renderAdjustments() {
-            const tbody = document.getElementById('adjustmentTableBody');
-            tbody.innerHTML = '';
-            if (db.adjustments.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">No adjustments recorded yet.</td></tr>`;
-                return;
-            }
-
-            db.adjustments.slice().reverse().forEach(a => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="p-4">${a.date}</td>
-                    <td class="p-4 font-bold text-slate-900">${a.customerName}</td>
-                    <td class="p-4"><span class="bg-purple-100 text-purple-700 px-2 py-1 rounded text-[10px] font-bold">${a.type}</span></td>
-                    <td class="p-4 text-right font-bold text-purple-600">रु ${a.amount.toFixed(2)}</td>
-                    <td class="p-4 text-slate-500">${a.remarks || '-'}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // 10. SERIAL CUSTOMER LEDGER STATEMENTS
-        function renderLedgerStatements() {
-            const container = document.getElementById('ledgerCardsContainer');
-            container.innerHTML = '';
-
-            if (db.customers.length === 0) {
-                container.innerHTML = `<div class="bg-white p-8 rounded-2xl border text-center text-slate-400 font-semibold">No customers added yet to display ledger statements.</div>`;
-                return;
-            }
-
-            db.customers.forEach(c => {
-                // Collect All Ledger Transactions Chronologically
-                let entries = [];
-
-                db.sales.filter(s => s.customerId === c.id).forEach(s => {
-                    entries.push({
-                        date: s.date,
-                        type: 'SALES INVOICE (' + s.productName + ')',
-                        debit: s.total - s.paid, // Due amount added to debit balance
-                        credit: 0
-                    });
+                let totalDeb = 0, totalCred = 0;
+                state.ledger.filter(l => l.customerId === selectedCustId).forEach(l => {
+                    totalDeb += Number(l.debit);
+                    totalCred += Number(l.credit);
                 });
 
-                db.receipts.filter(r => r.customerId === c.id).forEach(r => {
-                    entries.push({
-                        date: r.date,
-                        type: 'PAYMENT RECEIVED (' + r.mode + ')',
-                        debit: 0,
-                        credit: r.amount
-                    });
-                });
+                const closing = Number(cust.openingBal || 0) + totalDeb - totalCred;
+                document.getElementById('custHeadTotalDebit').innerText = `${curr} ${totalDeb.toFixed(2)}`;
+                document.getElementById('custHeadTotalCredit').innerText = `${curr} ${totalCred.toFixed(2)}`;
+                document.getElementById('custHeadClosing').innerText = `${curr} ${closing.toFixed(2)}`;
+            } else {
+                custHeaderDiv.classList.add('hidden');
+            }
 
-                db.returns.filter(rt => rt.customerId === c.id).forEach(rt => {
-                    entries.push({
-                        date: rt.date,
-                        type: 'RETURN CREDIT',
-                        debit: 0,
-                        credit: rt.amount
-                    });
-                });
+            // Render Ledger Entries Table
+            const tbody = document.getElementById('ledgerTableBody');
+            tbody.innerHTML = '';
 
-                db.adjustments.filter(a => a.customerId === c.id).forEach(a => {
-                    if (a.type === 'DISCOUNT' || a.type === 'BAD_DEBT') {
-                        entries.push({ date: a.date, type: 'ADJUSTMENT (' + a.type + ')', debit: 0, credit: a.amount });
+            let runningBal = 0;
+
+            state.ledger.filter(l => {
+                const matchCust = (selectedCustId === 'ALL' || l.customerId === selectedCustId);
+                const matchMethod = (methodFilter === 'ALL' || l.method === methodFilter);
+                const matchStart = (!startDate || l.date >= startDate);
+                const matchEnd = (!endDate || l.date <= endDate);
+                return matchCust && matchMethod && matchStart && matchEnd;
+            }).forEach((l, index) => {
+                const cust = state.customers.find(c => c.id === l.customerId);
+                if(index === 0 && selectedCustId !== 'ALL') {
+                    runningBal = Number(cust ? cust.openingBal || 0 : 0);
+                }
+                runningBal += (Number(l.debit) - Number(l.credit));
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                        <td class="p-4">${l.date}</td>
+                        <td class="p-4 font-bold text-blue-600">${l.voucherNo}</td>
+                        <td class="p-4 font-bold">${cust ? cust.name : 'N/A'}</td>
+                        <td class="p-4">${l.description}</td>
+                        <td class="p-4 text-right text-rose-600 font-bold">${Number(l.debit) > 0 ? curr + ' ' + Number(l.debit).toFixed(2) : '-'}</td>
+                        <td class="p-4 text-right text-emerald-600 font-bold">${Number(l.credit) > 0 ? curr + ' ' + Number(l.credit).toFixed(2) : '-'}</td>
+                        <td class="p-4 text-right font-extrabold">${curr} ${runningBal.toFixed(2)}</td>
+                        <td class="p-4"><span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded text-[10px] font-bold">${l.method}</span></td>
+                        <td class="p-4 text-center">${l.attachment ? '<i class="fa-solid fa-paperclip text-blue-500"></i>' : '-'}</td>
+                        <td class="p-4 text-center no-print">
+                            <button onclick="editLedgerEntry('${l.id}')" class="text-blue-600 hover:text-blue-800 me-2"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteLedgerEntry('${l.id}')" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openLedgerEntryModal() {
+            document.getElementById('editLedgerId').value = '';
+            document.getElementById('ledgerModalTitle').innerText = 'Add Ledger Entry';
+            document.getElementById('ledVoucherNo').value = `VOUCH-${1001 + state.ledger.length}`;
+            document.getElementById('ledDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('ledAmount').value = '';
+            document.getElementById('ledRemarks').value = '';
+
+            const sel = document.getElementById('ledCustSelect');
+            sel.innerHTML = state.customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+            document.getElementById('ledgerEntryModal').classList.remove('hidden');
+        }
+
+        function closeLedgerEntryModal() {
+            document.getElementById('ledgerEntryModal').classList.add('hidden');
+        }
+
+        function saveLedgerEntry(e) {
+            e.preventDefault();
+            const id = document.getElementById('editLedgerId').value || String(Date.now());
+            const voucherNo = document.getElementById('ledVoucherNo').value;
+            const date = document.getElementById('ledDate').value;
+            const customerId = document.getElementById('ledCustSelect').value;
+            const type = document.getElementById('ledType').value;
+            const amount = Number(document.getElementById('ledAmount').value || 0);
+            const method = document.getElementById('ledPaymentMethod').value;
+            const description = document.getElementById('ledRemarks').value || (type === 'DEBIT' ? 'Debit Sales' : 'Payment Received');
+
+            const debit = type === 'DEBIT' ? amount : 0;
+            const credit = type === 'CREDIT' ? amount : 0;
+
+            const existingIdx = state.ledger.findIndex(l => l.id === id);
+            const entryObj = { id, voucherNo, customerId, date, description, debit, credit, method, attachment: '' };
+
+            if(existingIdx > -1) {
+                state.ledger[existingIdx] = entryObj;
+            } else {
+                state.ledger.push(entryObj);
+            }
+
+            saveState();
+            closeLedgerEntryModal();
+            renderCustomerLedgerView();
+            renderDashboard();
+            showToast('Ledger Entry Saved!');
+        }
+
+        function editLedgerEntry(id) {
+            const l = state.ledger.find(item => item.id === id);
+            if(!l) return;
+
+            openLedgerEntryModal();
+            document.getElementById('editLedgerId').value = l.id;
+            document.getElementById('ledgerModalTitle').innerText = 'Edit Ledger Entry';
+            document.getElementById('ledVoucherNo').value = l.voucherNo;
+            document.getElementById('ledDate').value = l.date;
+            document.getElementById('ledCustSelect').value = l.customerId;
+            document.getElementById('ledType').value = l.debit > 0 ? 'DEBIT' : 'CREDIT';
+            document.getElementById('ledAmount').value = l.debit > 0 ? l.debit : l.credit;
+            document.getElementById('ledPaymentMethod').value = l.method;
+            document.getElementById('ledRemarks').value = l.description;
+        }
+
+        function deleteLedgerEntry(id) {
+            if(!confirm('Are you sure you want to delete this ledger entry?')) return;
+            const deleted = state.ledger.find(l => l.id === id);
+            if(deleted) state.deletedStack.push(deleted);
+
+            state.ledger = state.ledger.filter(l => l.id !== id);
+            saveState();
+            renderCustomerLedgerView();
+            renderDashboard();
+            showToast('Ledger Entry Deleted. (Undo available)');
+        }
+
+        function undoDelete() {
+            if(state.deletedStack.length === 0) return showToast('Nothing to undo!');
+            const restored = state.deletedStack.pop();
+            state.ledger.push(restored);
+            saveState();
+            renderCustomerLedgerView();
+            renderDashboard();
+            showToast('Deleted Transaction Restored!');
+        }
+
+        // 5. REPORTS LOGIC
+        function generateReport(type) {
+            const tbody = document.getElementById('reportTableBody');
+            const curr = state.settings.currency;
+            tbody.innerHTML = '';
+
+            let filtered = [...state.ledger];
+            const today = new Date().toISOString().split('T')[0];
+
+            if(type === 'daily') {
+                document.getElementById('reportTitleHeader').innerText = `Daily Report (${today})`;
+                filtered = filtered.filter(l => l.date === today);
+            } else if(type === 'outstanding') {
+                document.getElementById('reportTitleHeader').innerText = 'Outstanding Receivables Report';
+                tbody.innerHTML = state.customers.map(c => {
+                    let bal = Number(c.openingBal || 0);
+                    state.ledger.filter(l => l.customerId === c.id).forEach(l => bal += (Number(l.debit) - Number(l.credit)));
+                    if(bal <= 0) return '';
+                    return `
+                        <tr>
+                            <td class="p-3">${c.id}</td>
+                            <td class="p-3 font-bold">${c.name}</td>
+                            <td class="p-3">${c.mobile}</td>
+                            <td class="p-3 text-right text-rose-600 font-bold">${curr} ${bal.toFixed(2)}</td>
+                            <td class="p-3 text-right">-</td>
+                        </tr>
+                    `;
+                }).join('');
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(l => {
+                const cust = state.customers.find(c => c.id === l.customerId);
+                return `
+                    <tr>
+                        <td class="p-3">${l.date}</td>
+                        <td class="p-3 font-bold">${l.voucherNo} (${cust ? cust.name : 'N/A'})</td>
+                        <td class="p-3">${l.description}</td>
+                        <td class="p-3 text-right text-rose-600">${curr} ${Number(l.debit).toFixed(2)}</td>
+                        <td class="p-3 text-right text-emerald-600">${curr} ${Number(l.credit).toFixed(2)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 7. PRINT & EXPORT LOGIC
+        function exportLedgerToExcel() {
+            const worksheet = XLSX.utils.json_to_sheet(state.ledger);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Ledger");
+            XLSX.writeFile(workbook, "Ledger_Export.xlsx");
+        }
+
+        function exportLedgerToCSV() {
+            let csv = 'Date,VoucherNo,CustomerID,Description,Debit,Credit,Method\n';
+            state.ledger.forEach(l => {
+                csv += `${l.date},${l.voucherNo},${l.customerId},"${l.description}",${l.debit},${l.credit},${l.method}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'Ledger_Export.csv');
+            a.click();
+        }
+
+        function sendDueReminder(type) {
+            const custId = document.getElementById('ledgerCustomerSelect').value;
+            if(custId === 'ALL') return alert('Please select a specific customer first!');
+            const cust = state.customers.find(c => c.id === custId);
+            if(!cust) return;
+
+            let bal = Number(cust.openingBal || 0);
+            state.ledger.filter(l => l.customerId === cust.id).forEach(l => bal += (Number(l.debit) - Number(l.credit)));
+
+            const msg = encodeURIComponent(`Dear ${cust.name}, your total outstanding balance at ${state.settings.companyName} is ${state.settings.currency} ${bal.toFixed(2)}. Please clear your dues at your earliest convenience.`);
+
+            if(type === 'whatsapp') {
+                window.open(`https://wa.me/977${cust.mobile}?text=${msg}`, '_blank');
+            } else {
+                window.open(`sms:${cust.mobile}?body=${msg}`, '_blank');
+            }
+        }
+
+        // 8. BACKUP & RESTORE LOGIC
+        function exportBackupJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `Ledger_Backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+        }
+
+        function importBackupJSON(e) {
+            const fileReader = new FileReader();
+            fileReader.onload = function (event) {
+                try {
+                    const parsed = JSON.parse(event.target.result);
+                    if(parsed.customers && parsed.ledger) {
+                        state = parsed;
+                        saveState();
+                        alert('Backup Restored Successfully!');
+                        location.reload();
                     } else {
-                        entries.push({ date: a.date, type: 'ADJUSTMENT CHARGE', debit: a.amount, credit: 0 });
+                        alert('Invalid Backup File Structure!');
                     }
-                });
-
-                const card = document.createElement('div');
-                card.className = "bg-white p-6 rounded-3xl border border-slate-100 card-shadow space-y-4";
-
-                let rowsHtml = '';
-                let runningBalance = 0;
-
-                if (entries.length === 0) {
-                    rowsHtml = `<tr><td colspan="5" class="p-4 text-center text-slate-400">No ledger transactions recorded for this customer.</td></tr>`;
-                } else {
-                    entries.forEach(e => {
-                        runningBalance += (e.debit - e.credit);
-                        rowsHtml += `
-                            <tr class="border-b border-slate-50">
-                                <td class="p-3">${e.date}</td>
-                                <td class="p-3 font-semibold">${e.type}</td>
-                                <td class="p-3 text-right text-rose-600 font-bold">${e.debit > 0 ? 'रु ' + e.debit.toFixed(2) : '-'}</td>
-                                <td class="p-3 text-right text-emerald-600 font-bold">${e.credit > 0 ? 'रु ' + e.credit.toFixed(2) : '-'}</td>
-                                <td class="p-3 text-right font-extrabold ${runningBalance > 0 ? 'text-rose-600' : 'text-slate-800'}">रु ${runningBalance.toFixed(2)}</td>
-                            </tr>
-                        `;
-                    });
+                } catch (err) {
+                    alert('Error parsing JSON file!');
                 }
-
-                card.innerHTML = `
-                    <div class="flex justify-between items-center border-b border-slate-100 pb-4">
-                        <div>
-                            <h4 class="font-extrabold text-slate-900 text-base">${c.name}</h4>
-                            <p class="text-xs text-slate-400"><i class="fa-solid fa-phone me-1"></i>${c.phone} | ${c.address || 'No Address'}</p>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase block">Current Due Balance</span>
-                            <span class="text-lg font-extrabold ${runningBalance > 0 ? 'text-rose-600' : 'text-emerald-600'}">रु ${runningBalance.toFixed(2)}</span>
-                        </div>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px]">
-                                <tr>
-                                    <th class="p-3">Date</th>
-                                    <th class="p-3">Particulars / Details</th>
-                                    <th class="p-3 text-right">Debit (रु)</th>
-                                    <th class="p-3 text-right">Credit (रु)</th>
-                                    <th class="p-3 text-right">Balance Due (रु)</th>
-                                </tr>
-                            </thead>
-                            <tbody>${rowsHtml}</tbody>
-                        </table>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
+            };
+            fileReader.readAsText(e.target.files[0]);
         }
 
-        // 11. DASHBOARD CALCULATION ENGINE (Dynamic calculation after User Actions)
-        function calculateDashboardMetrics() {
-            let totalSalesVolume = 0;
-            let totalCollectedAmount = 0;
-            let totalPurchaseExpenses = 0;
-
-            // Compute Total Sales
-            db.sales.forEach(s => {
-                totalSalesVolume += s.total;
-                totalCollectedAmount += s.paid; // Initial paid on sales
-            });
-
-            // Compute Receipts Collected
-            db.receipts.forEach(r => {
-                totalCollectedAmount += r.amount;
-            });
-
-            // Compute Total Purchases
-            db.purchases.forEach(p => {
-                totalPurchaseExpenses += p.total;
-            });
-
-            // Compute Total Pending Balance Across All Customers
-            let pendingValue = 0;
-            db.customers.forEach(c => {
-                const { balance } = calculateCustomerBalance(c.id);
-                if (balance > 0) pendingValue += balance;
-            });
-
-            // Update UI Cards Dynamic Values
-            document.getElementById('dashTotalSales').innerText = 'रु ' + totalSalesVolume.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            document.getElementById('dashCashSales').innerText = 'रु ' + totalCollectedAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            document.getElementById('dashOutstandingCredit').innerText = 'रु ' + pendingValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            document.getElementById('dashTotalPurchase').innerText = 'रु ' + totalPurchaseExpenses.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-            renderCharts(totalSalesVolume, totalPurchaseExpenses, totalCollectedAmount, pendingValue);
+        function resetSystemData() {
+            if(confirm('WARNING: Are you sure you want to clear all data?')) {
+                localStorage.clear();
+                location.reload();
+            }
         }
 
-        // CHARTS RENDER
-        function renderCharts(salesVal, purchaseVal, collectedVal, pendingVal) {
-            // Trend Line/Bar Chart
-            const ctx1 = document.getElementById('salesPurchaseChart').getContext('2d');
-            if (salesPurchaseChartObj) salesPurchaseChartObj.destroy();
+        // PRODUCT MANAGEMENT LOGIC
+        function renderProducts() {
+            const tbody = document.getElementById('productTableBody');
+            const curr = state.settings.currency;
+            tbody.innerHTML = state.products.map(p => `
+                <tr>
+                    <td class="p-4 font-bold">${p.name}</td>
+                    <td class="p-4">${curr} ${Number(p.cost).toFixed(2)}</td>
+                    <td class="p-4">${curr} ${Number(p.price).toFixed(2)}</td>
+                    <td class="p-4 font-bold ${p.stock < 10 ? 'text-rose-600' : 'text-slate-800 dark:text-white'}">${p.stock} units</td>
+                    <td class="p-4 text-center"><span class="px-2 py-1 ${p.stock > 0 ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'} rounded text-[10px] font-bold">${p.stock > 0 ? 'In Stock' : 'Out of Stock'}</span></td>
+                </tr>
+            `).join('');
+        }
 
-            salesPurchaseChartObj = new Chart(ctx1, {
-                type: 'bar',
-                data: {
-                    labels: ['Current Performance'],
-                    datasets: [
-                        {
-                            label: 'Total Sales Volume (रु)',
-                            data: [salesVal],
-                            backgroundColor: '#2563eb',
-                            borderRadius: 8
-                        },
-                        {
-                            label: 'Total Purchase Expenses (रु)',
-                            data: [purchaseVal],
-                            backgroundColor: '#64748b',
-                            borderRadius: 8
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } },
-                    scales: { y: { beginAtZero: true } }
-                }
+        function openProductModal() { document.getElementById('productModal').classList.remove('hidden'); }
+        function closeProductModal() { document.getElementById('productModal').classList.add('hidden'); }
+        function saveProduct(e) {
+            e.preventDefault();
+            state.products.push({
+                id: String(Date.now()),
+                name: document.getElementById('prodName').value,
+                cost: Number(document.getElementById('prodCost').value),
+                price: Number(document.getElementById('prodPrice').value),
+                stock: Number(document.getElementById('prodStock').value)
             });
+            saveState();
+            closeProductModal();
+            renderProducts();
+            showToast('Product Added!');
+        }
 
-            // Pie Chart
-            const ctx2 = document.getElementById('incomeExpenseChart').getContext('2d');
-            if (incomeExpenseChartObj) incomeExpenseChartObj.destroy();
+        // AUTHENTICATION LOGIC
+        function checkAuthStatus() {
+            if(!sessionStorage.getItem('sys_logged_in')) {
+                document.getElementById('authModal').classList.remove('hidden');
+            } else {
+                document.getElementById('authModal').classList.add('hidden');
+            }
+        }
 
-            incomeExpenseChartObj = new Chart(ctx2, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Collected Amount', 'Pending Due Balance'],
-                    datasets: [{
-                        data: [collectedVal, pendingVal],
-                        backgroundColor: ['#10b981', '#f43f5e']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } }
-                }
-            });
+        function handleEmailLogin(e) {
+            e.preventDefault();
+            sessionStorage.setItem('sys_logged_in', 'true');
+            document.getElementById('authModal').classList.add('hidden');
+            showToast('Logged In Successfully!');
+        }
+
+        function handleLogout() {
+            sessionStorage.removeItem('sys_logged_in');
+            checkAuthStatus();
         }
     </script>
 </body>
