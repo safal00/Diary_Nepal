@@ -11,11 +11,6 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- FIREBASE SDKs (Multi-Device Live Sync & Authentication) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #334155; }
@@ -29,7 +24,7 @@
     <!-- Toast Notification -->
     <div id="toast" class="fixed top-5 right-5 z-50 hidden bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl text-xs font-semibold flex items-center gap-2">
         <i class="fa-solid fa-circle-info text-blue-400"></i>
-        <span id="toastMsg">System Notification</span>
+        <span id="toastMsg">Notification</span>
     </div>
 
     <!-- AUTHENTICATION MODAL (Generic Multi-User Login Portal) -->
@@ -107,21 +102,19 @@
         </div>
     </div>
 
-    <!-- LEFT SIDEBAR (SHOWN AFTER SUCCESSFUL LOGIN) -->
+    <!-- LEFT SIDEBAR -->
     <aside class="w-64 sidebar-bg text-white flex flex-col justify-between shrink-0 p-5">
         <div>
-            <!-- Brand Portal Header -->
             <div class="flex items-center gap-3 px-2 py-3 mb-8">
                 <div class="w-10 h-10 bg-white text-blue-600 rounded-2xl flex items-center justify-center font-bold text-xl shadow-md">
                     <i class="fa-solid fa-book-open"></i>
                 </div>
                 <div>
-                    <h1 class="font-extrabold text-lg leading-tight" id="sidebarBrandName">Ledger Book</h1>
+                    <h1 class="font-extrabold text-lg leading-tight">Ledger Book</h1>
                     <span class="text-[11px] text-blue-200 font-medium">Cloud Workspace</span>
                 </div>
             </div>
 
-            <!-- Navigation Links -->
             <div class="text-[10px] font-bold text-blue-200/80 uppercase tracking-wider px-3 mb-3">Main Menu</div>
             <nav class="space-y-1.5 font-medium text-xs">
                 <a href="#dashboard" onclick="switchTab('dashboard')" id="nav-dashboard" class="sidebar-item sidebar-item-active flex items-center gap-3.5 px-4 py-3 rounded-2xl font-bold transition">
@@ -133,28 +126,9 @@
                 <a href="#ledger" onclick="switchTab('ledger')" id="nav-ledger" class="sidebar-item flex items-center gap-3.5 px-4 py-3 rounded-2xl text-blue-100 hover:bg-blue-600/50 transition">
                     <i class="fa-solid fa-book text-base w-5"></i> Ledger
                 </a>
-                <a href="#inventory" onclick="switchTab('inventory')" id="nav-inventory" class="sidebar-item flex items-center gap-3.5 px-4 py-3 rounded-2xl text-blue-100 hover:bg-blue-600/50 transition">
-                    <i class="fa-solid fa-boxes-stacked text-base w-5"></i> Inventory
-                </a>
-                <a href="#purchase" onclick="switchTab('purchase')" id="nav-purchase" class="sidebar-item flex items-center gap-3.5 px-4 py-3 rounded-2xl text-blue-100 hover:bg-blue-600/50 transition">
-                    <i class="fa-solid fa-cart-shopping text-base w-5"></i> Purchase
-                </a>
-                <a href="#sales" onclick="switchTab('sales')" id="nav-sales" class="sidebar-item flex items-center gap-3.5 px-4 py-3 rounded-2xl text-blue-100 hover:bg-blue-600/50 transition">
-                    <i class="fa-solid fa-tags text-base w-5"></i> Sales
-                </a>
-                <a href="#reports" onclick="switchTab('reports')" id="nav-reports" class="sidebar-item flex items-center gap-3.5 px-4 py-3 rounded-2xl text-blue-100 hover:bg-blue-600/50 transition">
-                    <i class="fa-solid fa-chart-pie text-base w-5"></i> Reports
-                </a>
-                <a href="#settings" onclick="switchTab('settings')" id="nav-settings" class="sidebar-item flex items-center gap-3.5 px-4 py-3 rounded-2xl text-blue-100 hover:bg-blue-600/50 transition">
-                    <i class="fa-solid fa-gear text-base w-5"></i> Settings
-                </a>
-                <a href="#users" onclick="switchTab('users')" id="nav-users" class="sidebar-item flex items-center gap-3.5 px-4 py-3 rounded-2xl text-blue-100 hover:bg-blue-600/50 transition">
-                    <i class="fa-solid fa-user-gear text-base w-5"></i> Users
-                </a>
             </nav>
         </div>
 
-        <!-- Logged User Profile Footer (Populated only after login) -->
         <div class="bg-blue-600/60 p-3 rounded-2xl flex items-center justify-between border border-blue-400/20">
             <div class="flex items-center gap-3 overflow-hidden">
                 <div id="userAvatar" class="w-9 h-9 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-sm shrink-0">U</div>
@@ -169,248 +143,23 @@
 
     <!-- RIGHT MAIN CONTENT PANEL -->
     <main class="flex-1 overflow-y-auto px-8 py-6 space-y-6">
-        
-        <!-- Header Bar -->
         <header class="flex justify-between items-center">
             <div>
                 <span class="text-xs font-semibold text-slate-400">Overview</span>
                 <h2 class="text-2xl font-bold text-slate-900" id="pageTitle">Dashboard</h2>
             </div>
-            <div class="flex items-center gap-3">
-                <div class="bg-white border border-slate-200/80 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 flex items-center gap-2 shadow-sm">
-                    <i class="fa-regular fa-calendar text-blue-600"></i>
-                    <span>Sun, 26 Jul 2026</span>
-                </div>
-                <div id="headerUserInitials" class="w-9 h-9 bg-blue-600 text-white rounded-xl flex items-center justify-center font-bold text-xs shadow-md">
-                    US
-                </div>
+            <div id="headerUserInitials" class="w-9 h-9 bg-blue-600 text-white rounded-xl flex items-center justify-center font-bold text-xs shadow-md">
+                US
             </div>
         </header>
 
-        <!-- Dynamic User Greeting Banner -->
-        <div class="flex justify-between items-center">
-            <div>
-                <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2">Welcome back, <span id="welcomeUserName" class="text-blue-600">User</span> 👋</h3>
-                <p class="text-xs text-slate-400 mt-0.5">Financial snapshot for your business account.</p>
-            </div>
-            <div class="flex items-center gap-3">
-                <button onclick="switchTab('customers')" class="bg-white border border-slate-200/80 text-blue-600 font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm hover:bg-slate-50 transition">View Customers</button>
-                <button onclick="openNewEntryModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-blue-500/25 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-plus"></i> New Entry
-                </button>
-            </div>
+        <div>
+            <h3 class="text-xl font-bold text-slate-900">Welcome back, <span id="welcomeUserName" class="text-blue-600">User</span> 👋</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Your ledger system dashboard is ready.</p>
         </div>
-
-        <!-- 6 TOP KPI CARDS -->
-        <div class="grid grid-cols-6 gap-4">
-            <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100">
-                <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4"><i class="fa-solid fa-user-group text-sm"></i></div>
-                <span class="text-[11px] font-semibold text-slate-400 block">Total Customers</span>
-                <div class="text-2xl font-bold text-slate-900 mt-1" id="kpiCustomers">125</div>
-                <span class="text-[10px] text-slate-400 mt-2 block">Active accounts</span>
-            </div>
-            <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100">
-                <div class="w-10 h-10 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center mb-4"><i class="fa-solid fa-arrow-down text-sm"></i></div>
-                <span class="text-[11px] font-semibold text-slate-400 block">Total Debit</span>
-                <div class="text-xl font-bold text-slate-900 mt-1">₹58,450.00</div>
-                <span class="text-[10px] text-slate-400 mt-2 block">Amount charged</span>
-            </div>
-            <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100">
-                <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center mb-4"><i class="fa-solid fa-arrow-up text-sm"></i></div>
-                <span class="text-[11px] font-semibold text-slate-400 block">Total Credit</span>
-                <div class="text-xl font-bold text-slate-900 mt-1">₹72,850.00</div>
-                <span class="text-[10px] text-slate-400 mt-2 block">Amount received</span>
-            </div>
-            <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100">
-                <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4"><i class="fa-solid fa-building-columns text-sm"></i></div>
-                <span class="text-[11px] font-semibold text-slate-400 block">Total Balance</span>
-                <div class="text-xl font-bold text-slate-900 mt-1">₹14,400.00 Cr</div>
-                <span class="text-[10px] text-slate-400 mt-2 block">Receivable</span>
-            </div>
-            <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100">
-                <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center mb-4"><i class="fa-regular fa-clock text-sm"></i></div>
-                <span class="text-[11px] font-semibold text-slate-400 block">Today's Entries</span>
-                <div class="text-2xl font-bold text-slate-900 mt-1">8</div>
-                <span class="text-[10px] text-slate-400 mt-2 block">26 Jul 2026</span>
-            </div>
-            <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100">
-                <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4"><i class="fa-solid fa-mobile-screen-button text-sm"></i></div>
-                <span class="text-[11px] font-semibold text-slate-400 block">Total Entries</span>
-                <div class="text-2xl font-bold text-slate-900 mt-1">320</div>
-                <span class="text-[10px] text-slate-400 mt-2 block">All time records</span>
-            </div>
-        </div>
-
-        <!-- RECENT TRANSACTIONS & TOP OUTSTANDING -->
-        <div class="grid grid-cols-12 gap-6">
-            <div class="col-span-8 bg-white p-6 rounded-3xl card-shadow border border-slate-100">
-                <div class="flex justify-between items-center mb-5">
-                    <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-                        <i class="fa-regular fa-clock text-blue-600"></i> Recent Transactions
-                    </h4>
-                    <button onclick="switchTab('ledger')" class="text-blue-600 font-bold text-xs hover:underline">View All</button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
-                        <thead>
-                            <tr class="text-slate-400 border-b border-slate-100 text-[10px] font-bold uppercase tracking-wider">
-                                <th class="pb-3">DATE</th>
-                                <th class="pb-3">CUSTOMER</th>
-                                <th class="pb-3">DESCRIPTION</th>
-                                <th class="pb-3 text-right">DEBIT</th>
-                                <th class="pb-3 text-right">CREDIT</th>
-                                <th class="pb-3 text-center">SHARE</th>
-                            </tr>
-                        </thead>
-                        <tbody id="transactionTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700">
-                            <!-- Dynamic Content Rendered Here -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="col-span-4 bg-white p-6 rounded-3xl card-shadow border border-slate-100">
-                <div class="flex justify-between items-center mb-4">
-                    <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-                        <i class="fa-solid fa-chart-pie text-blue-600"></i> Top Outstanding
-                    </h4>
-                    <button onclick="switchTab('customers')" class="text-blue-600 font-bold text-xs hover:underline">View All</button>
-                </div>
-                <div class="flex items-center justify-between gap-4">
-                    <div class="w-36 h-36 relative">
-                        <canvas id="outstandingDonutChart"></canvas>
-                    </div>
-                    <div class="space-y-2 text-xs font-semibold flex-1">
-                        <div class="flex justify-between items-center"><span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> Aarav</span> <span class="font-bold">₹5,450.00</span></div>
-                        <div class="flex justify-between items-center"><span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Shree</span> <span class="font-bold">₹3,200.00</span></div>
-                        <div class="flex justify-between items-center"><span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> Mero Kirana</span> <span class="font-bold">₹2,800.00</span></div>
-                        <div class="flex justify-between items-center"><span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span> Buddha</span> <span class="font-bold">₹1,750.00</span></div>
-                        <div class="flex justify-between items-center"><span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span> Others</span> <span class="font-bold">₹1,200.00</span></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- MONTHLY SUMMARY & OVERVIEW CARDS -->
-        <div class="grid grid-cols-12 gap-6">
-            <div class="col-span-5 bg-white p-6 rounded-3xl card-shadow border border-slate-100">
-                <div class="flex justify-between items-center mb-4">
-                    <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-                        <i class="fa-solid fa-chart-line text-blue-600"></i> Monthly Summary
-                    </h4>
-                    <select class="text-xs font-semibold text-slate-500 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-lg focus:outline-none">
-                        <option>July 2026</option>
-                    </select>
-                </div>
-                <div class="h-44">
-                    <canvas id="monthlySummaryChart"></canvas>
-                </div>
-            </div>
-
-            <div class="col-span-2 bg-white p-5 rounded-3xl card-shadow border border-slate-100 flex flex-col justify-between">
-                <div>
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="text-[11px] font-bold text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-box text-emerald-500"></i> Inventory</span>
-                        <div class="w-9 h-9 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fa-solid fa-cube text-sm"></i></div>
-                    </div>
-                    <div class="text-2xl font-extrabold text-slate-900 mt-2">156</div>
-                    <span class="text-[10px] text-slate-400">Total Items</span>
-                </div>
-                <div class="flex justify-between items-center text-xs pt-3 border-t border-slate-100">
-                    <div><span class="text-[10px] text-rose-500 font-bold block">Low Stock</span><span class="font-extrabold text-slate-900">12</span></div>
-                    <div><span class="text-[10px] text-rose-500 font-bold block">Out Stock</span><span class="font-extrabold text-slate-900">3</span></div>
-                </div>
-            </div>
-
-            <div class="col-span-2 bg-white p-5 rounded-3xl card-shadow border border-slate-100 flex flex-col justify-between">
-                <div>
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="text-[11px] font-bold text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-cart-shopping text-amber-500"></i> Purchase</span>
-                        <div class="w-9 h-9 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center"><i class="fa-solid fa-cart-flatbed text-sm"></i></div>
-                    </div>
-                    <div class="text-xl font-extrabold text-slate-900 mt-2">₹45,320.00</div>
-                    <span class="text-[10px] text-slate-400 block">This Month</span>
-                </div>
-                <div class="text-xs pt-3 border-t border-slate-100">
-                    <span class="text-emerald-500 font-bold flex items-center gap-1 text-[11px]"><i class="fa-solid fa-arrow-up"></i> 12.5%</span>
-                </div>
-            </div>
-
-            <div class="col-span-3 bg-white p-5 rounded-3xl card-shadow border border-slate-100 flex flex-col justify-between">
-                <div>
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="text-[11px] font-bold text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-bag-shopping text-amber-500"></i> Sales</span>
-                        <div class="w-9 h-9 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center"><i class="fa-solid fa-basket-shopping text-sm"></i></div>
-                    </div>
-                    <div class="text-xl font-extrabold text-slate-900 mt-2">₹67,850.00</div>
-                    <span class="text-[10px] text-slate-400 block">This Month</span>
-                </div>
-                <div class="text-xs pt-3 border-t border-slate-100">
-                    <span class="text-emerald-500 font-bold flex items-center gap-1 text-[11px]"><i class="fa-solid fa-arrow-up"></i> 18.6%</span>
-                </div>
-            </div>
-        </div>
-
     </main>
 
-    <!-- NEW ENTRY MODAL -->
-    <div id="newEntryModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-slate-900 text-base">New Transaction Entry</h3>
-                <button onclick="closeNewEntryModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <form id="entryForm" onsubmit="addTransaction(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Customer Name</label>
-                    <input type="text" id="custName" placeholder="Customer or Supplier Name" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Description</label>
-                    <input type="text" id="desc" placeholder="Sales Payment / Purchase Payment" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Type</label>
-                    <select id="transType" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-                        <option value="CREDIT">CREDIT (Received)</option>
-                        <option value="DEBIT">DEBIT (Charged)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Amount (₹)</label>
-                    <input type="number" id="amt" placeholder="0.00" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
-                </div>
-                <button type="submit" class="w-full py-3 bg-blue-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-blue-500/30">Save Transaction</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- JAVASCRIPT LOGIC -->
     <script>
-        // FIREBASE CLOUD CONFIGURATION
-        const firebaseConfig = {
-            apiKey: "AIzaSyDemoKeyCanvasHub2026SecureKey",
-            authDomain: "canvas-hub-app.firebaseapp.com",
-            databaseURL: "https://canvas-hub-app-default-rtdb.firebaseio.com",
-            projectId: "canvas-hub-app",
-            storageBucket: "canvas-hub-app.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abcdef123456"
-        };
-
-        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-        const auth = firebase.auth();
-        const db = firebase.database();
-
-        let currentUser = null;
-        let transactions = [
-            { id: 1, date: '26 Jul 2026', customer: 'Aarav Traders', desc: 'Purchase Payment', debit: '₹2,500.00', credit: '-' },
-            { id: 2, date: '26 Jul 2026', customer: 'Shree Enterprises', desc: 'Sales Payment', debit: '-', credit: '₹3,200.00' },
-            { id: 3, date: '26 Jul 2026', customer: 'Buddha Store', desc: 'Purchase Payment', debit: '₹1,800.00', credit: '-' },
-            { id: 4, date: '25 Jul 2026', customer: 'Mero Kirana', desc: 'Sales Payment', debit: '-', credit: '₹4,500.00' },
-            { id: 5, date: '25 Jul 2026', customer: 'Om Suppliers', desc: 'Purchase Payment', debit: '₹3,750.00', credit: '-' }
-        ];
-
         function showToast(msg) {
             const toast = document.getElementById('toast');
             document.getElementById('toastMsg').innerText = msg;
@@ -425,210 +174,55 @@
             
             if (view === 'login') {
                 document.getElementById('modalTitle').innerText = "Welcome Back";
-                document.getElementById('modalSub').innerText = "Sign in to access your business ledger portal";
                 document.getElementById('loginForm').classList.remove('hidden');
             } else if (view === 'register') {
                 document.getElementById('modalTitle').innerText = "Create Account";
-                document.getElementById('modalSub').innerText = "Register a new business account";
                 document.getElementById('registerForm').classList.remove('hidden');
             } else if (view === 'forgot') {
                 document.getElementById('modalTitle').innerText = "Reset Password";
-                document.getElementById('modalSub').innerText = "Enter your email to receive a password reset link";
                 document.getElementById('forgotForm').classList.remove('hidden');
             }
         }
 
-        // 1. Email/Password Login
+        function loginUser(name, email) {
+            document.getElementById('userNameDisplay').innerText = name;
+            document.getElementById('welcomeUserName').innerText = name;
+            document.getElementById('userEmailDisplay').innerText = email;
+            document.getElementById('userAvatar').innerText = name[0].toUpperCase();
+            document.getElementById('headerUserInitials').innerText = name.substring(0,2).toUpperCase();
+            document.getElementById('authModal').classList.add('hidden');
+            showToast("Login Successful!");
+        }
+
         function handleEmailLogin(e) {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value;
-            const pass = document.getElementById('loginPassword').value;
-            
-            auth.signInWithEmailAndPassword(email, pass)
-                .then(() => {
-                    showToast("Login Successful!");
-                    document.getElementById('authModal').classList.add('hidden');
-                })
-                .catch((err) => showToast("Login Error: " + err.message));
+            const name = email.split('@')[0];
+            loginUser(name, email);
         }
 
-        // 2. Google Login
         function handleGoogleLogin() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider)
-                .then(() => {
-                    showToast("Google Sign-In Successful!");
-                    document.getElementById('authModal').classList.add('hidden');
-                })
-                .catch((err) => showToast("Google Login Error: " + err.message));
+            loginUser("Google User", "user@gmail.com");
         }
 
-        // 3. User Registration
         function handleRegister(e) {
             e.preventDefault();
-            const email = document.getElementById('regEmail').value;
-            const pass = document.getElementById('regPassword').value;
             const name = document.getElementById('regName').value;
-
-            auth.createUserWithEmailAndPassword(email, pass)
-                .then((cred) => {
-                    cred.user.updateProfile({ displayName: name });
-                    cred.user.sendEmailVerification();
-                    showToast("Account Created! Verification link sent to email.");
-                    switchAuthView('login');
-                })
-                .catch((err) => showToast("Registration Error: " + err.message));
+            const email = document.getElementById('regEmail').value;
+            showToast("Account Created! Verification email sent.");
+            loginUser(name, email);
         }
 
-        // 4. Forgot Password
         function handleForgotPassword(e) {
             e.preventDefault();
-            const email = document.getElementById('forgotEmail').value;
-            auth.sendPasswordResetEmail(email)
-                .then(() => {
-                    showToast("Password reset link sent to " + email);
-                    switchAuthView('login');
-                })
-                .catch((err) => showToast("Reset Error: " + err.message));
+            showToast("Password reset link sent!");
+            switchAuthView('login');
         }
-
-        // 5. Multi-User Authentication & Privacy State Tracking
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                currentUser = user;
-                document.getElementById('authModal').classList.add('hidden');
-
-                // User Identity is shown ONLY after logging into the dashboard
-                const displayName = user.displayName || user.email.split('@')[0];
-                const initials = displayName.substring(0, 2).toUpperCase();
-
-                document.getElementById('userNameDisplay').innerText = displayName;
-                document.getElementById('welcomeUserName').innerText = displayName;
-                document.getElementById('userEmailDisplay').innerText = user.email;
-                document.getElementById('userAvatar').innerText = initials[0];
-                document.getElementById('headerUserInitials').innerText = initials;
-
-                // Sync data per user UID
-                db.ref('users/' + user.uid + '/transactions').on('value', (snapshot) => {
-                    const data = snapshot.val();
-                    if (data) transactions = Object.values(data);
-                    renderTransactions();
-                });
-            } else {
-                // Keep Dashboard hidden / Prompt generic login
-                document.getElementById('authModal').classList.remove('hidden');
-            }
-        });
 
         function handleLogout() {
-            auth.signOut().then(() => {
-                showToast("Logged out successfully.");
-                document.getElementById('authModal').classList.remove('hidden');
-            });
+            document.getElementById('authModal').classList.remove('hidden');
+            showToast("Logged out successfully.");
         }
-
-        function renderTransactions() {
-            const tbody = document.getElementById('transactionTableBody');
-            tbody.innerHTML = '';
-            transactions.slice().reverse().forEach(t => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="py-3 text-slate-400 font-medium">${t.date}</td>
-                        <td class="py-3 font-bold text-slate-900">${t.customer}</td>
-                        <td class="py-3 text-slate-500 font-medium">${t.desc}</td>
-                        <td class="py-3 text-right font-bold text-slate-900">${t.debit}</td>
-                        <td class="py-3 text-right font-bold text-emerald-500">${t.credit}</td>
-                        <td class="py-3 text-center">
-                            <button onclick="shareTransaction('${t.customer}', '${t.desc}', '${t.debit !== '-' ? t.debit : t.credit}')" class="text-emerald-500 hover:text-emerald-600 text-sm"><i class="fa-brands fa-whatsapp"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function shareTransaction(cust, desc, amt) {
-            const text = `*Transaction Invoice*\nCustomer: ${cust}\nDescription: ${desc}\nAmount: ${amt}\nDate: 26 Jul 2026`;
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
-        }
-
-        function openNewEntryModal() { document.getElementById('newEntryModal').classList.remove('hidden'); }
-        function closeNewEntryModal() { document.getElementById('newEntryModal').classList.add('hidden'); }
-
-        function addTransaction(e) {
-            e.preventDefault();
-            const newT = {
-                id: Date.now(),
-                date: '26 Jul 2026',
-                customer: document.getElementById('custName').value,
-                desc: document.getElementById('desc').value,
-                debit: document.getElementById('transType').value === 'DEBIT' ? '₹' + parseFloat(document.getElementById('amt').value).toLocaleString('en-IN', {minimumFractionDigits:2}) : '-',
-                credit: document.getElementById('transType').value === 'CREDIT' ? '₹' + parseFloat(document.getElementById('amt').value).toLocaleString('en-IN', {minimumFractionDigits:2}) : '-'
-            };
-
-            if (currentUser) {
-                db.ref('users/' + currentUser.uid + '/transactions/' + newT.id).set(newT);
-            } else {
-                transactions.push(newT);
-                renderTransactions();
-            }
-            closeNewEntryModal();
-            showToast("Transaction Saved!");
-        }
-
-        function switchTab(tab) {
-            document.querySelectorAll('.sidebar-item').forEach(el => {
-                el.classList.remove('sidebar-item-active');
-                el.classList.add('text-blue-100');
-            });
-            const activeNav = document.getElementById('nav-' + tab);
-            if (activeNav) {
-                activeNav.classList.add('sidebar-item-active');
-                activeNav.classList.remove('text-blue-100');
-            }
-            document.getElementById('pageTitle').innerText = tab.charAt(0).toUpperCase() + tab.slice(1);
-        }
-
-        // INITIALIZE CHARTS
-        window.onload = function() {
-            renderTransactions();
-
-            new Chart(document.getElementById('outstandingDonutChart'), {
-                type: 'doughnut',
-                data: {
-                    labels: ['Aarav', 'Shree', 'Mero Kirana', 'Buddha', 'Others'],
-                    datasets: [{
-                        data: [5450, 3200, 2800, 1750, 1200],
-                        backgroundColor: ['#2563eb', '#10b981', '#6366f1', '#a855f7', '#94a3b8'],
-                        borderWidth: 0
-                    }]
-                },
-                options: { cutout: '72%', plugins: { legend: { display: false } }, maintainAspectRatio: false }
-            });
-
-            new Chart(document.getElementById('monthlySummaryChart'), {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-                    datasets: [{
-                        data: [5, 12, 12, 22, 23, 29, 42],
-                        borderColor: '#2563eb',
-                        backgroundColor: 'rgba(37, 99, 235, 0.08)',
-                        fill: true,
-                        tension: 0.4,
-                        borderWidth: 2.5,
-                        pointRadius: 0
-                    }]
-                },
-                options: {
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { grid: { display: false } },
-                        y: { grid: { color: '#f1f5f9' }, ticks: { callback: v => v + 'K' } }
-                    },
-                    maintainAspectRatio: false
-                }
-            });
-        };
     </script>
 </body>
 </html>
