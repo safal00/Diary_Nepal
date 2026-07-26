@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Canvas Hub - Ledger Book</title>
+    <title>Cloud Ledger System - Multi-User Portal</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -29,25 +29,26 @@
     <!-- Toast Notification -->
     <div id="toast" class="fixed top-5 right-5 z-50 hidden bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl text-xs font-semibold flex items-center gap-2">
         <i class="fa-solid fa-circle-info text-blue-400"></i>
-        <span id="toastMsg">Notification message</span>
+        <span id="toastMsg">System Notification</span>
     </div>
 
-    <!-- AUTHENTICATION MODAL (Multi-device, Email OTP & Reset) -->
+    <!-- AUTHENTICATION MODAL (Generic Multi-User Login Portal) -->
     <div id="authModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 border border-slate-100">
+            
             <div class="text-center mb-6">
                 <div class="w-12 h-12 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center text-white text-xl font-bold mb-3 shadow-lg shadow-blue-500/30">
-                    <i class="fa-solid fa-book-open"></i>
+                    <i class="fa-solid fa-shield-halved"></i>
                 </div>
-                <h2 id="modalTitle" class="text-2xl font-bold text-slate-900">Canvas Hub Login</h2>
-                <p id="modalSub" class="text-slate-400 text-xs mt-1">Multi-device sync cloud platform</p>
+                <h2 id="modalTitle" class="text-2xl font-bold text-slate-900">Welcome Back</h2>
+                <p id="modalSub" class="text-slate-400 text-xs mt-1">Sign in to access your business ledger portal</p>
             </div>
 
-            <!-- Login Form -->
+            <!-- 1. GENERIC LOGIN FORM -->
             <form id="loginForm" onsubmit="handleEmailLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Gmail / Email</label>
-                    <input type="email" id="loginEmail" placeholder="admin@canvashub.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                    <input type="email" id="loginEmail" placeholder="name@domain.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Password</label>
@@ -60,59 +61,63 @@
                     <button type="button" onclick="switchAuthView('forgot')" class="text-blue-600 font-bold hover:underline">Forgot Password?</button>
                 </div>
                 <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-lg shadow-blue-500/25 text-xs">Sign In</button>
+                
                 <div class="relative flex py-1 items-center">
                     <div class="flex-grow border-t border-slate-200"></div>
                     <span class="flex-shrink mx-3 text-[10px] text-slate-400 font-bold">OR</span>
                     <div class="flex-grow border-t border-slate-200"></div>
                 </div>
+
                 <button type="button" onclick="handleGoogleLogin()" class="w-full py-3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm">
                     <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
                     Sign in with Google
                 </button>
+
                 <p class="text-center text-xs text-slate-500 mt-3">Don't have an account? <button type="button" onclick="switchAuthView('register')" class="text-blue-600 font-bold hover:underline">Register</button></p>
             </form>
 
-            <!-- Register Form -->
+            <!-- 2. GENERIC REGISTER FORM -->
             <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 hidden">
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Full Name</label>
-                    <input type="text" id="regName" placeholder="Full Name" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Full Name / Business Name</label>
+                    <input type="text" id="regName" placeholder="Your Name or Company" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Gmail / Email</label>
-                    <input type="email" id="regEmail" placeholder="user@gmail.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                    <input type="email" id="regEmail" placeholder="user@domain.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Password</label>
                     <input type="password" id="regPassword" minlength="6" placeholder="Min 6 characters" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
                 </div>
-                <button type="submit" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition shadow-lg text-xs">Create Account & Send Verification Code</button>
+                <button type="submit" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition shadow-lg text-xs">Create Account & Send Verification</button>
                 <p class="text-center text-xs text-slate-500 mt-2"><button type="button" onclick="switchAuthView('login')" class="text-blue-600 font-bold hover:underline">Back to Login</button></p>
             </form>
 
-            <!-- Forgot Form -->
+            <!-- 3. GENERIC FORGOT PASSWORD FORM -->
             <form id="forgotForm" onsubmit="handleForgotPassword(event)" class="space-y-4 hidden">
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Registered Email</label>
-                    <input type="email" id="forgotEmail" placeholder="your@gmail.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                    <input type="email" id="forgotEmail" placeholder="user@domain.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
                 </div>
                 <button type="submit" class="w-full py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl transition shadow-lg text-xs">Send Reset Link/Code</button>
                 <p class="text-center text-xs text-slate-500 mt-2"><button type="button" onclick="switchAuthView('login')" class="text-blue-600 font-bold hover:underline">Back to Login</button></p>
             </form>
+
         </div>
     </div>
 
-    <!-- LEFT SIDEBAR (BLUE THEME EXACT DESIGN) -->
+    <!-- LEFT SIDEBAR (SHOWN AFTER SUCCESSFUL LOGIN) -->
     <aside class="w-64 sidebar-bg text-white flex flex-col justify-between shrink-0 p-5">
         <div>
-            <!-- Brand -->
+            <!-- Brand Portal Header -->
             <div class="flex items-center gap-3 px-2 py-3 mb-8">
                 <div class="w-10 h-10 bg-white text-blue-600 rounded-2xl flex items-center justify-center font-bold text-xl shadow-md">
                     <i class="fa-solid fa-book-open"></i>
                 </div>
                 <div>
-                    <h1 class="font-extrabold text-lg leading-tight">Canvas Hub</h1>
-                    <span class="text-[11px] text-blue-200 font-medium">Ledger Book</span>
+                    <h1 class="font-extrabold text-lg leading-tight" id="sidebarBrandName">Ledger Book</h1>
+                    <span class="text-[11px] text-blue-200 font-medium">Cloud Workspace</span>
                 </div>
             </div>
 
@@ -149,16 +154,16 @@
             </nav>
         </div>
 
-        <!-- Admin Profile Footer -->
+        <!-- Logged User Profile Footer (Populated only after login) -->
         <div class="bg-blue-600/60 p-3 rounded-2xl flex items-center justify-between border border-blue-400/20">
             <div class="flex items-center gap-3 overflow-hidden">
-                <div id="userAvatar" class="w-9 h-9 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-sm shrink-0">A</div>
+                <div id="userAvatar" class="w-9 h-9 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-sm shrink-0">U</div>
                 <div class="truncate text-xs">
-                    <div id="userNameDisplay" class="font-bold text-white truncate">Administrator</div>
-                    <div id="userEmailDisplay" class="text-blue-200 text-[10px] truncate">admin</div>
+                    <div id="userNameDisplay" class="font-bold text-white truncate">User Account</div>
+                    <div id="userEmailDisplay" class="text-blue-200 text-[10px] truncate">user@domain.com</div>
                 </div>
             </div>
-            <button onclick="handleLogout()" class="text-blue-200 hover:text-white ms-2 text-sm"><i class="fa-solid fa-chevron-down"></i></button>
+            <button onclick="handleLogout()" class="text-blue-200 hover:text-white ms-2 text-sm" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
         </div>
     </aside>
 
@@ -176,17 +181,17 @@
                     <i class="fa-regular fa-calendar text-blue-600"></i>
                     <span>Sun, 26 Jul 2026</span>
                 </div>
-                <div class="w-9 h-9 bg-blue-600 text-white rounded-xl flex items-center justify-center font-bold text-xs shadow-md">
-                    CH
+                <div id="headerUserInitials" class="w-9 h-9 bg-blue-600 text-white rounded-xl flex items-center justify-center font-bold text-xs shadow-md">
+                    US
                 </div>
             </div>
         </header>
 
-        <!-- Welcome Banner -->
+        <!-- Dynamic User Greeting Banner -->
         <div class="flex justify-between items-center">
             <div>
-                <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2">Welcome back 👋</h3>
-                <p class="text-xs text-slate-400 mt-0.5">Financial snapshot for Canvas Hub.</p>
+                <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2">Welcome back, <span id="welcomeUserName" class="text-blue-600">User</span> 👋</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Financial snapshot for your business account.</p>
             </div>
             <div class="flex items-center gap-3">
                 <button onclick="switchTab('customers')" class="bg-white border border-slate-200/80 text-blue-600 font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm hover:bg-slate-50 transition">View Customers</button>
@@ -196,44 +201,38 @@
             </div>
         </div>
 
-        <!-- 6 TOP KPI CARDS (EXACT METRICS) -->
+        <!-- 6 TOP KPI CARDS -->
         <div class="grid grid-cols-6 gap-4">
-            <!-- Total Customers -->
             <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100">
                 <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4"><i class="fa-solid fa-user-group text-sm"></i></div>
                 <span class="text-[11px] font-semibold text-slate-400 block">Total Customers</span>
                 <div class="text-2xl font-bold text-slate-900 mt-1" id="kpiCustomers">125</div>
                 <span class="text-[10px] text-slate-400 mt-2 block">Active accounts</span>
             </div>
-            <!-- Total Debit -->
             <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100">
                 <div class="w-10 h-10 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center mb-4"><i class="fa-solid fa-arrow-down text-sm"></i></div>
                 <span class="text-[11px] font-semibold text-slate-400 block">Total Debit</span>
                 <div class="text-xl font-bold text-slate-900 mt-1">₹58,450.00</div>
                 <span class="text-[10px] text-slate-400 mt-2 block">Amount charged</span>
             </div>
-            <!-- Total Credit -->
             <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100">
                 <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center mb-4"><i class="fa-solid fa-arrow-up text-sm"></i></div>
                 <span class="text-[11px] font-semibold text-slate-400 block">Total Credit</span>
                 <div class="text-xl font-bold text-slate-900 mt-1">₹72,850.00</div>
                 <span class="text-[10px] text-slate-400 mt-2 block">Amount received</span>
             </div>
-            <!-- Total Balance -->
             <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100">
                 <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4"><i class="fa-solid fa-building-columns text-sm"></i></div>
                 <span class="text-[11px] font-semibold text-slate-400 block">Total Balance</span>
                 <div class="text-xl font-bold text-slate-900 mt-1">₹14,400.00 Cr</div>
                 <span class="text-[10px] text-slate-400 mt-2 block">Receivable</span>
             </div>
-            <!-- Today's Entries -->
             <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100">
                 <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center mb-4"><i class="fa-regular fa-clock text-sm"></i></div>
                 <span class="text-[11px] font-semibold text-slate-400 block">Today's Entries</span>
                 <div class="text-2xl font-bold text-slate-900 mt-1">8</div>
                 <span class="text-[10px] text-slate-400 mt-2 block">26 Jul 2026</span>
             </div>
-            <!-- Total Entries -->
             <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100">
                 <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4"><i class="fa-solid fa-mobile-screen-button text-sm"></i></div>
                 <span class="text-[11px] font-semibold text-slate-400 block">Total Entries</span>
@@ -242,9 +241,8 @@
             </div>
         </div>
 
-        <!-- SECTION 2: RECENT TRANSACTIONS TABLE + TOP OUTSTANDING DONUT CHART -->
+        <!-- RECENT TRANSACTIONS & TOP OUTSTANDING -->
         <div class="grid grid-cols-12 gap-6">
-            <!-- Recent Transactions Table (8 Cols) -->
             <div class="col-span-8 bg-white p-6 rounded-3xl card-shadow border border-slate-100">
                 <div class="flex justify-between items-center mb-5">
                     <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
@@ -271,7 +269,6 @@
                 </div>
             </div>
 
-            <!-- Top Outstanding Chart (4 Cols) -->
             <div class="col-span-4 bg-white p-6 rounded-3xl card-shadow border border-slate-100">
                 <div class="flex justify-between items-center mb-4">
                     <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
@@ -294,9 +291,8 @@
             </div>
         </div>
 
-        <!-- SECTION 3: MONTHLY SUMMARY CHART + INVENTORY OVERVIEW + PURCHASE OVERVIEW + SALES OVERVIEW -->
+        <!-- MONTHLY SUMMARY & OVERVIEW CARDS -->
         <div class="grid grid-cols-12 gap-6">
-            <!-- Monthly Summary Area Chart (5 Cols) -->
             <div class="col-span-5 bg-white p-6 rounded-3xl card-shadow border border-slate-100">
                 <div class="flex justify-between items-center mb-4">
                     <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
@@ -311,27 +307,25 @@
                 </div>
             </div>
 
-            <!-- Inventory Overview (2.3 Cols) -->
             <div class="col-span-2 bg-white p-5 rounded-3xl card-shadow border border-slate-100 flex flex-col justify-between">
                 <div>
                     <div class="flex justify-between items-start mb-2">
-                        <span class="text-[11px] font-bold text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-box text-emerald-500"></i> Inventory Overview</span>
+                        <span class="text-[11px] font-bold text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-box text-emerald-500"></i> Inventory</span>
                         <div class="w-9 h-9 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fa-solid fa-cube text-sm"></i></div>
                     </div>
                     <div class="text-2xl font-extrabold text-slate-900 mt-2">156</div>
                     <span class="text-[10px] text-slate-400">Total Items</span>
                 </div>
                 <div class="flex justify-between items-center text-xs pt-3 border-t border-slate-100">
-                    <div><span class="text-[10px] text-rose-500 font-bold block">Low Stock Items</span><span class="font-extrabold text-slate-900">12</span></div>
-                    <div><span class="text-[10px] text-rose-500 font-bold block">Out of Stock</span><span class="font-extrabold text-slate-900">3</span></div>
+                    <div><span class="text-[10px] text-rose-500 font-bold block">Low Stock</span><span class="font-extrabold text-slate-900">12</span></div>
+                    <div><span class="text-[10px] text-rose-500 font-bold block">Out Stock</span><span class="font-extrabold text-slate-900">3</span></div>
                 </div>
             </div>
 
-            <!-- Purchase Overview (2.3 Cols) -->
             <div class="col-span-2 bg-white p-5 rounded-3xl card-shadow border border-slate-100 flex flex-col justify-between">
                 <div>
                     <div class="flex justify-between items-start mb-2">
-                        <span class="text-[11px] font-bold text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-cart-shopping text-amber-500"></i> Purchase Overview</span>
+                        <span class="text-[11px] font-bold text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-cart-shopping text-amber-500"></i> Purchase</span>
                         <div class="w-9 h-9 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center"><i class="fa-solid fa-cart-flatbed text-sm"></i></div>
                     </div>
                     <div class="text-xl font-extrabold text-slate-900 mt-2">₹45,320.00</div>
@@ -339,15 +333,13 @@
                 </div>
                 <div class="text-xs pt-3 border-t border-slate-100">
                     <span class="text-emerald-500 font-bold flex items-center gap-1 text-[11px]"><i class="fa-solid fa-arrow-up"></i> 12.5%</span>
-                    <span class="text-[10px] text-slate-400 block">vs last month</span>
                 </div>
             </div>
 
-            <!-- Sales Overview (2.4 Cols) -->
             <div class="col-span-3 bg-white p-5 rounded-3xl card-shadow border border-slate-100 flex flex-col justify-between">
                 <div>
                     <div class="flex justify-between items-start mb-2">
-                        <span class="text-[11px] font-bold text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-bag-shopping text-amber-500"></i> Sales Overview</span>
+                        <span class="text-[11px] font-bold text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-bag-shopping text-amber-500"></i> Sales</span>
                         <div class="w-9 h-9 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center"><i class="fa-solid fa-basket-shopping text-sm"></i></div>
                     </div>
                     <div class="text-xl font-extrabold text-slate-900 mt-2">₹67,850.00</div>
@@ -355,56 +347,6 @@
                 </div>
                 <div class="text-xs pt-3 border-t border-slate-100">
                     <span class="text-emerald-500 font-bold flex items-center gap-1 text-[11px]"><i class="fa-solid fa-arrow-up"></i> 18.6%</span>
-                    <span class="text-[10px] text-slate-400 block">vs last month</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- SECTION 4: LOW STOCK ALERT + RECENT ACTIVITY -->
-        <div class="grid grid-cols-12 gap-6">
-            <!-- Low Stock Alert (6 Cols) -->
-            <div class="col-span-6 bg-white p-6 rounded-3xl card-shadow border border-slate-100">
-                <div class="flex justify-between items-center mb-4">
-                    <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2 text-rose-600">
-                        <i class="fa-solid fa-triangle-exclamation"></i> Low Stock Alert
-                    </h4>
-                    <button onclick="switchTab('inventory')" class="text-blue-600 font-bold text-xs hover:underline">View All</button>
-                </div>
-                <table class="w-full text-left text-xs">
-                    <thead>
-                        <tr class="text-slate-400 border-b border-slate-100 text-[10px] font-bold uppercase">
-                            <th class="pb-2">PRODUCT</th>
-                            <th class="pb-2">CURRENT STOCK</th>
-                            <th class="pb-2">STATUS</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 font-semibold text-slate-700">
-                        <tr>
-                            <td class="py-3">A4 Paper (Pack)</td>
-                            <td class="py-3">5</td>
-                            <td class="py-3"><span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-lg text-[10px] font-bold">Low Stock</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Recent Activity (6 Cols) -->
-            <div class="col-span-6 bg-white p-6 rounded-3xl card-shadow border border-slate-100">
-                <div class="flex justify-between items-center mb-4">
-                    <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-                        <i class="fa-solid fa-pulse text-blue-600"></i> Recent Activity
-                    </h4>
-                    <button class="text-blue-600 font-bold text-xs hover:underline">View All</button>
-                </div>
-                <div class="flex items-center justify-between text-xs font-semibold py-2">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-receipt text-xs"></i></div>
-                        <div>
-                            <div class="text-slate-900 font-bold">New Sale Invoice Created</div>
-                            <div class="text-slate-400 text-[10px]">Invoice No: INV-2026-0320</div>
-                        </div>
-                    </div>
-                    <span class="text-slate-400 text-[10px]">2 min ago</span>
                 </div>
             </div>
         </div>
@@ -421,7 +363,7 @@
             <form id="entryForm" onsubmit="addTransaction(event)" class="space-y-3">
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Customer Name</label>
-                    <input type="text" id="custName" placeholder="Aarav Traders" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
+                    <input type="text" id="custName" placeholder="Customer or Supplier Name" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Description</label>
@@ -431,19 +373,19 @@
                     <label class="block text-xs font-bold text-slate-600 mb-1">Type</label>
                     <select id="transType" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
                         <option value="CREDIT">CREDIT (Received)</option>
-                        <option value="DEBIT">DEBIT (Payment Charged)</option>
+                        <option value="DEBIT">DEBIT (Charged)</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Amount (₹)</label>
                     <input type="number" id="amt" placeholder="0.00" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
                 </div>
-                <button type="submit" class="w-full py-3 bg-blue-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-blue-500/30">Save & Sync to All Devices</button>
+                <button type="submit" class="w-full py-3 bg-blue-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-blue-500/30">Save Transaction</button>
             </form>
         </div>
     </div>
 
-    <!-- JAVASCRIPT CODE -->
+    <!-- JAVASCRIPT LOGIC -->
     <script>
         // FIREBASE CLOUD CONFIGURATION
         const firebaseConfig = {
@@ -480,68 +422,110 @@
             document.getElementById('loginForm').classList.add('hidden');
             document.getElementById('registerForm').classList.add('hidden');
             document.getElementById('forgotForm').classList.add('hidden');
-            if (view === 'login') document.getElementById('loginForm').classList.remove('hidden');
-            if (view === 'register') document.getElementById('registerForm').classList.remove('hidden');
-            if (view === 'forgot') document.getElementById('forgotForm').classList.remove('hidden');
+            
+            if (view === 'login') {
+                document.getElementById('modalTitle').innerText = "Welcome Back";
+                document.getElementById('modalSub').innerText = "Sign in to access your business ledger portal";
+                document.getElementById('loginForm').classList.remove('hidden');
+            } else if (view === 'register') {
+                document.getElementById('modalTitle').innerText = "Create Account";
+                document.getElementById('modalSub').innerText = "Register a new business account";
+                document.getElementById('registerForm').classList.remove('hidden');
+            } else if (view === 'forgot') {
+                document.getElementById('modalTitle').innerText = "Reset Password";
+                document.getElementById('modalSub').innerText = "Enter your email to receive a password reset link";
+                document.getElementById('forgotForm').classList.remove('hidden');
+            }
         }
 
+        // 1. Email/Password Login
         function handleEmailLogin(e) {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value;
             const pass = document.getElementById('loginPassword').value;
+            
             auth.signInWithEmailAndPassword(email, pass)
                 .then(() => {
-                    showToast("Login Successful! Syncing cloud data...");
+                    showToast("Login Successful!");
                     document.getElementById('authModal').classList.add('hidden');
                 })
                 .catch((err) => showToast("Login Error: " + err.message));
         }
 
+        // 2. Google Login
         function handleGoogleLogin() {
             const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider)
-                .then(() => document.getElementById('authModal').classList.add('hidden'))
+                .then(() => {
+                    showToast("Google Sign-In Successful!");
+                    document.getElementById('authModal').classList.add('hidden');
+                })
                 .catch((err) => showToast("Google Login Error: " + err.message));
         }
 
+        // 3. User Registration
         function handleRegister(e) {
             e.preventDefault();
             const email = document.getElementById('regEmail').value;
             const pass = document.getElementById('regPassword').value;
+            const name = document.getElementById('regName').value;
+
             auth.createUserWithEmailAndPassword(email, pass)
                 .then((cred) => {
+                    cred.user.updateProfile({ displayName: name });
                     cred.user.sendEmailVerification();
-                    showToast("Verification Email sent! Check Gmail.");
+                    showToast("Account Created! Verification link sent to email.");
                     switchAuthView('login');
                 })
-                .catch((err) => showToast("Register Error: " + err.message));
+                .catch((err) => showToast("Registration Error: " + err.message));
         }
 
+        // 4. Forgot Password
         function handleForgotPassword(e) {
             e.preventDefault();
-            auth.sendPasswordResetEmail(document.getElementById('forgotEmail').value)
-                .then(() => { showToast("Reset link sent to Email."); switchAuthView('login'); })
+            const email = document.getElementById('forgotEmail').value;
+            auth.sendPasswordResetEmail(email)
+                .then(() => {
+                    showToast("Password reset link sent to " + email);
+                    switchAuthView('login');
+                })
                 .catch((err) => showToast("Reset Error: " + err.message));
         }
 
+        // 5. Multi-User Authentication & Privacy State Tracking
         auth.onAuthStateChanged((user) => {
             if (user) {
                 currentUser = user;
                 document.getElementById('authModal').classList.add('hidden');
-                document.getElementById('userNameDisplay').innerText = user.displayName || user.email.split('@')[0];
-                document.getElementById('userEmailDisplay').innerText = user.email;
 
+                // User Identity is shown ONLY after logging into the dashboard
+                const displayName = user.displayName || user.email.split('@')[0];
+                const initials = displayName.substring(0, 2).toUpperCase();
+
+                document.getElementById('userNameDisplay').innerText = displayName;
+                document.getElementById('welcomeUserName').innerText = displayName;
+                document.getElementById('userEmailDisplay').innerText = user.email;
+                document.getElementById('userAvatar').innerText = initials[0];
+                document.getElementById('headerUserInitials').innerText = initials;
+
+                // Sync data per user UID
                 db.ref('users/' + user.uid + '/transactions').on('value', (snapshot) => {
                     const data = snapshot.val();
                     if (data) transactions = Object.values(data);
                     renderTransactions();
                 });
             } else {
+                // Keep Dashboard hidden / Prompt generic login
                 document.getElementById('authModal').classList.remove('hidden');
             }
         });
 
-        function handleLogout() { auth.signOut().then(() => showToast("Logged out")); }
+        function handleLogout() {
+            auth.signOut().then(() => {
+                showToast("Logged out successfully.");
+                document.getElementById('authModal').classList.remove('hidden');
+            });
+        }
 
         function renderTransactions() {
             const tbody = document.getElementById('transactionTableBody');
@@ -563,7 +547,7 @@
         }
 
         function shareTransaction(cust, desc, amt) {
-            const text = `*Canvas Hub Receipt*\nCustomer: ${cust}\nDescription: ${desc}\nAmount: ${amt}\nDate: 26 Jul 2026\nThank you!`;
+            const text = `*Transaction Invoice*\nCustomer: ${cust}\nDescription: ${desc}\nAmount: ${amt}\nDate: 26 Jul 2026`;
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
         }
 
@@ -604,11 +588,10 @@
             document.getElementById('pageTitle').innerText = tab.charAt(0).toUpperCase() + tab.slice(1);
         }
 
-        // CHARTS INITIALIZATION
+        // INITIALIZE CHARTS
         window.onload = function() {
             renderTransactions();
 
-            // 1. Top Outstanding Donut Chart
             new Chart(document.getElementById('outstandingDonutChart'), {
                 type: 'doughnut',
                 data: {
@@ -622,7 +605,6 @@
                 options: { cutout: '72%', plugins: { legend: { display: false } }, maintainAspectRatio: false }
             });
 
-            // 2. Monthly Summary Smooth Area Line Chart
             new Chart(document.getElementById('monthlySummaryChart'), {
                 type: 'line',
                 data: {
