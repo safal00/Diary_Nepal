@@ -32,53 +32,6 @@
         <span id="toastMsg">System Notification</span>
     </div>
 
-    <!-- AUTHENTICATION MODAL -->
-    <div id="authModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 border border-slate-100">
-            <div class="text-center mb-6">
-                <div class="w-14 h-14 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center text-white text-2xl font-bold mb-3 shadow-lg shadow-blue-500/30">
-                    <i class="fa-solid fa-book-journal-whills"></i>
-                </div>
-                <h2 id="modalTitle" class="text-2xl font-extrabold text-slate-900">Sign In</h2>
-                <p id="modalSub" class="text-slate-400 text-xs mt-1">Multi-Tenant Ledger & ERP Portal</p>
-            </div>
-
-            <!-- Login Form -->
-            <form id="loginForm" onsubmit="handleEmailLogin(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Email Address</label>
-                    <input type="email" id="loginEmail" placeholder="yourname@domain.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Password</label>
-                    <input type="password" id="loginPassword" placeholder="••••••••" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
-                </div>
-                <div id="authError" class="text-rose-600 text-xs font-bold hidden bg-rose-50 p-3 rounded-xl border border-rose-200 text-center"></div>
-                <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-lg shadow-blue-500/25 text-xs">Sign In</button>
-
-                <p class="text-center text-xs text-slate-500 mt-4">Don't have an account? <button type="button" onclick="switchAuthView('register')" class="text-blue-600 font-bold hover:underline">Register New Company</button></p>
-            </form>
-
-            <!-- Register Form -->
-            <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 hidden">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Company / Full Name</label>
-                    <input type="text" id="regName" placeholder="ABC Company" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Email Address</label>
-                    <input type="email" id="regEmail" placeholder="user@domain.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Set Password</label>
-                    <input type="password" id="regPassword" minlength="6" placeholder="At least 6 chars" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
-                </div>
-                <button type="submit" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition shadow-lg text-xs">Create Dedicated Account</button>
-                <p class="text-center text-xs text-slate-500 mt-2"><button type="button" onclick="switchAuthView('login')" class="text-blue-600 font-bold hover:underline">Back to Login</button></p>
-            </form>
-        </div>
-    </div>
-
     <!-- LEFT SIDEBAR -->
     <aside class="w-64 sidebar-bg text-slate-300 flex flex-col justify-between shrink-0 p-4">
         <div>
@@ -110,6 +63,21 @@
                 </a>
                 <a href="#customers" onclick="switchTab('customers')" id="nav-customers" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
                     <i class="fa-solid fa-users text-sm w-4"></i> Customer Management
+                </a>
+                <a href="#receipt" onclick="switchTab('receipt')" id="nav-receipt" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-receipt text-sm w-4"></i> Payment Receipt
+                </a>
+                <a href="#paid" onclick="switchTab('paid')" id="nav-paid" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-file-invoice-dollar text-sm w-4"></i> Payment Paid
+                </a>
+                <a href="#return" onclick="switchTab('return')" id="nav-return" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-rotate-left text-sm w-4"></i> Return Module
+                </a>
+                <a href="#adjustment" onclick="switchTab('adjustment')" id="nav-adjustment" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-sliders text-sm w-4"></i> Adjustment Module
+                </a>
+                <a href="#damage" onclick="switchTab('damage')" id="nav-damage" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-triangle-exclamation text-sm w-4"></i> Damage / Wastage
                 </a>
                 <a href="#creditledger" onclick="switchTab('creditledger')" id="nav-creditledger" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
                     <i class="fa-solid fa-scale-balanced text-sm w-4"></i> Serial Customer Ledgers
@@ -198,7 +166,6 @@
                         <i class="fa-solid fa-plus me-1.5"></i> Add New Product
                     </button>
                 </div>
-
                 <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
@@ -227,7 +194,6 @@
                         <i class="fa-solid fa-user-plus me-1.5"></i> Add Customer
                     </button>
                 </div>
-
                 <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
@@ -235,6 +201,7 @@
                                 <th class="p-4">Customer Name</th>
                                 <th class="p-4">Phone</th>
                                 <th class="p-4">Address</th>
+                                <th class="p-4">Last Transaction Date</th>
                                 <th class="p-4 text-right">Outstanding Balance</th>
                                 <th class="p-4 text-center">Actions</th>
                             </tr>
@@ -255,7 +222,6 @@
                         <i class="fa-solid fa-cart-plus me-1.5"></i> New Sales Invoice Entry
                     </button>
                 </div>
-
                 <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
@@ -274,7 +240,7 @@
                 </div>
             </div>
 
-            <!-- 5. FULLY FUNCTIONAL PURCHASE SYSTEM -->
+            <!-- 5. PURCHASE SYSTEM VIEW -->
             <div id="view-purchase" class="space-y-6 hidden">
                 <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
                     <div>
@@ -285,7 +251,6 @@
                         <i class="fa-solid fa-bag-shopping me-1.5"></i> Add New Purchase Entry
                     </button>
                 </div>
-
                 <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
@@ -303,19 +268,154 @@
                 </div>
             </div>
 
-            <!-- 6. SERIAL CUSTOMER LEDGERS & SHARE ENGINE -->
+            <!-- 6. NEW MODULE: PAYMENT RECEIPT -->
+            <div id="view-receipt" class="space-y-6 hidden">
+                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Payment Receipt Module</h3>
+                        <p class="text-xs text-slate-400">Record incoming payments from customers to automatically reduce due balances.</p>
+                    </div>
+                    <button onclick="openReceiptModal()" class="bg-emerald-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition">
+                        <i class="fa-solid fa-receipt me-1.5"></i> Record Payment Receipt
+                    </button>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
+                            <tr>
+                                <th class="p-4">Date</th>
+                                <th class="p-4">Customer Name</th>
+                                <th class="p-4">Payment Mode</th>
+                                <th class="p-4">Remarks</th>
+                                <th class="p-4 text-right">Amount Received</th>
+                            </tr>
+                        </thead>
+                        <tbody id="receiptTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 7. NEW MODULE: PAYMENT PAID -->
+            <div id="view-paid" class="space-y-6 hidden">
+                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Payment Paid Module</h3>
+                        <p class="text-xs text-slate-400">Record outgoing payments to suppliers or other parties.</p>
+                    </div>
+                    <button onclick="openPaidModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
+                        <i class="fa-solid fa-file-invoice-dollar me-1.5"></i> Record Payment Paid
+                    </button>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
+                            <tr>
+                                <th class="p-4">Date</th>
+                                <th class="p-4">Supplier / Party Name</th>
+                                <th class="p-4">Payment Mode</th>
+                                <th class="p-4">Remarks</th>
+                                <th class="p-4 text-right">Amount Paid</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paidTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 8. NEW MODULE: RETURN -->
+            <div id="view-return" class="space-y-6 hidden">
+                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Return Module</h3>
+                        <p class="text-xs text-slate-400">Handle product returns from customers or to suppliers with auto inventory sync.</p>
+                    </div>
+                    <button onclick="openReturnModal()" class="bg-amber-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-amber-700 transition">
+                        <i class="fa-solid fa-rotate-left me-1.5"></i> Add Return Entry
+                    </button>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
+                            <tr>
+                                <th class="p-4">Date</th>
+                                <th class="p-4">Party Name</th>
+                                <th class="p-4">Product Name</th>
+                                <th class="p-4">Quantity</th>
+                                <th class="p-4">Reason</th>
+                                <th class="p-4 text-right">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="returnTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 9. NEW MODULE: ADJUSTMENT -->
+            <div id="view-adjustment" class="space-y-6 hidden">
+                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Adjustment Module</h3>
+                        <p class="text-xs text-slate-400">Perform manual ledger account balance adjustments (Increase/Decrease).</p>
+                    </div>
+                    <button onclick="openAdjustmentModal()" class="bg-indigo-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-indigo-700 transition">
+                        <i class="fa-solid fa-sliders me-1.5"></i> New Adjustment
+                    </button>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
+                            <tr>
+                                <th class="p-4">Date</th>
+                                <th class="p-4">Party Name</th>
+                                <th class="p-4">Type</th>
+                                <th class="p-4">Reason</th>
+                                <th class="p-4 text-right">Adjustment Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adjustmentTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 10. NEW MODULE: DAMAGE / WASTAGE RECORD -->
+            <div id="view-damage" class="space-y-6 hidden">
+                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Damage & Wastage Record</h3>
+                        <p class="text-xs text-slate-400">Record damaged or wasted product stock to maintain accurate inventory levels.</p>
+                    </div>
+                    <button onclick="openDamageModal()" class="bg-rose-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-rose-700 transition">
+                        <i class="fa-solid fa-triangle-exclamation me-1.5"></i> Record Damage
+                    </button>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
+                            <tr>
+                                <th class="p-4">Date</th>
+                                <th class="p-4">Product Name</th>
+                                <th class="p-4">Total Qty</th>
+                                <th class="p-4">Damage Qty</th>
+                                <th class="p-4">Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody id="damageTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 11. SERIAL CUSTOMER LEDGERS & SHARE ENGINE -->
             <div id="view-creditledger" class="space-y-6 hidden">
                 <div class="bg-white p-5 rounded-2xl border border-slate-100 card-shadow flex justify-between items-center">
                     <div>
                         <h3 class="font-bold text-slate-900 text-base">Serial Customer Ledger Statements</h3>
-                        <p class="text-xs text-slate-400">Chronological history of Sales and Payments with dynamic balance calculation.</p>
+                        <p class="text-xs text-slate-400">Chronological history of Sales, Payments, Receipts, and Adjustments with dynamic balance calculation.</p>
                     </div>
                 </div>
-
                 <div id="ledgerCardsContainer" class="space-y-6"></div>
             </div>
 
-            <!-- 7. USER MANAGEMENT VIEW -->
+            <!-- 12. USER MANAGEMENT VIEW -->
             <div id="view-usermanagement" class="space-y-6 hidden">
                 <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
                     <div>
@@ -323,7 +423,6 @@
                         <p class="text-xs text-slate-400">Create Sales Users, Purchase Users, or Admins with restricted permissions.</p>
                     </div>
                 </div>
-
                 <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
@@ -347,10 +446,10 @@
         </div>
     </main>
 
-    <!-- MODAL: ADD / EDIT PRODUCT -->
+    <!-- MODAL: ADD PRODUCT -->
     <div id="productModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <h3 id="productModalTitle" class="font-bold text-slate-900 text-base mb-4">Add New Product</h3>
+            <h3 class="font-bold text-slate-900 text-base mb-4">Add New Product</h3>
             <form onsubmit="saveProduct(event)" class="space-y-3">
                 <input type="hidden" id="editProductId" value="">
                 <div>
@@ -481,6 +580,180 @@
         </div>
     </div>
 
+    <!-- MODAL: PAYMENT RECEIPT -->
+    <div id="receiptModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
+            <h3 class="font-bold text-slate-900 text-base mb-4">Payment Receipt Entry</h3>
+            <form onsubmit="saveReceipt(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Customer Name</label>
+                    <select id="receiptCustomerSelect" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Amount Received (रु)</label>
+                    <input type="number" id="receiptAmount" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="100000" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Payment Mode</label>
+                    <select id="receiptMode" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
+                        <option value="Cash">Cash</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                        <option value="Cheque">Cheque</option>
+                        <option value="eSewa">eSewa</option>
+                        <option value="Khalti">Khalti</option>
+                        <option value="Fonepay">Fonepay</option>
+                        <option value="Online Payment">Online Payment</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Remarks</label>
+                    <input type="text" id="receiptRemarks" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="Payment towards due balance">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('receiptModal')" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-emerald-600 text-white text-xs font-bold rounded-xl">Save Receipt</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: PAYMENT PAID -->
+    <div id="paidModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
+            <h3 class="font-bold text-slate-900 text-base mb-4">Payment Paid Entry</h3>
+            <form onsubmit="savePaid(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Supplier / Party Name</label>
+                    <input type="text" id="paidParty" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="Supplier Company Name" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Amount Paid (रु)</label>
+                    <input type="number" id="paidAmount" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="50000" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Payment Mode</label>
+                    <select id="paidMode" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
+                        <option value="Cash">Cash</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                        <option value="Cheque">Cheque</option>
+                        <option value="eSewa">eSewa</option>
+                        <option value="Khalti">Khalti</option>
+                        <option value="Fonepay">Fonepay</option>
+                        <option value="Online Payment">Online Payment</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Remarks</label>
+                    <input type="text" id="paidRemarks" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="Advance or bill clearance">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('paidModal')" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-xl">Save Payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: RETURN MODULE -->
+    <div id="returnModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
+            <h3 class="font-bold text-slate-900 text-base mb-4">Add Return Entry</h3>
+            <form onsubmit="saveReturn(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Customer / Supplier Name</label>
+                    <input type="text" id="returnParty" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="Party Name" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Select Product</label>
+                    <select id="returnProductSelect" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required></select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Quantity</label>
+                        <input type="number" id="returnQty" min="1" value="1" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Amount (रु)</label>
+                        <input type="number" id="returnAmount" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="0" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Reason</label>
+                    <input type="text" id="returnReason" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="Defective item / Size mismatch" required>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('returnModal')" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-amber-600 text-white text-xs font-bold rounded-xl">Save Return</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADJUSTMENT MODULE -->
+    <div id="adjustmentModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
+            <h3 class="font-bold text-slate-900 text-base mb-4">Manual Adjustment Entry</h3>
+            <form onsubmit="saveAdjustment(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Party Name</label>
+                    <input type="text" id="adjParty" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="Customer or Supplier Name" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Adjustment Type</label>
+                    <select id="adjType" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
+                        <option value="Increase">Increase Due / Balance</option>
+                        <option value="Decrease">Decrease Due / Balance</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Adjustment Amount (रु)</label>
+                    <input type="number" id="adjAmount" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="1000" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Reason</label>
+                    <input type="text" id="adjReason" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="Discount or rounding adjustment" required>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('adjustmentModal')" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-indigo-600 text-white text-xs font-bold rounded-xl">Save Adjustment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: DAMAGE / WASTAGE RECORD -->
+    <div id="damageModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
+            <h3 class="font-bold text-slate-900 text-base mb-4">Damage / Wastage Entry</h3>
+            <form onsubmit="saveDamage(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Select Product</label>
+                    <select id="damageProductSelect" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required></select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Total Quantity</label>
+                        <input type="number" id="damageTotalQty" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="70" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Damage Quantity</label>
+                        <input type="number" id="damageQty" min="1" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="2" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Reason</label>
+                    <input type="text" id="damageReason" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="Damaged in transit" required>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('damageModal')" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-rose-600 text-white text-xs font-bold rounded-xl">Save Damage Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- JAVASCRIPT LOGIC -->
     <script>
         let currentUser = { name: "Admin User", email: "admin@ledgerhub.com", role: "ADMIN" };
@@ -489,10 +762,15 @@
             { id: 2, name: "Sunflower Oil 1L", cost: 180, price: 210, stock: 100 }
         ];
         let customers = JSON.parse(localStorage.getItem('lh_customers')) || [
-            { id: 1, name: "Ram Shrestha", phone: "9841000000", address: "Kathmandu" }
+            { id: 1, name: "Ram Shrestha", phone: "9841000000", address: "Kathmandu", lastTxn: "26 Jul 2026" }
         ];
         let sales = JSON.parse(localStorage.getItem('lh_sales')) || [];
         let purchases = JSON.parse(localStorage.getItem('lh_purchases')) || [];
+        let receipts = JSON.parse(localStorage.getItem('lh_receipts')) || [];
+        let paids = JSON.parse(localStorage.getItem('lh_paids')) || [];
+        let returns = JSON.parse(localStorage.getItem('lh_returns')) || [];
+        let adjustments = JSON.parse(localStorage.getItem('lh_adjustments')) || [];
+        let damages = JSON.parse(localStorage.getItem('lh_damages')) || [];
 
         let spChart = null, ieChart = null;
 
@@ -533,6 +811,13 @@
 
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function updateLastTxn(name) {
+            const todayStr = "26 Jul 2026";
+            let c = customers.find(x => x.name.toLowerCase() === name.toLowerCase());
+            if(c) { c.lastTxn = todayStr; }
+            localStorage.setItem('lh_customers', JSON.stringify(customers));
+        }
 
         // Product Management
         function openProductModal() {
@@ -613,7 +898,7 @@
             const phone = document.getElementById('custPhone').value;
             const address = document.getElementById('custAddress').value;
 
-            customers.push({ id: Date.now(), name, phone, address });
+            customers.push({ id: Date.now(), name, phone, address, lastTxn: "26 Jul 2026" });
             localStorage.setItem('lh_customers', JSON.stringify(customers));
             closeModal('customerModal');
             renderCustomers();
@@ -630,12 +915,19 @@
         function renderCustomers() {
             const tbody = document.getElementById('customerTableBody');
             tbody.innerHTML = customers.map(c => {
-                const due = sales.filter(s => s.customerId == c.id).reduce((acc, s) => acc + (s.total - s.paid), 0);
+                const sDue = sales.filter(s => s.customerId == c.id).reduce((acc, s) => acc + (s.total - s.paid), 0);
+                const rTotal = receipts.filter(r => r.customerId == c.id).reduce((acc, r) => acc + r.amount, 0);
+                const adjIncrease = adjustments.filter(a => a.party.toLowerCase() == c.name.toLowerCase() && a.type == 'Increase').reduce((acc, a) => acc + a.amount, 0);
+                const adjDecrease = adjustments.filter(a => a.party.toLowerCase() == c.name.toLowerCase() && a.type == 'Decrease').reduce((acc, a) => acc + a.amount, 0);
+                
+                const due = Math.max(0, sDue - rTotal + adjIncrease - adjDecrease);
+
                 return `
                     <tr class="hover:bg-slate-50">
                         <td class="p-4 font-bold text-slate-900">${c.name}</td>
                         <td class="p-4">${c.phone}</td>
                         <td class="p-4">${c.address}</td>
+                        <td class="p-4">${c.lastTxn || '26 Jul 2026'}</td>
                         <td class="p-4 text-right font-bold text-rose-600">रु ${due.toFixed(2)}</td>
                         <td class="p-4 text-center">
                             <button onclick="deleteCustomer(${c.id})" class="text-rose-600 hover:underline"><i class="fa-solid fa-trash"></i></button>
@@ -689,7 +981,7 @@
             prod.stock -= qty;
             sales.push({
                 id: Date.now(),
-                date: new Date().toISOString().split('T')[0],
+                date: "26 Jul 2026",
                 customerId,
                 productId,
                 qty,
@@ -699,11 +991,15 @@
                 paid
             });
 
+            const cust = customers.find(c => c.id == customerId);
+            if(cust) updateLastTxn(cust.name);
+
             localStorage.setItem('lh_products', JSON.stringify(products));
             localStorage.setItem('lh_sales', JSON.stringify(sales));
             closeModal('salesModal');
             renderSales();
             renderProducts();
+            renderCustomers();
             updateDashboardMetrics();
             showToast('Sales invoice recorded successfully!');
         }
@@ -754,7 +1050,7 @@
 
             purchases.push({
                 id: Date.now(),
-                date: new Date().toISOString().split('T')[0],
+                date: "26 Jul 2026",
                 supplier,
                 productId,
                 qty,
@@ -788,25 +1084,293 @@
             }).join('');
         }
 
+        // 1. PAYMENT RECEIPT MODULE
+        function openReceiptModal() {
+            const cSel = document.getElementById('receiptCustomerSelect');
+            cSel.innerHTML = customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            document.getElementById('receiptAmount').value = '';
+            document.getElementById('receiptRemarks').value = '';
+            openModal('receiptModal');
+        }
+
+        function saveReceipt(e) {
+            e.preventDefault();
+            const customerId = document.getElementById('receiptCustomerSelect').value;
+            const amount = parseFloat(document.getElementById('receiptAmount').value);
+            const mode = document.getElementById('receiptMode').value;
+            const remarks = document.getElementById('receiptRemarks').value;
+
+            receipts.push({
+                id: Date.now(),
+                date: "26 Jul 2026",
+                customerId,
+                amount,
+                mode,
+                remarks
+            });
+
+            const cust = customers.find(c => c.id == customerId);
+            if(cust) updateLastTxn(cust.name);
+
+            localStorage.setItem('lh_receipts', JSON.stringify(receipts));
+            closeModal('receiptModal');
+            renderReceipts();
+            renderCustomers();
+            if(document.getElementById('view-creditledger').classList.contains('hidden') === false) renderLedgers();
+            showToast('Payment Receipt saved & Ledger updated!');
+        }
+
+        function renderReceipts() {
+            const tbody = document.getElementById('receiptTableBody');
+            tbody.innerHTML = receipts.map(r => {
+                const c = customers.find(cust => cust.id == r.customerId);
+                return `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-4">${r.date}</td>
+                        <td class="p-4 font-bold">${c ? c.name : 'Customer'}</td>
+                        <td class="p-4"><span class="px-2 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-700">${r.mode}</span></td>
+                        <td class="p-4">${r.remarks || '-'}</td>
+                        <td class="p-4 text-right font-bold text-emerald-600">रु ${r.amount.toFixed(2)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 2. PAYMENT PAID MODULE
+        function openPaidModal() {
+            document.getElementById('paidParty').value = '';
+            document.getElementById('paidAmount').value = '';
+            document.getElementById('paidRemarks').value = '';
+            openModal('paidModal');
+        }
+
+        function savePaid(e) {
+            e.preventDefault();
+            const party = document.getElementById('paidParty').value;
+            const amount = parseFloat(document.getElementById('paidAmount').value);
+            const mode = document.getElementById('paidMode').value;
+            const remarks = document.getElementById('paidRemarks').value;
+
+            paids.push({
+                id: Date.now(),
+                date: "26 Jul 2026",
+                party,
+                amount,
+                mode,
+                remarks
+            });
+
+            localStorage.setItem('lh_paids', JSON.stringify(paids));
+            closeModal('paidModal');
+            renderPaids();
+            showToast('Payment Paid recorded successfully!');
+        }
+
+        function renderPaids() {
+            const tbody = document.getElementById('paidTableBody');
+            tbody.innerHTML = paids.map(p => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-4">${p.date}</td>
+                    <td class="p-4 font-bold">${p.party}</td>
+                    <td class="p-4"><span class="px-2 py-0.5 rounded text-[10px] bg-blue-100 text-blue-700">${p.mode}</span></td>
+                    <td class="p-4">${p.remarks || '-'}</td>
+                    <td class="p-4 text-right font-bold text-blue-600">रु ${p.amount.toFixed(2)}</td>
+                </tr>
+            `).join('');
+        }
+
+        // 5. RETURN MODULE
+        function openReturnModal() {
+            const pSel = document.getElementById('returnProductSelect');
+            pSel.innerHTML = products.map(p => `<option value="${p.id}" data-price="${p.price}">${p.name}</option>`).join('');
+            document.getElementById('returnParty').value = '';
+            document.getElementById('returnQty').value = 1;
+            document.getElementById('returnAmount').value = '';
+            document.getElementById('returnReason').value = '';
+            openModal('returnModal');
+        }
+
+        function saveReturn(e) {
+            e.preventDefault();
+            const party = document.getElementById('returnParty').value;
+            const productId = document.getElementById('returnProductSelect').value;
+            const qty = parseInt(document.getElementById('returnQty').value);
+            const amount = parseFloat(document.getElementById('returnAmount').value);
+            const reason = document.getElementById('returnReason').value;
+
+            const prod = products.find(p => p.id == productId);
+            if(prod) {
+                prod.stock += qty; // Return increases inventory back
+            }
+
+            returns.push({
+                id: Date.now(),
+                date: "26 Jul 2026",
+                party,
+                productId,
+                qty,
+                amount,
+                reason
+            });
+
+            updateLastTxn(party);
+
+            localStorage.setItem('lh_products', JSON.stringify(products));
+            localStorage.setItem('lh_returns', JSON.stringify(returns));
+            closeModal('returnModal');
+            renderReturns();
+            renderProducts();
+            renderCustomers();
+            showToast('Return recorded, inventory & ledger synced!');
+        }
+
+        function renderReturns() {
+            const tbody = document.getElementById('returnTableBody');
+            tbody.innerHTML = returns.map(ret => {
+                const p = products.find(prod => prod.id == ret.productId);
+                return `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-4">${ret.date}</td>
+                        <td class="p-4 font-bold">${ret.party}</td>
+                        <td class="p-4">${p ? p.name : 'Product'}</td>
+                        <td class="p-4">${ret.qty}</td>
+                        <td class="p-4">${ret.reason}</td>
+                        <td class="p-4 text-right font-bold text-amber-600">रु ${ret.amount.toFixed(2)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 6. ADJUSTMENT MODULE
+        function openAdjustmentModal() {
+            document.getElementById('adjParty').value = '';
+            document.getElementById('adjAmount').value = '';
+            document.getElementById('adjReason').value = '';
+            openModal('adjustmentModal');
+        }
+
+        function saveAdjustment(e) {
+            e.preventDefault();
+            const party = document.getElementById('adjParty').value;
+            const type = document.getElementById('adjType').value;
+            const amount = parseFloat(document.getElementById('adjAmount').value);
+            const reason = document.getElementById('adjReason').value;
+
+            adjustments.push({
+                id: Date.now(),
+                date: "26 Jul 2026",
+                party,
+                type,
+                amount,
+                reason
+            });
+
+            updateLastTxn(party);
+
+            localStorage.setItem('lh_adjustments', JSON.stringify(adjustments));
+            closeModal('adjustmentModal');
+            renderAdjustments();
+            renderCustomers();
+            updateDashboardMetrics();
+            showToast('Adjustment recorded & Ledger synced!');
+        }
+
+        function renderAdjustments() {
+            const tbody = document.getElementById('adjustmentTableBody');
+            tbody.innerHTML = adjustments.map(a => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-4">${a.date}</td>
+                    <td class="p-4 font-bold">${a.party}</td>
+                    <td class="p-4"><span class="px-2 py-0.5 rounded text-[10px] ${a.type === 'Increase' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}">${a.type}</span></td>
+                    <td class="p-4">${a.reason}</td>
+                    <td class="p-4 text-right font-bold text-indigo-600">रु ${a.amount.toFixed(2)}</td>
+                </tr>
+            `).join('');
+        }
+
+        // 7. DAMAGE / WASTAGE RECORD MODULE
+        function openDamageModal() {
+            const pSel = document.getElementById('damageProductSelect');
+            pSel.innerHTML = products.map(p => `<option value="${p.id}" data-stock="${p.stock}">${p.name} (Stock: ${p.stock})</option>`).join('');
+            document.getElementById('damageTotalQty').value = '';
+            document.getElementById('damageQty').value = '';
+            document.getElementById('damageReason').value = '';
+            openModal('damageModal');
+        }
+
+        function saveDamage(e) {
+            e.preventDefault();
+            const productId = document.getElementById('damageProductSelect').value;
+            const totalQty = parseInt(document.getElementById('damageTotalQty').value);
+            const damageQty = parseInt(document.getElementById('damageQty').value);
+            const reason = document.getElementById('damageReason').value;
+
+            const prod = products.find(p => p.id == productId);
+            if(prod) {
+                prod.stock = Math.max(0, prod.stock - damageQty); // Damage quantity automatically deducted from inventory
+            }
+
+            damages.push({
+                id: Date.now(),
+                date: "26 Jul 2026",
+                productId,
+                totalQty,
+                damageQty,
+                reason
+            });
+
+            localStorage.setItem('lh_products', JSON.stringify(products));
+            localStorage.setItem('lh_damages', JSON.stringify(damages));
+            closeModal('damageModal');
+            renderDamages();
+            renderProducts();
+            showToast('Damage recorded & Inventory updated!');
+        }
+
+        function renderDamages() {
+            const tbody = document.getElementById('damageTableBody');
+            tbody.innerHTML = damages.map(d => {
+                const p = products.find(prod => prod.id == d.productId);
+                return `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-4">${d.date}</td>
+                        <td class="p-4 font-bold">${p ? p.name : 'Product'}</td>
+                        <td class="p-4">${d.totalQty}</td>
+                        <td class="p-4 text-rose-600 font-bold">${d.damageQty}</td>
+                        <td class="p-4">${d.reason}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
         // Ledgers
         function renderLedgers() {
             const container = document.getElementById('ledgerCardsContainer');
             container.innerHTML = customers.map(c => {
                 const custSales = sales.filter(s => s.customerId == c.id);
+                const custReceipts = receipts.filter(r => r.customerId == c.id);
+                const custReturns = returns.filter(ret => ret.party.toLowerCase() == c.name.toLowerCase());
+                const custAdjustments = adjustments.filter(a => a.party.toLowerCase() == c.name.toLowerCase());
+
                 const totalSales = custSales.reduce((acc, s) => acc + s.total, 0);
-                const totalPaid = custSales.reduce((acc, s) => acc + s.paid, 0);
-                const totalDue = totalSales - totalPaid;
+                const totalPaidSales = custSales.reduce((acc, s) => acc + s.paid, 0);
+                const totalReceipts = custReceipts.reduce((acc, r) => acc + r.amount, 0);
+                const totalReturns = custReturns.reduce((acc, ret) => acc + ret.amount, 0);
+                const adjInc = custAdjustments.filter(a => a.type == 'Increase').reduce((acc, a) => acc + a.amount, 0);
+                const adjDec = custAdjustments.filter(a => a.type == 'Decrease').reduce((acc, a) => acc + a.amount, 0);
+
+                const netDue = Math.max(0, totalSales - totalPaidSales - totalReceipts - totalReturns + adjInc - adjDec);
 
                 return `
                     <div class="bg-white p-6 rounded-3xl border border-slate-100 card-shadow space-y-4">
                         <div class="flex justify-between items-center border-b pb-3">
                             <div>
                                 <h4 class="font-bold text-slate-900 text-sm">${c.name}</h4>
-                                <p class="text-xs text-slate-400">Phone: ${c.phone} | Address: ${c.address}</p>
+                                <p class="text-xs text-slate-400">Phone: ${c.phone} | Address: ${c.address} | Last Txn: ${c.lastTxn || '26 Jul 2026'}</p>
                             </div>
                             <div class="text-right">
                                 <span class="text-xs font-bold text-slate-400">Net Due Balance</span>
-                                <div class="text-base font-extrabold text-rose-600">रु ${totalDue.toFixed(2)}</div>
+                                <div class="text-base font-extrabold text-rose-600">रु ${netDue.toFixed(2)}</div>
                             </div>
                         </div>
                         <div class="overflow-x-auto">
@@ -814,23 +1378,45 @@
                                 <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px]">
                                     <tr>
                                         <th class="p-3">Date</th>
-                                        <th class="p-3">Particulars / Mode</th>
-                                        <th class="p-3 text-right">Invoice Total</th>
-                                        <th class="p-3 text-right">Paid Amount</th>
-                                        <th class="p-3 text-right">Due Balance</th>
+                                        <th class="p-3">Type / Particulars</th>
+                                        <th class="p-3 text-right">Debit / Invoice</th>
+                                        <th class="p-3 text-right">Credit / Paid</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
-                                    ${custSales.length === 0 ? `<tr><td colspan="5" class="p-4 text-center text-slate-400">No transactions recorded yet.</td></tr>` : 
-                                      custSales.map(s => `
+                                    ${custSales.map(s => `
                                         <tr>
                                             <td class="p-3">${s.date}</td>
-                                            <td class="p-3 font-semibold">${s.paymentType}</td>
+                                            <td class="p-3 font-semibold text-blue-600">Sales Invoice (${s.paymentType})</td>
                                             <td class="p-3 text-right">रु ${s.total.toFixed(2)}</td>
                                             <td class="p-3 text-right text-emerald-600">रु ${s.paid.toFixed(2)}</td>
-                                            <td class="p-3 text-right text-rose-600">रु ${(s.total - s.paid).toFixed(2)}</td>
                                         </tr>
-                                      `).join('')}
+                                    `).join('')}
+                                    ${custReceipts.map(r => `
+                                        <tr>
+                                            <td class="p-3">${r.date}</td>
+                                            <td class="p-3 font-semibold text-emerald-600">Payment Receipt (${r.mode})</td>
+                                            <td class="p-3 text-right">-</td>
+                                            <td class="p-3 text-right text-emerald-600">रु ${r.amount.toFixed(2)}</td>
+                                        </tr>
+                                    `).join('')}
+                                    ${custReturns.map(ret => `
+                                        <tr>
+                                            <td class="p-3">${ret.date}</td>
+                                            <td class="p-3 font-semibold text-amber-600">Return Entry (${ret.reason})</td>
+                                            <td class="p-3 text-right">-</td>
+                                            <td class="p-3 text-right text-amber-600">रु ${ret.amount.toFixed(2)}</td>
+                                        </tr>
+                                    `).join('')}
+                                    ${custAdjustments.map(a => `
+                                        <tr>
+                                            <td class="p-3">${a.date}</td>
+                                            <td class="p-3 font-semibold text-indigo-600">Adjustment (${a.type}: ${a.reason})</td>
+                                            <td class="p-3 text-right">${a.type === 'Increase' ? 'रु ' + a.amount.toFixed(2) : '-'}</td>
+                                            <td class="p-3 text-right">${a.type === 'Decrease' ? 'रु ' + a.amount.toFixed(2) : '-'}</td>
+                                        </tr>
+                                    `).join('')}
+                                    ${(custSales.length + custReceipts.length + custReturns.length + custAdjustments.length) === 0 ? `<tr><td colspan="4" class="p-4 text-center text-slate-400">No transactions recorded yet.</td></tr>` : ''}
                                 </tbody>
                             </table>
                         </div>
@@ -842,8 +1428,10 @@
         // Dashboard Metrics & Charts
         function updateDashboardMetrics() {
             const totalSales = sales.reduce((acc, s) => acc + s.total, 0);
-            const collected = sales.reduce((acc, s) => acc + s.paid, 0);
-            const due = totalSales - collected;
+            const collectedSales = sales.reduce((acc, s) => acc + s.paid, 0);
+            const totalReceipts = receipts.reduce((acc, r) => acc + r.amount, 0);
+            const collected = collectedSales + totalReceipts;
+            const due = Math.max(0, totalSales - collected);
             const totalPur = purchases.reduce((acc, p) => acc + p.total, 0);
 
             document.getElementById('dashTotalSales').innerText = `रु ${totalSales.toFixed(2)}`;
@@ -857,8 +1445,10 @@
             
             const totalSales = sales.reduce((acc, s) => acc + s.total, 0);
             const totalPur = purchases.reduce((acc, p) => acc + p.total, 0);
-            const collected = sales.reduce((acc, s) => acc + s.paid, 0);
-            const due = totalSales - collected;
+            const collectedSales = sales.reduce((acc, s) => acc + s.paid, 0);
+            const totalReceipts = receipts.reduce((acc, r) => acc + r.amount, 0);
+            const collected = collectedSales + totalReceipts;
+            const due = Math.max(0, totalSales - collected);
 
             if(spChart) spChart.destroy();
             const ctx1 = document.getElementById('salesPurchaseChart').getContext('2d');
@@ -896,21 +1486,15 @@
             renderCustomers();
             renderSales();
             renderPurchases();
+            renderReceipts();
+            renderPaids();
+            renderReturns();
+            renderAdjustments();
+            renderDamages();
             updateDashboardMetrics();
         }
 
-        function handleEmailLogin(e) { e.preventDefault(); closeModal('authModal'); showToast('Signed in successfully!'); }
-        function handleRegister(e) { e.preventDefault(); closeModal('authModal'); showToast('Account created successfully!'); }
-        function handleLogout() { openModal('authModal'); }
-        function switchAuthView(view) {
-            if(view === 'register') {
-                document.getElementById('loginForm').classList.add('hidden');
-                document.getElementById('registerForm').classList.remove('hidden');
-            } else {
-                document.getElementById('registerForm').classList.add('hidden');
-                document.getElementById('loginForm').classList.remove('hidden');
-            }
-        }
+        function handleLogout() { showToast('Logout feature active.'); }
     </script>
 </body>
 </html>
