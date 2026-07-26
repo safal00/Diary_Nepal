@@ -1,316 +1,351 @@
 <!DOCTYPE html>
-<html lang="ne">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Ledger & Dashboard System</title>
-    <!-- FontAwesome for Icons -->
+    <title>Enterprise Multi-Tenant Digital Ledger & ERP System</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- html2canvas and jsPDF for Image/PDF generation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root {
-            --primary-color: #4f46e5;
-            --success-color: #10b981;
-            --bg-color: #f3f4f6;
-            --card-bg: #ffffff;
-            --text-color: #1f2937;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        .dashboard-card {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .stat-box {
-            text-align: center;
-        }
-        .stat-box h3 { margin: 0; font-size: 14px; color: #6b7280; }
-        .stat-box p { margin: 5px 0 0; font-size: 20px; font-weight: bold; color: var(--primary-color); }
-        
-        /* Printable / Shareable Ledger Statement Area */
-        .statement-wrapper {
-            background: var(--card-bg);
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-        }
-        .statement-header {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 2px solid #e5e7eb;
-            padding-bottom: 15px;
-            margin-bottom: 15px;
-        }
-        table.ledger-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        table.ledger-table th, table.ledger-table td {
-            border: 1px solid #e5e7eb;
-            padding: 10px;
-            text-align: left;
-            font-size: 14px;
-        }
-        table.ledger-table th {
-            background-color: #f9fafb;
-            color: #374151;
-        }
-        .summary-row {
-            font-weight: bold;
-            background-color: #fdf2f8;
-        }
-
-        /* Share Option Buttons Style */
-        .share-container {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .btn {
-            padding: 10px 18px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            color: white;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            transition: opacity 0.2s;
-        }
-        .btn:hover { opacity: 0.9; }
-        .btn-whatsapp { background-color: #25d366; }
-        .btn-email { background-color: #ea4335; }
-        .btn-messenger { background-color: #0084ff; }
-        .btn-primary { background-color: var(--primary-color); }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body>
+<body class="bg-slate-100 text-slate-800 antialiased">
 
-<div class="container">
-    <!-- Dashboard Section -->
-    <div class="dashboard-card">
-        <div class="stat-box">
-            <h3>Customer Name</h3>
-            <p id="dash-customer">सुदिल जोशी</p>
-        </div>
-        <div class="stat-box">
-            <h3>Total Credit Sales</h3>
-            <p id="dash-sales">Rs. 20,000</p>
-        </div>
-        <div class="stat-box">
-            <h3>Total Paid</h3>
-            <p id="dash-paid" style="color: var(--success-color);">Rs. 5,000</p>
-        </div>
-        <div class="stat-box">
-            <h3>Pending Due (Outstanding)</h3>
-            <p id="dash-outstanding" style="color: #dc2626;">Rs. 15,000</p>
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col transition-all duration-300">
+            <div class="h-16 flex items-center px-6 bg-slate-950 text-white font-bold text-lg gap-3">
+                <i class="fa-solid fa-cube text-indigo-500"></i> ERP Enterprise
+            </div>
+            <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+                <a href="#" onclick="switchTab('dashboard')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg bg-indigo-600 text-white font-medium transition"><i class="fa-solid fa-chart-pie w-5"></i> Dashboard</a>
+                <a href="#" onclick="switchTab('products')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-boxes-stacked w-5"></i> Product & Inventory</a>
+                <a href="#" onclick="switchTab('customers')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-users w-5"></i> Customer Management</a>
+                <a href="#" onclick="switchTab('sales')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-cart-shopping w-5"></i> Sales</a>
+                <a href="#" onclick="switchTab('purchase')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-bag-shopping w-5"></i> Purchase</a>
+                <a href="#" onclick="switchTab('receipts')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-file-invoice-dollar w-5"></i> Receipts</a>
+                <a href="#" onclick="switchTab('payments')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-money-bill-transfer w-5"></i> Payments</a>
+                <a href="#" onclick="switchTab('returns')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-rotate-left w-5"></i> Returns</a>
+                <a href="#" onclick="switchTab('adjustments')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-sliders w-5"></i> Adjustments</a>
+                <a href="#" onclick="switchTab('wastage')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-triangle-exclamation w-5"></i> Damage/Wastage</a>
+                <a href="#" onclick="switchTab('ledger')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-book-open w-5"></i> Serial Customer Ledgers</a>
+                <a href="#" onclick="switchTab('users')" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-user-shield w-5"></i> User Management</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Header -->
+            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 shadow-sm">
+                <div class="flex items-center gap-4">
+                    <button class="text-slate-500 hover:text-slate-700"><i class="fa-solid fa-bars text-lg"></i></button>
+                    <span class="text-sm font-semibold text-slate-600 uppercase tracking-wider" id="current-section-title">Dashboard</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="text-xs bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full font-semibold border border-indigo-100">Tenant: Acme Corp</span>
+                    <div class="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">JS</div>
+                </div>
+            </header>
+
+            <!-- Dynamic View Containers -->
+            <main class="flex-1 overflow-y-auto p-6">
+
+                <!-- Dashboard Tab -->
+                <div id="tab-dashboard" class="tab-content space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                            <p class="text-sm font-medium text-slate-500">Total Sales (Today)</p>
+                            <h3 class="text-2xl font-bold text-slate-900 mt-2">रु. 45,000</h3>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                            <p class="text-sm font-medium text-slate-500">Total Collections</p>
+                            <h3 class="text-2xl font-bold text-slate-900 mt-2">रु. 25,000</h3>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                            <p class="text-sm font-medium text-slate-500">Outstanding Receivables</p>
+                            <h3 class="text-2xl font-bold text-indigo-600 mt-2" id="dash-outstanding">रु. 15,000</h3>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                            <p class="text-sm font-medium text-slate-500">Low Stock Items</p>
+                            <h3 class="text-2xl font-bold text-red-600 mt-2">3</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Tab -->
+                <div id="tab-products" class="tab-content hidden space-y-6">
+                    <h2 class="text-xl font-bold text-slate-800">Product & Inventory Management</h2>
+                    <p class="text-sm text-slate-500">Manage products, pricing, and stock levels.</p>
+                </div>
+
+                <!-- Customers Tab -->
+                <div id="tab-customers" class="tab-content hidden space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-bold text-slate-800">Customer Management</h2>
+                        <button onclick="openCustomerModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm"><i class="fa-solid fa-plus mr-2"></i> Add Customer</button>
+                    </div>
+                </div>
+
+                <!-- Sales Tab -->
+                <div id="tab-sales" class="tab-content hidden space-y-6">
+                    <h2 class="text-xl font-bold text-slate-800">Sales Invoices</h2>
+                    <p class="text-sm text-slate-500">Record and review sales transactions.</p>
+                </div>
+
+                <!-- Purchase Tab -->
+                <div id="tab-purchase" class="tab-content hidden space-y-6">
+                    <h2 class="text-xl font-bold text-slate-800">Purchase Management</h2>
+                </div>
+
+                <!-- Receipts Tab -->
+                <div id="tab-receipts" class="tab-content hidden space-y-6">
+                    <h2 class="text-xl font-bold text-slate-800">Payment Receipts (Collections)</h2>
+                    <p class="text-sm text-slate-500">Record incoming payments from customers (Cash, FonePay, Bank Transfer).</p>
+                </div>
+
+                <!-- Payments Tab -->
+                <div id="tab-payments" class="tab-content hidden space-y-6">
+                    <h2 class="text-xl font-bold text-slate-800">Payments Out</h2>
+                </div>
+
+                <!-- Returns Tab -->
+                <div id="tab-returns" class="tab-content hidden space-y-6">
+                    <h2 class="text-xl font-bold text-slate-800">Returns Management</h2>
+                </div>
+
+                <!-- Adjustments Tab -->
+                <div id="tab-adjustments" class="tab-content hidden space-y-6">
+                    <h2 class="text-xl font-bold text-slate-800">Stock Adjustments</h2>
+                </div>
+
+                <!-- Damage/Wastage Tab -->
+                <div id="tab-wastage" class="tab-content hidden space-y-6">
+                    <h2 class="text-xl font-bold text-slate-800">Damage & Wastage</h2>
+                </div>
+
+                <!-- Serial Customer Ledgers Tab (Statement Section) -->
+                <div id="tab-ledger" class="tab-content hidden space-y-6">
+                    <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-800">Customer Ledger / Statement</h2>
+                            <p class="text-sm text-slate-500">Customer: <span class="font-semibold text-slate-700">सुदिल जोशी (Sudil Joshi)</span></p>
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick="addSampleSale()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-semibold transition"><i class="fa-solid fa-plus mr-1"></i> Add Sales (रु. 20,000)</button>
+                            <button onclick="openPaymentModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg text-xs font-semibold transition"><i class="fa-solid fa-money-bill-wave mr-1"></i> Add Payment Receipt</button>
+                        </div>
+                    </div>
+
+                    <!-- Ledger Table Statement -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <th class="py-3 px-4">Serial No</th>
+                                    <th class="py-3 px-4">Date</th>
+                                    <th class="py-3 px-4">Transaction Type</th>
+                                    <th class="py-3 px-4">Product Details</th>
+                                    <th class="py-3 px-4 text-right">Debit (Sales)</th>
+                                    <th class="py-3 px-4 text-right">Credit / Payment Received</th>
+                                    <th class="py-3 px-4 text-right font-bold text-indigo-700">Running Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ledger-table-body" class="divide-y divide-slate-100 text-sm">
+                                <!-- Dynamic rows populated via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Users Tab -->
+                <div id="tab-users" class="tab-content hidden space-y-6">
+                    <h2 class="text-xl font-bold text-slate-800">User Management & Permissions</h2>
+                </div>
+
+            </main>
         </div>
     </div>
 
-    <!-- Printable & Shareable Ledger Statement Section -->
-    <div class="statement-wrapper" id="ledgerStatementContent">
-        <div class="statement-header">
+    <!-- Add Customer Modal Example -->
+    <div id="customer-modal" class="fixed inset-0 bg-slate-900/50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 space-y-4 shadow-xl">
+            <h3 class="text-lg font-bold text-slate-800">Add New Customer</h3>
             <div>
-                <h2>Customer Ledger Statement</h2>
-                <p><strong>Customer Name:</strong> <span id="lbl-customer">सुदिल जोशी</span></p>
+                <label class="block text-xs font-medium text-slate-600 mb-1">Customer Name</label>
+                <input type="text" id="cust-name" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="e.g. Sudil Joshi">
             </div>
-            <div style="text-align: right;">
-                <p><strong>Date:</strong> 26 July 2026</p>
-                <p><strong>Status:</strong> <span id="lbl-status" style="color: #dc2626; font-weight: bold;">Unpaid / Due</span></p>
+            <div class="flex justify-end gap-3 pt-3">
+                <button onclick="closeCustomerModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50">Cancel</button>
+                <button onclick="closeCustomerModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium">Save</button>
             </div>
-        </div>
-
-        <table class="ledger-table">
-            <thead>
-                <tr>
-                    <th>S.N.</th>
-                    <th>Date</th>
-                    <th>Product / Transaction Details</th>
-                    <th>Debit (Dr)</th>
-                    <th>Credit (Cr)</th>
-                    <th>Paid Amount</th>
-                    <th>Outstanding Balance</th>
-                </tr>
-            </thead>
-            <tbody id="ledger-tbody">
-                <!-- Dynamic Transactions will load here -->
-                <tr>
-                    <td>1</td>
-                    <td>26 July 2026</td>
-                    <td>Sales Invoice (Credit - Goods)</td>
-                    <td>Rs. 20,000</td>
-                    <td>-</td>
-                    <td>Rs. 0</td>
-                    <td>Rs. 20,000</td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>26 July 2026</td>
-                    <td>Payment Receipt (FonePay)</td>
-                    <td>-</td>
-                    <td>Rs. 5,000</td>
-                    <td>Rs. 5,000</td>
-                    <td>Rs. 15,000</td>
-                </tr>
-            </tbody>
-        </table>
-        
-        <div style="margin-top: 15px; text-align: right; font-size: 16px;">
-            <strong>Net Outstanding Balance: <span id="lbl-net-balance" style="color: #dc2626;">Rs. 15,000</span></strong>
         </div>
     </div>
 
-    <!-- Share Option Component (WhatsApp, Email, Messenger) -->
-    <div class="share-container">
-        <div>
-            <h3 style="margin: 0 0 5px 0;">Share Statement</h3>
-            <p style="margin: 0; font-size: 13px; color: #6b7280;">Send complete statement as image/text to the customer.</p>
-        </div>
-        <div style="display: flex; gap: 10px;">
-            <button onclick="shareVia('whatsapp')" class="btn btn-whatsapp">
-                <i class="fab fa-whatsapp"></i> WhatsApp
-            </button>
-            <button onclick="shareVia('email')" class="btn btn-email">
-                <i class="fas fa-envelope"></i> Email
-            </button>
-            <button onclick="shareVia('messenger')" class="btn btn-messenger">
-                <i class="fab fa-facebook-messenger"></i> Messenger
-            </button>
+    <!-- Payment Receipt Modal -->
+    <div id="payment-modal" class="fixed inset-0 bg-slate-900/50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 space-y-4 shadow-xl">
+            <h3 class="text-lg font-bold text-slate-800">Add Payment Receipt</h3>
+            <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1">Date</label>
+                <input type="date" id="pay-date" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none" value="2026-07-26">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1">Payment Mode</label>
+                <select id="pay-mode" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none">
+                    <option value="FonePay">FonePay</option>
+                    <option value="Cash">Cash</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1">Amount Received (रु.)</label>
+                <input type="number" id="pay-amount" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none" placeholder="e.g. 5000" value="5000">
+            </div>
+            <div class="flex justify-end gap-3 pt-3">
+                <button onclick="closePaymentModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50">Cancel</button>
+                <button onclick="savePaymentReceipt()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium">Save Receipt</button>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    // System Data Model for Customer Account
-    let customerAccount = {
-        name: "सुदिल जोशी",
-        creditSales: 20000,
-        totalPaid: 5000,
-        outstanding: 15000,
-        transactions: [
-            { sn: 1, date: "26 July 2026", details: "Sales Invoice (Credit - Goods)", debit: 20000, credit: 0, paid: 0, balance: 20000 },
-            { sn: 2, date: "26 July 2026", details: "Payment Receipt (FonePay)", debit: 0, credit: 5000, paid: 5000, balance: 15000 }
-        ]
-    };
+    <!-- Script / Logic for Running Ledger Calculations -->
+    <script>
+        // Initial Ledger Data matching Sudil Joshi's statement context
+        let ledgerData = [
+            {
+                serialNo: 1,
+                date: "26 July 2026",
+                type: "Sales Invoice (Credit)",
+                details: "General Goods / Electronics",
+                debit: 20000,
+                credit: 0
+            },
+            {
+                serialNo: 2,
+                date: "26 July 2026",
+                type: "Payment Received (FonePay)",
+                details: "QR Settlement via FonePay",
+                debit: 0,
+                credit: 5000
+            }
+        ];
 
-    // Feature 1: Payment Receipt थपिदा वा Save हुँदा Outstanding Balance स्वतः घट्ने Function
-    function addNewPaymentReceipt(amount, paymentMode) {
-        // नयाँ भुक्तानी रकम जोड्ने र ब्यालेन्स स्वतः घटाउने
-        customerAccount.totalPaid += amount;
-        customerAccount.outstanding = customerAccount.creditSales - customerAccount.totalPaid;
+        // Render Ledger Table with automated running calculations
+        function renderLedger() {
+            const tbody = document.getElementById('ledger-table-body');
+            tbody.innerHTML = '';
+            
+            let runningBalance = 0;
 
-        // Transaction List मा नयाँ Entry थप्ने
-        let newSn = customerAccount.transactions.length + 1;
-        customerAccount.transactions.push({
-            sn: newSn,
-            date: new Date().toLocaleDateString(),
-            details: `Payment Receipt (${paymentMode})`,
-            debit: 0,
-            credit: amount,
-            paid: amount,
-            balance: customerAccount.outstanding
-        });
+            ledgerData.forEach((item, index) => {
+                item.serialNo = index + 1;
+                // Running Balance Formula: Previous Outstanding + Debit - Credit
+                runningBalance = runningBalance + item.debit - item.credit;
 
-        // UI हरू अपडेट गर्ने
-        updateUI();
-    }
-
-    // UI लाई ताजा (Refresh) गर्ने Function
-    function updateUI() {
-        // Dashboard Update
-        document.getElementById('dash-sales').innerText = `Rs. ${customerAccount.creditSales.toLocaleString()}`;
-        document.getElementById('dash-paid').innerText = `Rs. ${customerAccount.totalPaid.toLocaleString()}`;
-        document.getElementById('dash-outstanding').innerText = `Rs. ${customerAccount.outstanding.toLocaleString()}`;
-        document.getElementById('lbl-net-balance').innerText = `Rs. ${customerAccount.outstanding.toLocaleString()}`;
-        
-        if(customerAccount.outstanding <= 0) {
-            document.getElementById('lbl-status').innerText = "Fully Paid";
-            document.getElementById('lbl-status').style.color = "#10b981";
-        } else {
-            document.getElementById('lbl-status').innerText = "Unpaid / Due";
-            document.getElementById('lbl-status').style.color = "#dc2626";
-        }
-
-        // Table Rows Update
-        let tbody = document.getElementById('ledger-tbody');
-        tbody.innerHTML = "";
-        customerAccount.transactions.forEach(tx => {
-            let row = `<tr>
-                <td>${tx.sn}</td>
-                <td>${tx.date}</td>
-                <td>${tx.details}</td>
-                <td>${tx.debit > 0 ? 'Rs. ' + tx.debit.toLocaleString() : '-'}</td>
-                <td>${tx.credit > 0 ? 'Rs. ' + tx.credit.toLocaleString() : '-'}</td>
-                <td>${tx.paid > 0 ? 'Rs. ' + tx.paid.toLocaleString() : '-'}</td>
-                <td><strong>Rs. ${tx.balance.toLocaleString()}</strong></td>
-            </tr>`;
-            tbody.innerHTML += row;
-        });
-    }
-
-    // Feature 2: Share Option (WhatsApp, Email, Messenger with Full Statement Details)
-    function generateStatementText() {
-        let text = `*LEDGER STATEMENT - ${customerAccount.name}*\n`;
-        text += `----------------------------------------\n`;
-        customerAccount.transactions.forEach(tx => {
-            text += `${tx.sn}. ${tx.date} | ${tx.details}\n`;
-            text += `   Dr: Rs.${tx.debit} | Cr: Rs.${tx.credit} | Paid: Rs.${tx.paid}\n`;
-            text += `   *Balance: Rs.${tx.balance}*\n`;
-            text += `----------------------------------------\n`;
-        });
-        text += `*Final Outstanding Balance: Rs. ${customerAccount.outstanding}*`;
-        return text;
-    }
-
-    function shareVia(platform) {
-        let statementText = generateStatementText();
-        let encodedText = encodeURIComponent(statementText);
-
-        if (platform === 'whatsapp') {
-            window.open(`https://api.whatsapp.com/send?text=${encodedText}`, '_blank');
-        } else if (platform === 'email') {
-            let subject = encodeURIComponent(`Ledger Statement for ${customerAccount.name}`);
-            window.open(`mailto:?subject=${subject}&body=${encodedText}`);
-        } else if (platform === 'messenger') {
-            // Messenger sharing fallback / web intent
-            navigator.clipboard.writeText(statementText).then(() => {
-                alert("पूरा Statement Copied भयो! अब Messenger मा paste गरेर पठाउन सक्नुहुन्छ।");
+                const row = document.createElement('tr');
+                row.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                row.innerHTML = `
+                    <td class="py-3 px-4 font-medium text-slate-600">${item.serialNo}</td>
+                    <td class="py-3 px-4 text-slate-600">${item.date}</td>
+                    <td class="py-3 px-4 font-semibold text-slate-800">${item.type}</td>
+                    <td class="py-3 px-4 text-slate-500 text-xs">${item.details}</td>
+                    <td class="py-3 px-4 text-right font-medium text-slate-800">${item.debit > 0 ? 'रु. ' + item.debit.toLocaleString() : '-'}</td>
+                    <td class="py-3 px-4 text-right font-medium text-emerald-600">${item.credit > 0 ? 'रु. ' + item.credit.toLocaleString() : '-'}</td>
+                    <td class="py-3 px-4 text-right font-bold text-indigo-600">रु. ${runningBalance.toLocaleString()}</td>
+                `;
+                tbody.appendChild(row);
             });
-            window.open(`https://www.messenger.com/`, '_blank');
+
+            // Update Dashboard Outstanding label dynamically
+            const dashOut = document.getElementById('dash-outstanding');
+            if(dashOut) {
+                dashOut.innerText = 'रु. ' + runningBalance.toLocaleString();
+            }
         }
-    }
 
-    // Initial load call
-    updateUI();
-</script>
+        // Add Sample Sale (e.g. 20,000)
+        function addSampleSale() {
+            ledgerData.push({
+                serialNo: ledgerData.length + 1,
+                date: "26 July 2026",
+                type: "Sales Invoice (Credit)",
+                details: "Additional Goods Purchase",
+                debit: 20000,
+                credit: 0
+            });
+            renderLedger();
+        }
 
+        // Save Payment Receipt from Modal input
+        function savePaymentReceipt() {
+            const dateInput = document.getElementById('pay-date').value || "26 July 2026";
+            const modeInput = document.getElementById('pay-mode').value;
+            const amountInput = parseFloat(document.getElementById('pay-amount').value) || 0;
+
+            if (amountInput <= 0) {
+                alert("कृपया सही रकम राख्नुहोस्।");
+                return;
+            }
+
+            ledgerData.push({
+                serialNo: ledgerData.length + 1,
+                date: dateInput,
+                type: `Payment Received (${modeInput})`,
+                details: `Direct settlement via ${modeInput}`,
+                debit: 0,
+                credit: amountInput
+            });
+
+            renderLedger();
+            closePaymentModal();
+        }
+
+        // Tab Switching Mechanism
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-link').forEach(el => {
+                el.classList.remove('bg-indigo-600', 'text-white');
+                el.classList.add('hover:bg-slate-800', 'hover:text-white');
+            });
+            event.currentTarget.classList.add('bg-indigo-600', 'text-white');
+            event.currentTarget.classList.remove('hover:bg-slate-800', 'hover:text-white');
+
+            const titles = {
+                'dashboard': 'Dashboard',
+                'products': 'Product & Inventory',
+                'customers': 'Customer Management',
+                'sales': 'Sales Invoices',
+                'purchase': 'Purchase Management',
+                'receipts': 'Payment Receipts',
+                'payments': 'Payments Out',
+                'returns': 'Returns Management',
+                'adjustments': 'Stock Adjustments',
+                'wastage': 'Damage & Wastage',
+                'ledger': 'Serial Customer Ledgers / Statement',
+                'users': 'User Management'
+            };
+            document.getElementById('current-section-title').innerText = titles[tabId] || 'Dashboard';
+        }
+
+        // Modals control
+        function openCustomerModal() { document.getElementById('customer-modal').classList.remove('hidden'); }
+        function closeCustomerModal() { document.getElementById('customer-modal').classList.add('hidden'); }
+        
+        function openPaymentModal() { document.getElementById('payment-modal').classList.remove('hidden'); }
+        function closePaymentModal() { document.getElementById('payment-modal').classList.add('hidden'); }
+
+        // Initial trigger on load
+        window.onload = function() {
+            renderLedger();
+        };
+    </script>
 </body>
 </html>
