@@ -1,1637 +1,509 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Multi-Tenant Digital Ledger & ERP System</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+import React, { useState, useEffect } from 'react';
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #334155; }
-        .sidebar-bg { background-color: #0f172a; }
-        .card-shadow { box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.03); }
-        .sidebar-item-active { background-color: #2563eb; color: #ffffff; }
-    </style>
-</head>
-<body class="flex min-h-screen text-slate-700">
+// ==========================================
+// 1. LOCAL STORAGE HELPER UTILITIES
+// ==========================================
+const saveToStorage = (key, data) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (error) {
+    console.error("Error saving to localStorage:", error);
+  }
+};
 
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed top-5 right-5 z-50 hidden bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl text-xs font-semibold flex items-center gap-3 transition-all">
-        <i class="fa-solid fa-circle-info text-blue-400 text-base"></i>
-        <span id="toastMsg">System Notification</span>
-    </div>
+const getFromStorage = (key, defaultValue) => {
+  try {
+    const saved = localStorage.getItem(key);
+    return saved ? JSON.parse(saved) : defaultValue;
+  } catch (error) {
+    console.error("Error reading from localStorage:", error);
+    return defaultValue;
+  }
+};
 
-    <!-- AUTHENTICATION MODAL -->
-    <div id="authModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 border border-slate-100">
-            <div class="text-center mb-6">
-                <div class="w-14 h-14 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center text-white text-2xl font-bold mb-3 shadow-lg shadow-blue-500/30">
-                    <i class="fa-solid fa-book-journal-whills"></i>
-                </div>
-                <h2 id="modalTitle" class="text-2xl font-extrabold text-slate-900">Sign In</h2>
-                <p id="modalSub" class="text-slate-400 text-xs mt-1">Multi-Tenant Ledger & ERP Portal</p>
+// ==========================================
+// MAIN APP COMPONENT
+// ==========================================
+export default function App() {
+  // --- AUTH STATE (No hardcoded auto-login) ---
+  const [currentUser, setCurrentUser] = useState(() => getFromStorage('ledger_user', null));
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+
+  // --- APPLICATION DATA STATES (Initialized from LocalStorage, Default: Empty) ---
+  const [customers, setCustomers] = useState(() => getFromStorage('ledger_customers', []));
+  const [sales, setSales] = useState(() => getFromStorage('ledger_sales', []));
+  const [payments, setPayments] = useState(() => getFromStorage('ledger_payments', []));
+  const [expenses, setExpenses] = useState(() => getFromStorage('ledger_expenses', []));
+
+  // Active View Tab State
+  const [activeTab, setActiveTab] = useState('dashboard');
+
+  // Form Input States
+  const [newCustomer, setNewCustomer] = useState({ name: '', phone: '', address: '' });
+  const [newSale, setNewSale] = useState({ customerId: '', amount: '', description: '', date: '' });
+  const [newPayment, setNewPayment] = useState({ customerId: '', amount: '', method: 'Cash', date: '' });
+  const [newExpense, setNewExpense] = useState({ amount: '', title: '', category: 'Purchase', date: '' });
+
+  // --- PERSISTENCE EFFECTS ---
+  useEffect(() => { saveToStorage('ledger_user', currentUser); }, [currentUser]);
+  useEffect(() => { saveToStorage('ledger_customers', customers); }, [customers]);
+  useEffect(() => { saveToStorage('ledger_sales', sales); }, [sales]);
+  useEffect(() => { saveToStorage('ledger_payments', payments); }, [payments]);
+  useEffect(() => { saveToStorage('ledger_expenses', expenses); }, [expenses]);
+
+  // --- AUTHENTICATION HANDLERS ---
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (loginEmail.trim() && loginPassword.trim()) {
+      const userObj = { email: loginEmail };
+      setCurrentUser(userObj);
+      setLoginEmail('');
+      setLoginPassword('');
+    } else {
+      alert("कृपया Email र Password दुबै भर्नुहोस्।");
+    }
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    localStorage.removeItem('ledger_user');
+  };
+
+  // --- DATA INSERTION HANDLERS ---
+  const handleAddCustomer = (e) => {
+    e.preventDefault();
+    if (!newCustomer.name || !newCustomer.phone) return alert('नाम् र फोन अनिवार्य छ!');
+    const created = { ...newCustomer, id: Date.now().toString() };
+    setCustomers([...customers, created]);
+    setNewCustomer({ name: '', phone: '', address: '' });
+  };
+
+  const handleAddSale = (e) => {
+    e.preventDefault();
+    if (!newSale.customerId || !newSale.amount) return alert('ग्राहक र रकम छान्नुहोस्!');
+    const entry = { ...newSale, id: Date.now().toString(), amount: Number(newSale.amount) };
+    setSales([...sales, entry]);
+    setNewSale({ customerId: '', amount: '', description: '', date: '' });
+  };
+
+  const handleAddPayment = (e) => {
+    e.preventDefault();
+    if (!newPayment.customerId || !newPayment.amount) return alert('ग्राहक र रकम छान्नुहोस्!');
+    const entry = { ...newPayment, id: Date.now().toString(), amount: Number(newPayment.amount) };
+    setPayments([...payments, entry]);
+    setNewPayment({ customerId: '', amount: '', method: 'Cash', date: '' });
+  };
+
+  const handleAddExpense = (e) => {
+    e.preventDefault();
+    if (!newExpense.amount || !newExpense.title) return alert('रकम र शीर्षक अनिवार्य छ!');
+    const entry = { ...newExpense, id: Date.now().toString(), amount: Number(newExpense.amount) };
+    setExpenses([...expenses, entry]);
+    setNewExpense({ amount: '', title: '', category: 'Purchase', date: '' });
+  };
+
+  // --- DYNAMIC DASHBOARD CALCULATIONS ---
+  const totalSalesVolume = sales.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+  const totalCollectedAmount = payments.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+  const pendingValue = totalSalesVolume - totalCollectedAmount;
+  const totalPurchaseExpenses = expenses.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+
+  // ==========================================
+  // VIEW 1: LOGIN SCREEN (When not authenticated)
+  // ==========================================
+  if (!currentUser) {
+    return (
+      <div style={styles.loginContainer}>
+        <div style={styles.loginBox}>
+          <h2 style={styles.title}>LedgerHub Login</h2>
+          <p style={styles.subtitle}>कृपया अगाडि बढ्न आफ्नो प्रयोगकर्ता विवरण राख्नुहोस्</p>
+          <form onSubmit={handleLogin} style={styles.form}>
+            <div style={styles.fieldGroup}>
+              <label style={styles.label}>Email Address</label>
+              <input
+                type="email"
+                placeholder="yourname@domain.com"
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                required
+                style={styles.input}
+              />
             </div>
-
-            <!-- Login Form -->
-            <form id="loginForm" onsubmit="handleEmailLogin(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Email Address</label>
-                    <input type="email" id="loginEmail" value="admin@ledgerhub.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Password</label>
-                    <input type="password" id="loginPassword" value="123456" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
-                </div>
-                <div id="authError" class="text-rose-600 text-xs font-bold hidden bg-rose-50 p-3 rounded-xl border border-rose-200 text-center"></div>
-                <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-lg shadow-blue-500/25 text-xs">Sign In</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- LEFT SIDEBAR -->
-    <aside class="w-64 sidebar-bg text-slate-300 flex flex-col justify-between shrink-0 p-4">
-        <div>
-            <!-- Brand Header -->
-            <div class="flex items-center gap-3 px-2 py-3 mb-6 border-b border-slate-800 pb-4">
-                <div class="w-10 h-10 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-bold text-xl shadow-md">
-                    <i class="fa-solid fa-chart-line"></i>
-                </div>
-                <div>
-                    <h1 class="font-extrabold text-white text-base leading-tight">Ledger Hub</h1>
-                    <span class="text-[10px] text-blue-400 font-semibold tracking-wider uppercase" id="userRoleBadge">ADMIN</span>
-                </div>
+            <div style={styles.fieldGroup}>
+              <label style={styles.label}>Password</label>
+              <input
+                type="password"
+                placeholder="••••••••"
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                required
+                style={styles.input}
+              />
             </div>
-
-            <!-- Navigation Bar -->
-            <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 mb-2">Modules Navigation</div>
-            <nav class="space-y-1 text-xs font-semibold max-h-[calc(100vh-200px)] overflow-y-auto pr-1">
-                <a href="#dashboard" onclick="switchTab('dashboard')" id="nav-dashboard" class="sidebar-item sidebar-item-active flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition">
-                    <i class="fa-solid fa-grip text-sm w-4"></i> Dashboard
-                </a>
-                <a href="#products" onclick="switchTab('products')" id="nav-products" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-tag text-sm w-4"></i> Product & Inventory
-                </a>
-                <a href="#sales" onclick="switchTab('sales')" id="nav-sales" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-cart-shopping text-sm w-4"></i> Sales System
-                </a>
-                <a href="#purchase" onclick="switchTab('purchase')" id="nav-purchase" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-bag-shopping text-sm w-4"></i> Purchase System
-                </a>
-                
-                <!-- NEW MODULES REQUIRED -->
-                <a href="#receipt" onclick="switchTab('receipt')" id="nav-receipt" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-receipt text-sm w-4 text-emerald-400"></i> Payment Receipt
-                </a>
-                <a href="#paymentpaid" onclick="switchTab('paymentpaid')" id="nav-paymentpaid" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-money-bill-transfer text-sm w-4 text-rose-400"></i> Payment Paid
-                </a>
-                <a href="#returns" onclick="switchTab('returns')" id="nav-returns" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-rotate-left text-sm w-4 text-amber-400"></i> Return
-                </a>
-                <a href="#adjustments" onclick="switchTab('adjustments')" id="nav-adjustments" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-sliders text-sm w-4 text-purple-400"></i> Adjustment
-                </a>
-
-                <a href="#customers" onclick="switchTab('customers')" id="nav-customers" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-users text-sm w-4"></i> Customer Management
-                </a>
-                <a href="#creditledger" onclick="switchTab('creditledger')" id="nav-creditledger" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-scale-balanced text-sm w-4"></i> Serial Customer Ledgers
-                </a>
-                <a href="#usermanagement" onclick="switchTab('usermanagement')" id="nav-usermanagement" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-user-gear text-sm w-4"></i> User Management
-                </a>
-            </nav>
+            <button type="submit" style={styles.primaryBtn}>
+              Login To Dashboard
+            </button>
+          </form>
         </div>
+      </div>
+    );
+  }
 
-        <!-- User Profile Footer -->
-        <div class="bg-slate-800 p-3 rounded-2xl flex items-center justify-between border border-slate-700">
-            <div class="flex items-center gap-2.5 overflow-hidden">
-                <div id="userAvatar" class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">A</div>
-                <div class="truncate text-xs">
-                    <div id="userNameDisplay" class="font-bold text-white truncate">Administrator</div>
-                    <div id="userEmailDisplay" class="text-slate-400 text-[10px] truncate">admin@ledgerhub.com</div>
-                </div>
-            </div>
-            <button onclick="handleLogout()" class="text-slate-400 hover:text-white ms-2 text-xs" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+  // ==========================================
+  // VIEW 2: MAIN DASHBOARD & APP INTERFACE
+  // ==========================================
+  return (
+    <div style={styles.appWrapper}>
+      {/* HEADER NAVBAR */}
+      <header style={styles.navbar}>
+        <div style={styles.navBrand}>LedgerHub</div>
+        <div style={styles.navUserSection}>
+          <span style={styles.userEmail}>{currentUser.email}</span>
+          <button onClick={handleLogout} style={styles.logoutBtn}>Logout</button>
         </div>
-    </aside>
+      </header>
 
-    <!-- RIGHT MAIN CONTENT SECTION -->
-    <main class="flex-1 overflow-y-auto px-8 py-6 space-y-6">
-        
-        <!-- Header Bar -->
-        <header class="flex justify-between items-center">
+      {/* MAIN LAYOUT */}
+      <div style={styles.mainLayout}>
+        {/* SIDEBAR NAVIGATION */}
+        <aside style={styles.sidebar}>
+          <button 
+            style={activeTab === 'dashboard' ? styles.activeNavBtn : styles.navBtn} 
+            onClick={() => setActiveTab('dashboard')}>
+            Dashboard
+          </button>
+          <button 
+            style={activeTab === 'customers' ? styles.activeNavBtn : styles.navBtn} 
+            onClick={() => setActiveTab('customers')}>
+            Customers ({customers.length})
+          </button>
+          <button 
+            style={activeTab === 'sales' ? styles.activeNavBtn : styles.navBtn} 
+            onClick={() => setActiveTab('sales')}>
+            Sales Entry
+          </button>
+          <button 
+            style={activeTab === 'payments' ? styles.activeNavBtn : styles.navBtn} 
+            onClick={() => setActiveTab('payments')}>
+            Payment Collection
+          </button>
+          <button 
+            style={activeTab === 'expenses' ? styles.activeNavBtn : styles.navBtn} 
+            onClick={() => setActiveTab('expenses')}>
+            Purchase/Expenses
+          </button>
+        </aside>
+
+        {/* CONTENT AREA */}
+        <main style={styles.contentArea}>
+          
+          {/* TAB 1: DASHBOARD */}
+          {activeTab === 'dashboard' && (
             <div>
-                <span class="text-xs font-semibold text-slate-400">Digital Workspace</span>
-                <h2 class="text-2xl font-bold text-slate-900" id="moduleTitle">Dashboard</h2>
+              <h1 style={styles.heading}>Dashboard Overview</h1>
+              <div style={styles.cardGrid}>
+                <div style={styles.card}>
+                  <span style={styles.cardLabel}>Total Sales Volume</span>
+                  <span style={styles.cardValue}>Rs. {totalSalesVolume.toLocaleString()}</span>
+                </div>
+                <div style={styles.card}>
+                  <span style={styles.cardLabel}>Total Collected Amount</span>
+                  <span style={{ ...styles.cardValue, color: '#16a34a' }}>
+                    Rs. {totalCollectedAmount.toLocaleString()}
+                  </span>
+                </div>
+                <div style={styles.card}>
+                  <span style={styles.cardLabel}>Pending Value</span>
+                  <span style={{ ...styles.cardValue, color: '#dc2626' }}>
+                    Rs. {pendingValue.toLocaleString()}
+                  </span>
+                </div>
+                <div style={styles.card}>
+                  <span style={styles.cardLabel}>Total Purchase Expenses</span>
+                  <span style={{ ...styles.cardValue, color: '#d97706' }}>
+                    Rs. {totalPurchaseExpenses.toLocaleString()}
+                  </span>
+                </div>
+              </div>
             </div>
-            <div class="flex items-center gap-3">
-                <span class="text-xs font-semibold text-slate-500 bg-white px-3 py-1.5 rounded-xl border border-slate-200" id="currentDateDisplay">26 Jul 2026</span>
-                <div id="headerUserInitials" class="w-9 h-9 bg-slate-900 text-white rounded-xl flex items-center justify-center font-bold text-xs shadow-md">
-                    AD
-                </div>
+          )}
+
+          {/* TAB 2: CUSTOMERS */}
+          {activeTab === 'customers' && (
+            <div>
+              <h1 style={styles.heading}>Customer Management</h1>
+              <form onSubmit={handleAddCustomer} style={styles.inlineForm}>
+                <input
+                  type="text"
+                  placeholder="Customer Name"
+                  value={newCustomer.name}
+                  onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })}
+                  style={styles.input}
+                />
+                <input
+                  type="text"
+                  placeholder="Phone Number"
+                  value={newCustomer.phone}
+                  onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })}
+                  style={styles.input}
+                />
+                <input
+                  type="text"
+                  placeholder="Address"
+                  value={newCustomer.address}
+                  onChange={(e) => setNewCustomer({ ...newCustomer, address: e.target.value })}
+                  style={styles.input}
+                />
+                <button type="submit" style={styles.primaryBtn}>Add Customer</button>
+              </form>
+
+              <table style={styles.table}>
+                <thead>
+                  <tr>
+                    <th style={styles.th}>Name</th>
+                    <th style={styles.th}>Phone</th>
+                    <th style={styles.th}>Address</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {customers.length === 0 ? (
+                    <tr><td colSpan="3" style={styles.tdCenter}>कुनै डाटा उपलब्ध छैन</td></tr>
+                  ) : (
+                    customers.map((c) => (
+                      <tr key={c.id}>
+                        <td style={styles.td}>{c.name}</td>
+                        <td style={styles.td}>{c.phone}</td>
+                        <td style={styles.td}>{c.address || '-'}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
-        </header>
-
-        <!-- Dynamic Workspace Views -->
-        <div id="workspaceContent">
-
-            <!-- 1. DASHBOARD VIEW -->
-            <div id="view-dashboard" class="space-y-6">
-                <div class="grid grid-cols-4 gap-4">
-                    <div class="bg-white p-4 rounded-2xl border border-slate-100 card-shadow">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Sales Volume</span>
-                        <div class="text-xl font-extrabold text-slate-900 mt-1" id="dashTotalSales">रु 0.00</div>
-                    </div>
-                    <div class="bg-white p-4 rounded-2xl border border-slate-100 card-shadow">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase">Collected Amount</span>
-                        <div class="text-xl font-extrabold text-emerald-600 mt-1" id="dashCashSales">रु 0.00</div>
-                    </div>
-                    <div class="bg-white p-4 rounded-2xl border border-slate-100 card-shadow">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase">Pending Due Balance</span>
-                        <div class="text-xl font-extrabold text-rose-600 mt-1" id="dashOutstandingCredit">रु 0.00</div>
-                    </div>
-                    <div class="bg-white p-4 rounded-2xl border border-slate-100 card-shadow">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Purchase Expenses</span>
-                        <div class="text-xl font-extrabold text-blue-600 mt-1" id="dashTotalPurchase">रु 0.00</div>
-                    </div>
-                </div>
-
-                <!-- Dashboard Charts -->
-                <div class="grid grid-cols-12 gap-6">
-                    <div class="col-span-8 bg-white p-6 rounded-3xl border border-slate-100 card-shadow">
-                        <h4 class="font-bold text-slate-900 text-sm mb-4"><i class="fa-solid fa-chart-area text-blue-600 me-2"></i>Real-time Sales & Purchase Trend</h4>
-                        <div class="h-64"><canvas id="salesPurchaseChart"></canvas></div>
-                    </div>
-                    <div class="col-span-4 bg-white p-6 rounded-3xl border border-slate-100 card-shadow">
-                        <h4 class="font-bold text-slate-900 text-sm mb-4"><i class="fa-solid fa-chart-pie text-emerald-600 me-2"></i>Collection Statistics</h4>
-                        <div class="h-64 relative"><canvas id="incomeExpenseChart"></canvas></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 2. PRODUCT & INVENTORY MANAGEMENT VIEW -->
-            <div id="view-products" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
-                    <div>
-                        <h3 class="font-bold text-slate-900 text-base">Product & Inventory Catalog</h3>
-                        <p class="text-xs text-slate-400">Add products and manage real-time stock levels.</p>
-                    </div>
-                    <button onclick="openProductModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
-                        <i class="fa-solid fa-plus me-1.5"></i> Add New Product
-                    </button>
-                </div>
-
-                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
-                            <tr>
-                                <th class="p-4">Product Name</th>
-                                <th class="p-4">Purchase Rate</th>
-                                <th class="p-4">Selling Rate</th>
-                                <th class="p-4">Available Stock</th>
-                                <th class="p-4 text-center">Status</th>
-                                <th class="p-4 text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="productTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- 3. CUSTOMER MANAGEMENT VIEW -->
-            <div id="view-customers" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
-                    <div>
-                        <h3 class="font-bold text-slate-900 text-base">Customer Directory</h3>
-                        <p class="text-xs text-slate-400">Manage customers and view total outstanding balances & last active dates.</p>
-                    </div>
-                    <button onclick="openCustomerModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
-                        <i class="fa-solid fa-user-plus me-1.5"></i> Add Customer
-                    </button>
-                </div>
-
-                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
-                            <tr>
-                                <th class="p-4">Customer Name</th>
-                                <th class="p-4">Phone</th>
-                                <th class="p-4">Address</th>
-                                <th class="p-4">Last Transaction Date</th>
-                                <th class="p-4 text-right">Outstanding Balance</th>
-                                <th class="p-4 text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="customerTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- 4. SALES SYSTEM VIEW -->
-            <div id="view-sales" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
-                    <div>
-                        <h3 class="font-bold text-slate-900 text-base">Sales Registry</h3>
-                        <p class="text-xs text-slate-400">Record cash/credit sales with itemized quantity and auto stock deduction.</p>
-                    </div>
-                    <button onclick="openSalesModal()" class="bg-emerald-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition">
-                        <i class="fa-solid fa-cart-plus me-1.5"></i> New Sales Invoice Entry
-                    </button>
-                </div>
-
-                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
-                            <tr>
-                                <th class="p-4">Date</th>
-                                <th class="p-4">Customer</th>
-                                <th class="p-4">Product Details</th>
-                                <th class="p-4">Mode</th>
-                                <th class="p-4 text-right">Total Amount</th>
-                                <th class="p-4 text-right">Paid</th>
-                                <th class="p-4 text-right">Remaining</th>
-                            </tr>
-                        </thead>
-                        <tbody id="salesTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- 5. PURCHASE SYSTEM VIEW -->
-            <div id="view-purchase" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
-                    <div>
-                        <h3 class="font-bold text-slate-900 text-base">Purchase System Engine</h3>
-                        <p class="text-xs text-slate-400">Record purchases from suppliers to auto-increase inventory stock.</p>
-                    </div>
-                    <button onclick="openPurchaseModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
-                        <i class="fa-solid fa-bag-shopping me-1.5"></i> Add New Purchase Entry
-                    </button>
-                </div>
-
-                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
-                            <tr>
-                                <th class="p-4">Date</th>
-                                <th class="p-4">Supplier Name</th>
-                                <th class="p-4">Product Name</th>
-                                <th class="p-4">Quantity</th>
-                                <th class="p-4 text-right">Rate</th>
-                                <th class="p-4 text-right">Total Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody id="purchaseTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- NEW MODULE 1: PAYMENT RECEIPT VIEW -->
-            <div id="view-receipt" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
-                    <div>
-                        <h3 class="font-bold text-slate-900 text-base">Payment Receipt Module</h3>
-                        <p class="text-xs text-slate-400">Record payments received from credit customers. Auto-updates outstanding balance & ledger.</p>
-                    </div>
-                    <button onclick="openReceiptModal()" class="bg-emerald-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition">
-                        <i class="fa-solid fa-hand-holding-dollar me-1.5"></i> Receive Payment
-                    </button>
-                </div>
-
-                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
-                            <tr>
-                                <th class="p-4">Date</th>
-                                <th class="p-4">Customer Name</th>
-                                <th class="p-4">Amount Received</th>
-                                <th class="p-4">Payment Mode</th>
-                                <th class="p-4">Remarks</th>
-                                <th class="p-4 text-center">Attachment</th>
-                            </tr>
-                        </thead>
-                        <tbody id="receiptTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- NEW MODULE 2: PAYMENT PAID VIEW -->
-            <div id="view-paymentpaid" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
-                    <div>
-                        <h3 class="font-bold text-slate-900 text-base">Payment Paid Module</h3>
-                        <p class="text-xs text-slate-400">Record outgoing payments paid to suppliers or vendors.</p>
-                    </div>
-                    <button onclick="openPaidModal()" class="bg-rose-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-rose-700 transition">
-                        <i class="fa-solid fa-paper-plane me-1.5"></i> Add Paid Record
-                    </button>
-                </div>
-
-                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
-                            <tr>
-                                <th class="p-4">Date</th>
-                                <th class="p-4">Paid To (Vendor/Supplier)</th>
-                                <th class="p-4 text-right">Amount Paid</th>
-                                <th class="p-4">Payment Mode</th>
-                                <th class="p-4">Remarks</th>
-                                <th class="p-4 text-center">Attachment</th>
-                            </tr>
-                        </thead>
-                        <tbody id="paidTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- NEW MODULE 3: RETURN VIEW -->
-            <div id="view-returns" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
-                    <div>
-                        <h3 class="font-bold text-slate-900 text-base">Sales & Purchase Return Engine</h3>
-                        <p class="text-xs text-slate-400">Manage item returns and auto-adjust customer balances.</p>
-                    </div>
-                    <button onclick="openReturnModal()" class="bg-amber-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-amber-700 transition">
-                        <i class="fa-solid fa-arrow-rotate-left me-1.5"></i> Process Return
-                    </button>
-                </div>
-
-                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
-                            <tr>
-                                <th class="p-4">Date</th>
-                                <th class="p-4">Party Name</th>
-                                <th class="p-4">Type</th>
-                                <th class="p-4">Product</th>
-                                <th class="p-4">Qty</th>
-                                <th class="p-4 text-right">Credit Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody id="returnTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- NEW MODULE 4: ADJUSTMENT VIEW -->
-            <div id="view-adjustments" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
-                    <div>
-                        <h3 class="font-bold text-slate-900 text-base">Ledger Adjustment Module</h3>
-                        <p class="text-xs text-slate-400">Manual Debit/Credit entries for discounts, bad debt write-offs, or stock adjustments.</p>
-                    </div>
-                    <button onclick="openAdjustmentModal()" class="bg-purple-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-purple-700 transition">
-                        <i class="fa-solid fa-sliders me-1.5"></i> Add Adjustment Entry
-                    </button>
-                </div>
-
-                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
-                            <tr>
-                                <th class="p-4">Date</th>
-                                <th class="p-4">Customer Name</th>
-                                <th class="p-4">Adjustment Type</th>
-                                <th class="p-4 text-right">Amount</th>
-                                <th class="p-4">Reason / Remarks</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adjustmentTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- 6. SERIAL CUSTOMER LEDGERS & SHARE ENGINE VIEW -->
-            <div id="view-creditledger" class="space-y-6 hidden">
-                <div class="bg-white p-5 rounded-2xl border border-slate-100 card-shadow flex justify-between items-center">
-                    <div>
-                        <h3 class="font-bold text-slate-900 text-base">Serial Customer Ledger Statements</h3>
-                        <p class="text-xs text-slate-400">Chronological history of Sales and Payments with dynamic balance calculation & Image/PDF Share feature.</p>
-                    </div>
-                </div>
-
-                <div id="ledgerCardsContainer" class="space-y-6"></div>
-            </div>
-
-            <!-- 7. USER MANAGEMENT VIEW -->
-            <div id="view-usermanagement" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
-                    <div>
-                        <h3 class="font-bold text-slate-900 text-base">Sub-User Accounts & Role Permissions</h3>
-                        <p class="text-xs text-slate-400">Create Sales Users, Purchase Users, or Admins with restricted permissions.</p>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
-                            <tr>
-                                <th class="p-4">User Email</th>
-                                <th class="p-4">Role</th>
-                                <th class="p-4">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="userTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700">
-                            <tr>
-                                <td class="p-4">admin@ledgerhub.com</td>
-                                <td class="p-4"><span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-[10px] font-bold">ADMIN</span></td>
-                                <td class="p-4"><span class="text-emerald-600 font-bold">Active Session</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-        </div>
-    </main>
-
-    <!-- MODAL: ADD / EDIT PRODUCT -->
-    <div id="productModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <h3 id="productModalTitle" class="font-bold text-slate-900 text-base mb-4">Add New Product</h3>
-            <form onsubmit="saveProduct(event)" class="space-y-3">
-                <input type="hidden" id="editProductId" value="">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Product Name</label>
-                    <input type="text" id="prodName" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="e.g. Rice 25kg Bag" required>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Purchase Price (रु)</label>
-                        <input type="number" id="prodCost" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="1000" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Selling Price (रु)</label>
-                        <input type="number" id="prodPrice" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="1200" required>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Stock Quantity</label>
-                    <input type="number" id="prodStock" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="50" required>
-                </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeModal('productModal')" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-xl">Save Product</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL: ADD CUSTOMER -->
-    <div id="customerModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <h3 class="font-bold text-slate-900 text-base mb-4">Add Customer Record</h3>
-            <form onsubmit="saveCustomer(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Full Name</label>
-                    <input type="text" id="custName" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="e.g. Sudil Joshi" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Phone Number</label>
-                    <input type="text" id="custPhone" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="9800000000" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Address</label>
-                    <input type="text" id="custAddress" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="Kathmandu, Nepal" required>
-                </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeModal('customerModal')" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-xl">Save Customer</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL: NEW SALES ENTRY -->
-    <div id="salesModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <h3 class="font-bold text-slate-900 text-base mb-4">Create Sales Invoice</h3>
-            <form onsubmit="saveSales(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Customer</label>
-                    <select id="salesCustomerSelect" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required></select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Select Product</label>
-                    <select id="salesProductSelect" onchange="updateSalesCalculation()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required></select>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Quantity</label>
-                        <input type="number" id="salesQty" min="1" value="1" oninput="updateSalesCalculation()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Rate (रु)</label>
-                        <input type="number" id="salesRate" oninput="updateSalesCalculation()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
-                    </div>
-                </div>
-                <div class="p-3 bg-slate-100 rounded-xl text-xs flex justify-between font-bold">
-                    <span>Total Amount:</span>
-                    <span id="salesTotalCalc" class="text-blue-600">रु 0.00</span>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Amount Paid (रु)</label>
-                        <input type="number" id="salesPaid" value="0" min="0" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Payment Mode</label>
-                        <select id="salesPaymentMode" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-                            <option value="Cash">Cash</option>
-                            <option value="FonePay">FonePay</option>
-                            <option value="ConnectIPS">ConnectIPS</option>
-                            <option value="eSewa">eSewa</option>
-                            <option value="Khalti">Khalti</option>
-                            <option value="Bank Transfer">Bank Transfer</option>
-                            <option value="Cheque">Cheque</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeModal('salesModal')" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-emerald-600 text-white text-xs font-bold rounded-xl">Complete Sales</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL: NEW PURCHASE ENTRY -->
-    <div id="purchaseModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <h3 class="font-bold text-slate-900 text-base mb-4">Add Purchase Stock Entry</h3>
-            <form onsubmit="savePurchase(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Supplier Name</label>
-                    <input type="text" id="purchSupplier" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="e.g. Wholesaler Traders" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Select Product</label>
-                    <select id="purchProductSelect" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required></select>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Quantity</label>
-                        <input type="number" id="purchQty" min="1" value="10" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Purchase Rate (रु)</label>
-                        <input type="number" id="purchRate" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="800" required>
-                    </div>
-                </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeModal('purchaseModal')" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-xl">Save Purchase</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- NEW MODAL 1: RECEIVE PAYMENT MODAL -->
-    <div id="receiptModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <h3 class="font-bold text-slate-900 text-base mb-4">Payment Receipt Entry</h3>
-            <form onsubmit="saveReceipt(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Select Customer</label>
-                    <select id="receiptCustomerSelect" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required></select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Amount Received (रु)</label>
-                    <input type="number" id="receiptAmount" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="5000" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Payment Mode (अनिवार्य)</label>
-                    <select id="receiptMode" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
-                        <option value="FonePay">FonePay</option>
-                        <option value="Cash">Cash</option>
-                        <option value="Bank Transfer">Bank Transfer</option>
-                        <option value="Cheque">Cheque</option>
-                        <option value="ConnectIPS">ConnectIPS</option>
-                        <option value="eSewa">eSewa</option>
-                        <option value="Khalti">Khalti</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Transaction Date</label>
-                    <input type="date" id="receiptDate" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Remarks / Note</label>
-                    <input type="text" id="receiptRemarks" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="e.g. Partial Payment via FonePay">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Attachment (Cheque Photo / Screenshot)</label>
-                    <input type="file" id="receiptAttachment" accept="image/*,.pdf" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-                </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeModal('receiptModal')" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-emerald-600 text-white text-xs font-bold rounded-xl">Save Payment Receipt</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- NEW MODAL 2: PAYMENT PAID MODAL -->
-    <div id="paidModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <h3 class="font-bold text-slate-900 text-base mb-4">Record Payment Paid</h3>
-            <form onsubmit="savePaid(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Paid To (Vendor/Party)</label>
-                    <input type="text" id="paidToName" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="e.g. Wholesale Supplier" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Amount Paid (रु)</label>
-                    <input type="number" id="paidAmount" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="10000" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Payment Mode (अनिवार्य)</label>
-                    <select id="paidMode" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
-                        <option value="Bank Transfer">Bank Transfer</option>
-                        <option value="Cash">Cash</option>
-                        <option value="Cheque">Cheque</option>
-                        <option value="FonePay">FonePay</option>
-                        <option value="ConnectIPS">ConnectIPS</option>
-                        <option value="eSewa">eSewa</option>
-                        <option value="Khalti">Khalti</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Transaction Date</label>
-                    <input type="date" id="paidDate" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Remarks</label>
-                    <input type="text" id="paidRemarks" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="Payment for Stock Bill">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Attachment (Voucher / Screenshot)</label>
-                    <input type="file" id="paidAttachment" accept="image/*,.pdf" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-                </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeModal('paidModal')" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-rose-600 text-white text-xs font-bold rounded-xl">Save Payment Paid</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- NEW MODAL 3: RETURN MODAL -->
-    <div id="returnModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <h3 class="font-bold text-slate-900 text-base mb-4">Record Product Return</h3>
-            <form onsubmit="saveReturn(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Select Customer</label>
-                    <select id="returnCustomerSelect" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required></select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Select Product</label>
-                    <select id="returnProductSelect" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required></select>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Returned Qty</label>
-                        <input type="number" id="returnQty" value="1" min="1" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Return Value (रु)</label>
-                        <input type="number" id="returnAmount" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="2000" required>
-                    </div>
-                </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeModal('returnModal')" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-amber-600 text-white text-xs font-bold rounded-xl">Process Return</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- NEW MODAL 4: ADJUSTMENT MODAL -->
-    <div id="adjustmentModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <h3 class="font-bold text-slate-900 text-base mb-4">Ledger Adjustment Entry</h3>
-            <form onsubmit="saveAdjustment(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Select Customer</label>
-                    <select id="adjCustomerSelect" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required></select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Adjustment Type</label>
-                    <select id="adjType" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
-                        <option value="Credit Discount">Credit Discount (Reduce Balance)</option>
-                        <option value="Debit Fee">Debit Fine/Fee (Increase Balance)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Amount (रु)</label>
-                    <input type="number" id="adjAmount" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="500" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Reason / Description</label>
-                    <input type="text" id="adjReason" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="Special Festival Discount" required>
-                </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeModal('adjustmentModal')" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-purple-600 text-white text-xs font-bold rounded-xl">Apply Adjustment</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL: IMAGE / ATTACHMENT PREVIEW -->
-    <div id="attachmentModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-6 border border-slate-100 text-center">
-            <h3 class="font-bold text-slate-900 text-base mb-3">Attachment Preview</h3>
-            <div id="attachmentContainer" class="max-h-96 overflow-auto mb-4 border rounded-xl p-2 bg-slate-50 flex items-center justify-center">
-                <!-- Preview image dynamic -->
-            </div>
-            <button onclick="closeModal('attachmentModal')" class="px-5 py-2.5 bg-slate-900 text-white text-xs font-bold rounded-xl">Close Preview</button>
-        </div>
-    </div>
-
-    <!-- SYSTEM JAVASCRIPT LOGIC -->
-    <script>
-        // CORE STATE & INITIAL DATA
-        const appState = {
-            products: [
-                { id: 'p1', name: 'Rice 25kg Bag', cost: 1000, price: 1200, stock: 45 },
-                { id: 'p2', name: 'Cooking Oil 5L', cost: 800, price: 950, stock: 20 }
-            ],
-            customers: [
-                { id: 'c1', name: 'सुदिल जोशी', phone: '9841000000', address: 'Kathmandu', balance: 15000, lastDate: '26-07-2026' }
-            ],
-            sales: [
-                { id: 's1', date: '26-07-2026', customerId: 'c1', customerName: 'सुदिल जोशी', prodDetails: 'Rice 25kg Bag x 1', total: 20000, paid: 0, mode: 'Credit' }
-            ],
-            purchases: [
-                { id: 'pu1', date: '25-07-2026', supplier: 'Wholesale Supplier', prodName: 'Rice 25kg Bag', qty: 50, rate: 1000, total: 50000 }
-            ],
-            receipts: [
-                { id: 'r1', date: '26-07-2026', customerId: 'c1', customerName: 'सुदिल जोशी', amount: 5000, mode: 'FonePay', remarks: 'Payment Received via FonePay', attachment: null }
-            ],
-            paymentsPaid: [],
-            returns: [],
-            adjustments: []
-        };
-
-        let salesChart = null;
-        let incomeChart = null;
-
-        // INIT SYSTEM ON DOM LOAD
-        document.addEventListener("DOMContentLoaded", () => {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('receiptDate').value = today;
-            document.getElementById('paidDate').value = today;
-            
-            initCharts();
-            renderAllViews();
-        });
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMsg').innerText = msg;
-            toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 3500);
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
-        }
-
-        // TAB SWITCHER
-        function switchTab(tabId) {
-            const tabs = ['dashboard', 'products', 'sales', 'purchase', 'receipt', 'paymentpaid', 'returns', 'adjustments', 'customers', 'creditledger', 'usermanagement'];
-            
-            tabs.forEach(t => {
-                const el = document.getElementById(`view-${t}`);
-                const nav = document.getElementById(`nav-${t}`);
-                if (el) el.classList.add('hidden');
-                if (nav) nav.classList.remove('sidebar-item-active');
-            });
-
-            const activeView = document.getElementById(`view-${tabId}`);
-            const activeNav = document.getElementById(`nav-${tabId}`);
-            if (activeView) activeView.classList.remove('hidden');
-            if (activeNav) activeNav.classList.add('sidebar-item-active');
-
-            const titleMap = {
-                dashboard: 'Dashboard Overview',
-                products: 'Product & Inventory Catalog',
-                sales: 'Sales System Engine',
-                purchase: 'Purchase System Engine',
-                receipt: 'Payment Receipt Module',
-                paymentpaid: 'Payment Paid Module',
-                returns: 'Sales & Purchase Returns',
-                adjustments: 'Ledger Adjustments',
-                customers: 'Customer Directory',
-                creditledger: 'Serial Customer Ledger Statements',
-                usermanagement: 'User Access Control'
-            };
-            document.getElementById('moduleTitle').innerText = titleMap[tabId] || 'Workspace';
-
-            if (tabId === 'dashboard') updateDashboardMetrics();
-            if (tabId === 'creditledger') renderCustomerLedgers();
-        }
-
-        // RENDER ALL TABLES
-        function renderAllViews() {
-            renderProducts();
-            renderCustomers();
-            renderSales();
-            renderPurchases();
-            renderReceipts();
-            renderPaymentsPaid();
-            renderReturns();
-            renderAdjustments();
-            updateDashboardMetrics();
-            populateSelects();
-        }
-
-        // POPULATE DROPDOWNS
-        function populateSelects() {
-            const custSelects = ['salesCustomerSelect', 'receiptCustomerSelect', 'returnCustomerSelect', 'adjCustomerSelect'];
-            custSelects.forEach(id => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                el.innerHTML = appState.customers.map(c => `<option value="${c.id}">${c.name} (Due: रु ${c.balance.toLocaleString()})</option>`).join('');
-            });
-
-            const prodSelects = ['salesProductSelect', 'purchProductSelect', 'returnProductSelect'];
-            prodSelects.forEach(id => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                el.innerHTML = appState.products.map(p => `<option value="${p.id}">${p.name} - Stock: ${p.stock}</option>`).join('');
-            });
-        }
-
-        // PRODUCT MANAGEMENT
-        function renderProducts() {
-            const body = document.getElementById('productTableBody');
-            body.innerHTML = appState.products.map(p => `
-                <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                    <td class="p-4 font-bold text-slate-900">${p.name}</td>
-                    <td class="p-4">रु ${p.cost.toLocaleString()}</td>
-                    <td class="p-4">रु ${p.price.toLocaleString()}</td>
-                    <td class="p-4 font-extrabold text-blue-600">${p.stock} Units</td>
-                    <td class="p-4 text-center">
-                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${p.stock > 10 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
-                            ${p.stock > 10 ? 'In Stock' : 'Low Stock'}
-                        </span>
-                    </td>
-                    <td class="p-4 text-center">
-                        <button onclick="editProduct('${p.id}')" class="text-blue-600 hover:underline"><i class="fa-solid fa-pen-to-square"></i></button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function openProductModal() {
-            document.getElementById('editProductId').value = '';
-            document.getElementById('prodName').value = '';
-            document.getElementById('prodCost').value = '';
-            document.getElementById('prodPrice').value = '';
-            document.getElementById('prodStock').value = '';
-            document.getElementById('productModal').classList.remove('hidden');
-        }
-
-        function saveProduct(e) {
-            e.preventDefault();
-            const id = document.getElementById('editProductId').value || 'p' + Date.now();
-            const name = document.getElementById('prodName').value;
-            const cost = parseFloat(document.getElementById('prodCost').value) || 0;
-            const price = parseFloat(document.getElementById('prodPrice').value) || 0;
-            const stock = parseInt(document.getElementById('prodStock').value) || 0;
-
-            const existingIdx = appState.products.findIndex(p => p.id === id);
-            if (existingIdx > -1) {
-                appState.products[existingIdx] = { id, name, cost, price, stock };
-            } else {
-                appState.products.push({ id, name, cost, price, stock });
-            }
-
-            closeModal('productModal');
-            renderAllViews();
-            showToast('Product catalog updated successfully!');
-        }
-
-        function editProduct(id) {
-            const p = appState.products.find(x => x.id === id);
-            if (!p) return;
-            document.getElementById('editProductId').value = p.id;
-            document.getElementById('prodName').value = p.name;
-            document.getElementById('prodCost').value = p.cost;
-            document.getElementById('prodPrice').value = p.price;
-            document.getElementById('prodStock').value = p.stock;
-            document.getElementById('productModal').classList.remove('hidden');
-        }
-
-        // CUSTOMER MANAGEMENT
-        function renderCustomers() {
-            const body = document.getElementById('customerTableBody');
-            body.innerHTML = appState.customers.map(c => `
-                <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                    <td class="p-4 font-bold text-slate-900">${c.name}</td>
-                    <td class="p-4">${c.phone}</td>
-                    <td class="p-4">${c.address}</td>
-                    <td class="p-4 text-slate-500">${c.lastDate || '26-07-2026'}</td>
-                    <td class="p-4 text-right font-extrabold text-rose-600">रु ${c.balance.toLocaleString()}</td>
-                    <td class="p-4 text-center">
-                        <button onclick="switchTab('creditledger')" class="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-xs font-bold hover:bg-blue-100">View Ledger</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function openCustomerModal() {
-            document.getElementById('custName').value = '';
-            document.getElementById('custPhone').value = '';
-            document.getElementById('custAddress').value = '';
-            document.getElementById('customerModal').classList.remove('hidden');
-        }
-
-        function saveCustomer(e) {
-            e.preventDefault();
-            const name = document.getElementById('custName').value;
-            const phone = document.getElementById('custPhone').value;
-            const address = document.getElementById('custAddress').value;
-
-            appState.customers.push({
-                id: 'c' + Date.now(),
-                name,
-                phone,
-                address,
-                balance: 0,
-                lastDate: '26-07-2026'
-            });
-
-            closeModal('customerModal');
-            renderAllViews();
-            showToast('New Customer Added Successfully!');
-        }
-
-        // SALES ENGINE
-        function renderSales() {
-            const body = document.getElementById('salesTableBody');
-            body.innerHTML = appState.sales.map(s => `
-                <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                    <td class="p-4">${s.date}</td>
-                    <td class="p-4 font-bold text-slate-900">${s.customerName}</td>
-                    <td class="p-4">${s.prodDetails}</td>
-                    <td class="p-4"><span class="px-2 py-1 bg-slate-100 text-slate-700 rounded text-[10px] font-bold">${s.mode}</span></td>
-                    <td class="p-4 text-right font-bold">रु ${s.total.toLocaleString()}</td>
-                    <td class="p-4 text-right text-emerald-600 font-bold">रु ${s.paid.toLocaleString()}</td>
-                    <td class="p-4 text-right text-rose-600 font-bold">रु ${(s.total - s.paid).toLocaleString()}</td>
-                </tr>
-            `).join('');
-        }
-
-        function openSalesModal() {
-            populateSelects();
-            updateSalesCalculation();
-            document.getElementById('salesModal').classList.remove('hidden');
-        }
-
-        function updateSalesCalculation() {
-            const prodId = document.getElementById('salesProductSelect').value;
-            const prod = appState.products.find(p => p.id === prodId);
-            if (prod) {
-                if (!document.getElementById('salesRate').value) {
-                    document.getElementById('salesRate').value = prod.price;
-                }
-            }
-            const qty = parseFloat(document.getElementById('salesQty').value) || 0;
-            const rate = parseFloat(document.getElementById('salesRate').value) || 0;
-            const total = qty * rate;
-            document.getElementById('salesTotalCalc').innerText = `रु ${total.toLocaleString()}`;
-        }
-
-        function saveSales(e) {
-            e.preventDefault();
-            const custId = document.getElementById('salesCustomerSelect').value;
-            const prodId = document.getElementById('salesProductSelect').value;
-            const qty = parseInt(document.getElementById('salesQty').value) || 1;
-            const rate = parseFloat(document.getElementById('salesRate').value) || 0;
-            const paid = parseFloat(document.getElementById('salesPaid').value) || 0;
-            const mode = document.getElementById('salesPaymentMode').value;
-
-            const cust = appState.customers.find(c => c.id === custId);
-            const prod = appState.products.find(p => p.id === prodId);
-
-            if (!cust || !prod) return;
-
-            const total = qty * rate;
-            const due = total - paid;
-
-            // Update Stock
-            prod.stock -= qty;
-
-            // Update Customer Balance & Last Transaction Date
-            cust.balance += due;
-            cust.lastDate = '26-07-2026';
-
-            appState.sales.push({
-                id: 's' + Date.now(),
-                date: '26-07-2026',
-                customerId: cust.id,
-                customerName: cust.name,
-                prodDetails: `${prod.name} x ${qty}`,
-                total,
-                paid,
-                mode
-            });
-
-            closeModal('salesModal');
-            renderAllViews();
-            showToast('Sales Invoice recorded & Customer Balance updated!');
-        }
-
-        // PURCHASE ENGINE
-        function renderPurchases() {
-            const body = document.getElementById('purchaseTableBody');
-            body.innerHTML = appState.purchases.map(p => `
-                <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                    <td class="p-4">${p.date}</td>
-                    <td class="p-4 font-bold text-slate-900">${p.supplier}</td>
-                    <td class="p-4">${p.prodName}</td>
-                    <td class="p-4 font-bold">${p.qty}</td>
-                    <td class="p-4 text-right">रु ${p.rate.toLocaleString()}</td>
-                    <td class="p-4 text-right font-extrabold text-blue-600">रु ${p.total.toLocaleString()}</td>
-                </tr>
-            `).join('');
-        }
-
-        function openPurchaseModal() {
-            populateSelects();
-            document.getElementById('purchaseModal').classList.remove('hidden');
-        }
-
-        function savePurchase(e) {
-            e.preventDefault();
-            const supplier = document.getElementById('purchSupplier').value;
-            const prodId = document.getElementById('purchProductSelect').value;
-            const qty = parseInt(document.getElementById('purchQty').value) || 0;
-            const rate = parseFloat(document.getElementById('purchRate').value) || 0;
-
-            const prod = appState.products.find(p => p.id === prodId);
-            if (!prod) return;
-
-            prod.stock += qty;
-
-            appState.purchases.push({
-                id: 'pu' + Date.now(),
-                date: '26-07-2026',
-                supplier,
-                prodName: prod.name,
-                qty,
-                rate,
-                total: qty * rate
-            });
-
-            closeModal('purchaseModal');
-            renderAllViews();
-            showToast('Stock inventory updated with new purchase!');
-        }
-
-        // FEATURE 2, 3, 4, 5: PAYMENT RECEIPT ENGINE (IMPORTANT)
-        function renderReceipts() {
-            const body = document.getElementById('receiptTableBody');
-            body.innerHTML = appState.receipts.map(r => `
-                <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                    <td class="p-4">${r.date}</td>
-                    <td class="p-4 font-bold text-slate-900">${r.customerName}</td>
-                    <td class="p-4 font-extrabold text-emerald-600">रु ${r.amount.toLocaleString()}</td>
-                    <td class="p-4"><span class="px-2 py-1 bg-emerald-50 text-emerald-700 font-bold rounded text-[10px]">${r.mode}</span></td>
-                    <td class="p-4">${r.remarks || '-'}</td>
-                    <td class="p-4 text-center">
-                        ${r.attachment ? `<button onclick="viewAttachment('${r.attachment}')" class="text-blue-600 hover:underline text-xs"><i class="fa-solid fa-paperclip me-1"></i> View</button>` : '<span class="text-slate-300">None</span>'}
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function openReceiptModal() {
-            populateSelects();
-            document.getElementById('receiptAmount').value = '';
-            document.getElementById('receiptRemarks').value = '';
-            document.getElementById('receiptAttachment').value = '';
-            document.getElementById('receiptModal').classList.remove('hidden');
-        }
-
-        function saveReceipt(e) {
-            e.preventDefault();
-            const custId = document.getElementById('receiptCustomerSelect').value;
-            const amount = parseFloat(document.getElementById('receiptAmount').value) || 0;
-            const mode = document.getElementById('receiptMode').value;
-            const date = document.getElementById('receiptDate').value || '26-07-2026';
-            const remarks = document.getElementById('receiptRemarks').value;
-            const fileInput = document.getElementById('receiptAttachment');
-
-            const cust = appState.customers.find(c => c.id === custId);
-            if (!cust) return;
-
-            // Handle File Attachment Base64
-            const processSave = (attachData) => {
-                // AUTO DEDUCT CUSTOMER OUTSTANDING BALANCE
-                cust.balance -= amount;
-                cust.lastDate = formatDateStr(date);
-
-                appState.receipts.push({
-                    id: 'r' + Date.now(),
-                    date: formatDateStr(date),
-                    customerId: cust.id,
-                    customerName: cust.name,
-                    amount,
-                    mode,
-                    remarks,
-                    attachment: attachData
-                });
-
-                closeModal('receiptModal');
-                renderAllViews();
-                showToast(`Payment of रु ${amount.toLocaleString()} received! Outstanding updated to रु ${cust.balance.toLocaleString()}`);
-            };
-
-            if (fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => processSave(e.target.result);
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                processSave(null);
-            }
-        }
-
-        // PAYMENT PAID ENGINE
-        function renderPaymentsPaid() {
-            const body = document.getElementById('paidTableBody');
-            body.innerHTML = appState.paymentsPaid.map(p => `
-                <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                    <td class="p-4">${p.date}</td>
-                    <td class="p-4 font-bold text-slate-900">${p.paidTo}</td>
-                    <td class="p-4 text-right font-extrabold text-rose-600">रु ${p.amount.toLocaleString()}</td>
-                    <td class="p-4"><span class="px-2 py-1 bg-rose-50 text-rose-700 font-bold rounded text-[10px]">${p.mode}</span></td>
-                    <td class="p-4">${p.remarks || '-'}</td>
-                    <td class="p-4 text-center">
-                        ${p.attachment ? `<button onclick="viewAttachment('${p.attachment}')" class="text-blue-600 hover:underline text-xs"><i class="fa-solid fa-paperclip me-1"></i> View</button>` : '<span class="text-slate-300">None</span>'}
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function openPaidModal() {
-            document.getElementById('paidToName').value = '';
-            document.getElementById('paidAmount').value = '';
-            document.getElementById('paidRemarks').value = '';
-            document.getElementById('paidAttachment').value = '';
-            document.getElementById('paidModal').classList.remove('hidden');
-        }
-
-        function savePaid(e) {
-            e.preventDefault();
-            const paidTo = document.getElementById('paidToName').value;
-            const amount = parseFloat(document.getElementById('paidAmount').value) || 0;
-            const mode = document.getElementById('paidMode').value;
-            const date = document.getElementById('paidDate').value;
-            const remarks = document.getElementById('paidRemarks').value;
-            const fileInput = document.getElementById('paidAttachment');
-
-            const processSave = (attachData) => {
-                appState.paymentsPaid.push({
-                    id: 'pp' + Date.now(),
-                    date: formatDateStr(date),
-                    paidTo,
-                    amount,
-                    mode,
-                    remarks,
-                    attachment: attachData
-                });
-
-                closeModal('paidModal');
-                renderAllViews();
-                showToast(`Payment of रु ${amount.toLocaleString()} paid record saved!`);
-            };
-
-            if (fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => processSave(e.target.result);
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                processSave(null);
-            }
-        }
-
-        // RETURN ENGINE
-        function renderReturns() {
-            const body = document.getElementById('returnTableBody');
-            body.innerHTML = appState.returns.map(r => `
-                <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                    <td class="p-4">${r.date}</td>
-                    <td class="p-4 font-bold text-slate-900">${r.customerName}</td>
-                    <td class="p-4"><span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded text-[10px] font-bold">Sales Return</span></td>
-                    <td class="p-4">${r.prodName}</td>
-                    <td class="p-4">${r.qty}</td>
-                    <td class="p-4 text-right font-bold text-emerald-600">रु ${r.amount.toLocaleString()}</td>
-                </tr>
-            `).join('');
-        }
-
-        function openReturnModal() {
-            populateSelects();
-            document.getElementById('returnModal').classList.remove('hidden');
-        }
-
-        function saveReturn(e) {
-            e.preventDefault();
-            const custId = document.getElementById('returnCustomerSelect').value;
-            const prodId = document.getElementById('returnProductSelect').value;
-            const qty = parseInt(document.getElementById('returnQty').value) || 1;
-            const amount = parseFloat(document.getElementById('returnAmount').value) || 0;
-
-            const cust = appState.customers.find(c => c.id === custId);
-            const prod = appState.products.find(p => p.id === prodId);
-            if (!cust || !prod) return;
-
-            prod.stock += qty;
-            cust.balance -= amount; // reduce balance on return
-
-            appState.returns.push({
-                id: 'ret' + Date.now(),
-                date: '26-07-2026',
-                customerName: cust.name,
-                prodName: prod.name,
-                qty,
-                amount
-            });
-
-            closeModal('returnModal');
-            renderAllViews();
-            showToast('Return processed! Stock & Customer Ledger auto-updated.');
-        }
-
-        // ADJUSTMENT ENGINE
-        function renderAdjustments() {
-            const body = document.getElementById('adjustmentTableBody');
-            body.innerHTML = appState.adjustments.map(a => `
-                <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                    <td class="p-4">${a.date}</td>
-                    <td class="p-4 font-bold text-slate-900">${a.customerName}</td>
-                    <td class="p-4"><span class="px-2 py-0.5 bg-purple-100 text-purple-800 rounded text-[10px] font-bold">${a.type}</span></td>
-                    <td class="p-4 text-right font-bold">रु ${a.amount.toLocaleString()}</td>
-                    <td class="p-4">${a.reason}</td>
-                </tr>
-            `).join('');
-        }
-
-        function openAdjustmentModal() {
-            populateSelects();
-            document.getElementById('adjustmentModal').classList.remove('hidden');
-        }
-
-        function saveAdjustment(e) {
-            e.preventDefault();
-            const custId = document.getElementById('adjCustomerSelect').value;
-            const type = document.getElementById('adjType').value;
-            const amount = parseFloat(document.getElementById('adjAmount').value) || 0;
-            const reason = document.getElementById('adjReason').value;
-
-            const cust = appState.customers.find(c => c.id === custId);
-            if (!cust) return;
-
-            if (type === 'Credit Discount') {
-                cust.balance -= amount;
-            } else {
-                cust.balance += amount;
-            }
-
-            appState.adjustments.push({
-                id: 'adj' + Date.now(),
-                date: '26-07-2026',
-                customerName: cust.name,
-                type,
-                amount,
-                reason
-            });
-
-            closeModal('adjustmentModal');
-            renderAllViews();
-            showToast('Ledger adjustment applied successfully!');
-        }
-
-        function viewAttachment(url) {
-            const container = document.getElementById('attachmentContainer');
-            if (url.startsWith('data:image')) {
-                container.innerHTML = `<img src="${url}" class="max-h-80 mx-auto rounded-lg shadow-md" />`;
-            } else {
-                container.innerHTML = `<iframe src="${url}" class="w-full h-80"></iframe>`;
-            }
-            document.getElementById('attachmentModal').classList.remove('hidden');
-        }
-
-        // FEATURE 6 & 7: SERIAL CUSTOMER LEDGER & CANVAS IMAGE GENERATION SHARE ENGINE
-        function renderCustomerLedgers() {
-            const container = document.getElementById('ledgerCardsContainer');
-            container.innerHTML = '';
-
-            appState.customers.forEach(cust => {
-                // Compile Chronological Transactions for this Customer
-                const entries = [];
-
-                // 1. Sales
-                appState.sales.filter(s => s.customerId === cust.id).forEach(s => {
-                    entries.push({
-                        date: s.date,
-                        type: 'Sales Invoice',
-                        details: s.prodDetails,
-                        debit: s.total,
-                        credit: s.paid,
-                        rawDate: new Date(s.date)
-                    });
-                });
-
-                // 2. Receipts
-                appState.receipts.filter(r => r.customerId === cust.id).forEach(r => {
-                    entries.push({
-                        date: r.date,
-                        type: `Payment Received (${r.mode})`,
-                        details: r.remarks || 'Receipt',
-                        debit: 0,
-                        credit: r.amount,
-                        attachment: r.attachment,
-                        rawDate: new Date(r.date)
-                    });
-                });
-
-                // Calculate Running Balance
-                let runningBalance = 0;
-                const rowsHtml = entries.map((e, idx) => {
-                    runningBalance += (e.debit - e.credit);
-                    return `
-                        <tr class="border-b border-slate-100 hover:bg-slate-50">
-                            <td class="p-3 font-semibold text-slate-500">${idx + 1}</td>
-                            <td class="p-3">${e.date}</td>
-                            <td class="p-3 font-bold text-slate-900">${e.type}</td>
-                            <td class="p-3 text-slate-600">${e.details}</td>
-                            <td class="p-3 text-right font-bold text-slate-800">${e.debit > 0 ? 'रु ' + e.debit.toLocaleString() : '-'}</td>
-                            <td class="p-3 text-right font-bold text-emerald-600">${e.credit > 0 ? 'रु ' + e.credit.toLocaleString() : '-'}</td>
-                            <td class="p-3 text-right font-extrabold text-blue-600">रु ${runningBalance.toLocaleString()}</td>
-                            <td class="p-3 text-center">
-                                ${e.attachment ? `<button onclick="viewAttachment('${e.attachment}')" class="text-blue-600 hover:underline text-[11px] font-bold"><i class="fa-solid fa-paperclip"></i> Photo</button>` : '-'}
-                            </td>
+          )}
+
+          {/* TAB 3: SALES */}
+          {activeTab === 'sales' && (
+            <div>
+              <h1 style={styles.heading}>Sales Entry</h1>
+              <form onSubmit={handleAddSale} style={styles.inlineForm}>
+                <select
+                  value={newSale.customerId}
+                  onChange={(e) => setNewSale({ ...newSale, customerId: e.target.value })}
+                  style={styles.input}
+                >
+                  <option value="">Select Customer</option>
+                  {customers.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+                <input
+                  type="number"
+                  placeholder="Amount"
+                  value={newSale.amount}
+                  onChange={(e) => setNewSale({ ...newSale, amount: e.target.value })}
+                  style={styles.input}
+                />
+                <input
+                  type="text"
+                  placeholder="Description"
+                  value={newSale.description}
+                  onChange={(e) => setNewSale({ ...newSale, description: e.target.value })}
+                  style={styles.input}
+                />
+                <button type="submit" style={styles.primaryBtn}>Record Sale</button>
+              </form>
+
+              <table style={styles.table}>
+                <thead>
+                  <tr>
+                    <th style={styles.th}>Customer</th>
+                    <th style={styles.th}>Amount</th>
+                    <th style={styles.th}>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sales.length === 0 ? (
+                    <tr><td colSpan="3" style={styles.tdCenter}>कुनै बिक्री रेकर्ड भएको छैन</td></tr>
+                  ) : (
+                    sales.map((s) => {
+                      const cust = customers.find(c => c.id === s.customerId);
+                      return (
+                        <tr key={s.id}>
+                          <td style={styles.td}>{cust ? cust.name : 'Unknown'}</td>
+                          <td style={styles.td}>Rs. {s.amount}</td>
+                          <td style={styles.td}>{s.description || '-'}</td>
                         </tr>
-                    `;
-                }).join('');
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
 
-                const card = document.createElement('div');
-                card.className = "bg-white p-6 rounded-3xl border border-slate-100 card-shadow space-y-4";
-                card.innerHTML = `
-                    <div class="flex justify-between items-center border-b border-slate-100 pb-4">
-                        <div>
-                            <span class="text-[10px] font-bold uppercase text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">Customer Ledger Statement</span>
-                            <h3 class="text-xl font-extrabold text-slate-900 mt-1">${cust.name}</h3>
-                            <p class="text-xs text-slate-400">Phone: ${cust.phone} | Address: ${cust.address}</p>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-xs text-slate-400 font-bold block">Running Outstanding</span>
-                            <span class="text-2xl font-black text-rose-600">रु ${cust.balance.toLocaleString()}</span>
-                            <div class="mt-2 flex gap-2 justify-end">
-                                <button onclick="shareLedgerCanvas('${cust.id}', 'whatsapp')" class="bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-600 flex items-center gap-1.5 shadow-sm">
-                                    <i class="fa-brands fa-whatsapp"></i> WhatsApp
-                                </button>
-                                <button onclick="shareLedgerCanvas('${cust.id}', 'email')" class="bg-blue-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-blue-700 flex items-center gap-1.5 shadow-sm">
-                                    <i class="fa-solid fa-envelope"></i> Email
-                                </button>
-                                <button onclick="shareLedgerCanvas('${cust.id}', 'messenger')" class="bg-indigo-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-indigo-700 flex items-center gap-1.5 shadow-sm">
-                                    <i class="fa-brands fa-facebook-messenger"></i> Messenger
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+          {/* TAB 4: PAYMENTS */}
+          {activeTab === 'payments' && (
+            <div>
+              <h1 style={styles.heading}>Payment Collection</h1>
+              <form onSubmit={handleAddPayment} style={styles.inlineForm}>
+                <select
+                  value={newPayment.customerId}
+                  onChange={(e) => setNewPayment({ ...newPayment, customerId: e.target.value })}
+                  style={styles.input}
+                >
+                  <option value="">Select Customer</option>
+                  {customers.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+                <input
+                  type="number"
+                  placeholder="Received Amount"
+                  value={newPayment.amount}
+                  onChange={(e) => setNewPayment({ ...newPayment, amount: e.target.value })}
+                  style={styles.input}
+                />
+                <select
+                  value={newPayment.method}
+                  onChange={(e) => setNewPayment({ ...newPayment, method: e.target.value })}
+                  style={styles.input}
+                >
+                  <option value="Cash">Cash</option>
+                  <option value="Bank/eSewa/Khalti">Online / Bank</option>
+                  <option value="Cheque">Cheque</option>
+                </select>
+                <button type="submit" style={styles.primaryBtn}>Record Payment</button>
+              </form>
 
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px]">
-                                <tr>
-                                    <th class="p-3">SN</th>
-                                    <th class="p-3">Date</th>
-                                    <th class="p-3">Transaction Type</th>
-                                    <th class="p-3">Product Details</th>
-                                    <th class="p-3 text-right">Debit</th>
-                                    <th class="p-3 text-right">Credit / Payment</th>
-                                    <th class="p-3 text-right">Running Balance</th>
-                                    <th class="p-3 text-center">Attachment</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${rowsHtml || '<tr><td colspan="8" class="p-4 text-center text-slate-400">No ledger transactions found.</td></tr>'}
-                            </tbody>
-                        </table>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
+              <table style={styles.table}>
+                <thead>
+                  <tr>
+                    <th style={styles.th}>Customer</th>
+                    <th style={styles.th}>Received Amount</th>
+                    <th style={styles.th}>Method</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {payments.length === 0 ? (
+                    <tr><td colSpan="3" style={styles.tdCenter}>कुनै भुक्तानी रेकर्ड छैन</td></tr>
+                  ) : (
+                    payments.map((p) => {
+                      const cust = customers.find(c => c.id === p.customerId);
+                      return (
+                        <tr key={p.id}>
+                          <td style={styles.td}>{cust ? cust.name : 'Unknown'}</td>
+                          <td style={styles.td}>Rs. {p.amount}</td>
+                          <td style={styles.td}>{p.method}</td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
 
-        // FEATURE 7: GENERATE IMAGE LEDGER STATEMENT (CANVAS ENGINE) & SHARE
-        function shareLedgerCanvas(custId, platform) {
-            const cust = appState.customers.find(c => c.id === custId);
-            if (!cust) return;
+          {/* TAB 5: EXPENSES */}
+          {activeTab === 'expenses' && (
+            <div>
+              <h1 style={styles.heading}>Purchase / Expense Management</h1>
+              <form onSubmit={handleAddExpense} style={styles.inlineForm}>
+                <input
+                  type="text"
+                  placeholder="Expense Title"
+                  value={newExpense.title}
+                  onChange={(e) => setNewExpense({ ...newExpense, title: e.target.value })}
+                  style={styles.input}
+                />
+                <input
+                  type="number"
+                  placeholder="Amount"
+                  value={newExpense.amount}
+                  onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })}
+                  style={styles.input}
+                />
+                <button type="submit" style={styles.primaryBtn}>Add Expense</button>
+              </form>
 
-            // Generate HTML Canvas Statement
-            const canvas = document.createElement('canvas');
-            canvas.width = 800;
-            canvas.height = 1000;
-            const ctx = canvas.getContext('2d');
+              <table style={styles.table}>
+                <thead>
+                  <tr>
+                    <th style={styles.th}>Title</th>
+                    <th style={styles.th}>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {expenses.length === 0 ? (
+                    <tr><td colSpan="2" style={styles.tdCenter}>कुनै खर्च रेकर्ड गरिएको छैन</td></tr>
+                  ) : (
+                    expenses.map((e) => (
+                      <tr key={e.id}>
+                        <td style={styles.td}>{e.title}</td>
+                        <td style={styles.td}>Rs. {e.amount}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
 
-            // Background
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(0, 0, 800, 1000);
+        </main>
+      </div>
+    </div>
+  );
+}
 
-            // Header Banner
-            ctx.fillStyle = "#0f172a";
-            ctx.fillRect(0, 0, 800, 120);
-
-            // Title
-            ctx.fillStyle = "#ffffff";
-            ctx.font = "bold 26px 'Plus Jakarta Sans', sans-serif";
-            ctx.fillText("LEDGER HUB - CUSTOMER STATEMENT", 40, 55);
-
-            ctx.fillStyle = "#60a5fa";
-            ctx.font = "14px 'Plus Jakarta Sans', sans-serif";
-            ctx.fillText("Statement Generated Date: 26 Jul 2026", 40, 85);
-
-            // Customer Info Box
-            ctx.fillStyle = "#f8fafc";
-            ctx.fillRect(40, 140, 720, 90);
-            ctx.strokeStyle = "#e2e8f0";
-            ctx.strokeRect(40, 140, 720, 90);
-
-            ctx.fillStyle = "#0f172a";
-            ctx.font = "bold 20px 'Plus Jakarta Sans', sans-serif";
-            ctx.fillText(`Customer: ${cust.name}`, 60, 175);
-
-            ctx.fillStyle = "#64748b";
-            ctx.font = "14px 'Plus Jakarta Sans', sans-serif";
-            ctx.fillText(`Phone: ${cust.phone} | Address: ${cust.address}`, 60, 205);
-
-            // Table Header
-            ctx.fillStyle = "#2563eb";
-            ctx.fillRect(40, 250, 720, 40);
-
-            ctx.fillStyle = "#ffffff";
-            ctx.font = "bold 12px 'Plus Jakarta Sans', sans-serif";
-            ctx.fillText("SN", 50, 275);
-            ctx.fillText("DATE", 90, 275);
-            ctx.fillText("TRANSACTION TYPE", 190, 275);
-            ctx.fillText("DEBIT (रु)", 440, 275);
-            ctx.fillText("CREDIT (रु)", 550, 275);
-            ctx.fillText("BALANCE (रु)", 660, 275);
-
-            // Render Table Entries
-            const entries = [];
-            appState.sales.filter(s => s.customerId === cust.id).forEach(s => {
-                entries.push({ date: s.date, type: 'Sales Invoice', debit: s.total, credit: s.paid });
-            });
-            appState.receipts.filter(r => r.customerId === cust.id).forEach(r => {
-                entries.push({ date: r.date, type: `Payment Received (${r.mode})`, debit: 0, credit: r.amount });
-            });
-
-            let y = 310;
-            let runBal = 0;
-
-            entries.forEach((e, idx) => {
-                runBal += (e.debit - e.credit);
-
-                ctx.fillStyle = idx % 2 === 0 ? "#ffffff" : "#f1f5f9";
-                ctx.fillRect(40, y - 20, 720, 35);
-
-                ctx.fillStyle = "#334155";
-                ctx.font = "12px 'Plus Jakarta Sans', sans-serif";
-                ctx.fillText(`${idx + 1}`, 50, y);
-                ctx.fillText(`${e.date}`, 90, y);
-                ctx.fillText(`${e.type.substring(0, 25)}`, 190, y);
-
-                ctx.fillStyle = "#0f172a";
-                ctx.font = "bold 12px 'Plus Jakarta Sans', sans-serif";
-                ctx.fillText(e.debit > 0 ? e.debit.toLocaleString() : '-', 440, y);
-
-                ctx.fillStyle = "#059669";
-                ctx.fillText(e.credit > 0 ? e.credit.toLocaleString() : '-', 550, y);
-
-                ctx.fillStyle = "#dc2626";
-                ctx.fillText(runBal.toLocaleString(), 660, y);
-
-                y += 35;
-            });
-
-            // Summary Footer Box
-            y += 20;
-            ctx.fillStyle = "#fef2f2";
-            ctx.fillRect(40, y, 720, 60);
-            ctx.strokeStyle = "#fca5a5";
-            ctx.strokeRect(40, y, 720, 60);
-
-            ctx.fillStyle = "#991b1b";
-            ctx.font = "bold 18px 'Plus Jakarta Sans', sans-serif";
-            ctx.fillText(`TOTAL OUTSTANDING BALANCE: रु ${cust.balance.toLocaleString()}`, 60, y + 36);
-
-            // Convert Canvas to Image URL
-            const imageUrl = canvas.toDataURL('image/png');
-
-            // Download Image or Share Link
-            const shareText = encodeURIComponent(`नमस्ते ${cust.name} ज्यू,\nतपाईंको Ledger Statement तयार भएको छ।\nहाल बाँकी रकम (Outstanding Balance): रु ${cust.balance.toLocaleString()}\nधन्यवाद।`);
-
-            if (platform === 'whatsapp') {
-                window.open(`https://api.whatsapp.com/send?phone=${cust.phone}&text=${shareText}`, '_blank');
-            } else if (platform === 'email') {
-                window.open(`mailto:?subject=Ledger Statement - ${cust.name}&body=${shareText}`, '_blank');
-            } else if (platform === 'messenger') {
-                window.open(`https://www.facebook.com/dialog/send?link=${encodeURIComponent(window.location.href)}&app_id=123456789&redirect_uri=${encodeURIComponent(window.location.href)}`, '_blank');
-            }
-
-            // Trigger Automatic Image Statement Download for user convenience
-            const downloadLink = document.createElement('a');
-            downloadLink.href = imageUrl;
-            downloadLink.download = `Ledger_Statement_${cust.name}.png`;
-            downloadLink.click();
-
-            showToast(`Ledger Image Statement generated & ready for ${platform}!`);
-        }
-
-        // METRICS UPDATE
-        function updateDashboardMetrics() {
-            const totalSales = appState.sales.reduce((acc, s) => acc + s.total, 0);
-            const totalCollected = appState.sales.reduce((acc, s) => acc + s.paid, 0) + appState.receipts.reduce((acc, r) => acc + r.amount, 0);
-            const totalOutstanding = appState.customers.reduce((acc, c) => acc + c.balance, 0);
-            const totalPurchase = appState.purchases.reduce((acc, p) => acc + p.total, 0);
-
-            document.getElementById('dashTotalSales').innerText = `रु ${totalSales.toLocaleString()}`;
-            document.getElementById('dashCashSales').innerText = `रु ${totalCollected.toLocaleString()}`;
-            document.getElementById('dashOutstandingCredit').innerText = `रु ${totalOutstanding.toLocaleString()}`;
-            document.getElementById('dashTotalPurchase').innerText = `रु ${totalPurchase.toLocaleString()}`;
-
-            updateCharts(totalSales, totalPurchase, totalCollected, totalOutstanding);
-        }
-
-        // CHART INITIALIZATION
-        function initCharts() {
-            const ctx1 = document.getElementById('salesPurchaseChart').getContext('2d');
-            salesChart = new Chart(ctx1, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-                    datasets: [
-                        { label: 'Sales Volume', data: [12000, 19000, 15000, 22000, 30000, 25000, 35000], borderColor: '#2563eb', fill: false },
-                        { label: 'Purchases', data: [8000, 12000, 10000, 18000, 20000, 15000, 22000], borderColor: '#f59e0b', fill: false }
-                    ]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            const ctx2 = document.getElementById('incomeExpenseChart').getContext('2d');
-            incomeChart = new Chart(ctx2, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Collected Amount', 'Pending Due Balance'],
-                    datasets: [{ data: [5000, 15000], backgroundColor: ['#10b981', '#f43f5e'] }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-        }
-
-        function updateCharts(sales, purchase, collected, outstanding) {
-            if (incomeChart) {
-                incomeChart.data.datasets[0].data = [collected, outstanding];
-                incomeChart.update();
-            }
-        }
-
-        function formatDateStr(dStr) {
-            if (!dStr) return '26-07-2026';
-            const parts = dStr.split('-');
-            if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
-            return dStr;
-        }
-
-        function handleLogout() {
-            showToast('Logged out successfully.');
-        }
-
-        function handleEmailLogin(e) {
-            e.preventDefault();
-            closeModal('authModal');
-            showToast('Welcome back, Admin!');
-        }
-    </script>
-</body>
-</html>
+// ==========================================
+// INLINE STYLES (Keep existing look & feel)
+// ==========================================
+const styles = {
+  loginContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100vh',
+    backgroundColor: '#f3f4f6'
+  },
+  loginBox: {
+    width: '380px',
+    padding: '30px',
+    backgroundColor: '#ffffff',
+    borderRadius: '8px',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+  },
+  title: { margin: '0 0 8px 0', fontSize: '24px', color: '#111827', textAlign: 'center' },
+  subtitle: { margin: '0 0 20px 0', fontSize: '13px', color: '#6b7280', textAlign: 'center' },
+  form: { display: 'flex', flexDirection: 'column', gap: '15px' },
+  fieldGroup: { display: 'flex', flexDirection: 'column', gap: '5px' },
+  label: { fontSize: '13px', color: '#374151', fontWeight: '500' },
+  input: { padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', outline: 'none' },
+  primaryBtn: { padding: '10px 16px', backgroundColor: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' },
+  
+  appWrapper: { minHeight: '100vh', backgroundColor: '#f9fafb', fontFamily: 'sans-serif' },
+  navbar: { height: '60px', backgroundColor: '#1e293b', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 20px', color: '#fff' },
+  navBrand: { fontWeight: 'bold', fontSize: '18px' },
+  navUserSection: { display: 'flex', alignItems: 'center', gap: '15px' },
+  userEmail: { fontSize: '14px', color: '#cbd5e1' },
+  logoutBtn: { backgroundColor: '#ef4444', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer' },
+  
+  mainLayout: { display: 'flex', minHeight: 'calc(100vh - 60px)' },
+  sidebar: { width: '220px', backgroundColor: '#ffffff', borderRight: '1px solid #e5e7eb', padding: '20px 10px', display: 'flex', flexDirection: 'column', gap: '5px' },
+  navBtn: { width: '100%', textAlign: 'left', padding: '10px', border: 'none', backgroundColor: 'transparent', borderRadius: '6px', cursor: 'pointer', color: '#4b5563' },
+  activeNavBtn: { width: '100%', textAlign: 'left', padding: '10px', border: 'none', backgroundColor: '#eff6ff', color: '#2563eb', fontWeight: 'bold', borderRadius: '6px', cursor: 'pointer' },
+  
+  contentArea: { flex: 1, padding: '30px' },
+  heading: { margin: '0 0 20px 0', fontSize: '22px', color: '#1f2937' },
+  cardGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' },
+  card: { backgroundColor: '#fff', border: '1px solid #e5e7eb', padding: '20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '8px' },
+  cardLabel: { fontSize: '13px', color: '#6b7280' },
+  cardValue: { fontSize: '22px', fontWeight: 'bold', color: '#111827' },
+  
+  inlineForm: { display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' },
+  table: { width: '100%', borderCollapse: 'collapse', backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' },
+  th: { backgroundColor: '#f3f4f6', padding: '12px', textAlign: 'left', borderBottom: '1px solid #e5e7eb', fontSize: '14px' },
+  td: { padding: '12px', borderBottom: '1px solid #e5e7eb', fontSize: '14px' },
+  tdCenter: { padding: '20px', textAlign: 'center', color: '#9ca3af', fontSize: '14px' }
+};
