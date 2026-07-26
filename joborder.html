@@ -3,560 +3,650 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Canvas Hub - Ledger Book Dashboard</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Canvas Hub - Ledger Book</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- FIREBASE SDKs (Multi-Device Live Sync & Authentication) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f4f7fe; }
-        .sidebar-blue { background-color: #1a56db; }
-        .card-shadow { box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.03); }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #334155; }
+        .sidebar-bg { background-color: #1d4ed8; }
+        .card-shadow { box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.02); }
+        .sidebar-item-active { background-color: #ffffff; color: #1d4ed8; }
     </style>
 </head>
 <body class="flex min-h-screen text-slate-700">
 
-    <!-- ०. USER LOGIN MODAL (लगइन सुविधा र भाषा छनोट) -->
-    <div id="loginModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 border border-slate-100">
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-5 right-5 z-50 hidden bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl text-xs font-semibold flex items-center gap-2">
+        <i class="fa-solid fa-circle-info text-blue-400"></i>
+        <span id="toastMsg">Notification message</span>
+    </div>
+
+    <!-- AUTHENTICATION MODAL (Multi-device, Email OTP & Reset) -->
+    <div id="authModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 border border-slate-100">
             <div class="text-center mb-6">
-                <div class="w-12 h-12 bg-blue-600 rounded-xl mx-auto flex items-center justify-center text-white text-2xl font-bold mb-3 shadow-lg shadow-blue-500/30">
+                <div class="w-12 h-12 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center text-white text-xl font-bold mb-3 shadow-lg shadow-blue-500/30">
                     <i class="fa-solid fa-book-open"></i>
                 </div>
-                <h2 class="text-2xl font-bold text-slate-800" data-key="loginTitle">Welcome Back</h2>
-                <p class="text-slate-500 text-sm mt-1" data-key="loginSubtitle">Please sign in and select your preferred language</p>
+                <h2 id="modalTitle" class="text-2xl font-bold text-slate-900">Canvas Hub Login</h2>
+                <p id="modalSub" class="text-slate-400 text-xs mt-1">Multi-device sync cloud platform</p>
             </div>
 
-            <!-- Language Switcher in Login -->
-            <div class="mb-5">
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2" data-key="selectLangLabel">Select Language / भाषा छनौट गर्नुहोस्</label>
-                <select id="loginLangSelect" onchange="changeLanguage(this.value)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-700 font-medium">
-                    <option value="en" selected>🇬🇧 English (US)</option>
-                    <option value="ne">🇳🇵 नेपाली (Nepali)</option>
-                </select>
-            </div>
-
-            <form onsubmit="handleLogin(event)">
-                <div class="mb-4">
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Username / email</label>
-                    <input type="text" value="admin" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleEmailLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Gmail / Email</label>
+                    <input type="email" id="loginEmail" placeholder="admin@canvashub.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
                 </div>
-                <div class="mb-6">
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Password</label>
-                    <input type="password" value="••••••••" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
                 </div>
-                <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2">
-                    <span data-key="loginBtn">Sign In to Dashboard</span>
-                    <i class="fa-solid fa-arrow-right text-sm"></i>
+                <div class="flex justify-between items-center text-xs">
+                    <label class="flex items-center gap-2 text-slate-500 cursor-pointer">
+                        <input type="checkbox" checked class="rounded text-blue-600"> Remember multi-device
+                    </label>
+                    <button type="button" onclick="switchAuthView('forgot')" class="text-blue-600 font-bold hover:underline">Forgot Password?</button>
+                </div>
+                <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-lg shadow-blue-500/25 text-xs">Sign In</button>
+                <div class="relative flex py-1 items-center">
+                    <div class="flex-grow border-t border-slate-200"></div>
+                    <span class="flex-shrink mx-3 text-[10px] text-slate-400 font-bold">OR</span>
+                    <div class="flex-grow border-t border-slate-200"></div>
+                </div>
+                <button type="button" onclick="handleGoogleLogin()" class="w-full py-3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+                    Sign in with Google
                 </button>
+                <p class="text-center text-xs text-slate-500 mt-3">Don't have an account? <button type="button" onclick="switchAuthView('register')" class="text-blue-600 font-bold hover:underline">Register</button></p>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Full Name</label>
+                    <input type="text" id="regName" placeholder="Full Name" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Gmail / Email</label>
+                    <input type="email" id="regEmail" placeholder="user@gmail.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Password</label>
+                    <input type="password" id="regPassword" minlength="6" placeholder="Min 6 characters" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                </div>
+                <button type="submit" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition shadow-lg text-xs">Create Account & Send Verification Code</button>
+                <p class="text-center text-xs text-slate-500 mt-2"><button type="button" onclick="switchAuthView('login')" class="text-blue-600 font-bold hover:underline">Back to Login</button></p>
+            </form>
+
+            <!-- Forgot Form -->
+            <form id="forgotForm" onsubmit="handleForgotPassword(event)" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Registered Email</label>
+                    <input type="email" id="forgotEmail" placeholder="your@gmail.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                </div>
+                <button type="submit" class="w-full py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl transition shadow-lg text-xs">Send Reset Link/Code</button>
+                <p class="text-center text-xs text-slate-500 mt-2"><button type="button" onclick="switchAuthView('login')" class="text-blue-600 font-bold hover:underline">Back to Login</button></p>
             </form>
         </div>
     </div>
 
-    <!-- १. BLUE SIDEBAR (फोटो अनुसार) -->
-    <aside class="w-64 sidebar-blue text-white flex flex-col justify-between shrink-0 p-5">
+    <!-- LEFT SIDEBAR (BLUE THEME EXACT DESIGN) -->
+    <aside class="w-64 sidebar-bg text-white flex flex-col justify-between shrink-0 p-5">
         <div>
-            <!-- Brand Logo -->
-            <div class="flex items-center gap-3 px-2 py-3 mb-6">
-                <div class="w-9 h-9 bg-white text-blue-600 rounded-xl flex items-center justify-center font-bold text-lg shadow">
+            <!-- Brand -->
+            <div class="flex items-center gap-3 px-2 py-3 mb-8">
+                <div class="w-10 h-10 bg-white text-blue-600 rounded-2xl flex items-center justify-center font-bold text-xl shadow-md">
                     <i class="fa-solid fa-book-open"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg leading-none">Canvas Hub</h1>
-                    <span class="text-xs text-blue-200">Ledger Book</span>
+                    <h1 class="font-extrabold text-lg leading-tight">Canvas Hub</h1>
+                    <span class="text-[11px] text-blue-200 font-medium">Ledger Book</span>
                 </div>
             </div>
 
-            <!-- Menu List -->
-            <div class="text-[11px] font-semibold text-blue-200 uppercase tracking-wider px-3 mb-2" data-key="mainMenu">MAIN MENU</div>
-            <nav class="space-y-1">
-                <a href="#dashboard" onclick="switchTab('dashboard')" class="sidebar-item active flex items-center gap-3 px-4 py-3 rounded-xl bg-white text-blue-600 font-semibold shadow-sm transition">
-                    <i class="fa-solid fa-border-all w-5"></i>
-                    <span data-key="navDashboard">Dashboard</span>
+            <!-- Navigation Links -->
+            <div class="text-[10px] font-bold text-blue-200/80 uppercase tracking-wider px-3 mb-3">Main Menu</div>
+            <nav class="space-y-1.5 font-medium text-xs">
+                <a href="#dashboard" onclick="switchTab('dashboard')" id="nav-dashboard" class="sidebar-item sidebar-item-active flex items-center gap-3.5 px-4 py-3 rounded-2xl font-bold transition">
+                    <i class="fa-solid fa-border-all text-base w-5"></i> Dashboard
                 </a>
-                <a href="#customers" onclick="switchTab('customers')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl text-blue-100 hover:bg-blue-700/50 transition">
-                    <i class="fa-solid fa-users w-5"></i>
-                    <span data-key="navCustomers">Customers</span>
+                <a href="#customers" onclick="switchTab('customers')" id="nav-customers" class="sidebar-item flex items-center gap-3.5 px-4 py-3 rounded-2xl text-blue-100 hover:bg-blue-600/50 transition">
+                    <i class="fa-solid fa-users text-base w-5"></i> Customers
                 </a>
-                <a href="#sales" onclick="switchTab('sales')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl text-blue-100 hover:bg-blue-700/50 transition">
-                    <i class="fa-solid fa-cart-shopping w-5"></i>
-                    <span data-key="navSales">Sales</span>
+                <a href="#ledger" onclick="switchTab('ledger')" id="nav-ledger" class="sidebar-item flex items-center gap-3.5 px-4 py-3 rounded-2xl text-blue-100 hover:bg-blue-600/50 transition">
+                    <i class="fa-solid fa-book text-base w-5"></i> Ledger
                 </a>
-                <a href="#purchase" onclick="switchTab('purchase')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl text-blue-100 hover:bg-blue-700/50 transition">
-                    <i class="fa-solid fa-bag-shopping w-5"></i>
-                    <span data-key="navPurchase">Purchase</span>
+                <a href="#inventory" onclick="switchTab('inventory')" id="nav-inventory" class="sidebar-item flex items-center gap-3.5 px-4 py-3 rounded-2xl text-blue-100 hover:bg-blue-600/50 transition">
+                    <i class="fa-solid fa-boxes-stacked text-base w-5"></i> Inventory
                 </a>
-                <a href="#reports" onclick="switchTab('reports')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl text-blue-100 hover:bg-blue-700/50 transition">
-                    <i class="fa-solid fa-chart-pie w-5"></i>
-                    <span data-key="navReports">Reports</span>
+                <a href="#purchase" onclick="switchTab('purchase')" id="nav-purchase" class="sidebar-item flex items-center gap-3.5 px-4 py-3 rounded-2xl text-blue-100 hover:bg-blue-600/50 transition">
+                    <i class="fa-solid fa-cart-shopping text-base w-5"></i> Purchase
+                </a>
+                <a href="#sales" onclick="switchTab('sales')" id="nav-sales" class="sidebar-item flex items-center gap-3.5 px-4 py-3 rounded-2xl text-blue-100 hover:bg-blue-600/50 transition">
+                    <i class="fa-solid fa-tags text-base w-5"></i> Sales
+                </a>
+                <a href="#reports" onclick="switchTab('reports')" id="nav-reports" class="sidebar-item flex items-center gap-3.5 px-4 py-3 rounded-2xl text-blue-100 hover:bg-blue-600/50 transition">
+                    <i class="fa-solid fa-chart-pie text-base w-5"></i> Reports
+                </a>
+                <a href="#settings" onclick="switchTab('settings')" id="nav-settings" class="sidebar-item flex items-center gap-3.5 px-4 py-3 rounded-2xl text-blue-100 hover:bg-blue-600/50 transition">
+                    <i class="fa-solid fa-gear text-base w-5"></i> Settings
+                </a>
+                <a href="#users" onclick="switchTab('users')" id="nav-users" class="sidebar-item flex items-center gap-3.5 px-4 py-3 rounded-2xl text-blue-100 hover:bg-blue-600/50 transition">
+                    <i class="fa-solid fa-user-gear text-base w-5"></i> Users
                 </a>
             </nav>
         </div>
 
-        <!-- User Profile (Bottom Sidebar) -->
-        <div class="bg-blue-700/40 p-3 rounded-2xl flex items-center justify-between border border-blue-400/20">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-full bg-blue-300/30 text-white flex items-center justify-center font-bold border border-white/20">
-                    A
-                </div>
-                <div class="text-xs">
-                    <div class="font-semibold text-white">Administrator</div>
-                    <div class="text-blue-200">admin</div>
+        <!-- Admin Profile Footer -->
+        <div class="bg-blue-600/60 p-3 rounded-2xl flex items-center justify-between border border-blue-400/20">
+            <div class="flex items-center gap-3 overflow-hidden">
+                <div id="userAvatar" class="w-9 h-9 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-sm shrink-0">A</div>
+                <div class="truncate text-xs">
+                    <div id="userNameDisplay" class="font-bold text-white truncate">Administrator</div>
+                    <div id="userEmailDisplay" class="text-blue-200 text-[10px] truncate">admin</div>
                 </div>
             </div>
-            <button onclick="document.getElementById('loginModal').classList.remove('hidden')" class="text-blue-200 hover:text-white"><i class="fa-solid fa-right-from-bracket"></i></button>
+            <button onclick="handleLogout()" class="text-blue-200 hover:text-white ms-2 text-sm"><i class="fa-solid fa-chevron-down"></i></button>
         </div>
     </aside>
 
-    <!-- MAIN CONTENT AREA -->
-    <main class="flex-1 overflow-y-auto p-8">
+    <!-- RIGHT MAIN CONTENT PANEL -->
+    <main class="flex-1 overflow-y-auto px-8 py-6 space-y-6">
         
-        <!-- TOP HEADER NAVBAR -->
-        <header class="flex justify-between items-center mb-8">
+        <!-- Header Bar -->
+        <header class="flex justify-between items-center">
             <div>
-                <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Overview</div>
-                <h2 class="text-2xl font-bold text-slate-800" id="headerTitle" data-key="dashboardTitle">Dashboard</h2>
+                <span class="text-xs font-semibold text-slate-400">Overview</span>
+                <h2 class="text-2xl font-bold text-slate-900" id="pageTitle">Dashboard</h2>
             </div>
-            <div class="flex items-center gap-4">
-                <!-- Date Badge -->
-                <div class="bg-white border border-slate-200/80 px-4 py-2 rounded-xl text-xs font-medium text-slate-600 flex items-center gap-2 shadow-sm">
+            <div class="flex items-center gap-3">
+                <div class="bg-white border border-slate-200/80 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 flex items-center gap-2 shadow-sm">
                     <i class="fa-regular fa-calendar text-blue-600"></i>
                     <span>Sun, 26 Jul 2026</span>
                 </div>
-                <!-- Language Selector Dropdown -->
-                <select id="topLangSelect" onchange="changeLanguage(this.value)" class="bg-white border border-slate-200/80 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none shadow-sm cursor-pointer">
-                    <option value="en">🇬🇧 EN</option>
-                    <option value="ne">🇳🇵 NP</option>
-                </select>
-                <!-- Quick Entry Buttons -->
-                <button onclick="switchTab('customers')" class="bg-white border border-slate-200 text-slate-700 text-xs font-semibold px-4 py-2.5 rounded-xl shadow-sm hover:bg-slate-50 transition" data-key="btnViewCustomers">View Customers</button>
-                <button onclick="switchTab('sales')" class="bg-blue-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition flex items-center gap-2">
-                    <i class="fa-solid fa-plus"></i> <span data-key="btnNewEntry">+ New Entry</span>
-                </button>
+                <div class="w-9 h-9 bg-blue-600 text-white rounded-xl flex items-center justify-center font-bold text-xs shadow-md">
+                    CH
+                </div>
             </div>
         </header>
 
-        <!-- WELCOME BANNER -->
-        <div class="mb-8">
-            <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                <span data-key="welcomeText">Welcome back</span> 👋
-            </h3>
-            <p class="text-xs text-slate-400 mt-1" data-key="welcomeSub">Financial snapshot for Canvas Hub.</p>
+        <!-- Welcome Banner -->
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2">Welcome back 👋</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Financial snapshot for Canvas Hub.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="switchTab('customers')" class="bg-white border border-slate-200/80 text-blue-600 font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm hover:bg-slate-50 transition">View Customers</button>
+                <button onclick="openNewEntryModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-blue-500/25 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-plus"></i> New Entry
+                </button>
+            </div>
         </div>
 
-        <!-- TAB 1: DASHBOARD CONTENT -->
-        <div id="tab-dashboard" class="tab-pane space-y-8">
-            
-            <!-- TOP 6 SUMMARY CARDS (फोटो अनुसारको exact ६ वटा कार्डहरू) -->
-            <div class="grid grid-cols-6 gap-4">
-                <!-- Card 1 -->
-                <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100/80">
-                    <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
-                        <i class="fa-solid fa-user-group text-sm"></i>
-                    </div>
-                    <div class="text-[11px] font-semibold text-slate-400 uppercase" data-key="cardTotalCustomers">Total Customers</div>
-                    <div class="text-2xl font-bold text-slate-800 mt-1">125</div>
-                    <div class="text-[10px] text-slate-400 mt-1">Active accounts</div>
-                </div>
-                <!-- Card 2 -->
-                <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100/80">
-                    <div class="w-9 h-9 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center mb-3">
-                        <i class="fa-solid fa-arrow-down text-sm"></i>
-                    </div>
-                    <div class="text-[11px] font-semibold text-slate-400 uppercase" data-key="cardTotalDebit">Total Debit</div>
-                    <div class="text-xl font-bold text-slate-800 mt-1">Rs. 58,450.00</div>
-                    <div class="text-[10px] text-slate-400 mt-1">Amount charged</div>
-                </div>
-                <!-- Card 3 -->
-                <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100/80">
-                    <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center mb-3">
-                        <i class="fa-solid fa-arrow-up text-sm"></i>
-                    </div>
-                    <div class="text-[11px] font-semibold text-slate-400 uppercase" data-key="cardTotalCredit">Total Credit</div>
-                    <div class="text-xl font-bold text-slate-800 mt-1">Rs. 72,850.00</div>
-                    <div class="text-[10px] text-slate-400 mt-1">Amount received</div>
-                </div>
-                <!-- Card 4 -->
-                <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100/80">
-                    <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
-                        <i class="fa-solid fa-building-columns text-sm"></i>
-                    </div>
-                    <div class="text-[11px] font-semibold text-slate-400 uppercase" data-key="cardTotalBalance">Total Balance</div>
-                    <div class="text-xl font-bold text-slate-800 mt-1">Rs. 14,400.00 <span class="text-xs font-normal text-slate-500">Cr</span></div>
-                    <div class="text-[10px] text-slate-400 mt-1">Receivable</div>
-                </div>
-                <!-- Card 5 -->
-                <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100/80">
-                    <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center mb-3">
-                        <i class="fa-regular fa-clock text-sm"></i>
-                    </div>
-                    <div class="text-[11px] font-semibold text-slate-400 uppercase" data-key="cardTodayEntries">Today's Entries</div>
-                    <div class="text-2xl font-bold text-slate-800 mt-1">8</div>
-                    <div class="text-[10px] text-slate-400 mt-1">26 Jul 2026</div>
-                </div>
-                <!-- Card 6 -->
-                <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100/80">
-                    <div class="w-9 h-9 rounded-xl bg-sky-50 text-sky-500 flex items-center justify-center mb-3">
-                        <i class="fa-solid fa-mobile-screen text-sm"></i>
-                    </div>
-                    <div class="text-[11px] font-semibold text-slate-400 uppercase" data-key="cardTotalEntries">Total Entries</div>
-                    <div class="text-2xl font-bold text-slate-800 mt-1">320</div>
-                    <div class="text-[10px] text-slate-400 mt-1">All time records</div>
-                </div>
+        <!-- 6 TOP KPI CARDS (EXACT METRICS) -->
+        <div class="grid grid-cols-6 gap-4">
+            <!-- Total Customers -->
+            <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100">
+                <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4"><i class="fa-solid fa-user-group text-sm"></i></div>
+                <span class="text-[11px] font-semibold text-slate-400 block">Total Customers</span>
+                <div class="text-2xl font-bold text-slate-900 mt-1" id="kpiCustomers">125</div>
+                <span class="text-[10px] text-slate-400 mt-2 block">Active accounts</span>
             </div>
+            <!-- Total Debit -->
+            <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100">
+                <div class="w-10 h-10 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center mb-4"><i class="fa-solid fa-arrow-down text-sm"></i></div>
+                <span class="text-[11px] font-semibold text-slate-400 block">Total Debit</span>
+                <div class="text-xl font-bold text-slate-900 mt-1">₹58,450.00</div>
+                <span class="text-[10px] text-slate-400 mt-2 block">Amount charged</span>
+            </div>
+            <!-- Total Credit -->
+            <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100">
+                <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center mb-4"><i class="fa-solid fa-arrow-up text-sm"></i></div>
+                <span class="text-[11px] font-semibold text-slate-400 block">Total Credit</span>
+                <div class="text-xl font-bold text-slate-900 mt-1">₹72,850.00</div>
+                <span class="text-[10px] text-slate-400 mt-2 block">Amount received</span>
+            </div>
+            <!-- Total Balance -->
+            <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100">
+                <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4"><i class="fa-solid fa-building-columns text-sm"></i></div>
+                <span class="text-[11px] font-semibold text-slate-400 block">Total Balance</span>
+                <div class="text-xl font-bold text-slate-900 mt-1">₹14,400.00 Cr</div>
+                <span class="text-[10px] text-slate-400 mt-2 block">Receivable</span>
+            </div>
+            <!-- Today's Entries -->
+            <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100">
+                <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center mb-4"><i class="fa-regular fa-clock text-sm"></i></div>
+                <span class="text-[11px] font-semibold text-slate-400 block">Today's Entries</span>
+                <div class="text-2xl font-bold text-slate-900 mt-1">8</div>
+                <span class="text-[10px] text-slate-400 mt-2 block">26 Jul 2026</span>
+            </div>
+            <!-- Total Entries -->
+            <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100">
+                <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4"><i class="fa-solid fa-mobile-screen-button text-sm"></i></div>
+                <span class="text-[11px] font-semibold text-slate-400 block">Total Entries</span>
+                <div class="text-2xl font-bold text-slate-900 mt-1">320</div>
+                <span class="text-[10px] text-slate-400 mt-2 block">All time records</span>
+            </div>
+        </div>
 
-            <!-- MIDDLE SECTION (Recent Transactions & Top Outstanding Donut Chart) -->
-            <div class="grid grid-cols-12 gap-6">
-                <!-- Recent Transactions Table -->
-                <div class="col-span-8 bg-white p-6 rounded-2xl card-shadow border border-slate-100/80">
-                    <div class="flex justify-between items-center mb-6">
-                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                            <i class="fa-regular fa-clock text-blue-600"></i>
-                            <span data-key="recentTrans">Recent Transactions</span>
-                        </h4>
-                        <button onclick="switchTab('customers')" class="text-xs font-semibold text-blue-600 hover:underline" data-key="btnViewAll">View All</button>
-                    </div>
+        <!-- SECTION 2: RECENT TRANSACTIONS TABLE + TOP OUTSTANDING DONUT CHART -->
+        <div class="grid grid-cols-12 gap-6">
+            <!-- Recent Transactions Table (8 Cols) -->
+            <div class="col-span-8 bg-white p-6 rounded-3xl card-shadow border border-slate-100">
+                <div class="flex justify-between items-center mb-5">
+                    <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                        <i class="fa-regular fa-clock text-blue-600"></i> Recent Transactions
+                    </h4>
+                    <button onclick="switchTab('ledger')" class="text-blue-600 font-bold text-xs hover:underline">View All</button>
+                </div>
+                <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead>
-                            <tr class="text-slate-400 border-b border-slate-100 font-semibold uppercase text-[10px] tracking-wider">
+                            <tr class="text-slate-400 border-b border-slate-100 text-[10px] font-bold uppercase tracking-wider">
                                 <th class="pb-3">DATE</th>
                                 <th class="pb-3">CUSTOMER</th>
                                 <th class="pb-3">DESCRIPTION</th>
-                                <th class="pb-3">DEBIT</th>
+                                <th class="pb-3 text-right">DEBIT</th>
                                 <th class="pb-3 text-right">CREDIT</th>
+                                <th class="pb-3 text-center">SHARE</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-50 font-medium text-slate-700">
-                            <tr>
-                                <td class="py-3 text-slate-500">26 Jul 2026</td>
-                                <td class="py-3 font-semibold text-slate-800">Aarav Traders</td>
-                                <td class="py-3 text-slate-500">Purchase Payment</td>
-                                <td class="py-3 text-slate-800">Rs. 2,500.00</td>
-                                <td class="py-3 text-right text-slate-400">-</td>
-                            </tr>
-                            <tr>
-                                <td class="py-3 text-slate-500">26 Jul 2026</td>
-                                <td class="py-3 font-semibold text-slate-800">Shree Enterprises</td>
-                                <td class="py-3 text-slate-500">Sales Payment</td>
-                                <td class="py-3 text-slate-400">-</td>
-                                <td class="py-3 text-right text-emerald-600 font-semibold">Rs. 3,200.00</td>
-                            </tr>
-                            <tr>
-                                <td class="py-3 text-slate-500">26 Jul 2026</td>
-                                <td class="py-3 font-semibold text-slate-800">Buddha Store</td>
-                                <td class="py-3 text-slate-500">Purchase Payment</td>
-                                <td class="py-3 text-slate-800">Rs. 1,800.00</td>
-                                <td class="py-3 text-right text-slate-400">-</td>
-                            </tr>
-                            <tr>
-                                <td class="py-3 text-slate-500">25 Jul 2026</td>
-                                <td class="py-3 font-semibold text-slate-800">Mero Kirana</td>
-                                <td class="py-3 text-slate-500">Sales Payment</td>
-                                <td class="py-3 text-slate-400">-</td>
-                                <td class="py-3 text-right text-emerald-600 font-semibold">Rs. 4,500.00</td>
-                            </tr>
+                        <tbody id="transactionTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700">
+                            <!-- Dynamic Content Rendered Here -->
                         </tbody>
                     </table>
                 </div>
-
-                <!-- Top Outstanding Donut Chart -->
-                <div class="col-span-4 bg-white p-6 rounded-2xl card-shadow border border-slate-100/80">
-                    <div class="flex justify-between items-center mb-4">
-                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-chart-pie text-blue-600"></i>
-                            <span data-key="topOutstanding">Top Outstanding</span>
-                        </h4>
-                        <button class="text-xs font-semibold text-blue-600 hover:underline" data-key="btnViewAll">View All</button>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <div class="w-36 h-36">
-                            <canvas id="topOutstandingChart"></canvas>
-                        </div>
-                        <div class="flex-1 space-y-2 text-xs">
-                            <div class="flex justify-between items-center"><span class="flex items-center gap-1.5"><i class="fa-solid fa-circle text-[8px] text-blue-600"></i> Aarav</span> <span class="font-bold">Rs. 5,450</span></div>
-                            <div class="flex justify-between items-center"><span class="flex items-center gap-1.5"><i class="fa-solid fa-circle text-[8px] text-emerald-500"></i> Shree</span> <span class="font-bold">Rs. 3,200</span></div>
-                            <div class="flex justify-between items-center"><span class="flex items-center gap-1.5"><i class="fa-solid fa-circle text-[8px] text-indigo-500"></i> Mero Kirana</span> <span class="font-bold">Rs. 2,800</span></div>
-                            <div class="flex justify-between items-center"><span class="flex items-center gap-1.5"><i class="fa-solid fa-circle text-[8px] text-purple-500"></i> Buddha</span> <span class="font-bold">Rs. 1,750</span></div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
-            <!-- LOWER SECTION (Monthly Line Chart + Overview Cards) -->
-            <div class="grid grid-cols-12 gap-6">
-                <!-- Monthly Line Chart -->
-                <div class="col-span-5 bg-white p-6 rounded-2xl card-shadow border border-slate-100/80">
-                    <div class="flex justify-between items-center mb-4">
-                        <h4 class="font-bold text-slate-800 text-sm" data-key="monthlySummary">Monthly Summary</h4>
-                        <span class="text-xs bg-slate-100 border border-slate-200 px-2 py-1 rounded-lg text-slate-600 font-medium">July 2026</span>
+            <!-- Top Outstanding Chart (4 Cols) -->
+            <div class="col-span-4 bg-white p-6 rounded-3xl card-shadow border border-slate-100">
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-blue-600"></i> Top Outstanding
+                    </h4>
+                    <button onclick="switchTab('customers')" class="text-blue-600 font-bold text-xs hover:underline">View All</button>
+                </div>
+                <div class="flex items-center justify-between gap-4">
+                    <div class="w-36 h-36 relative">
+                        <canvas id="outstandingDonutChart"></canvas>
                     </div>
-                    <div class="h-44">
-                        <canvas id="monthlyChart"></canvas>
+                    <div class="space-y-2 text-xs font-semibold flex-1">
+                        <div class="flex justify-between items-center"><span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> Aarav</span> <span class="font-bold">₹5,450.00</span></div>
+                        <div class="flex justify-between items-center"><span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Shree</span> <span class="font-bold">₹3,200.00</span></div>
+                        <div class="flex justify-between items-center"><span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> Mero Kirana</span> <span class="font-bold">₹2,800.00</span></div>
+                        <div class="flex justify-between items-center"><span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span> Buddha</span> <span class="font-bold">₹1,750.00</span></div>
+                        <div class="flex justify-between items-center"><span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span> Others</span> <span class="font-bold">₹1,200.00</span></div>
                     </div>
                 </div>
-
-                <!-- 3 Overview Cards -->
-                <div class="col-span-7 grid grid-cols-3 gap-4">
-                    <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100/80 flex flex-col justify-between">
-                        <div>
-                            <div class="text-[11px] font-semibold text-slate-400 uppercase" data-key="inventoryOverview">Inventory Overview</div>
-                            <div class="text-2xl font-bold text-slate-800 mt-2">156</div>
-                            <div class="text-[11px] text-slate-400">Total Items</div>
-                        </div>
-                        <div class="flex justify-between text-[11px] font-bold mt-4 pt-3 border-t border-slate-100">
-                            <span class="text-rose-500">Low Stock: 12</span>
-                            <span class="text-amber-500">Out: 3</span>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100/80 flex flex-col justify-between">
-                        <div>
-                            <div class="text-[11px] font-semibold text-slate-400 uppercase" data-key="purchaseOverview">Purchase Overview</div>
-                            <div class="text-2xl font-bold text-slate-800 mt-2">Rs. 45,320</div>
-                            <div class="text-[11px] text-slate-400">This Month</div>
-                        </div>
-                        <div class="text-xs font-bold text-emerald-500 mt-4 flex items-center gap-1">
-                            <i class="fa-solid fa-arrow-trend-up"></i> 12.5% vs last month
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100/80 flex flex-col justify-between">
-                        <div>
-                            <div class="text-[11px] font-semibold text-slate-400 uppercase" data-key="salesOverview">Sales Overview</div>
-                            <div class="text-2xl font-bold text-slate-800 mt-2">Rs. 67,850</div>
-                            <div class="text-[11px] text-slate-400">This Month</div>
-                        </div>
-                        <div class="text-xs font-bold text-emerald-500 mt-4 flex items-center gap-1">
-                            <i class="fa-solid fa-arrow-trend-up"></i> 18.6% vs last month
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- TAB 2: SALES TAB (उधारो र नगद बिक्री छनोट सुविधा - सुधार ४) -->
-        <div id="tab-sales" class="tab-pane hidden">
-            <div class="max-w-2xl bg-white p-8 rounded-2xl card-shadow border border-slate-100/80 mx-auto">
-                <h3 class="text-lg font-bold text-slate-800 mb-6 pb-3 border-b border-slate-100" data-key="newSaleTitle">New Sales Entry (बिक्री फारम)</h3>
-                <form id="salesForm" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1" data-key="selectCustomer">Select Customer</label>
-                        <select class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 focus:outline-none" required>
-                            <option value="">-- Select Customer --</option>
-                            <option value="1">Aarav Traders</option>
-                            <option value="2">Shree Enterprises</option>
-                            <option value="3">Mero Kirana</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1" data-key="productName">Product Name</label>
-                        <input type="text" placeholder="e.g. A4 Paper Pack" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 focus:outline-none" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1" data-key="amount">Total Amount (Rs.)</label>
-                        <input type="number" id="saleAmount" placeholder="0.00" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 focus:outline-none" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1" data-key="paymentType">Payment Mode (कारोबारको प्रकार)</label>
-                        <select id="paymentMode" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 focus:outline-none" required>
-                            <option value="Cash">Cash Sale (नगद बिक्री)</option>
-                            <option value="Credit">Credit Card / Online</option>
-                            <option value="Due">Due Sale (उधारो बिक्री - Ledger Transfer)</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 transition mt-4" data-key="btnSaveSale">Save Sales Record</button>
-                </form>
             </div>
         </div>
 
-        <!-- TAB 3: CUSTOMERS LEDGER (ग्राहक हिसाब प्रणाली - सुधार ५) -->
-        <div id="tab-customers" class="tab-pane hidden">
-            <div class="bg-white p-6 rounded-2xl card-shadow border border-slate-100/80">
-                <h3 class="text-lg font-bold text-slate-800 mb-4" data-key="customerLedgerTitle">Customer Accounts & Ledger (ग्राहक हिसाब)</h3>
-                <table class="w-full text-left text-sm">
+        <!-- SECTION 3: MONTHLY SUMMARY CHART + INVENTORY OVERVIEW + PURCHASE OVERVIEW + SALES OVERVIEW -->
+        <div class="grid grid-cols-12 gap-6">
+            <!-- Monthly Summary Area Chart (5 Cols) -->
+            <div class="col-span-5 bg-white p-6 rounded-3xl card-shadow border border-slate-100">
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-blue-600"></i> Monthly Summary
+                    </h4>
+                    <select class="text-xs font-semibold text-slate-500 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-lg focus:outline-none">
+                        <option>July 2026</option>
+                    </select>
+                </div>
+                <div class="h-44">
+                    <canvas id="monthlySummaryChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Inventory Overview (2.3 Cols) -->
+            <div class="col-span-2 bg-white p-5 rounded-3xl card-shadow border border-slate-100 flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[11px] font-bold text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-box text-emerald-500"></i> Inventory Overview</span>
+                        <div class="w-9 h-9 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fa-solid fa-cube text-sm"></i></div>
+                    </div>
+                    <div class="text-2xl font-extrabold text-slate-900 mt-2">156</div>
+                    <span class="text-[10px] text-slate-400">Total Items</span>
+                </div>
+                <div class="flex justify-between items-center text-xs pt-3 border-t border-slate-100">
+                    <div><span class="text-[10px] text-rose-500 font-bold block">Low Stock Items</span><span class="font-extrabold text-slate-900">12</span></div>
+                    <div><span class="text-[10px] text-rose-500 font-bold block">Out of Stock</span><span class="font-extrabold text-slate-900">3</span></div>
+                </div>
+            </div>
+
+            <!-- Purchase Overview (2.3 Cols) -->
+            <div class="col-span-2 bg-white p-5 rounded-3xl card-shadow border border-slate-100 flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[11px] font-bold text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-cart-shopping text-amber-500"></i> Purchase Overview</span>
+                        <div class="w-9 h-9 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center"><i class="fa-solid fa-cart-flatbed text-sm"></i></div>
+                    </div>
+                    <div class="text-xl font-extrabold text-slate-900 mt-2">₹45,320.00</div>
+                    <span class="text-[10px] text-slate-400 block">This Month</span>
+                </div>
+                <div class="text-xs pt-3 border-t border-slate-100">
+                    <span class="text-emerald-500 font-bold flex items-center gap-1 text-[11px]"><i class="fa-solid fa-arrow-up"></i> 12.5%</span>
+                    <span class="text-[10px] text-slate-400 block">vs last month</span>
+                </div>
+            </div>
+
+            <!-- Sales Overview (2.4 Cols) -->
+            <div class="col-span-3 bg-white p-5 rounded-3xl card-shadow border border-slate-100 flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[11px] font-bold text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-bag-shopping text-amber-500"></i> Sales Overview</span>
+                        <div class="w-9 h-9 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center"><i class="fa-solid fa-basket-shopping text-sm"></i></div>
+                    </div>
+                    <div class="text-xl font-extrabold text-slate-900 mt-2">₹67,850.00</div>
+                    <span class="text-[10px] text-slate-400 block">This Month</span>
+                </div>
+                <div class="text-xs pt-3 border-t border-slate-100">
+                    <span class="text-emerald-500 font-bold flex items-center gap-1 text-[11px]"><i class="fa-solid fa-arrow-up"></i> 18.6%</span>
+                    <span class="text-[10px] text-slate-400 block">vs last month</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 4: LOW STOCK ALERT + RECENT ACTIVITY -->
+        <div class="grid grid-cols-12 gap-6">
+            <!-- Low Stock Alert (6 Cols) -->
+            <div class="col-span-6 bg-white p-6 rounded-3xl card-shadow border border-slate-100">
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2 text-rose-600">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Low Stock Alert
+                    </h4>
+                    <button onclick="switchTab('inventory')" class="text-blue-600 font-bold text-xs hover:underline">View All</button>
+                </div>
+                <table class="w-full text-left text-xs">
                     <thead>
-                        <tr class="bg-slate-50 text-slate-400 font-semibold text-xs border-b border-slate-100">
-                            <th class="p-3">Customer Name</th>
-                            <th class="p-3">Total Purchased</th>
-                            <th class="p-3">Cash Paid</th>
-                            <th class="p-3">Outstanding Due (बाँकी उधारो)</th>
-                            <th class="p-3 text-right">Action</th>
+                        <tr class="text-slate-400 border-b border-slate-100 text-[10px] font-bold uppercase">
+                            <th class="pb-2">PRODUCT</th>
+                            <th class="pb-2">CURRENT STOCK</th>
+                            <th class="pb-2">STATUS</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 font-medium">
+                    <tbody class="divide-y divide-slate-100 font-semibold text-slate-700">
                         <tr>
-                            <td class="p-3 font-bold text-slate-800">Aarav Traders</td>
-                            <td class="p-3">Rs. 25,000</td>
-                            <td class="p-3 text-emerald-600">Rs. 19,550</td>
-                            <td class="p-3 text-rose-500 font-bold">Rs. 5,450</td>
-                            <td class="p-3 text-right"><button class="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg font-semibold text-xs">View Ledger</button></td>
-                        </tr>
-                        <tr>
-                            <td class="p-3 font-bold text-slate-800">Shree Enterprises</td>
-                            <td class="p-3">Rs. 18,200</td>
-                            <td class="p-3 text-emerald-600">Rs. 15,000</td>
-                            <td class="p-3 text-rose-500 font-bold">Rs. 3,200</td>
-                            <td class="p-3 text-right"><button class="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg font-semibold text-xs">View Ledger</button></td>
+                            <td class="py-3">A4 Paper (Pack)</td>
+                            <td class="py-3">5</td>
+                            <td class="py-3"><span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-lg text-[10px] font-bold">Low Stock</span></td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Recent Activity (6 Cols) -->
+            <div class="col-span-6 bg-white p-6 rounded-3xl card-shadow border border-slate-100">
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-pulse text-blue-600"></i> Recent Activity
+                    </h4>
+                    <button class="text-blue-600 font-bold text-xs hover:underline">View All</button>
+                </div>
+                <div class="flex items-center justify-between text-xs font-semibold py-2">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-receipt text-xs"></i></div>
+                        <div>
+                            <div class="text-slate-900 font-bold">New Sale Invoice Created</div>
+                            <div class="text-slate-400 text-[10px]">Invoice No: INV-2026-0320</div>
+                        </div>
+                    </div>
+                    <span class="text-slate-400 text-[10px]">2 min ago</span>
+                </div>
             </div>
         </div>
 
     </main>
 
-    <!-- JS SCRIPTS -->
+    <!-- NEW ENTRY MODAL -->
+    <div id="newEntryModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-slate-900 text-base">New Transaction Entry</h3>
+                <button onclick="closeNewEntryModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="entryForm" onsubmit="addTransaction(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Customer Name</label>
+                    <input type="text" id="custName" placeholder="Aarav Traders" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Description</label>
+                    <input type="text" id="desc" placeholder="Sales Payment / Purchase Payment" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Type</label>
+                    <select id="transType" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                        <option value="CREDIT">CREDIT (Received)</option>
+                        <option value="DEBIT">DEBIT (Payment Charged)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Amount (₹)</label>
+                    <input type="number" id="amt" placeholder="0.00" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
+                </div>
+                <button type="submit" class="w-full py-3 bg-blue-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-blue-500/30">Save & Sync to All Devices</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT CODE -->
     <script>
-        // १. Language Dictionary (English / Nepali)
-        const translations = {
-            en: {
-                loginTitle: "Welcome Back",
-                loginSubtitle: "Please sign in and select your preferred language",
-                selectLangLabel: "Select Language",
-                loginBtn: "Sign In to Dashboard",
-                mainMenu: "MAIN MENU",
-                navDashboard: "Dashboard",
-                navCustomers: "Customers",
-                navSales: "Sales",
-                navPurchase: "Purchase",
-                navReports: "Reports",
-                dashboardTitle: "Dashboard",
-                btnViewCustomers: "View Customers",
-                btnNewEntry: "+ New Entry",
-                welcomeText: "Welcome back",
-                welcomeSub: "Financial snapshot for Canvas Hub.",
-                cardTotalCustomers: "Total Customers",
-                cardTotalDebit: "Total Debit",
-                cardTotalCredit: "Total Credit",
-                cardTotalBalance: "Total Balance",
-                cardTodayEntries: "Today's Entries",
-                cardTotalEntries: "Total Entries",
-                recentTrans: "Recent Transactions",
-                btnViewAll: "View All",
-                topOutstanding: "Top Outstanding",
-                monthlySummary: "Monthly Summary",
-                inventoryOverview: "Inventory Overview",
-                purchaseOverview: "Purchase Overview",
-                salesOverview: "Sales Overview",
-                newSaleTitle: "New Sales Entry",
-                selectCustomer: "Select Customer",
-                productName: "Product Name",
-                amount: "Total Amount (Rs.)",
-                paymentType: "Payment Mode",
-                btnSaveSale: "Save Sales Record",
-                customerLedgerTitle: "Customer Accounts & Ledger"
-            },
-            ne: {
-                loginTitle: "पुन: स्वागत छ",
-                loginSubtitle: "कृपया लगइन गर्नुहोस् र भाषा छनौट गर्नुहोस्",
-                selectLangLabel: "भाषा छनौट गर्नुहोस्",
-                loginBtn: "ड्यासबोर्ड खोल्नुहोस्",
-                mainMenu: "मुख्य मेनु",
-                navDashboard: "ड्यासबोर्ड",
-                navCustomers: "ग्राहक खाता",
-                navSales: "बिक्री (Sales)",
-                navPurchase: "खरिद (Purchase)",
-                navReports: "रिपोर्टहरू",
-                dashboardTitle: "ड्यासबोर्ड र विश्लेषण",
-                btnViewCustomers: "ग्राहकहरू हेर्नुहोस्",
-                btnNewEntry: "+ नयाँ प्रविष्टि",
-                welcomeText: "नमस्ते, स्वागत छ",
-                welcomeSub: "क्यानभास हबको वित्तीय विवरण।",
-                cardTotalCustomers: "ग्राहक संख्या",
-                cardTotalDebit: "कुल डेभिट",
-                cardTotalCredit: "कुल क्रेडिट",
-                cardTotalBalance: "कुल ब्यालेन्स",
-                cardTodayEntries: "आजको प्रविष्टि",
-                cardTotalEntries: "कुल प्रविष्टि",
-                recentTrans: "हालैका कारोबारहरू",
-                btnViewAll: "सबै हेर्नुहोस्",
-                topOutstanding: "बाँकी उधारो शीर्ष ग्राहक",
-                monthlySummary: "मासिक सारांश",
-                inventoryOverview: "स्टक/सामान विवरण",
-                purchaseOverview: "खरिद विवरण",
-                salesOverview: "बिक्री विवरण",
-                newSaleTitle: "नयाँ बिक्री प्रविष्टि",
-                selectCustomer: "ग्राहक छान्नुहोस्",
-                productName: "सामानको नाम",
-                amount: "कुल रकम (रु.)",
-                paymentType: "कारोबारको प्रकार",
-                btnSaveSale: "बिक्री सुरक्षित गर्नुहोस्",
-                customerLedgerTitle: "ग्राहकको हिसाब-किताब"
-            }
+        // FIREBASE CLOUD CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyDemoKeyCanvasHub2026SecureKey",
+            authDomain: "canvas-hub-app.firebaseapp.com",
+            databaseURL: "https://canvas-hub-app-default-rtdb.firebaseio.com",
+            projectId: "canvas-hub-app",
+            storageBucket: "canvas-hub-app.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef123456"
         };
 
-        // Switch Language
-        function changeLanguage(lang) {
-            document.querySelectorAll('[data-key]').forEach(elem => {
-                const key = elem.getAttribute('data-key');
-                if (translations[lang][key]) {
-                    elem.innerText = translations[lang][key];
-                }
-            });
-            document.getElementById('topLangSelect').value = lang;
-            document.getElementById('loginLangSelect').value = lang;
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        let currentUser = null;
+        let transactions = [
+            { id: 1, date: '26 Jul 2026', customer: 'Aarav Traders', desc: 'Purchase Payment', debit: '₹2,500.00', credit: '-' },
+            { id: 2, date: '26 Jul 2026', customer: 'Shree Enterprises', desc: 'Sales Payment', debit: '-', credit: '₹3,200.00' },
+            { id: 3, date: '26 Jul 2026', customer: 'Buddha Store', desc: 'Purchase Payment', debit: '₹1,800.00', credit: '-' },
+            { id: 4, date: '25 Jul 2026', customer: 'Mero Kirana', desc: 'Sales Payment', debit: '-', credit: '₹4,500.00' },
+            { id: 5, date: '25 Jul 2026', customer: 'Om Suppliers', desc: 'Purchase Payment', debit: '₹3,750.00', credit: '-' }
+        ];
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 3500);
         }
 
-        // Tab Switching
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
-            document.getElementById('tab-' + tabName).classList.remove('hidden');
+        function switchAuthView(view) {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('forgotForm').classList.add('hidden');
+            if (view === 'login') document.getElementById('loginForm').classList.remove('hidden');
+            if (view === 'register') document.getElementById('registerForm').classList.remove('hidden');
+            if (view === 'forgot') document.getElementById('forgotForm').classList.remove('hidden');
         }
 
-        // Login Handler
-        function handleLogin(e) {
+        function handleEmailLogin(e) {
             e.preventDefault();
-            document.getElementById('loginModal').classList.add('hidden');
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPassword').value;
+            auth.signInWithEmailAndPassword(email, pass)
+                .then(() => {
+                    showToast("Login Successful! Syncing cloud data...");
+                    document.getElementById('authModal').classList.add('hidden');
+                })
+                .catch((err) => showToast("Login Error: " + err.message));
         }
 
-        // Load Charts on Window Load
+        function handleGoogleLogin() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .then(() => document.getElementById('authModal').classList.add('hidden'))
+                .catch((err) => showToast("Google Login Error: " + err.message));
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const email = document.getElementById('regEmail').value;
+            const pass = document.getElementById('regPassword').value;
+            auth.createUserWithEmailAndPassword(email, pass)
+                .then((cred) => {
+                    cred.user.sendEmailVerification();
+                    showToast("Verification Email sent! Check Gmail.");
+                    switchAuthView('login');
+                })
+                .catch((err) => showToast("Register Error: " + err.message));
+        }
+
+        function handleForgotPassword(e) {
+            e.preventDefault();
+            auth.sendPasswordResetEmail(document.getElementById('forgotEmail').value)
+                .then(() => { showToast("Reset link sent to Email."); switchAuthView('login'); })
+                .catch((err) => showToast("Reset Error: " + err.message));
+        }
+
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('authModal').classList.add('hidden');
+                document.getElementById('userNameDisplay').innerText = user.displayName || user.email.split('@')[0];
+                document.getElementById('userEmailDisplay').innerText = user.email;
+
+                db.ref('users/' + user.uid + '/transactions').on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) transactions = Object.values(data);
+                    renderTransactions();
+                });
+            } else {
+                document.getElementById('authModal').classList.remove('hidden');
+            }
+        });
+
+        function handleLogout() { auth.signOut().then(() => showToast("Logged out")); }
+
+        function renderTransactions() {
+            const tbody = document.getElementById('transactionTableBody');
+            tbody.innerHTML = '';
+            transactions.slice().reverse().forEach(t => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="py-3 text-slate-400 font-medium">${t.date}</td>
+                        <td class="py-3 font-bold text-slate-900">${t.customer}</td>
+                        <td class="py-3 text-slate-500 font-medium">${t.desc}</td>
+                        <td class="py-3 text-right font-bold text-slate-900">${t.debit}</td>
+                        <td class="py-3 text-right font-bold text-emerald-500">${t.credit}</td>
+                        <td class="py-3 text-center">
+                            <button onclick="shareTransaction('${t.customer}', '${t.desc}', '${t.debit !== '-' ? t.debit : t.credit}')" class="text-emerald-500 hover:text-emerald-600 text-sm"><i class="fa-brands fa-whatsapp"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function shareTransaction(cust, desc, amt) {
+            const text = `*Canvas Hub Receipt*\nCustomer: ${cust}\nDescription: ${desc}\nAmount: ${amt}\nDate: 26 Jul 2026\nThank you!`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        function openNewEntryModal() { document.getElementById('newEntryModal').classList.remove('hidden'); }
+        function closeNewEntryModal() { document.getElementById('newEntryModal').classList.add('hidden'); }
+
+        function addTransaction(e) {
+            e.preventDefault();
+            const newT = {
+                id: Date.now(),
+                date: '26 Jul 2026',
+                customer: document.getElementById('custName').value,
+                desc: document.getElementById('desc').value,
+                debit: document.getElementById('transType').value === 'DEBIT' ? '₹' + parseFloat(document.getElementById('amt').value).toLocaleString('en-IN', {minimumFractionDigits:2}) : '-',
+                credit: document.getElementById('transType').value === 'CREDIT' ? '₹' + parseFloat(document.getElementById('amt').value).toLocaleString('en-IN', {minimumFractionDigits:2}) : '-'
+            };
+
+            if (currentUser) {
+                db.ref('users/' + currentUser.uid + '/transactions/' + newT.id).set(newT);
+            } else {
+                transactions.push(newT);
+                renderTransactions();
+            }
+            closeNewEntryModal();
+            showToast("Transaction Saved!");
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.sidebar-item').forEach(el => {
+                el.classList.remove('sidebar-item-active');
+                el.classList.add('text-blue-100');
+            });
+            const activeNav = document.getElementById('nav-' + tab);
+            if (activeNav) {
+                activeNav.classList.add('sidebar-item-active');
+                activeNav.classList.remove('text-blue-100');
+            }
+            document.getElementById('pageTitle').innerText = tab.charAt(0).toUpperCase() + tab.slice(1);
+        }
+
+        // CHARTS INITIALIZATION
         window.onload = function() {
-            // Donut Chart (Top Outstanding)
-            new Chart(document.getElementById('topOutstandingChart'), {
+            renderTransactions();
+
+            // 1. Top Outstanding Donut Chart
+            new Chart(document.getElementById('outstandingDonutChart'), {
                 type: 'doughnut',
                 data: {
+                    labels: ['Aarav', 'Shree', 'Mero Kirana', 'Buddha', 'Others'],
                     datasets: [{
-                        data: [5450, 3200, 2800, 1750],
-                        backgroundColor: ['#2563eb', '#10b981', '#6366f1', '#a855f7'],
+                        data: [5450, 3200, 2800, 1750, 1200],
+                        backgroundColor: ['#2563eb', '#10b981', '#6366f1', '#a855f7', '#94a3b8'],
                         borderWidth: 0
                     }]
                 },
-                options: { cutout: '75%', plugins: { legend: { display: false } } }
+                options: { cutout: '72%', plugins: { legend: { display: false } }, maintainAspectRatio: false }
             });
 
-            // Line Chart (Monthly Summary)
-            new Chart(document.getElementById('monthlyChart'), {
+            // 2. Monthly Summary Smooth Area Line Chart
+            new Chart(document.getElementById('monthlySummaryChart'), {
                 type: 'line',
                 data: {
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
                     datasets: [{
-                        data: [10, 15, 14, 25, 24, 32, 45],
+                        data: [5, 12, 12, 22, 23, 29, 42],
                         borderColor: '#2563eb',
-                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        backgroundColor: 'rgba(37, 99, 235, 0.08)',
                         fill: true,
-                        tension: 0.4
+                        tension: 0.4,
+                        borderWidth: 2.5,
+                        pointRadius: 0
                     }]
                 },
-                options: { plugins: { legend: { display: false } }, scales: { y: { display: false } } }
+                options: {
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { grid: { color: '#f1f5f9' }, ticks: { callback: v => v + 'K' } }
+                    },
+                    maintainAspectRatio: false
+                }
             });
-        }
-
-        // Sales Form Submission Logic
-        document.getElementById('salesForm').addEventListener('submit', function(e){
-            e.preventDefault();
-            const mode = document.getElementById('paymentMode').value;
-            const amount = document.getElementById('saleAmount').value;
-            if(mode === 'Due') {
-                alert(`Rs. ${amount} transferred to Customer Due Ledger!`);
-            } else {
-                alert(`Rs. ${amount} recorded as Cash Sale.`);
-            }
-            this.reset();
-        });
+        };
     </script>
 </body>
 </html>
