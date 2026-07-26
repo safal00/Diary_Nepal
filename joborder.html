@@ -1,346 +1,562 @@
 <!DOCTYPE html>
-<html lang="ne">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>व्यापार व्यवस्थापन प्रणाली (Business Management System)</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Canvas Hub - Ledger Book Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .sidebar { min-height: 100vh; background-color: #2c3e50; color: white; }
-        .sidebar .nav-link { color: #ecf0f1; margin-bottom: 5px; }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active { background-color: #34495e; color: #3498db; }
-        .kpi-card { border-radius: 10px; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .kpi-icon { font-size: 2.5rem; opacity: 0.3; position: absolute; right: 15px; top: 15px; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f4f7fe; }
+        .sidebar-blue { background-color: #1a56db; }
+        .card-shadow { box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.03); }
     </style>
 </head>
-<body>
+<body class="flex min-h-screen text-slate-700">
 
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar Navigation -->
-        <div class="col-md-2 sidebar p-3">
-            <h4 class="text-center mb-4"><i class="fa-solid fa-store me-2"></i><span data-key="appName">व्यापार प्रणाली</span></h4>
-            <ul class="nav nav-pills flex-column">
-                <li class="nav-item">
-                    <a href="#dashboard" class="nav-link active" data-bs-toggle="pill"><i class="fa-solid fa-chart-line me-2"></i><span data-key="navDashboard">ड्यासबोर्ड</span></a>
-                </li>
-                <li class="nav-item">
-                    <a href="#sales" class="nav-link" data-bs-toggle="pill"><i class="fa-solid fa-cart-shopping me-2"></i><span data-key="navSales">बिक्री (Sales)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a href="#purchase" class="nav-link" data-bs-toggle="pill"><i class="fa-solid fa-bag-shopping me-2"></i><span data-key="navPurchase">खरिद (Purchase)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a href="#customers" class="nav-link" data-bs-toggle="pill"><i class="fa-solid fa-users me-2"></i><span data-key="navCustomers">ग्राहक हिसाब</span></a>
-                </li>
-            </ul>
-        </div>
-
-        <!-- Main Content Area -->
-        <div class="col-md-10 p-4">
-            
-            <!-- Top Header & Language Selector (सुधार १) -->
-            <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded shadow-sm">
-                <h3 class="m-0" id="pageTitle" data-key="dashboardTitle">ड्यासबोर्ड र विश्लेषण</h3>
-                <div class="d-flex align-items-center gap-3">
-                    <!-- Language Selection Dropdown -->
-                    <div class="input-group">
-                        <label class="input-group-text" for="langSelect"><i class="fa-solid fa-globe"></i></label>
-                        <select class="form-select" id="langSelect" onchange="changeLanguage(this.value)">
-                            <option value="ne" selected>नेपाली</option>
-                            <option value="en">English</option>
-                        </select>
-                    </div>
-                    <span class="badge bg-primary fs-6"><i class="fa-solid fa-user me-1"></i> Admin</span>
+    <!-- ०. USER LOGIN MODAL (लगइन सुविधा र भाषा छनोट) -->
+    <div id="loginModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 border border-slate-100">
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 bg-blue-600 rounded-xl mx-auto flex items-center justify-center text-white text-2xl font-bold mb-3 shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid fa-book-open"></i>
                 </div>
+                <h2 class="text-2xl font-bold text-slate-800" data-key="loginTitle">Welcome Back</h2>
+                <p class="text-slate-500 text-sm mt-1" data-key="loginSubtitle">Please sign in and select your preferred language</p>
             </div>
 
-            <div class="tab-content">
-                
-                <!-- १. ड्यासबोर्ड र विश्लेषणात्मक रिपोर्ट (सुधार २ र ६) -->
-                <div class="tab-pane fade show active" id="dashboard">
-                    
-                    <!-- KPIs Summary Cards -->
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-2">
-                            <div class="card kpi-card bg-primary text-white p-3 position-relative">
-                                <span data-key="totalCustomers">ग्राहक संख्या</span>
-                                <h3 class="mt-2" id="kpiCustomers">120</h3>
-                                <i class="fa-solid fa-users kpi-icon"></i>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="card kpi-card bg-success text-white p-3 position-relative">
-                                <span data-key="totalSales">बिक्री विवरण</span>
-                                <h3 class="mt-2" id="kpiSales">रु. १,५०,०००</h3>
-                                <i class="fa-solid fa-arrow-up-right-dots kpi-icon"></i>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="card kpi-card bg-info text-white p-3 position-relative">
-                                <span data-key="totalPurchase">खरिद विवरण</span>
-                                <h3 class="mt-2" id="kpiPurchase">रु. ८०,०००</h3>
-                                <i class="fa-solid fa-cart-flatbed kpi-icon"></i>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="card kpi-card bg-danger text-white p-3 position-relative">
-                                <span data-key="totalDue">उधारो रकम</span>
-                                <h3 class="mt-2" id="kpiDue">रु. २५,०००</h3>
-                                <i class="fa-solid fa-hand-holding-dollar kpi-icon"></i>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="card kpi-card bg-secondary text-white p-3 position-relative">
-                                <span data-key="cashTransaction">नगद कारोबार</span>
-                                <h3 class="mt-2" id="kpiCash">रु. १,२५,०००</h3>
-                                <i class="fa-solid fa-wallet kpi-icon"></i>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="card kpi-card bg-dark text-white p-3 position-relative">
-                                <span data-key="totalIncome">कुल आम्दानी</span>
-                                <h3 class="mt-2" id="kpiIncome">रु. ७०,०००</h3>
-                                <i class="fa-solid fa-money-bill-trend-up kpi-icon"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Charts Section -->
-                    <div class="row g-4">
-                        <div class="col-md-8">
-                            <div class="card p-3 shadow-sm">
-                                <h5 data-key="chartTitle1">कारोबार विश्लेषण (बिक्री vs खरिद)</h5>
-                                <canvas id="salesChart" height="150"></canvas>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card p-3 shadow-sm">
-                                <h5 data-key="chartTitle2">बिक्री वर्गीकरण (नगद vs उधारो)</h5>
-                                <canvas id="paymentPieChart" height="200"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- २. बिक्री प्रणाली (सुधार ४) -->
-                <div class="tab-pane fade" id="sales">
-                    <div class="card p-4 shadow-sm">
-                        <h4 class="mb-3" data-key="newSaleTitle">नयाँ बिक्री प्रविष्टि (New Sale)</h4>
-                        <form id="salesForm">
-                            <div class="row g-3">
-                                <div class="col-md-4">
-                                    <label class="form-label" data-key="selectCustomer">ग्राहक छनोट गर्नुहोस्</label>
-                                    <select class="form-select" id="saleCustomer" required>
-                                        <option value="" disabled selected>ग्राहक छान्नुहोस्...</option>
-                                        <option value="1">राम शर्मा</option>
-                                        <option value="2">हरि पौडेल</option>
-                                        <option value="3">सिता खड्का</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label" data-key="productName">सामान/प्रडक्ट</label>
-                                    <input type="text" class="form-control" placeholder="सामानको नाम" required>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label" data-key="amount">जम्मा रकम (रु.)</label>
-                                    <input type="number" class="form-control" id="saleAmount" placeholder="0.00" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label" data-key="paymentType">कारोबारको प्रकार (Payment Mode)</label>
-                                    <select class="form-select" id="paymentMode" required>
-                                        <option value="Cash">नगद बिक्री (Cash)</option>
-                                        <option value="Credit">क्रेडिट कार्ड/अनलाइन (Credit)</option>
-                                        <option value="Due">उधारो बिक्री (Due)</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6 d-flex align-items-end">
-                                    <button type="submit" class="btn btn-success w-100" data-key="btnSaveSale"><i class="fa-solid fa-check me-2"></i>बिक्री सुरक्षित गर्नुहोस्</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- ३. खरिद प्रणाली (सुधार ३ - यथावत्) -->
-                <div class="tab-pane fade" id="purchase">
-                    <div class="card p-4 shadow-sm">
-                        <h4 class="mb-3" data-key="purchaseTitle">खरिद प्रणाली (Purchase System)</h4>
-                        <div class="alert alert-info">
-                            <i class="fa-solid fa-circle-info me-2"></i>खरिद प्रणाली पूर्ववत् रूपमा सुचारु छ। प्रडक्ट, क्वान्टिटी र कुल खरिद रकम सही रूपमा दर्ता भइरहेको छ।
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ४. ग्राहक हिसाब प्रणाली (सुधार ५) -->
-                <div class="tab-pane fade" id="customers">
-                    <div class="card p-4 shadow-sm">
-                        <h4 class="mb-3" data-key="customerLedgerTitle">ग्राहकको खाता/हिसाब विवरण</h4>
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-striped">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>मिति</th>
-                                        <th>ग्राहकको नाम</th>
-                                        <th>विवरण (सामान)</th>
-                                        <th>माध्यम</th>
-                                        <th>कुल रकम</th>
-                                        <th>बाँकी उधारो रकम</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>२०८३-०४-०१</td>
-                                        <td>राम शर्मा</td>
-                                        <td>मोबाईल एक्स्ट्राज</td>
-                                        <td><span class="badge bg-danger">उधारो (Due)</span></td>
-                                        <td>रु. १५,०००</td>
-                                        <td class="text-danger fw-bold">रु. १५,०००</td>
-                                    </tr>
-                                    <tr>
-                                        <td>२०८३-०४-०३</td>
-                                        <td>हरि पौडेल</td>
-                                        <td>ल्यापटप ब्याग</td>
-                                        <td><span class="badge bg-success">नगद (Cash)</span></td>
-                                        <td>रु. ३,५००</td>
-                                        <td>रु. ०</td>
-                                    </tr>
-                                    <tr>
-                                        <td>२०८३-०४-०५</td>
-                                        <td>सिता खड्का</td>
-                                        <td>मनिटर</td>
-                                        <td><span class="badge bg-danger">उधारो (Due)</span></td>
-                                        <td>रु. १०,०००</td>
-                                        <td class="text-danger fw-bold">रु. १०,०००</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
+            <!-- Language Switcher in Login -->
+            <div class="mb-5">
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2" data-key="selectLangLabel">Select Language / भाषा छनौट गर्नुहोस्</label>
+                <select id="loginLangSelect" onchange="changeLanguage(this.value)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-700 font-medium">
+                    <option value="en" selected>🇬🇧 English (US)</option>
+                    <option value="ne">🇳🇵 नेपाली (Nepali)</option>
+                </select>
             </div>
+
+            <form onsubmit="handleLogin(event)">
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Username / email</label>
+                    <input type="text" value="admin" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Password</label>
+                    <input type="password" value="••••••••" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                </div>
+                <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2">
+                    <span data-key="loginBtn">Sign In to Dashboard</span>
+                    <i class="fa-solid fa-arrow-right text-sm"></i>
+                </button>
+            </form>
         </div>
     </div>
-</div>
 
-<!-- JavaScript Logic & Language Dictionaries -->
-<script>
-    // १. भाषा शब्दकोश (Language Translations Dictionary)
-    const translations = {
-        ne: {
-            appName: "व्यापार प्रणाली",
-            navDashboard: "ड्यासबोर्ड",
-            navSales: "बिक्री (Sales)",
-            navPurchase: "खरिद (Purchase)",
-            navCustomers: "ग्राहक हिसाब",
-            dashboardTitle: "ड्यासबोर्ड र विश्लेषण",
-            totalCustomers: "ग्राहक संख्या",
-            totalSales: "बिक्री विवरण",
-            totalPurchase: "खरिद विवरण",
-            totalDue: "उधारो रकम",
-            cashTransaction: "नगद कारोबार",
-            totalIncome: "कुल आम्दानी",
-            chartTitle1: "कारोबार विश्लेषण (बिक्री vs खरिद)",
-            chartTitle2: "बिक्री वर्गीकरण (नगद vs उधारो)",
-            newSaleTitle: "नयाँ बिक्री प्रविष्टि (New Sale)",
-            selectCustomer: "ग्राहक छनोट गर्नुहोस्",
-            productName: "सामान/प्रडक्ट",
-            amount: "जम्मा रकम (रु.)",
-            paymentType: "कारोबारको प्रकार (Payment Mode)",
-            btnSaveSale: "बिक्री सुरक्षित गर्नुहोस्",
-            purchaseTitle: "खरिद प्रणाली (Purchase System)",
-            customerLedgerTitle: "ग्राहकको खाता/हिसाब विवरण"
-        },
-        en: {
-            appName: "Business System",
-            navDashboard: "Dashboard",
-            navSales: "Sales",
-            navPurchase: "Purchase",
-            navCustomers: "Customer Ledger",
-            dashboardTitle: "Dashboard & Analytics",
-            totalCustomers: "Total Customers",
-            totalSales: "Total Sales",
-            totalPurchase: "Total Purchase",
-            totalDue: "Total Due/Credit",
-            cashTransaction: "Cash Transactions",
-            totalIncome: "Total Profit/Income",
-            chartTitle1: "Business Analytics (Sales vs Purchase)",
-            chartTitle2: "Sales Breakdown (Cash vs Credit)",
-            newSaleTitle: "New Sale Entry",
-            selectCustomer: "Select Customer",
-            productName: "Product Name",
-            amount: "Total Amount (NPR)",
-            paymentType: "Payment Mode",
-            btnSaveSale: "Save Sale",
-            purchaseTitle: "Purchase Management System",
-            customerLedgerTitle: "Customer Account Ledger"
-        }
-    };
+    <!-- १. BLUE SIDEBAR (फोटो अनुसार) -->
+    <aside class="w-64 sidebar-blue text-white flex flex-col justify-between shrink-0 p-5">
+        <div>
+            <!-- Brand Logo -->
+            <div class="flex items-center gap-3 px-2 py-3 mb-6">
+                <div class="w-9 h-9 bg-white text-blue-600 rounded-xl flex items-center justify-center font-bold text-lg shadow">
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-none">Canvas Hub</h1>
+                    <span class="text-xs text-blue-200">Ledger Book</span>
+                </div>
+            </div>
 
-    // भाषा बदल्ने फन्क्सन (Change Language Function)
-    function changeLanguage(lang) {
-        document.querySelectorAll('[data-key]').forEach(element => {
-            const key = element.getAttribute('data-key');
-            if (translations[lang][key]) {
-                element.innerText = translations[lang][key];
+            <!-- Menu List -->
+            <div class="text-[11px] font-semibold text-blue-200 uppercase tracking-wider px-3 mb-2" data-key="mainMenu">MAIN MENU</div>
+            <nav class="space-y-1">
+                <a href="#dashboard" onclick="switchTab('dashboard')" class="sidebar-item active flex items-center gap-3 px-4 py-3 rounded-xl bg-white text-blue-600 font-semibold shadow-sm transition">
+                    <i class="fa-solid fa-border-all w-5"></i>
+                    <span data-key="navDashboard">Dashboard</span>
+                </a>
+                <a href="#customers" onclick="switchTab('customers')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl text-blue-100 hover:bg-blue-700/50 transition">
+                    <i class="fa-solid fa-users w-5"></i>
+                    <span data-key="navCustomers">Customers</span>
+                </a>
+                <a href="#sales" onclick="switchTab('sales')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl text-blue-100 hover:bg-blue-700/50 transition">
+                    <i class="fa-solid fa-cart-shopping w-5"></i>
+                    <span data-key="navSales">Sales</span>
+                </a>
+                <a href="#purchase" onclick="switchTab('purchase')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl text-blue-100 hover:bg-blue-700/50 transition">
+                    <i class="fa-solid fa-bag-shopping w-5"></i>
+                    <span data-key="navPurchase">Purchase</span>
+                </a>
+                <a href="#reports" onclick="switchTab('reports')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl text-blue-100 hover:bg-blue-700/50 transition">
+                    <i class="fa-solid fa-chart-pie w-5"></i>
+                    <span data-key="navReports">Reports</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- User Profile (Bottom Sidebar) -->
+        <div class="bg-blue-700/40 p-3 rounded-2xl flex items-center justify-between border border-blue-400/20">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full bg-blue-300/30 text-white flex items-center justify-center font-bold border border-white/20">
+                    A
+                </div>
+                <div class="text-xs">
+                    <div class="font-semibold text-white">Administrator</div>
+                    <div class="text-blue-200">admin</div>
+                </div>
+            </div>
+            <button onclick="document.getElementById('loginModal').classList.remove('hidden')" class="text-blue-200 hover:text-white"><i class="fa-solid fa-right-from-bracket"></i></button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 overflow-y-auto p-8">
+        
+        <!-- TOP HEADER NAVBAR -->
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Overview</div>
+                <h2 class="text-2xl font-bold text-slate-800" id="headerTitle" data-key="dashboardTitle">Dashboard</h2>
+            </div>
+            <div class="flex items-center gap-4">
+                <!-- Date Badge -->
+                <div class="bg-white border border-slate-200/80 px-4 py-2 rounded-xl text-xs font-medium text-slate-600 flex items-center gap-2 shadow-sm">
+                    <i class="fa-regular fa-calendar text-blue-600"></i>
+                    <span>Sun, 26 Jul 2026</span>
+                </div>
+                <!-- Language Selector Dropdown -->
+                <select id="topLangSelect" onchange="changeLanguage(this.value)" class="bg-white border border-slate-200/80 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none shadow-sm cursor-pointer">
+                    <option value="en">🇬🇧 EN</option>
+                    <option value="ne">🇳🇵 NP</option>
+                </select>
+                <!-- Quick Entry Buttons -->
+                <button onclick="switchTab('customers')" class="bg-white border border-slate-200 text-slate-700 text-xs font-semibold px-4 py-2.5 rounded-xl shadow-sm hover:bg-slate-50 transition" data-key="btnViewCustomers">View Customers</button>
+                <button onclick="switchTab('sales')" class="bg-blue-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> <span data-key="btnNewEntry">+ New Entry</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- WELCOME BANNER -->
+        <div class="mb-8">
+            <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                <span data-key="welcomeText">Welcome back</span> 👋
+            </h3>
+            <p class="text-xs text-slate-400 mt-1" data-key="welcomeSub">Financial snapshot for Canvas Hub.</p>
+        </div>
+
+        <!-- TAB 1: DASHBOARD CONTENT -->
+        <div id="tab-dashboard" class="tab-pane space-y-8">
+            
+            <!-- TOP 6 SUMMARY CARDS (फोटो अनुसारको exact ६ वटा कार्डहरू) -->
+            <div class="grid grid-cols-6 gap-4">
+                <!-- Card 1 -->
+                <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100/80">
+                    <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
+                        <i class="fa-solid fa-user-group text-sm"></i>
+                    </div>
+                    <div class="text-[11px] font-semibold text-slate-400 uppercase" data-key="cardTotalCustomers">Total Customers</div>
+                    <div class="text-2xl font-bold text-slate-800 mt-1">125</div>
+                    <div class="text-[10px] text-slate-400 mt-1">Active accounts</div>
+                </div>
+                <!-- Card 2 -->
+                <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100/80">
+                    <div class="w-9 h-9 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center mb-3">
+                        <i class="fa-solid fa-arrow-down text-sm"></i>
+                    </div>
+                    <div class="text-[11px] font-semibold text-slate-400 uppercase" data-key="cardTotalDebit">Total Debit</div>
+                    <div class="text-xl font-bold text-slate-800 mt-1">Rs. 58,450.00</div>
+                    <div class="text-[10px] text-slate-400 mt-1">Amount charged</div>
+                </div>
+                <!-- Card 3 -->
+                <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100/80">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center mb-3">
+                        <i class="fa-solid fa-arrow-up text-sm"></i>
+                    </div>
+                    <div class="text-[11px] font-semibold text-slate-400 uppercase" data-key="cardTotalCredit">Total Credit</div>
+                    <div class="text-xl font-bold text-slate-800 mt-1">Rs. 72,850.00</div>
+                    <div class="text-[10px] text-slate-400 mt-1">Amount received</div>
+                </div>
+                <!-- Card 4 -->
+                <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100/80">
+                    <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
+                        <i class="fa-solid fa-building-columns text-sm"></i>
+                    </div>
+                    <div class="text-[11px] font-semibold text-slate-400 uppercase" data-key="cardTotalBalance">Total Balance</div>
+                    <div class="text-xl font-bold text-slate-800 mt-1">Rs. 14,400.00 <span class="text-xs font-normal text-slate-500">Cr</span></div>
+                    <div class="text-[10px] text-slate-400 mt-1">Receivable</div>
+                </div>
+                <!-- Card 5 -->
+                <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100/80">
+                    <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center mb-3">
+                        <i class="fa-regular fa-clock text-sm"></i>
+                    </div>
+                    <div class="text-[11px] font-semibold text-slate-400 uppercase" data-key="cardTodayEntries">Today's Entries</div>
+                    <div class="text-2xl font-bold text-slate-800 mt-1">8</div>
+                    <div class="text-[10px] text-slate-400 mt-1">26 Jul 2026</div>
+                </div>
+                <!-- Card 6 -->
+                <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100/80">
+                    <div class="w-9 h-9 rounded-xl bg-sky-50 text-sky-500 flex items-center justify-center mb-3">
+                        <i class="fa-solid fa-mobile-screen text-sm"></i>
+                    </div>
+                    <div class="text-[11px] font-semibold text-slate-400 uppercase" data-key="cardTotalEntries">Total Entries</div>
+                    <div class="text-2xl font-bold text-slate-800 mt-1">320</div>
+                    <div class="text-[10px] text-slate-400 mt-1">All time records</div>
+                </div>
+            </div>
+
+            <!-- MIDDLE SECTION (Recent Transactions & Top Outstanding Donut Chart) -->
+            <div class="grid grid-cols-12 gap-6">
+                <!-- Recent Transactions Table -->
+                <div class="col-span-8 bg-white p-6 rounded-2xl card-shadow border border-slate-100/80">
+                    <div class="flex justify-between items-center mb-6">
+                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                            <i class="fa-regular fa-clock text-blue-600"></i>
+                            <span data-key="recentTrans">Recent Transactions</span>
+                        </h4>
+                        <button onclick="switchTab('customers')" class="text-xs font-semibold text-blue-600 hover:underline" data-key="btnViewAll">View All</button>
+                    </div>
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="text-slate-400 border-b border-slate-100 font-semibold uppercase text-[10px] tracking-wider">
+                                <th class="pb-3">DATE</th>
+                                <th class="pb-3">CUSTOMER</th>
+                                <th class="pb-3">DESCRIPTION</th>
+                                <th class="pb-3">DEBIT</th>
+                                <th class="pb-3 text-right">CREDIT</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50 font-medium text-slate-700">
+                            <tr>
+                                <td class="py-3 text-slate-500">26 Jul 2026</td>
+                                <td class="py-3 font-semibold text-slate-800">Aarav Traders</td>
+                                <td class="py-3 text-slate-500">Purchase Payment</td>
+                                <td class="py-3 text-slate-800">Rs. 2,500.00</td>
+                                <td class="py-3 text-right text-slate-400">-</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 text-slate-500">26 Jul 2026</td>
+                                <td class="py-3 font-semibold text-slate-800">Shree Enterprises</td>
+                                <td class="py-3 text-slate-500">Sales Payment</td>
+                                <td class="py-3 text-slate-400">-</td>
+                                <td class="py-3 text-right text-emerald-600 font-semibold">Rs. 3,200.00</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 text-slate-500">26 Jul 2026</td>
+                                <td class="py-3 font-semibold text-slate-800">Buddha Store</td>
+                                <td class="py-3 text-slate-500">Purchase Payment</td>
+                                <td class="py-3 text-slate-800">Rs. 1,800.00</td>
+                                <td class="py-3 text-right text-slate-400">-</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 text-slate-500">25 Jul 2026</td>
+                                <td class="py-3 font-semibold text-slate-800">Mero Kirana</td>
+                                <td class="py-3 text-slate-500">Sales Payment</td>
+                                <td class="py-3 text-slate-400">-</td>
+                                <td class="py-3 text-right text-emerald-600 font-semibold">Rs. 4,500.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Top Outstanding Donut Chart -->
+                <div class="col-span-4 bg-white p-6 rounded-2xl card-shadow border border-slate-100/80">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie text-blue-600"></i>
+                            <span data-key="topOutstanding">Top Outstanding</span>
+                        </h4>
+                        <button class="text-xs font-semibold text-blue-600 hover:underline" data-key="btnViewAll">View All</button>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-36 h-36">
+                            <canvas id="topOutstandingChart"></canvas>
+                        </div>
+                        <div class="flex-1 space-y-2 text-xs">
+                            <div class="flex justify-between items-center"><span class="flex items-center gap-1.5"><i class="fa-solid fa-circle text-[8px] text-blue-600"></i> Aarav</span> <span class="font-bold">Rs. 5,450</span></div>
+                            <div class="flex justify-between items-center"><span class="flex items-center gap-1.5"><i class="fa-solid fa-circle text-[8px] text-emerald-500"></i> Shree</span> <span class="font-bold">Rs. 3,200</span></div>
+                            <div class="flex justify-between items-center"><span class="flex items-center gap-1.5"><i class="fa-solid fa-circle text-[8px] text-indigo-500"></i> Mero Kirana</span> <span class="font-bold">Rs. 2,800</span></div>
+                            <div class="flex justify-between items-center"><span class="flex items-center gap-1.5"><i class="fa-solid fa-circle text-[8px] text-purple-500"></i> Buddha</span> <span class="font-bold">Rs. 1,750</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LOWER SECTION (Monthly Line Chart + Overview Cards) -->
+            <div class="grid grid-cols-12 gap-6">
+                <!-- Monthly Line Chart -->
+                <div class="col-span-5 bg-white p-6 rounded-2xl card-shadow border border-slate-100/80">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="font-bold text-slate-800 text-sm" data-key="monthlySummary">Monthly Summary</h4>
+                        <span class="text-xs bg-slate-100 border border-slate-200 px-2 py-1 rounded-lg text-slate-600 font-medium">July 2026</span>
+                    </div>
+                    <div class="h-44">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 3 Overview Cards -->
+                <div class="col-span-7 grid grid-cols-3 gap-4">
+                    <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100/80 flex flex-col justify-between">
+                        <div>
+                            <div class="text-[11px] font-semibold text-slate-400 uppercase" data-key="inventoryOverview">Inventory Overview</div>
+                            <div class="text-2xl font-bold text-slate-800 mt-2">156</div>
+                            <div class="text-[11px] text-slate-400">Total Items</div>
+                        </div>
+                        <div class="flex justify-between text-[11px] font-bold mt-4 pt-3 border-t border-slate-100">
+                            <span class="text-rose-500">Low Stock: 12</span>
+                            <span class="text-amber-500">Out: 3</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100/80 flex flex-col justify-between">
+                        <div>
+                            <div class="text-[11px] font-semibold text-slate-400 uppercase" data-key="purchaseOverview">Purchase Overview</div>
+                            <div class="text-2xl font-bold text-slate-800 mt-2">Rs. 45,320</div>
+                            <div class="text-[11px] text-slate-400">This Month</div>
+                        </div>
+                        <div class="text-xs font-bold text-emerald-500 mt-4 flex items-center gap-1">
+                            <i class="fa-solid fa-arrow-trend-up"></i> 12.5% vs last month
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100/80 flex flex-col justify-between">
+                        <div>
+                            <div class="text-[11px] font-semibold text-slate-400 uppercase" data-key="salesOverview">Sales Overview</div>
+                            <div class="text-2xl font-bold text-slate-800 mt-2">Rs. 67,850</div>
+                            <div class="text-[11px] text-slate-400">This Month</div>
+                        </div>
+                        <div class="text-xs font-bold text-emerald-500 mt-4 flex items-center gap-1">
+                            <i class="fa-solid fa-arrow-trend-up"></i> 18.6% vs last month
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TAB 2: SALES TAB (उधारो र नगद बिक्री छनोट सुविधा - सुधार ४) -->
+        <div id="tab-sales" class="tab-pane hidden">
+            <div class="max-w-2xl bg-white p-8 rounded-2xl card-shadow border border-slate-100/80 mx-auto">
+                <h3 class="text-lg font-bold text-slate-800 mb-6 pb-3 border-b border-slate-100" data-key="newSaleTitle">New Sales Entry (बिक्री फारम)</h3>
+                <form id="salesForm" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1" data-key="selectCustomer">Select Customer</label>
+                        <select class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 focus:outline-none" required>
+                            <option value="">-- Select Customer --</option>
+                            <option value="1">Aarav Traders</option>
+                            <option value="2">Shree Enterprises</option>
+                            <option value="3">Mero Kirana</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1" data-key="productName">Product Name</label>
+                        <input type="text" placeholder="e.g. A4 Paper Pack" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 focus:outline-none" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1" data-key="amount">Total Amount (Rs.)</label>
+                        <input type="number" id="saleAmount" placeholder="0.00" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 focus:outline-none" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1" data-key="paymentType">Payment Mode (कारोबारको प्रकार)</label>
+                        <select id="paymentMode" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 focus:outline-none" required>
+                            <option value="Cash">Cash Sale (नगद बिक्री)</option>
+                            <option value="Credit">Credit Card / Online</option>
+                            <option value="Due">Due Sale (उधारो बिक्री - Ledger Transfer)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 transition mt-4" data-key="btnSaveSale">Save Sales Record</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- TAB 3: CUSTOMERS LEDGER (ग्राहक हिसाब प्रणाली - सुधार ५) -->
+        <div id="tab-customers" class="tab-pane hidden">
+            <div class="bg-white p-6 rounded-2xl card-shadow border border-slate-100/80">
+                <h3 class="text-lg font-bold text-slate-800 mb-4" data-key="customerLedgerTitle">Customer Accounts & Ledger (ग्राहक हिसाब)</h3>
+                <table class="w-full text-left text-sm">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-400 font-semibold text-xs border-b border-slate-100">
+                            <th class="p-3">Customer Name</th>
+                            <th class="p-3">Total Purchased</th>
+                            <th class="p-3">Cash Paid</th>
+                            <th class="p-3">Outstanding Due (बाँकी उधारो)</th>
+                            <th class="p-3 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 font-medium">
+                        <tr>
+                            <td class="p-3 font-bold text-slate-800">Aarav Traders</td>
+                            <td class="p-3">Rs. 25,000</td>
+                            <td class="p-3 text-emerald-600">Rs. 19,550</td>
+                            <td class="p-3 text-rose-500 font-bold">Rs. 5,450</td>
+                            <td class="p-3 text-right"><button class="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg font-semibold text-xs">View Ledger</button></td>
+                        </tr>
+                        <tr>
+                            <td class="p-3 font-bold text-slate-800">Shree Enterprises</td>
+                            <td class="p-3">Rs. 18,200</td>
+                            <td class="p-3 text-emerald-600">Rs. 15,000</td>
+                            <td class="p-3 text-rose-500 font-bold">Rs. 3,200</td>
+                            <td class="p-3 text-right"><button class="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg font-semibold text-xs">View Ledger</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- JS SCRIPTS -->
+    <script>
+        // १. Language Dictionary (English / Nepali)
+        const translations = {
+            en: {
+                loginTitle: "Welcome Back",
+                loginSubtitle: "Please sign in and select your preferred language",
+                selectLangLabel: "Select Language",
+                loginBtn: "Sign In to Dashboard",
+                mainMenu: "MAIN MENU",
+                navDashboard: "Dashboard",
+                navCustomers: "Customers",
+                navSales: "Sales",
+                navPurchase: "Purchase",
+                navReports: "Reports",
+                dashboardTitle: "Dashboard",
+                btnViewCustomers: "View Customers",
+                btnNewEntry: "+ New Entry",
+                welcomeText: "Welcome back",
+                welcomeSub: "Financial snapshot for Canvas Hub.",
+                cardTotalCustomers: "Total Customers",
+                cardTotalDebit: "Total Debit",
+                cardTotalCredit: "Total Credit",
+                cardTotalBalance: "Total Balance",
+                cardTodayEntries: "Today's Entries",
+                cardTotalEntries: "Total Entries",
+                recentTrans: "Recent Transactions",
+                btnViewAll: "View All",
+                topOutstanding: "Top Outstanding",
+                monthlySummary: "Monthly Summary",
+                inventoryOverview: "Inventory Overview",
+                purchaseOverview: "Purchase Overview",
+                salesOverview: "Sales Overview",
+                newSaleTitle: "New Sales Entry",
+                selectCustomer: "Select Customer",
+                productName: "Product Name",
+                amount: "Total Amount (Rs.)",
+                paymentType: "Payment Mode",
+                btnSaveSale: "Save Sales Record",
+                customerLedgerTitle: "Customer Accounts & Ledger"
+            },
+            ne: {
+                loginTitle: "पुन: स्वागत छ",
+                loginSubtitle: "कृपया लगइन गर्नुहोस् र भाषा छनौट गर्नुहोस्",
+                selectLangLabel: "भाषा छनौट गर्नुहोस्",
+                loginBtn: "ड्यासबोर्ड खोल्नुहोस्",
+                mainMenu: "मुख्य मेनु",
+                navDashboard: "ड्यासबोर्ड",
+                navCustomers: "ग्राहक खाता",
+                navSales: "बिक्री (Sales)",
+                navPurchase: "खरिद (Purchase)",
+                navReports: "रिपोर्टहरू",
+                dashboardTitle: "ड्यासबोर्ड र विश्लेषण",
+                btnViewCustomers: "ग्राहकहरू हेर्नुहोस्",
+                btnNewEntry: "+ नयाँ प्रविष्टि",
+                welcomeText: "नमस्ते, स्वागत छ",
+                welcomeSub: "क्यानभास हबको वित्तीय विवरण।",
+                cardTotalCustomers: "ग्राहक संख्या",
+                cardTotalDebit: "कुल डेभिट",
+                cardTotalCredit: "कुल क्रेडिट",
+                cardTotalBalance: "कुल ब्यालेन्स",
+                cardTodayEntries: "आजको प्रविष्टि",
+                cardTotalEntries: "कुल प्रविष्टि",
+                recentTrans: "हालैका कारोबारहरू",
+                btnViewAll: "सबै हेर्नुहोस्",
+                topOutstanding: "बाँकी उधारो शीर्ष ग्राहक",
+                monthlySummary: "मासिक सारांश",
+                inventoryOverview: "स्टक/सामान विवरण",
+                purchaseOverview: "खरिद विवरण",
+                salesOverview: "बिक्री विवरण",
+                newSaleTitle: "नयाँ बिक्री प्रविष्टि",
+                selectCustomer: "ग्राहक छान्नुहोस्",
+                productName: "सामानको नाम",
+                amount: "कुल रकम (रु.)",
+                paymentType: "कारोबारको प्रकार",
+                btnSaveSale: "बिक्री सुरक्षित गर्नुहोस्",
+                customerLedgerTitle: "ग्राहकको हिसाब-किताब"
             }
-        });
-    }
+        };
 
-    // २. Charts Configuration (Chart.js Integration)
-    window.onload = function() {
-        // Sales vs Purchase Bar Chart
-        const ctx1 = document.getElementById('salesChart').getContext('2d');
-        new Chart(ctx1, {
-            type: 'bar',
-            data: {
-                labels: ['बैशाख', 'जेठ', 'असार', 'साउन'],
-                datasets: [
-                    { label: 'कुल बिक्री (Sales)', data: [120000, 150000, 180000, 150000], backgroundColor: '#2ecc71' },
-                    { label: 'कुल खरिद (Purchase)', data: [80000, 90000, 100000, 80000], backgroundColor: '#3498db' }
-                ]
-            },
-            options: { responsive: true }
-        });
-
-        // Cash vs Due Sales Pie Chart
-        const ctx2 = document.getElementById('paymentPieChart').getContext('2d');
-        new Chart(ctx2, {
-            type: 'pie',
-            data: {
-                labels: ['नगद बिक्री (Cash)', 'उधारो बिक्री (Due)'],
-                datasets: [{
-                    data: [125000, 250000],
-                    backgroundColor: ['#2ecc71', '#e74c3c']
-                }]
-            },
-            options: { responsive: true }
-        });
-    };
-
-    // ३. Sales Form Submission Demo
-    document.getElementById('salesForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const mode = document.getElementById('paymentMode').value;
-        const amount = document.getElementById('saleAmount').value;
-
-        if(mode === 'Due') {
-            alert(`रु. ${amount} को उधारो बिक्री दर्ता गरियो! ग्राहकको उधारो खातामा रकम थपियो।`);
-        } else {
-            alert(`रु. ${amount} को नगद बिक्री सफलतापूर्वक रेकर्ड भयो!`);
+        // Switch Language
+        function changeLanguage(lang) {
+            document.querySelectorAll('[data-key]').forEach(elem => {
+                const key = elem.getAttribute('data-key');
+                if (translations[lang][key]) {
+                    elem.innerText = translations[lang][key];
+                }
+            });
+            document.getElementById('topLangSelect').value = lang;
+            document.getElementById('loginLangSelect').value = lang;
         }
-        this.reset();
-    });
-</script>
 
-<!-- Bootstrap JS Bundle -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        // Tab Switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            document.getElementById('tab-' + tabName).classList.remove('hidden');
+        }
+
+        // Login Handler
+        function handleLogin(e) {
+            e.preventDefault();
+            document.getElementById('loginModal').classList.add('hidden');
+        }
+
+        // Load Charts on Window Load
+        window.onload = function() {
+            // Donut Chart (Top Outstanding)
+            new Chart(document.getElementById('topOutstandingChart'), {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [5450, 3200, 2800, 1750],
+                        backgroundColor: ['#2563eb', '#10b981', '#6366f1', '#a855f7'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { cutout: '75%', plugins: { legend: { display: false } } }
+            });
+
+            // Line Chart (Monthly Summary)
+            new Chart(document.getElementById('monthlyChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                    datasets: [{
+                        data: [10, 15, 14, 25, 24, 32, 45],
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: { plugins: { legend: { display: false } }, scales: { y: { display: false } } }
+            });
+        }
+
+        // Sales Form Submission Logic
+        document.getElementById('salesForm').addEventListener('submit', function(e){
+            e.preventDefault();
+            const mode = document.getElementById('paymentMode').value;
+            const amount = document.getElementById('saleAmount').value;
+            if(mode === 'Due') {
+                alert(`Rs. ${amount} transferred to Customer Due Ledger!`);
+            } else {
+                alert(`Rs. ${amount} recorded as Cash Sale.`);
+            }
+            this.reset();
+        });
+    </script>
 </body>
 </html>
