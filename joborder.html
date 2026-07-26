@@ -6,25 +6,44 @@
     <title>Enterprise Multi-Tenant Digital Ledger & ERP System</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS for XLSX export -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #334155; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .sidebar-bg { background-color: #0f172a; }
         .card-shadow { box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.03); }
         .sidebar-item-active { background-color: #2563eb; color: #ffffff; }
+        
+        /* Print Stylesheet */
         @media print {
-            body * { visibility: hidden; }
-            #printableShareLedger, #printableShareLedger * { visibility: visible; }
-            #printableShareLedger { position: absolute; left: 0; top: 0; width: 100%; }
+            aside, header, .no-print, button, input, select { display: none !important; }
+            main { padding: 0 !important; margin: 0 !important; width: 100% !important; overflow: visible !important; }
+            body { background: white !important; color: black !important; }
+            .card-shadow { box-shadow: none !important; border: 1px solid #ccc !important; }
+            .print-only { display: block !important; }
         }
+        .print-only { display: none; }
     </style>
 </head>
-<body class="flex min-h-screen text-slate-700">
+<body class="flex min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-200 transition-colors duration-200">
 
     <!-- Toast Notification -->
     <div id="toast" class="fixed top-5 right-5 z-50 hidden bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl text-xs font-semibold flex items-center gap-3 transition-all">
@@ -34,47 +53,27 @@
 
     <!-- AUTHENTICATION MODAL -->
     <div id="authModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 border border-slate-100">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-md w-full p-8 border border-slate-100 dark:border-slate-700">
             <div class="text-center mb-6">
-                <div class="w-14 h-14 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center text-white text-2xl font-bold mb-3 shadow-lg shadow-blue-500/30">
+                <div id="authLogoContainer" class="w-14 h-14 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center text-white text-2xl font-bold mb-3 shadow-lg shadow-blue-500/30 overflow-hidden">
                     <i class="fa-solid fa-book-journal-whills"></i>
                 </div>
-                <h2 id="modalTitle" class="text-2xl font-extrabold text-slate-900">Sign In</h2>
+                <h2 id="modalTitle" class="text-2xl font-extrabold text-slate-900 dark:text-white">Sign In</h2>
                 <p id="modalSub" class="text-slate-400 text-xs mt-1">Multi-Tenant Ledger & ERP Portal</p>
             </div>
 
             <!-- Login Form -->
             <form id="loginForm" onsubmit="handleEmailLogin(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Email Address</label>
-                    <input type="email" id="loginEmail" placeholder="yourname@domain.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Email Address</label>
+                    <input type="email" id="loginEmail" value="admin@ledger.com" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="enter your email" required>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Password</label>
-                    <input type="password" id="loginPassword" placeholder="••••••••" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Password</label>
+                    <input type="password" id="loginPassword" value="admin123" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="••••••••" required>
                 </div>
                 <div id="authError" class="text-rose-600 text-xs font-bold hidden bg-rose-50 p-3 rounded-xl border border-rose-200 text-center"></div>
                 <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-lg shadow-blue-500/25 text-xs">Sign In</button>
-
-                <p class="text-center text-xs text-slate-500 mt-4">Don't have an account? <button type="button" onclick="switchAuthView('register')" class="text-blue-600 font-bold hover:underline">Register New Company</button></p>
-            </form>
-
-            <!-- Register Form -->
-            <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 hidden">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Company / Full Name</label>
-                    <input type="text" id="regName" placeholder="ABC Company" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Email Address</label>
-                    <input type="email" id="regEmail" placeholder="user@domain.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Set Password</label>
-                    <input type="password" id="regPassword" minlength="6" placeholder="At least 6 chars" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
-                </div>
-                <button type="submit" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition shadow-lg text-xs">Create Dedicated Account</button>
-                <p class="text-center text-xs text-slate-500 mt-2"><button type="button" onclick="switchAuthView('login')" class="text-blue-600 font-bold hover:underline">Back to Login</button></p>
             </form>
         </div>
     </div>
@@ -84,11 +83,11 @@
         <div>
             <!-- Brand Header -->
             <div class="flex items-center gap-3 px-2 py-3 mb-6 border-b border-slate-800 pb-4">
-                <div class="w-10 h-10 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-bold text-xl shadow-md">
+                <div id="sidebarLogo" class="w-10 h-10 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-bold text-xl shadow-md overflow-hidden shrink-0">
                     <i class="fa-solid fa-chart-line"></i>
                 </div>
-                <div>
-                    <h1 class="font-extrabold text-white text-base leading-tight">Ledger Hub</h1>
+                <div class="overflow-hidden">
+                    <h1 class="font-extrabold text-white text-base leading-tight truncate" id="sidebarCompName">Ledger Hub</h1>
                     <span class="text-[10px] text-blue-400 font-semibold tracking-wider uppercase" id="userRoleBadge">ADMIN</span>
                 </div>
             </div>
@@ -99,6 +98,12 @@
                 <a href="#dashboard" onclick="switchTab('dashboard')" id="nav-dashboard" class="sidebar-item sidebar-item-active flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition">
                     <i class="fa-solid fa-grip text-sm w-4"></i> Dashboard
                 </a>
+                <a href="#customers" onclick="switchTab('customers')" id="nav-customers" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-users text-sm w-4"></i> Customer Information
+                </a>
+                <a href="#creditledger" onclick="switchTab('creditledger')" id="nav-creditledger" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-book text-sm w-4"></i> Ledger Entries & Ledger
+                </a>
                 <a href="#products" onclick="switchTab('products')" id="nav-products" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
                     <i class="fa-solid fa-tag text-sm w-4"></i> Product & Inventory
                 </a>
@@ -108,14 +113,23 @@
                 <a href="#purchase" onclick="switchTab('purchase')" id="nav-purchase" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
                     <i class="fa-solid fa-bag-shopping text-sm w-4"></i> Purchase System
                 </a>
-                <a href="#customers" onclick="switchTab('customers')" id="nav-customers" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-users text-sm w-4"></i> Customer Management
+                <a href="#receipt" onclick="switchTab('receipt')" id="nav-receipt" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-receipt text-sm w-4 text-emerald-400"></i> Payment Receipt
                 </a>
-                <a href="#creditledger" onclick="switchTab('creditledger')" id="nav-creditledger" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-scale-balanced text-sm w-4"></i> Serial Customer Ledgers
+                <a href="#paymentpaid" onclick="switchTab('paymentpaid')" id="nav-paymentpaid" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-money-bill-transfer text-sm w-4 text-rose-400"></i> Payment Paid
                 </a>
-                <a href="#usermanagement" onclick="switchTab('usermanagement')" id="nav-usermanagement" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-user-gear text-sm w-4"></i> User Management
+                <a href="#returns" onclick="switchTab('returns')" id="nav-returns" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-rotate-left text-sm w-4 text-amber-400"></i> Return
+                </a>
+                <a href="#adjustments" onclick="switchTab('adjustments')" id="nav-adjustments" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-sliders text-sm w-4 text-purple-400"></i> Adjustment
+                </a>
+                <a href="#reports" onclick="switchTab('reports')" id="nav-reports" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-chart-pie text-sm w-4 text-emerald-400"></i> Reports & Analytics
+                </a>
+                <a href="#settings" onclick="switchTab('settings')" id="nav-settings" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-gear text-sm w-4 text-cyan-400"></i> Settings & Preferences
                 </a>
             </nav>
         </div>
@@ -123,10 +137,10 @@
         <!-- User Profile Footer -->
         <div class="bg-slate-800 p-3 rounded-2xl flex items-center justify-between border border-slate-700">
             <div class="flex items-center gap-2.5 overflow-hidden">
-                <div id="userAvatar" class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">U</div>
+                <div id="userAvatar" class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">A</div>
                 <div class="truncate text-xs">
-                    <div id="userNameDisplay" class="font-bold text-white truncate">Guest User</div>
-                    <div id="userEmailDisplay" class="text-slate-400 text-[10px] truncate">Not logged in</div>
+                    <div id="userNameDisplay" class="font-bold text-white truncate">Admin</div>
+                    <div id="userEmailDisplay" class="text-slate-400 text-[10px] truncate">admin@ledger.com</div>
                 </div>
             </div>
             <button onclick="handleLogout()" class="text-slate-400 hover:text-white ms-2 text-xs" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
@@ -136,17 +150,25 @@
     <!-- RIGHT MAIN CONTENT SECTION -->
     <main class="flex-1 overflow-y-auto px-8 py-6 space-y-6">
         
+        <!-- Printable Header -->
+        <div class="print-only mb-6 border-b pb-4">
+            <h1 class="text-2xl font-bold text-slate-900" id="printCompName">Digital Ledger System</h1>
+            <p class="text-sm text-slate-600" id="printCompAddress">Kathmandu, Nepal | PAN/VAT: N/A</p>
+            <p class="text-xs text-slate-500 mt-1">Generated Statement Date: <span id="printDate"></span></p>
+        </div>
+
         <!-- Header Bar -->
-        <header class="flex justify-between items-center">
+        <header class="flex justify-between items-center no-print">
             <div>
                 <span class="text-xs font-semibold text-slate-400">Digital Workspace</span>
-                <h2 class="text-2xl font-bold text-slate-900" id="moduleTitle">Dashboard</h2>
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white" id="moduleTitle">Dashboard</h2>
             </div>
             <div class="flex items-center gap-3">
-                <span class="text-xs font-semibold text-slate-500 bg-white px-3 py-1.5 rounded-xl border border-slate-200">26 Jul 2026</span>
-                <div id="headerUserInitials" class="w-9 h-9 bg-slate-900 text-white rounded-xl flex items-center justify-center font-bold text-xs shadow-md">
-                    GU
-                </div>
+                <button onclick="toggleDarkMode()" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold bg-white dark:bg-slate-800 dark:text-white shadow-sm hover:bg-slate-100 transition">
+                    <i class="fa-solid fa-moon dark:hidden text-indigo-600"></i><i class="fa-solid fa-sun hidden dark:inline text-amber-400"></i>
+                </button>
+                <span class="text-xs font-semibold text-slate-500 dark:text-slate-300 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700" id="currentDateDisplay"></span>
+                <div id="headerUserInitials" class="w-9 h-9 bg-slate-900 dark:bg-slate-700 text-white rounded-xl flex items-center justify-center font-bold text-xs shadow-md">AD</div>
             </div>
         </header>
 
@@ -155,984 +177,1187 @@
 
             <!-- 1. DASHBOARD VIEW -->
             <div id="view-dashboard" class="space-y-6">
-                <div class="grid grid-cols-4 gap-4">
-                    <div class="bg-white p-4 rounded-2xl border border-slate-100 card-shadow">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Sales Volume</span>
-                        <div class="text-xl font-extrabold text-slate-900 mt-1" id="dashTotalSales">रु 0.00</div>
+                <!-- Top Metric Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Customers</span>
+                        <div class="text-xl font-extrabold text-slate-900 dark:text-white mt-1" id="dashTotalCustomers">0</div>
                     </div>
-                    <div class="bg-white p-4 rounded-2xl border border-slate-100 card-shadow">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase">Collected Amount</span>
-                        <div class="text-xl font-extrabold text-emerald-600 mt-1" id="dashCashSales">रु 0.00</div>
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Receivable (उठाउन बाँकी)</span>
+                        <div class="text-xl font-extrabold text-rose-600 mt-1" id="dashTotalReceivable">रु 0.00</div>
                     </div>
-                    <div class="bg-white p-4 rounded-2xl border border-slate-100 card-shadow">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase">Pending Due Balance</span>
-                        <div class="text-xl font-extrabold text-rose-600 mt-1" id="dashOutstandingCredit">रु 0.00</div>
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Payable (तिर्न बाँकी)</span>
+                        <div class="text-xl font-extrabold text-amber-600 mt-1" id="dashTotalPayable">रु 0.00</div>
                     </div>
-                    <div class="bg-white p-4 rounded-2xl border border-slate-100 card-shadow">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Purchase Expenses</span>
-                        <div class="text-xl font-extrabold text-blue-600 mt-1" id="dashTotalPurchase">रु 0.00</div>
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Today's Transactions</span>
+                        <div class="text-xl font-extrabold text-emerald-600 mt-1" id="dashTodayTransactions">रु 0.00</div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">This Month Summary</span>
+                        <div class="text-xl font-extrabold text-blue-600 mt-1" id="dashMonthSummary">रु 0.00</div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Purchases</span>
+                        <div class="text-xl font-extrabold text-purple-600 mt-1" id="dashTotalPurchase">रु 0.00</div>
                     </div>
                 </div>
 
                 <!-- Dashboard Charts -->
                 <div class="grid grid-cols-12 gap-6">
-                    <div class="col-span-8 bg-white p-6 rounded-3xl border border-slate-100 card-shadow">
-                        <h4 class="font-bold text-slate-900 text-sm mb-4"><i class="fa-solid fa-chart-area text-blue-600 me-2"></i>Real-time Sales & Purchase Trend</h4>
+                    <div class="col-span-12 lg:col-span-8 bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 card-shadow">
+                        <h4 class="font-bold text-slate-900 dark:text-white text-sm mb-4"><i class="fa-solid fa-chart-area text-blue-600 me-2"></i>Real-time Sales & Financial Trend</h4>
                         <div class="h-64"><canvas id="salesPurchaseChart"></canvas></div>
                     </div>
-                    <div class="col-span-4 bg-white p-6 rounded-3xl border border-slate-100 card-shadow">
-                        <h4 class="font-bold text-slate-900 text-sm mb-4"><i class="fa-solid fa-chart-pie text-emerald-600 me-2"></i>Collection Statistics</h4>
+                    <div class="col-span-12 lg:col-span-4 bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 card-shadow">
+                        <h4 class="font-bold text-slate-900 dark:text-white text-sm mb-4"><i class="fa-solid fa-chart-pie text-emerald-600 me-2"></i>Receivables vs Payables Breakdown</h4>
                         <div class="h-64 relative"><canvas id="incomeExpenseChart"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions Table -->
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 card-shadow">
+                    <h4 class="font-bold text-slate-900 dark:text-white text-sm mb-4"><i class="fa-solid fa-clock-rotate-left text-blue-600 me-2"></i>Recent Transactions</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
+                                <tr>
+                                    <th class="p-3">Date</th>
+                                    <th class="p-3">Voucher No.</th>
+                                    <th class="p-3">Customer / Party</th>
+                                    <th class="p-3">Description</th>
+                                    <th class="p-3 text-right">Debit</th>
+                                    <th class="p-3 text-right">Credit</th>
+                                    <th class="p-3">Payment Method</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentTxTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
-            <!-- 2. PRODUCT & INVENTORY MANAGEMENT VIEW -->
-            <div id="view-products" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+            <!-- 2. CUSTOMER INFORMATION VIEW -->
+            <div id="view-customers" class="space-y-6 hidden">
+                <div class="flex flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow gap-4">
                     <div>
-                        <h3 class="font-bold text-slate-900 text-base">Product & Inventory Catalog</h3>
-                        <p class="text-xs text-slate-400">Add products and manage real-time stock levels.</p>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Customer Directory</h3>
+                        <p class="text-xs text-slate-400">Manage customer profile, contact details, opening balance and PAN/VAT.</p>
+                    </div>
+                    <button onclick="openCustomerModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
+                        <i class="fa-solid fa-user-plus me-1.5"></i> Add New Customer
+                    </button>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow flex flex-wrap gap-3">
+                    <input type="text" id="custSearchName" oninput="renderCustomers()" placeholder="Search by Customer Name..." class="px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none flex-1 min-w-[200px]">
+                    <input type="text" id="custSearchMobile" oninput="renderCustomers()" placeholder="Search by Mobile..." class="px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none flex-1 min-w-[150px]">
+                    <select id="custFilterBalance" onchange="renderCustomers()" class="px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none">
+                        <option value="ALL">All Balances</option>
+                        <option value="DUE">Outstanding Due (>0)</option>
+                        <option value="ZERO">Zero Balance</option>
+                        <option value="ADVANCE">Advance Paid (<0)</option>
+                    </select>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
+                            <tr>
+                                <th class="p-4">Customer ID</th>
+                                <th class="p-4">Customer Name</th>
+                                <th class="p-4">Mobile</th>
+                                <th class="p-4">Address</th>
+                                <th class="p-4">PAN/VAT</th>
+                                <th class="p-4 text-right">Opening Bal.</th>
+                                <th class="p-4 text-right">Current Balance</th>
+                                <th class="p-4 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customerTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 3. CUSTOMER LEDGER VIEW -->
+            <div id="view-creditledger" class="space-y-6 hidden">
+                <div class="flex flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow gap-4">
+                    <div>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Ledger Entries & Customer Ledger</h3>
+                        <p class="text-xs text-slate-400">Complete Ledger Entries with auto-voucher, debit/credit, running balance, & filters.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="openLedgerEntryModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
+                            <i class="fa-solid fa-plus me-1.5"></i> Add New Entry
+                        </button>
+                        <button onclick="shareLedgerReport()" class="bg-emerald-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition">
+                            <i class="fa-solid fa-share-nodes me-1.5"></i> Share Ledger
+                        </button>
+                        <button onclick="window.print()" class="bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-slate-900 transition">
+                            <i class="fa-solid fa-print me-1.5"></i> Print Ledger
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Select Customer</label>
+                            <select id="ledgerCustomerSelect" onchange="renderCustomerLedgerView()" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-bold">
+                                <option value="ALL">-- All Customer Entries --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Filter Payment Method</label>
+                            <select id="ledgerFilterPayment" onchange="renderCustomerLedgerView()" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none">
+                                <option value="ALL">All Methods</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Bank">Bank</option>
+                                <option value="QR">QR</option>
+                                <option value="Cheque">Cheque</option>
+                                <option value="Credit">Credit</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">From Date</label>
+                            <input type="date" id="ledgerStartDate" onchange="renderCustomerLedgerView()" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">To Date</label>
+                            <input type="date" id="ledgerEndDate" onchange="renderCustomerLedgerView()" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none">
+                        </div>
+                    </div>
+
+                    <!-- CUSTOMER SUMMARY SUMMARY CARDS FOR LEDGER -->
+                    <div id="customerSummaryBox" class="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600">
+                        <div>
+                            <span class="text-slate-400 block text-[10px] font-bold uppercase">Customer Name</span>
+                            <span id="custHeadName" class="text-slate-900 dark:text-white font-extrabold text-sm">-- All Customers --</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[10px] font-bold uppercase">Total Debit</span>
+                            <span id="custHeadTotalDebit" class="text-rose-600 font-extrabold text-sm">रु 0.00</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[10px] font-bold uppercase">Total Credit</span>
+                            <span id="custHeadTotalCredit" class="text-emerald-600 font-extrabold text-sm">रु 0.00</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[10px] font-bold uppercase">Outstanding Balance</span>
+                            <span id="custHeadOutstanding" class="text-blue-600 font-extrabold text-sm">रु 0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
+                            <tr>
+                                <th class="p-4">Date</th>
+                                <th class="p-4">Voucher No.</th>
+                                <th class="p-4">Customer</th>
+                                <th class="p-4">Description / Remarks</th>
+                                <th class="p-4 text-right">Debit (उधार)</th>
+                                <th class="p-4 text-right">Credit (प्राप्त)</th>
+                                <th class="p-4 text-right">Running Balance</th>
+                                <th class="p-4">Method</th>
+                                <th class="p-4 text-center no-print">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledgerTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 4. PRODUCT & INVENTORY VIEW -->
+            <div id="view-products" class="space-y-6 hidden">
+                <div class="flex flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow gap-4">
+                    <div>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Product & Inventory Management</h3>
+                        <p class="text-xs text-slate-400">Manage stock items, purchase price, selling price, and quantities.</p>
                     </div>
                     <button onclick="openProductModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
                         <i class="fa-solid fa-plus me-1.5"></i> Add New Product
                     </button>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden">
                     <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
+                        <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
                             <tr>
+                                <th class="p-4">Code</th>
                                 <th class="p-4">Product Name</th>
-                                <th class="p-4">Purchase Rate</th>
-                                <th class="p-4">Selling Rate</th>
-                                <th class="p-4">Available Stock</th>
-                                <th class="p-4 text-center">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="productTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- 3. CUSTOMER MANAGEMENT VIEW -->
-            <div id="view-customers" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
-                    <div>
-                        <h3 class="font-bold text-slate-900 text-base">Customer Directory</h3>
-                        <p class="text-xs text-slate-400">Manage customers and view total outstanding balances.</p>
-                    </div>
-                    <button onclick="openCustomerModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
-                        <i class="fa-solid fa-user-plus me-1.5"></i> Add Customer
-                    </button>
-                </div>
-
-                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
-                            <tr>
-                                <th class="p-4">Customer Name</th>
-                                <th class="p-4">Phone</th>
-                                <th class="p-4">Address</th>
-                                <th class="p-4 text-right">Outstanding Balance</th>
+                                <th class="p-4">Category</th>
+                                <th class="p-4 text-right">Cost Price</th>
+                                <th class="p-4 text-right">Selling Price</th>
+                                <th class="p-4 text-right">Stock Qty</th>
                                 <th class="p-4 text-center">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="customerTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
+                        <tbody id="productTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- 4. SALES SYSTEM VIEW -->
+            <!-- 5. SALES SYSTEM VIEW -->
             <div id="view-sales" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+                <div class="flex flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow gap-4">
                     <div>
-                        <h3 class="font-bold text-slate-900 text-base">Sales Registry</h3>
-                        <p class="text-xs text-slate-400">Record cash/credit sales with itemized quantity and auto stock deduction.</p>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Sales System & Invoices</h3>
+                        <p class="text-xs text-slate-400">Create new sales invoice, track entries, and manage sales billing.</p>
                     </div>
-                    <button onclick="openSalesModal()" class="bg-emerald-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition">
-                        <i class="fa-solid fa-cart-plus me-1.5"></i> New Sales Invoice Entry
+                    <button onclick="openSalesModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
+                        <i class="fa-solid fa-cart-plus me-1.5"></i> New Sales Invoice
                     </button>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden">
                     <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
+                        <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
                             <tr>
                                 <th class="p-4">Date</th>
+                                <th class="p-4">Invoice No</th>
                                 <th class="p-4">Customer</th>
-                                <th class="p-4">Product Details</th>
-                                <th class="p-4">Mode</th>
+                                <th class="p-4">Method</th>
                                 <th class="p-4 text-right">Total Amount</th>
-                                <th class="p-4 text-right">Paid</th>
-                                <th class="p-4 text-right">Remaining</th>
+                                <th class="p-4 text-center">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="salesTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
+                        <tbody id="salesTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- 5. FULLY FUNCTIONAL PURCHASE SYSTEM -->
+            <!-- 6. PURCHASE SYSTEM VIEW -->
             <div id="view-purchase" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+                <div class="flex flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow gap-4">
                     <div>
-                        <h3 class="font-bold text-slate-900 text-base">Purchase System Engine</h3>
-                        <p class="text-xs text-slate-400">Record purchases from suppliers to auto-increase inventory stock.</p>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Purchase System</h3>
+                        <p class="text-xs text-slate-400">Record stock purchases, suppliers, and payment methods (Cash/Bank/Cheque/Credit).</p>
                     </div>
                     <button onclick="openPurchaseModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
-                        <i class="fa-solid fa-bag-shopping me-1.5"></i> Add New Purchase Entry
+                        <i class="fa-solid fa-bag-shopping me-1.5"></i> Add New Purchase
                     </button>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden">
                     <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
+                        <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
                             <tr>
                                 <th class="p-4">Date</th>
-                                <th class="p-4">Supplier Name</th>
-                                <th class="p-4">Product Name</th>
-                                <th class="p-4">Quantity</th>
-                                <th class="p-4 text-right">Rate</th>
+                                <th class="p-4">Bill No</th>
+                                <th class="p-4">Supplier</th>
+                                <th class="p-4">Payment Method</th>
                                 <th class="p-4 text-right">Total Amount</th>
+                                <th class="p-4 text-right">Outstanding Payable</th>
                                 <th class="p-4 text-center">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="purchaseTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
+                        <tbody id="purchaseTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- 6. SERIAL CUSTOMER LEDGERS & SHARE ENGINE -->
-            <div id="view-creditledger" class="space-y-6 hidden">
-                <div class="bg-white p-5 rounded-2xl border border-slate-100 card-shadow flex justify-between items-center">
+            <!-- 7. PAYMENT RECEIPT VIEW -->
+            <div id="view-receipt" class="space-y-6 hidden">
+                <div class="flex flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow gap-4">
                     <div>
-                        <h3 class="font-bold text-slate-900 text-base">Serial Customer Ledger Statements</h3>
-                        <p class="text-xs text-slate-400">Chronological history of Sales and Payments with dynamic balance calculation.</p>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Payment Receipt (प्राप्त रकम)</h3>
+                        <p class="text-xs text-slate-400">Record money received from customers to reduce their outstanding balance.</p>
                     </div>
-                    <button onclick="openPaymentCollectModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
-                        <i class="fa-solid fa-hand-holding-dollar me-1.5"></i> Record Payment Received Today
+                    <button onclick="openReceiptModal()" class="bg-emerald-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition">
+                        <i class="fa-solid fa-hand-holding-dollar me-1.5"></i> Record Receipt
                     </button>
                 </div>
-
-                <div id="ledgerCardsContainer" class="space-y-6"></div>
             </div>
 
-            <!-- 7. USER MANAGEMENT VIEW -->
-            <div id="view-usermanagement" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 card-shadow">
+            <!-- 8. PAYMENT PAID VIEW -->
+            <div id="view-paymentpaid" class="space-y-6 hidden">
+                <div class="flex flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow gap-4">
                     <div>
-                        <h3 class="font-bold text-slate-900 text-base">Sub-User Accounts & Role Permissions</h3>
-                        <p class="text-xs text-slate-400">Create Sales Users, Purchase Users, or Admins with restricted permissions.</p>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Payment Paid (भुक्तानी रकम)</h3>
+                        <p class="text-xs text-slate-400">Record payments made to suppliers or customers.</p>
                     </div>
-                    <button onclick="openUserModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl">
-                        <i class="fa-solid fa-user-shield me-1.5"></i> Create Sub-User
+                    <button onclick="openPaymentPaidModal()" class="bg-rose-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-rose-700 transition">
+                        <i class="fa-solid fa-money-bill-wave me-1.5"></i> Record Payment
                     </button>
                 </div>
+            </div>
 
-                <div class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px]">
-                            <tr>
-                                <th class="p-4">User Email</th>
-                                <th class="p-4">Role</th>
-                                <th class="p-4">Module Permissions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="userTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700"></tbody>
-                    </table>
+            <!-- 9. RETURN VIEW -->
+            <div id="view-returns" class="space-y-6 hidden">
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                    <h3 class="font-bold text-slate-900 dark:text-white text-base">Sales / Purchase Returns</h3>
+                    <p class="text-xs text-slate-400 mt-1">Manage return logs and stock balance reversals.</p>
+                </div>
+            </div>
+
+            <!-- 10. ADJUSTMENT VIEW -->
+            <div id="view-adjustments" class="space-y-6 hidden">
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                    <h3 class="font-bold text-slate-900 dark:text-white text-base">Stock / Ledger Adjustments</h3>
+                    <p class="text-xs text-slate-400 mt-1">Perform manual ledger or inventory balance adjustments.</p>
+                </div>
+            </div>
+
+            <!-- 11. REPORTS VIEW -->
+            <div id="view-reports" class="space-y-6 hidden">
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow flex justify-between items-center">
+                    <div>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Reports & Analytics</h3>
+                        <p class="text-xs text-slate-400">Export financial summaries and detailed transaction histories.</p>
+                    </div>
+                    <button onclick="exportToExcel()" class="bg-emerald-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition">
+                        <i class="fa-solid fa-file-excel me-1.5"></i> Export Excel
+                    </button>
+                </div>
+            </div>
+
+            <!-- 12. SETTINGS & PREFERENCES VIEW -->
+            <div id="view-settings" class="space-y-6 hidden">
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 card-shadow">
+                    <div class="border-b border-slate-100 dark:border-slate-700 pb-4 mb-6">
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base"><i class="fa-solid fa-sliders text-blue-600 me-2"></i>Company Settings & Preferences</h3>
+                        <p class="text-xs text-slate-400 mt-1">Customize your business details, branding, logo, and system preferences.</p>
+                    </div>
+
+                    <form id="settingsForm" onsubmit="saveCompanySettings(event)" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Company Name *</label>
+                                <input type="text" id="setCompanyName" required class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Company Logo</label>
+                                <div class="flex items-center gap-4">
+                                    <input type="file" id="setCompanyLogo" accept="image/*" onchange="previewLogoUpload(event)" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-slate-700 dark:file:text-white">
+                                    <div id="logoPreviewBox" class="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-600 flex items-center justify-center shrink-0 overflow-hidden">
+                                        <i class="fa-solid fa-building text-slate-400 text-lg"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Phone Number</label>
+                                <input type="text" id="setCompanyPhone" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Email Address</label>
+                                <input type="email" id="setCompanyEmail" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Address</label>
+                                <input type="text" id="setCompanyAddress" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">PAN/VAT Number</label>
+                                <input type="text" id="setCompanyPan" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Currency Symbol</label>
+                                <input type="text" id="setCurrencySymbol" value="रु" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Date Format</label>
+                                <select id="setDateFormat" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="YYYY-MM-DD">YYYY-MM-DD (2026-07-26)</option>
+                                    <option value="DD/MM/YYYY">DD/MM/YYYY (26/07/2026)</option>
+                                    <option value="MM/DD/YYYY">MM/DD/YYYY (07/26/2026)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Default Language (Optional)</label>
+                                <select id="setDefaultLanguage" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="Nepali">Nepali (नेपाली)</option>
+                                    <option value="English">English</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-6 py-3 rounded-xl transition shadow-lg shadow-blue-500/20">
+                                <i class="fa-solid fa-floppy-disk me-1.5"></i> Save Settings
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
         </div>
     </main>
 
-    <!-- MODAL: ADD PRODUCT -->
-    <div id="productModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <h3 class="font-bold text-slate-900 text-base mb-4">Add New Product</h3>
-            <form onsubmit="saveProduct(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Product Name</label>
-                    <input type="text" id="prodName" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="e.g. Rice 25kg Bag" required>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Purchase Price (रु)</label>
-                        <input type="number" id="prodCost" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="1000" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Selling Price (रु)</label>
-                        <input type="number" id="prodPrice" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="1200" required>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Initial Stock Quantity</label>
-                    <input type="number" id="prodStock" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="50" required>
-                </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeModal('productModal')" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-xl">Save Product</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL: ADD CUSTOMER -->
-    <div id="customerModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <h3 class="font-bold text-slate-900 text-base mb-4">Add Customer Record</h3>
-            <form onsubmit="saveCustomer(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Full Name</label>
-                    <input type="text" id="custName" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="e.g. Sudil Joshi" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Phone Number</label>
-                    <input type="text" id="custPhone" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="9800000000" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Address</label>
-                    <input type="text" id="custAddress" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="Kathmandu, Nepal" required>
-                </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeModal('customerModal')" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-xl">Save Customer</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL: NEW SALES ENTRY -->
-    <div id="salesModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <h3 class="font-bold text-slate-900 text-base mb-4">Create Sales Invoice</h3>
-            <form onsubmit="saveSales(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Customer</label>
-                    <select id="salesCustomerSelect" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required></select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Select Product</label>
-                    <select id="salesProductSelect" onchange="updateSalesCalculation()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required></select>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Quantity</label>
-                        <input type="number" id="salesQty" min="1" value="1" oninput="updateSalesCalculation()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Rate (रु)</label>
-                        <input type="number" id="salesRate" oninput="updateSalesCalculation()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
-                    </div>
-                </div>
-                <div class="p-3 bg-slate-100 rounded-xl text-xs flex justify-between font-bold">
-                    <span>Total Amount:</span>
-                    <span id="salesTotalCalc" class="text-blue-600">रु 0</span>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Payment Mode</label>
-                    <select id="salesPaymentType" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-                        <option value="CASH">CASH SALE</option>
-                        <option value="CREDIT">CREDIT SALE (Add to Customer Ledger)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Paid Amount Right Now (रु)</label>
-                    <input type="number" id="salesPaidNow" value="0" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
-                </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeModal('salesModal')" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-emerald-600 text-white text-xs font-bold rounded-xl">Save Sales Invoice</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL: ADD PURCHASE ENTRY -->
-    <div id="purchaseModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <h3 class="font-bold text-slate-900 text-base mb-4">Record Product Purchase</h3>
-            <form onsubmit="savePurchase(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Supplier Name</label>
-                    <input type="text" id="purSupplier" placeholder="e.g. Nepal Wholesalers Ltd" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Select Product</label>
-                    <select id="purProductSelect" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required></select>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Quantity</label>
-                        <input type="number" id="purQty" min="1" value="1" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Purchase Rate (रु)</label>
-                        <input type="number" id="purRate" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required>
-                    </div>
-                </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeModal('purchaseModal')" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-xl">Add & Increase Stock</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL: PAYMENT COLLECTION -->
-    <div id="paymentCollectModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <h3 class="font-bold text-slate-900 text-base mb-4">Record Received Payment Today</h3>
-            <form onsubmit="savePaymentCollection(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Select Customer</label>
-                    <select id="payCustomerSelect" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" required></select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Amount Paid / Received (रु)</label>
-                    <input type="number" id="payAmount" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="e.g. 500" required>
-                </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeModal('paymentCollectModal')" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-xl">Update Running Balance</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL: CREATE SUB-USER -->
-    <div id="userModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <h3 class="font-bold text-slate-900 text-base mb-4">Create Sub-User Account</h3>
-            <form onsubmit="saveSubUser(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">User Email</label>
-                    <input type="email" id="subEmail" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="salesuser@company.com" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Assign Role</label>
-                    <select id="subRole" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-                        <option value="SALES_USER">Sales User (Sales & Customer Only)</option>
-                        <option value="PURCHASE_USER">Purchase User (Purchase & Stock Only)</option>
-                        <option value="ADMIN">Full Admin Access</option>
-                    </select>
-                </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeModal('userModal')" class="px-4 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-xl">Create Account</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- PRINTABLE SHARE LEDGER TEMPLATE -->
-    <div id="printableShareLedger" class="hidden p-8 bg-white text-slate-900">
-        <div class="flex justify-between border-b pb-4 mb-4">
-            <div>
-                <h1 class="text-2xl font-bold" id="printCompName">Company Name</h1>
-                <p class="text-xs text-slate-500">Official Customer Ledger Statement</p>
+    <!-- MODAL POPUPS -->
+    <!-- Add/Edit Customer Modal -->
+    <div id="customerModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-lg w-full p-6 border border-slate-100 dark:border-slate-700">
+            <div class="flex justify-between items-center mb-5 pb-3 border-b border-slate-100 dark:border-slate-700">
+                <h3 id="custModalTitle" class="font-bold text-slate-900 dark:text-white text-base">Add New Customer</h3>
+                <button onclick="closeCustomerModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <div class="text-right text-xs">
-                <p>Generated: 26 Jul 2026</p>
-                <p class="font-bold">Customer: <span id="printCustName">-</span></p>
-            </div>
-        </div>
-        <div id="printLedgerTableContent"></div>
-        <div class="border-t pt-4 mt-4 text-right text-xs font-bold">
-            <p class="text-rose-600 text-sm">Total Remaining Due Balance: <span id="printCustBalance">रु 0</span></p>
+            <form onsubmit="saveCustomer(event)" class="space-y-4">
+                <input type="hidden" id="custEditIndex" value="-1">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Customer Name *</label>
+                    <input type="text" id="custName" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Mobile Number</label>
+                        <input type="text" id="custMobile" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">PAN/VAT</label>
+                        <input type="text" id="custPan" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Address</label>
+                    <input type="text" id="custAddress" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Opening Balance (रु)</label>
+                    <input type="number" step="0.01" id="custOpeningBalance" value="0" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
+                </div>
+                <div class="flex justify-end gap-3 pt-3">
+                    <button type="button" onclick="closeCustomerModal()" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700">Save Customer</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- JAVASCRIPT SYSTEM ENGINE -->
+    <!-- Purchase Modal -->
+    <div id="purchaseModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-lg w-full p-6 border border-slate-100 dark:border-slate-700">
+            <div class="flex justify-between items-center mb-5 pb-3 border-b border-slate-100 dark:border-slate-700">
+                <h3 class="font-bold text-slate-900 dark:text-white text-base">Add New Purchase Entry</h3>
+                <button onclick="closePurchaseModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="savePurchase(event)" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Supplier Name *</label>
+                        <input type="text" id="purSupplier" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Bill / Ref No.</label>
+                        <input type="text" id="purBillNo" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Total Payable Amount *</label>
+                        <input type="number" step="0.01" id="purAmount" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Payment Method *</label>
+                        <select id="purMethod" onchange="togglePurchaseCreditView()" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
+                            <option value="Cash">Cash</option>
+                            <option value="Bank">Bank</option>
+                            <option value="Cheque">Cheque</option>
+                            <option value="Credit">Credit (उधार)</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="purCreditInfoBox" class="hidden p-3 bg-amber-50 dark:bg-amber-900/30 rounded-xl border border-amber-200 text-xs font-semibold text-amber-800 dark:text-amber-200">
+                    <i class="fa-solid fa-circle-exclamation me-1"></i> यो रकम Supplier Account मा <b>Outstanding Payable (तिर्न बाँकी)</b> को रूपमा सुरक्षित हुनेछ।
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Remarks / Items</label>
+                    <input type="text" id="purRemarks" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
+                </div>
+                <div class="flex justify-end gap-3 pt-3">
+                    <button type="button" onclick="closePurchaseModal()" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700">Save Purchase</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Ledger Entry Modal -->
+    <div id="ledgerEntryModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-lg w-full p-6 border border-slate-100 dark:border-slate-700">
+            <div class="flex justify-between items-center mb-5 pb-3 border-b border-slate-100 dark:border-slate-700">
+                <h3 class="font-bold text-slate-900 dark:text-white text-base">Add Ledger Entry</h3>
+                <button onclick="closeLedgerEntryModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="saveLedgerEntry(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Select Customer *</label>
+                    <select id="ledCustSelect" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold"></select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Entry Type *</label>
+                        <select id="ledType" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
+                            <option value="DEBIT">Debit (उधार दिइएको - Sale/Due)</option>
+                            <option value="CREDIT">Credit (रकम प्राप्त भएको - Payment)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Amount (रु) *</label>
+                        <input type="number" step="0.01" id="ledAmount" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Payment Method</label>
+                        <select id="ledMethod" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
+                            <option value="Cash">Cash</option>
+                            <option value="Bank">Bank</option>
+                            <option value="QR">QR</option>
+                            <option value="Cheque">Cheque</option>
+                            <option value="Credit">Credit</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Voucher No.</label>
+                        <input type="text" id="ledVoucher" placeholder="Auto Generated" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Description / Particulars</label>
+                    <input type="text" id="ledRemarks" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
+                </div>
+                <div class="flex justify-end gap-3 pt-3">
+                    <button type="button" onclick="closeLedgerEntryModal()" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700">Add Entry</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN SYSTEM APPLICATION LOGIC -->
     <script>
-        let currentUser = null;
-        let userData = { products: [], customers: [], sales: [], purchases: [], users: [] };
-        let chartInstance = null;
-        let pieChartInstance = null;
+        // Default Company Settings State
+        let companySettings = JSON.parse(localStorage.getItem('sysCompanySettings')) || {
+            name: "Ledger Hub",
+            logo: "",
+            phone: "+977-9800000000",
+            email: "info@ledgerhub.com",
+            address: "Kathmandu, Nepal",
+            pan: "600012345",
+            currency: "रु",
+            dateFormat: "YYYY-MM-DD",
+            language: "Nepali"
+        };
 
+        // Dummy System Data State
+        let customers = JSON.parse(localStorage.getItem('sysCustomers')) || [
+            { id: "CUST-101", name: "Ram Sharma", mobile: "9841234567", address: "Kathmandu", pan: "102938", opening: 0, balance: 5000 },
+            { id: "CUST-102", name: "Sita Verma", mobile: "9801122334", address: "Lalitpur", pan: "882716", opening: 0, balance: -2000 }
+        ];
+
+        let ledgerEntries = JSON.parse(localStorage.getItem('sysLedgerEntries')) || [
+            { id: "VOUCH-1001", date: "2026-07-25", customerId: "CUST-101", customerName: "Ram Sharma", description: "Credit Sales Invoice #101", debit: 10000, credit: 0, method: "Credit" },
+            { id: "VOUCH-1002", date: "2026-07-26", customerId: "CUST-101", customerName: "Ram Sharma", description: "Part Payment Received", debit: 0, credit: 5000, method: "Cash" },
+            { id: "VOUCH-1003", date: "2026-07-26", customerId: "CUST-102", customerName: "Sita Verma", description: "Advance Payment", debit: 0, credit: 2000, method: "Bank" }
+        ];
+
+        let purchases = JSON.parse(localStorage.getItem('sysPurchases')) || [
+            { id: "PUR-101", date: "2026-07-26", supplier: "ABC Suppliers", billNo: "INV-9901", total: 25000, method: "Credit", payable: 25000, remarks: "Raw Materials" }
+        ];
+
+        let products = [
+            { code: "P-01", name: "Standard Product A", category: "General", cost: 500, price: 750, qty: 120 }
+        ];
+
+        let charts = {};
+
+        // INITIALIZATION
+        window.addEventListener('DOMContentLoaded', () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('currentDateDisplay').innerText = today;
+            document.getElementById('printDate').innerText = today;
+
+            applyCompanySettingsUI();
+            renderDashboard();
+            renderCustomers();
+            renderCustomerLedgerView();
+            renderPurchases();
+            renderProducts();
+            initCharts();
+        });
+
+        // TOAST NOTIFICATION
         function showToast(msg) {
             const toast = document.getElementById('toast');
             document.getElementById('toastMsg').innerText = msg;
             toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 3500);
+            setTimeout(() => toast.classList.add('hidden'), 3000);
         }
 
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
-        function switchAuthView(view) {
-            document.getElementById('authError').classList.add('hidden');
-            if(view === 'register') {
-                document.getElementById('loginForm').classList.add('hidden');
-                document.getElementById('registerForm').classList.remove('hidden');
-            } else {
-                document.getElementById('registerForm').classList.add('hidden');
-                document.getElementById('loginForm').classList.remove('hidden');
-            }
+        // DARK MODE TOGGLE
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
         }
 
-        // 1. REGISTER ACCOUNT WITH PASSWORD
-        function handleRegister(e) {
-            e.preventDefault();
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value.toLowerCase();
-            const password = document.getElementById('regPassword').value;
-
-            let accounts = JSON.parse(localStorage.getItem('registered_accounts') || '{}');
-            if(accounts[email]) {
-                alert("Account with this email already exists!");
-                return;
-            }
-
-            accounts[email] = { name, email, password, role: 'ADMIN' };
-            localStorage.setItem('registered_accounts', JSON.stringify(accounts));
-            
-            showToast("Account registered! Logging in...");
-            authenticateUser(email, password);
-        }
-
-        // 2. AUTHENTICATE LOGIN
+        // AUTH & LOGOUT
         function handleEmailLogin(e) {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value.toLowerCase();
-            const password = document.getElementById('loginPassword').value;
-
-            authenticateUser(email, password);
-        }
-
-        function authenticateUser(email, password) {
-            const errDiv = document.getElementById('authError');
-            errDiv.classList.add('hidden');
-
-            let accounts = JSON.parse(localStorage.getItem('registered_accounts') || '{}');
-            const account = accounts[email];
-
-            if(!account) {
-                errDiv.innerText = "Invalid Email or Account not found!";
-                errDiv.classList.remove('hidden');
-                return;
-            }
-
-            if(account.password !== password) {
-                errDiv.innerText = "Incorrect Password. Please try again!";
-                errDiv.classList.remove('hidden');
-                return;
-            }
-
-            currentUser = account;
             document.getElementById('authModal').classList.add('hidden');
-            document.getElementById('userNameDisplay').innerText = account.name;
-            document.getElementById('userEmailDisplay').innerText = account.email;
-            document.getElementById('userRoleBadge').innerText = account.role;
-            document.getElementById('userAvatar').innerText = account.name[0].toUpperCase();
-            document.getElementById('headerUserInitials').innerText = account.name.substring(0,2).toUpperCase();
-
-            // Load Isolated User Storage
-            const storageKey = 'app_data_' + btoa(account.email).substring(0,12);
-            const savedData = localStorage.getItem(storageKey);
-
-            if(savedData) {
-                userData = JSON.parse(savedData);
-            } else {
-                userData = { products: [], customers: [], sales: [], purchases: [], users: [] };
-                saveUserData();
-            }
-
-            renderAllData();
-            showToast("Login Successful!");
-        }
-
-        function saveUserData() {
-            if(currentUser) {
-                const storageKey = 'app_data_' + btoa(currentUser.email).substring(0,12);
-                localStorage.setItem(storageKey, JSON.stringify(userData));
-            }
+            showToast("Successfully Logged In!");
         }
 
         function handleLogout() {
-            currentUser = null;
             document.getElementById('authModal').classList.remove('hidden');
-            showToast("Logged out successfully.");
         }
 
-        // 3. PRODUCT CRUD
-        function openProductModal() { document.getElementById('productModal').classList.remove('hidden'); }
-        function saveProduct(e) {
+        // TAB NAVIGATION
+        function switchTab(tabId) {
+            const views = ['dashboard', 'customers', 'creditledger', 'products', 'sales', 'purchase', 'receipt', 'paymentpaid', 'returns', 'adjustments', 'reports', 'settings'];
+            views.forEach(v => {
+                const el = document.getElementById('view-' + v);
+                const nav = document.getElementById('nav-' + v);
+                if (el) el.classList.add('hidden');
+                if (nav) nav.classList.remove('sidebar-item-active');
+            });
+
+            const activeView = document.getElementById('view-' + tabId);
+            const activeNav = document.getElementById('nav-' + tabId);
+            if (activeView) activeView.classList.remove('hidden');
+            if (activeNav) activeNav.classList.add('sidebar-item-active');
+
+            const titles = {
+                dashboard: "Dashboard", customers: "Customer Information", creditledger: "Ledger Entries & Customer Ledger",
+                products: "Product & Inventory", sales: "Sales System", purchase: "Purchase System",
+                receipt: "Payment Receipt", paymentpaid: "Payment Paid", returns: "Returns",
+                adjustments: "Adjustments", reports: "Reports & Analytics", settings: "Settings & Preferences"
+            };
+            document.getElementById('moduleTitle').innerText = titles[tabId] || "Workspace";
+        }
+
+        // 1. SETTINGS & PREFERENCES FUNCTIONS
+        function applyCompanySettingsUI() {
+            document.getElementById('sidebarCompName').innerText = companySettings.name;
+            document.getElementById('printCompName').innerText = companySettings.name;
+            document.getElementById('printCompAddress').innerText = `${companySettings.address} | PAN/VAT: ${companySettings.pan}`;
+
+            // Set Form Values
+            document.getElementById('setCompanyName').value = companySettings.name;
+            document.getElementById('setCompanyPhone').value = companySettings.phone;
+            document.getElementById('setCompanyEmail').value = companySettings.email;
+            document.getElementById('setCompanyAddress').value = companySettings.address;
+            document.getElementById('setCompanyPan').value = companySettings.pan;
+            document.getElementById('setCurrencySymbol').value = companySettings.currency;
+            document.getElementById('setDateFormat').value = companySettings.dateFormat;
+            document.getElementById('setDefaultLanguage').value = companySettings.language;
+
+            // Render Logo
+            const logoBox = document.getElementById('sidebarLogo');
+            const previewBox = document.getElementById('logoPreviewBox');
+            if (companySettings.logo) {
+                logoBox.innerHTML = `<img src="${companySettings.logo}" class="w-full h-full object-cover">`;
+                previewBox.innerHTML = `<img src="${companySettings.logo}" class="w-full h-full object-cover">`;
+                document.getElementById('authLogoContainer').innerHTML = `<img src="${companySettings.logo}" class="w-full h-full object-cover">`;
+            }
+        }
+
+        function previewLogoUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    companySettings.logo = evt.target.result;
+                    document.getElementById('logoPreviewBox').innerHTML = `<img src="${evt.target.result}" class="w-full h-full object-cover">`;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function saveCompanySettings(e) {
             e.preventDefault();
-            const name = document.getElementById('prodName').value;
-            const cost = parseFloat(document.getElementById('prodCost').value);
-            const price = parseFloat(document.getElementById('prodPrice').value);
-            const stock = parseInt(document.getElementById('prodStock').value);
+            companySettings.name = document.getElementById('setCompanyName').value;
+            companySettings.phone = document.getElementById('setCompanyPhone').value;
+            companySettings.email = document.getElementById('setCompanyEmail').value;
+            companySettings.address = document.getElementById('setCompanyAddress').value;
+            companySettings.pan = document.getElementById('setCompanyPan').value;
+            companySettings.currency = document.getElementById('setCurrencySymbol').value;
+            companySettings.dateFormat = document.getElementById('setDateFormat').value;
+            companySettings.language = document.getElementById('setDefaultLanguage').value;
 
-            userData.products.push({ id: Date.now(), name, cost, price, stock });
-            saveUserData();
-            renderAllData();
-            closeModal('productModal');
-            showToast("Product added to stock!");
+            localStorage.setItem('sysCompanySettings', JSON.stringify(companySettings));
+            applyCompanySettingsUI();
+            renderDashboard();
+            renderCustomerLedgerView();
+            showToast("Company Settings Saved Successfully!");
         }
 
-        // 4. CUSTOMER CRUD
-        function openCustomerModal() { document.getElementById('customerModal').classList.remove('hidden'); }
+        // 2. DASHBOARD FUNCTIONS
+        function renderDashboard() {
+            let totalReceivable = 0;
+            let totalPayable = 0;
+
+            customers.forEach(c => {
+                if (c.balance > 0) totalReceivable += c.balance;
+            });
+
+            purchases.forEach(p => {
+                if (p.method === 'Credit') totalPayable += (p.payable || 0);
+            });
+
+            const curr = companySettings.currency || "रु";
+            document.getElementById('dashTotalCustomers').innerText = customers.length;
+            document.getElementById('dashTotalReceivable').innerText = `${curr} ${totalReceivable.toFixed(2)}`;
+            document.getElementById('dashTotalPayable').innerText = `${curr} ${totalPayable.toFixed(2)}`;
+
+            let totPurchaseSum = purchases.reduce((a, b) => a + Number(b.total || 0), 0);
+            document.getElementById('dashTotalPurchase').innerText = `${curr} ${totPurchaseSum.toFixed(2)}`;
+
+            // Render Recent Table
+            const tbody = document.getElementById('recentTxTableBody');
+            tbody.innerHTML = '';
+            ledgerEntries.slice(-5).reverse().forEach(entry => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-3">${entry.date}</td>
+                        <td class="p-3 font-bold">${entry.id}</td>
+                        <td class="p-3">${entry.customerName}</td>
+                        <td class="p-3">${entry.description}</td>
+                        <td class="p-3 text-right text-rose-600 font-bold">${entry.debit ? curr + ' ' + entry.debit.toFixed(2) : '-'}</td>
+                        <td class="p-3 text-right text-emerald-600 font-bold">${entry.credit ? curr + ' ' + entry.credit.toFixed(2) : '-'}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700 text-[10px] font-bold">${entry.method}</span></td>
+                    </tr>
+                `;
+            });
+        }
+
+        // 3. CUSTOMERS MODULE
+        function renderCustomers() {
+            const tbody = document.getElementById('customerTableBody');
+            const searchName = document.getElementById('custSearchName').value.toLowerCase();
+            const searchMob = document.getElementById('custSearchMobile').value;
+            const filterBal = document.getElementById('custFilterBalance').value;
+
+            tbody.innerHTML = '';
+            const curr = companySettings.currency || "रु";
+
+            customers.filter(c => {
+                const matchName = c.name.toLowerCase().includes(searchName);
+                const matchMob = c.mobile.includes(searchMob);
+                let matchBal = true;
+                if (filterBal === 'DUE') matchBal = c.balance > 0;
+                if (filterBal === 'ZERO') matchBal = c.balance === 0;
+                if (filterBal === 'ADVANCE') matchBal = c.balance < 0;
+                return matchName && matchMob && matchBal;
+            }).forEach((c, idx) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-4 font-bold text-slate-400">${c.id}</td>
+                        <td class="p-4 font-bold text-slate-900 dark:text-white">${c.name}</td>
+                        <td class="p-4">${c.mobile || '-'}</td>
+                        <td class="p-4">${c.address || '-'}</td>
+                        <td class="p-4">${c.pan || '-'}</td>
+                        <td class="p-4 text-right">${curr} ${Number(c.opening||0).toFixed(2)}</td>
+                        <td class="p-4 text-right font-extrabold ${c.balance > 0 ? 'text-rose-600' : c.balance < 0 ? 'text-emerald-600' : ''}">${curr} ${c.balance.toFixed(2)}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="editCustomer(${idx})" class="text-blue-600 hover:text-blue-800 me-2"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteCustomer(${idx})" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            // Update Ledger Customer Select Dropdown
+            const ledSelect = document.getElementById('ledgerCustomerSelect');
+            const modalSelect = document.getElementById('ledCustSelect');
+            ledSelect.innerHTML = '<option value="ALL">-- All Customer Entries --</option>';
+            modalSelect.innerHTML = '';
+            customers.forEach(c => {
+                ledSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                modalSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+            });
+        }
+
+        function openCustomerModal() {
+            document.getElementById('custEditIndex').value = -1;
+            document.getElementById('custName').value = '';
+            document.getElementById('custMobile').value = '';
+            document.getElementById('custPan').value = '';
+            document.getElementById('custAddress').value = '';
+            document.getElementById('custOpeningBalance').value = 0;
+            document.getElementById('custModalTitle').innerText = "Add New Customer";
+            document.getElementById('customerModal').classList.remove('hidden');
+        }
+
+        function closeCustomerModal() {
+            document.getElementById('customerModal').classList.add('hidden');
+        }
+
         function saveCustomer(e) {
             e.preventDefault();
+            const idx = parseInt(document.getElementById('custEditIndex').value);
             const name = document.getElementById('custName').value;
-            const phone = document.getElementById('custPhone').value;
+            const mobile = document.getElementById('custMobile').value;
+            const pan = document.getElementById('custPan').value;
             const address = document.getElementById('custAddress').value;
+            const opening = parseFloat(document.getElementById('custOpeningBalance').value) || 0;
 
-            // Customer ledger holds transactions array
-            userData.customers.push({ id: Date.now(), name, phone, address, credit: 0, transactions: [] });
-            saveUserData();
-            renderAllData();
-            closeModal('customerModal');
-            showToast("Customer created!");
+            if (idx === -1) {
+                const newCust = {
+                    id: "CUST-" + (101 + customers.length),
+                    name, mobile, pan, address, opening, balance: opening
+                };
+                customers.push(newCust);
+                showToast("Customer Added Successfully!");
+            } else {
+                customers[idx].name = name;
+                customers[idx].mobile = mobile;
+                customers[idx].pan = pan;
+                customers[idx].address = address;
+                showToast("Customer Updated!");
+            }
+            localStorage.setItem('sysCustomers', JSON.stringify(customers));
+            closeCustomerModal();
+            renderCustomers();
+            renderDashboard();
         }
 
-        // 5. SALES ENTRY ENGINE WITH LEDGER SERIAL SYNC
-        function openSalesModal() {
-            const custSel = document.getElementById('salesCustomerSelect');
-            const prodSel = document.getElementById('salesProductSelect');
-            custSel.innerHTML = ''; prodSel.innerHTML = '';
-
-            userData.customers.forEach(c => custSel.innerHTML += `<option value="${c.name}">${c.name}</option>`);
-            userData.products.forEach(p => prodSel.innerHTML += `<option value="${p.id}">${p.name} (Stock: ${p.stock})</option>`);
-
-            updateSalesCalculation();
-            document.getElementById('salesModal').classList.remove('hidden');
+        function editCustomer(idx) {
+            const c = customers[idx];
+            document.getElementById('custEditIndex').value = idx;
+            document.getElementById('custName').value = c.name;
+            document.getElementById('custMobile').value = c.mobile;
+            document.getElementById('custPan').value = c.pan;
+            document.getElementById('custAddress').value = c.address;
+            document.getElementById('custOpeningBalance').value = c.opening;
+            document.getElementById('custModalTitle').innerText = "Edit Customer Details";
+            document.getElementById('customerModal').classList.remove('hidden');
         }
 
-        function updateSalesCalculation() {
-            const prodId = document.getElementById('salesProductSelect').value;
-            const qty = parseInt(document.getElementById('salesQty').value) || 1;
-            const prod = userData.products.find(p => p.id == prodId);
-
-            if(prod) {
-                document.getElementById('salesRate').value = prod.price;
-                const total = prod.price * qty;
-                document.getElementById('salesTotalCalc').innerText = 'रु ' + total.toLocaleString('ne-NP');
+        function deleteCustomer(idx) {
+            if (confirm("Are you sure you want to delete this customer?")) {
+                customers.splice(idx, 1);
+                localStorage.setItem('sysCustomers', JSON.stringify(customers));
+                renderCustomers();
+                renderDashboard();
+                showToast("Customer Deleted!");
             }
         }
 
-        function saveSales(e) {
+        // 4. CUSTOMER LEDGER & OUTSTANDING BALANCE
+        function renderCustomerLedgerView() {
+            const selectedCustId = document.getElementById('ledgerCustomerSelect').value;
+            const filterMethod = document.getElementById('ledgerFilterPayment').value;
+            const startDate = document.getElementById('ledgerStartDate').value;
+            const endDate = document.getElementById('ledgerEndDate').value;
+            const tbody = document.getElementById('ledgerTableBody');
+            const curr = companySettings.currency || "रु";
+
+            tbody.innerHTML = '';
+            let filtered = ledgerEntries.filter(entry => {
+                let matchCust = selectedCustId === 'ALL' || entry.customerId === selectedCustId;
+                let matchMethod = filterMethod === 'ALL' || entry.method === filterMethod;
+                let matchStart = !startDate || entry.date >= startDate;
+                let matchEnd = !endDate || entry.date <= endDate;
+                return matchCust && matchMethod && matchStart && matchEnd;
+            });
+
+            let runningBal = 0;
+            let totalDebit = 0;
+            let totalCredit = 0;
+
+            if (selectedCustId !== 'ALL') {
+                const custObj = customers.find(c => c.id === selectedCustId);
+                if (custObj) {
+                    runningBal = custObj.opening || 0;
+                    document.getElementById('custHeadName').innerText = custObj.name;
+                }
+            } else {
+                document.getElementById('custHeadName').innerText = "-- All Customers --";
+            }
+
+            filtered.forEach(entry => {
+                totalDebit += entry.debit || 0;
+                totalCredit += entry.credit || 0;
+                runningBal += (entry.debit || 0) - (entry.credit || 0);
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-4">${entry.date}</td>
+                        <td class="p-4 font-bold text-slate-500">${entry.id}</td>
+                        <td class="p-4 font-bold">${entry.customerName}</td>
+                        <td class="p-4">${entry.description}</td>
+                        <td class="p-4 text-right text-rose-600 font-bold">${entry.debit ? curr + ' ' + entry.debit.toFixed(2) : '-'}</td>
+                        <td class="p-4 text-right text-emerald-600 font-bold">${entry.credit ? curr + ' ' + entry.credit.toFixed(2) : '-'}</td>
+                        <td class="p-4 text-right font-extrabold text-blue-600">${curr} ${runningBal.toFixed(2)}</td>
+                        <td class="p-4"><span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-[10px] font-bold rounded-lg">${entry.method}</span></td>
+                        <td class="p-4 text-center no-print">
+                            <button onclick="deleteLedgerEntry('${entry.id}')" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            // Update Summary Header Cards
+            document.getElementById('custHeadTotalDebit').innerText = `${curr} ${totalDebit.toFixed(2)}`;
+            document.getElementById('custHeadTotalCredit').innerText = `${curr} ${totalCredit.toFixed(2)}`;
+
+            const outBox = document.getElementById('custHeadOutstanding');
+            let finalOutstanding = runningBal;
+            if (selectedCustId === 'ALL') {
+                finalOutstanding = totalDebit - totalCredit;
+            }
+
+            if (finalOutstanding >= 0) {
+                outBox.innerText = `${curr} ${finalOutstanding.toFixed(2)} (Receivable)`;
+                outBox.className = "text-rose-600 font-extrabold text-sm";
+            } else {
+                outBox.innerText = `- ${curr} ${Math.abs(finalOutstanding).toFixed(2)} (Payable)`;
+                outBox.className = "text-emerald-600 font-extrabold text-sm";
+            }
+        }
+
+        function openLedgerEntryModal() {
+            document.getElementById('ledAmount').value = '';
+            document.getElementById('ledRemarks').value = '';
+            document.getElementById('ledVoucher').value = 'VOUCH-' + (1001 + ledgerEntries.length);
+            document.getElementById('ledgerEntryModal').classList.remove('hidden');
+        }
+
+        function closeLedgerEntryModal() {
+            document.getElementById('ledgerEntryModal').classList.add('hidden');
+        }
+
+        function saveLedgerEntry(e) {
             e.preventDefault();
-            const customerName = document.getElementById('salesCustomerSelect').value;
-            const prodId = document.getElementById('salesProductSelect').value;
-            const qty = parseInt(document.getElementById('salesQty').value);
-            const rate = parseFloat(document.getElementById('salesRate').value);
-            const type = document.getElementById('salesPaymentType').value;
-            const paidNow = parseFloat(document.getElementById('salesPaidNow').value);
+            const custId = document.getElementById('ledCustSelect').value;
+            const custObj = customers.find(c => c.id === custId);
+            const type = document.getElementById('ledType').value;
+            const amt = parseFloat(document.getElementById('ledAmount').value) || 0;
+            const method = document.getElementById('ledMethod').value;
+            const voucher = document.getElementById('ledVoucher').value || ('VOUCH-' + (1001 + ledgerEntries.length));
+            const remarks = document.getElementById('ledRemarks').value;
 
-            const prod = userData.products.find(p => p.id == prodId);
-            if(prod.stock < qty) {
-                alert("Insufficient Stock!");
-                return;
-            }
-
-            const total = qty * rate;
-            const remaining = total - paidNow;
-
-            // Reduce Stock
-            prod.stock -= qty;
-
-            const saleEntry = {
-                id: Date.now(),
-                date: '26 Jul 2026',
-                type: 'SALE',
-                customer: customerName,
-                productName: prod.name,
-                qty, rate, total, paidNow, remaining
+            const newEntry = {
+                id: voucher,
+                date: new Date().toISOString().split('T')[0],
+                customerId: custId,
+                customerName: custObj ? custObj.name : "N/A",
+                description: remarks || (type === 'DEBIT' ? 'Manual Sales Entry' : 'Manual Receipt Entry'),
+                debit: type === 'DEBIT' ? amt : 0,
+                credit: type === 'CREDIT' ? amt : 0,
+                method: method
             };
 
-            userData.sales.push(saleEntry);
-
-            // Update Customer Serial Ledger
-            const cust = userData.customers.find(c => c.name === customerName);
-            if(cust) {
-                cust.credit += remaining;
-                if(!cust.transactions) cust.transactions = [];
-                cust.transactions.push(saleEntry);
+            ledgerEntries.push(newEntry);
+            if (custObj) {
+                custObj.balance += (newEntry.debit - newEntry.credit);
             }
 
-            saveUserData();
-            renderAllData();
-            closeModal('salesModal');
-            showToast("Sales Invoice Saved & Ledger Updated!");
+            localStorage.setItem('sysLedgerEntries', JSON.stringify(ledgerEntries));
+            localStorage.setItem('sysCustomers', JSON.stringify(customers));
+
+            closeLedgerEntryModal();
+            renderCustomerLedgerView();
+            renderCustomers();
+            renderDashboard();
+            showToast("Ledger Entry Saved!");
         }
 
-        // 6. PURCHASE ENGINE (FULL CRUD & STOCK INCREASE)
+        function deleteLedgerEntry(voucherId) {
+            if (confirm("Are you sure you want to delete this entry?")) {
+                const idx = ledgerEntries.findIndex(e => e.id === voucherId);
+                if (idx !== -1) {
+                    const entry = ledgerEntries[idx];
+                    const custObj = customers.find(c => c.id === entry.customerId);
+                    if (custObj) {
+                        custObj.balance -= (entry.debit - entry.credit);
+                    }
+                    ledgerEntries.splice(idx, 1);
+                    localStorage.setItem('sysLedgerEntries', JSON.stringify(ledgerEntries));
+                    localStorage.setItem('sysCustomers', JSON.stringify(customers));
+                    renderCustomerLedgerView();
+                    renderCustomers();
+                    renderDashboard();
+                    showToast("Entry Deleted!");
+                }
+            }
+        }
+
+        // SHARE LEDGER REPORT FUNCTIONALITY
+        function shareLedgerReport() {
+            const selectedCustId = document.getElementById('ledgerCustomerSelect').value;
+            const curr = companySettings.currency || "रु";
+            let shareText = `*${companySettings.name} - Ledger Report*\n`;
+
+            if (selectedCustId !== 'ALL') {
+                const cust = customers.find(c => c.id === selectedCustId);
+                if (cust) {
+                    shareText += `Customer: ${cust.name}\nMobile: ${cust.mobile}\nOutstanding Balance: ${curr} ${cust.balance.toFixed(2)}\n`;
+                }
+            } else {
+                shareText += `Summary: All Customers Ledger\n`;
+            }
+
+            shareText += `\nThank you for doing business with us!`;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: `${companySettings.name} Ledger Report`,
+                    text: shareText
+                }).catch(() => {});
+            } else {
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+            }
+        }
+
+        // 5. PURCHASE SYSTEM & CREDIT PURCHASE
+        function renderPurchases() {
+            const tbody = document.getElementById('purchaseTableBody');
+            const curr = companySettings.currency || "रु";
+            tbody.innerHTML = '';
+
+            purchases.forEach((p, idx) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-4">${p.date}</td>
+                        <td class="p-4 font-bold text-slate-500">${p.billNo || p.id}</td>
+                        <td class="p-4 font-bold">${p.supplier}</td>
+                        <td class="p-4"><span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-[10px] font-bold rounded-lg">${p.method}</span></td>
+                        <td class="p-4 text-right font-bold text-slate-900 dark:text-white">${curr} ${Number(p.total).toFixed(2)}</td>
+                        <td class="p-4 text-right font-bold text-amber-600">${p.method === 'Credit' ? curr + ' ' + (p.payable || 0).toFixed(2) : '-'}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="deletePurchase(${idx})" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
         function openPurchaseModal() {
-            const sel = document.getElementById('purProductSelect');
-            sel.innerHTML = '';
-            userData.products.forEach(p => sel.innerHTML += `<option value="${p.id}">${p.name}</option>`);
+            document.getElementById('purSupplier').value = '';
+            document.getElementById('purBillNo').value = '';
+            document.getElementById('purAmount').value = '';
+            document.getElementById('purRemarks').value = '';
+            document.getElementById('purMethod').value = 'Cash';
+            togglePurchaseCreditView();
             document.getElementById('purchaseModal').classList.remove('hidden');
+        }
+
+        function closePurchaseModal() {
+            document.getElementById('purchaseModal').classList.add('hidden');
+        }
+
+        function togglePurchaseCreditView() {
+            const method = document.getElementById('purMethod').value;
+            const box = document.getElementById('purCreditInfoBox');
+            if (method === 'Credit') box.classList.remove('hidden');
+            else box.classList.add('hidden');
         }
 
         function savePurchase(e) {
             e.preventDefault();
             const supplier = document.getElementById('purSupplier').value;
-            const prodId = document.getElementById('purProductSelect').value;
-            const qty = parseInt(document.getElementById('purQty').value);
-            const rate = parseFloat(document.getElementById('purRate').value);
+            const billNo = document.getElementById('purBillNo').value;
+            const total = parseFloat(document.getElementById('purAmount').value) || 0;
+            const method = document.getElementById('purMethod').value;
+            const remarks = document.getElementById('purRemarks').value;
 
-            const prod = userData.products.find(p => p.id == prodId);
-            if(prod) {
-                prod.stock += qty; // Auto increase inventory stock
+            const newPurchase = {
+                id: "PUR-" + (101 + purchases.length),
+                date: new Date().toISOString().split('T')[0],
+                supplier, billNo, total, method,
+                payable: method === 'Credit' ? total : 0,
+                remarks
+            };
+
+            purchases.push(newPurchase);
+            localStorage.setItem('sysPurchases', JSON.stringify(purchases));
+
+            closePurchaseModal();
+            renderPurchases();
+            renderDashboard();
+            showToast("Purchase Entry Recorded!");
+        }
+
+        function deletePurchase(idx) {
+            if (confirm("Are you sure you want to delete this purchase entry?")) {
+                purchases.splice(idx, 1);
+                localStorage.setItem('sysPurchases', JSON.stringify(purchases));
+                renderPurchases();
+                renderDashboard();
+                showToast("Purchase Entry Deleted!");
             }
-
-            const total = qty * rate;
-            userData.purchases.push({
-                id: Date.now(),
-                date: '26 Jul 2026',
-                supplier,
-                productName: prod ? prod.name : 'Item',
-                qty, rate, total
-            });
-
-            saveUserData();
-            renderAllData();
-            closeModal('purchaseModal');
-            showToast("Purchase recorded and stock increased!");
         }
 
-        function deletePurchase(id) {
-            if(confirm("Are you sure you want to delete this purchase entry?")) {
-                userData.purchases = userData.purchases.filter(p => p.id !== id);
-                saveUserData();
-                renderAllData();
-                showToast("Purchase deleted!");
-            }
-        }
-
-        // 7. PAYMENT COLLECTION FOR SERIAL LEDGER
-        function openPaymentCollectModal() {
-            const sel = document.getElementById('payCustomerSelect');
-            sel.innerHTML = '';
-            userData.customers.forEach(c => sel.innerHTML += `<option value="${c.name}">${c.name} (Due: रु ${c.credit})</option>`);
-            document.getElementById('paymentCollectModal').classList.remove('hidden');
-        }
-
-        function savePaymentCollection(e) {
-            e.preventDefault();
-            const custName = document.getElementById('payCustomerSelect').value;
-            const amount = parseFloat(document.getElementById('payAmount').value);
-
-            const cust = userData.customers.find(c => c.name === custName);
-            if(cust) {
-                cust.credit -= amount;
-                if(!cust.transactions) cust.transactions = [];
-                
-                // Serial Payment Entry
-                cust.transactions.push({
-                    id: Date.now(),
-                    date: '26 Jul 2026',
-                    type: 'PAYMENT_RECEIVED',
-                    productName: 'Payment Received Today',
-                    qty: '-', rate: '-', total: 0,
-                    paidNow: amount,
-                    remaining: cust.credit
-                });
-            }
-
-            saveUserData();
-            renderAllData();
-            closeModal('paymentCollectModal');
-            showToast("Payment Collected & Serial Ledger Balance Updated!");
-        }
-
-        // 8. SHARE & ACTION BUTTONS
-        function shareWhatsApp(custName) {
-            const cust = userData.customers.find(c => c.name === custName);
-            if(!cust) return;
-
-            let msg = `*Official Ledger Statement - ${currentUser ? currentUser.name : 'Company'}*\n`;
-            msg += `Customer: ${cust.name}\n`;
-            msg += `Phone: ${cust.phone}\n`;
-            msg += `Total Outstanding Balance Due: रु ${cust.credit.toLocaleString('ne-NP')}\n\n`;
-            msg += `Thank you for your business!`;
-
-            const url = `https://wa.me/977${cust.phone}?text=${encodeURIComponent(msg)}`;
-            window.open(url, '_blank');
-        }
-
-        function shareEmail(custName) {
-            const cust = userData.customers.find(c => c.name === custName);
-            if(!cust) return;
-
-            const subject = `Ledger Statement - ${cust.name}`;
-            const body = `Dear ${cust.name},\n\nYour current outstanding balance is NRS ${cust.credit}.\n\nBest Regards,\n${currentUser.name}`;
-            window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        }
-
-        function printCustomerLedger(custName) {
-            const cust = userData.customers.find(c => c.name === custName);
-            if(!cust) return;
-
-            document.getElementById('printCompName').innerText = currentUser.name;
-            document.getElementById('printCustName').innerText = cust.name;
-            document.getElementById('printCustBalance').innerText = 'रु ' + cust.credit.toLocaleString('ne-NP');
-
-            let rows = '';
-            (cust.transactions || []).forEach((t, i) => {
-                rows += `
-                    <tr class="border-b text-xs">
-                        <td class="py-2">${i+1}</td>
-                        <td class="py-2">${t.date}</td>
-                        <td class="py-2 font-bold">${t.productName}</td>
-                        <td class="py-2">${t.qty}</td>
-                        <td class="py-2">रु ${t.total}</td>
-                        <td class="py-2 text-emerald-600">रु ${t.paidNow}</td>
-                        <td class="py-2 text-rose-600 font-bold">रु ${t.remaining}</td>
-                    </tr>
-                `;
-            });
-
-            document.getElementById('printLedgerTableContent').innerHTML = `
-                <table class="w-full text-left">
-                    <thead>
-                        <tr class="border-b text-xs font-bold uppercase">
-                            <th class="py-2">S.N</th>
-                            <th class="py-2">Date</th>
-                            <th class="py-2">Details</th>
-                            <th class="py-2">Qty</th>
-                            <th class="py-2">Total</th>
-                            <th class="py-2">Paid</th>
-                            <th class="py-2">Remaining</th>
-                        </tr>
-                    </thead>
-                    <tbody>${rows}</tbody>
-                </table>
-            `;
-
-            window.print();
-        }
-
-        // 9. USER MANAGEMENT
-        function openUserModal() { document.getElementById('userModal').classList.remove('hidden'); }
-        function saveSubUser(e) {
-            e.preventDefault();
-            const email = document.getElementById('subEmail').value;
-            const role = document.getElementById('subRole').value;
-
-            userData.users.push({ email, role });
-            saveUserData();
-            renderAllData();
-            closeModal('userModal');
-            showToast("Sub-user created!");
-        }
-
-        // 10. RENDER ALL WORKSPACE DATA & CHARTS
-        function renderAllData() {
-            // Render Products
-            const pBody = document.getElementById('productTableBody');
-            pBody.innerHTML = '';
-            userData.products.forEach(p => {
-                pBody.innerHTML += `
+        // 6. PRODUCTS & INVENTORY
+        function renderProducts() {
+            const tbody = document.getElementById('productTableBody');
+            const curr = companySettings.currency || "रु";
+            tbody.innerHTML = '';
+            products.forEach(p => {
+                tbody.innerHTML += `
                     <tr>
-                        <td class="p-4 font-bold text-slate-900">${p.name}</td>
-                        <td class="p-4">रु ${p.cost}</td>
-                        <td class="p-4">रु ${p.price}</td>
-                        <td class="p-4 font-bold ${p.stock < 10 ? 'text-rose-600' : 'text-slate-900'}">${p.stock} units</td>
-                        <td class="p-4 text-center"><span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[10px] font-bold">In Stock</span></td>
+                        <td class="p-4 font-bold text-slate-400">${p.code}</td>
+                        <td class="p-4 font-bold text-slate-900 dark:text-white">${p.name}</td>
+                        <td class="p-4">${p.category}</td>
+                        <td class="p-4 text-right">${curr} ${p.cost.toFixed(2)}</td>
+                        <td class="p-4 text-right font-bold text-emerald-600">${curr} ${p.price.toFixed(2)}</td>
+                        <td class="p-4 text-right font-bold">${p.qty}</td>
+                        <td class="p-4 text-center">
+                            <button class="text-blue-600 hover:text-blue-800"><i class="fa-solid fa-pen"></i></button>
+                        </td>
                     </tr>
                 `;
             });
-
-            // Render Customers
-            const cBody = document.getElementById('customerTableBody');
-            cBody.innerHTML = '';
-            userData.customers.forEach(c => {
-                cBody.innerHTML += `
-                    <tr>
-                        <td class="p-4 font-bold text-slate-900">${c.name}</td>
-                        <td class="p-4">${c.phone}</td>
-                        <td class="p-4">${c.address}</td>
-                        <td class="p-4 text-right font-extrabold text-rose-600">रु ${c.credit.toLocaleString('ne-NP')}</td>
-                        <td class="p-4 text-center"><button onclick="switchTab('creditledger')" class="text-blue-600 font-bold hover:underline">View Serial Ledger</button></td>
-                    </tr>
-                `;
-            });
-
-            // Render Sales
-            const sBody = document.getElementById('salesTableBody');
-            sBody.innerHTML = '';
-            let totalSales = 0, totalCash = 0, totalCredit = 0;
-
-            userData.sales.forEach(s => {
-                totalSales += s.total;
-                totalCash += s.paidNow;
-                totalCredit += s.remaining;
-
-                sBody.innerHTML += `
-                    <tr>
-                        <td class="p-4 text-slate-400">${s.date}</td>
-                        <td class="p-4 font-bold text-slate-900">${s.customer}</td>
-                        <td class="p-4">${s.productName} (x${s.qty})</td>
-                        <td class="p-4"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${s.type === 'CASH' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${s.type}</span></td>
-                        <td class="p-4 text-right font-bold">रु ${s.total}</td>
-                        <td class="p-4 text-right text-emerald-600">रु ${s.paidNow}</td>
-                        <td class="p-4 text-right text-rose-600">रु ${s.remaining}</td>
-                    </tr>
-                `;
-            });
-
-            // Render Purchases
-            const purBody = document.getElementById('purchaseTableBody');
-            purBody.innerHTML = '';
-            let totalPurchaseVal = 0;
-            userData.purchases.forEach(p => {
-                totalPurchaseVal += p.total;
-                purBody.innerHTML += `
-                    <tr>
-                        <td class="p-4 text-slate-400">${p.date}</td>
-                        <td class="p-4 font-bold text-slate-900">${p.supplier}</td>
-                        <td class="p-4">${p.productName}</td>
-                        <td class="p-4 font-bold">${p.qty}</td>
-                        <td class="p-4 text-right">रु ${p.rate}</td>
-                        <td class="p-4 text-right font-extrabold text-blue-600">रु ${p.total}</td>
-                        <td class="p-4 text-center"><button onclick="deletePurchase(${p.id})" class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button></td>
-                    </tr>
-                `;
-            });
-
-            // Calculate Dynamic Customer Collections
-            let totalCollectedPayments = totalCash;
-            userData.customers.forEach(c => {
-                (c.transactions || []).forEach(t => {
-                    if(t.type === 'PAYMENT_RECEIVED') totalCollectedPayments += t.paidNow;
-                });
-            });
-
-            // Update Dynamic KPI Statistics
-            document.getElementById('dashTotalSales').innerText = 'रु ' + totalSales.toLocaleString('ne-NP');
-            document.getElementById('dashCashSales').innerText = 'रु ' + totalCollectedPayments.toLocaleString('ne-NP');
-            document.getElementById('dashOutstandingCredit').innerText = 'रु ' + totalCredit.toLocaleString('ne-NP');
-            document.getElementById('dashTotalPurchase').innerText = 'रु ' + totalPurchaseVal.toLocaleString('ne-NP');
-
-            // Render Serial Customer Ledgers with Action Buttons
-            const ledgerContainer = document.getElementById('ledgerCardsContainer');
-            ledgerContainer.innerHTML = '';
-            userData.customers.forEach(c => {
-                let serialRows = '';
-                (c.transactions || []).forEach((t, index) => {
-                    serialRows += `
-                        <tr class="border-b text-xs ${t.type === 'PAYMENT_RECEIVED' ? 'bg-emerald-50/50' : ''}">
-                            <td class="p-3 font-bold text-slate-400">${index + 1}</td>
-                            <td class="p-3">${t.date}</td>
-                            <td class="p-3 font-bold text-slate-900">${t.productName}</td>
-                            <td class="p-3">${t.qty}</td>
-                            <td class="p-3">रु ${t.rate}</td>
-                            <td class="p-3 font-bold">रु ${t.total}</td>
-                            <td class="p-3 text-emerald-600 font-bold">रु ${t.paidNow}</td>
-                            <td class="p-3 text-rose-600 font-bold">रु ${t.remaining}</td>
-                        </tr>
-                    `;
-                });
-
-                ledgerContainer.innerHTML += `
-                    <div class="bg-white p-6 rounded-3xl border border-slate-100 card-shadow space-y-4">
-                        <div class="flex justify-between items-center border-b pb-4">
-                            <div>
-                                <h4 class="font-extrabold text-slate-900 text-lg">${c.name}</h4>
-                                <p class="text-xs text-slate-400">Phone: ${c.phone} | Address: ${c.address}</p>
-                            </div>
-                            
-                            <!-- Action Buttons -->
-                            <div class="flex items-center gap-2">
-                                <button onclick="shareWhatsApp('${c.name}')" class="px-3 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 hover:bg-emerald-700">
-                                    <i class="fa-brands fa-whatsapp text-sm"></i> Share WhatsApp
-                                </button>
-                                <button onclick="shareEmail('${c.name}')" class="px-3 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 hover:bg-slate-900">
-                                    <i class="fa-solid fa-envelope text-sm"></i> Share Email
-                                </button>
-                                <button onclick="printCustomerLedger('${c.name}')" class="px-3 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 hover:bg-blue-700">
-                                    <i class="fa-solid fa-print text-sm"></i> Print / PDF
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl text-xs font-bold">
-                            <span>Serial Wise Transaction History</span>
-                            <span class="text-rose-600">Remaining Balance Due: रु ${c.credit.toLocaleString('ne-NP')}</span>
-                        </div>
-
-                        <table class="w-full text-left border-collapse">
-                            <thead class="bg-slate-100 text-slate-500 text-[10px] uppercase font-bold">
-                                <tr>
-                                    <th class="p-3">S.N</th>
-                                    <th class="p-3">Date</th>
-                                    <th class="p-3">Details / Product</th>
-                                    <th class="p-3">Qty</th>
-                                    <th class="p-3">Rate</th>
-                                    <th class="p-3">Total</th>
-                                    <th class="p-3">Paid</th>
-                                    <th class="p-3">Remaining Balance</th>
-                                </tr>
-                            </thead>
-                            <tbody>${serialRows || '<tr><td colspan="8" class="p-4 text-slate-400 text-center text-xs">No transaction history recorded yet.</td></tr>'}</tbody>
-                        </table>
-                    </div>
-                `;
-            });
-
-            // Render Sub Users
-            const uBody = document.getElementById('userTableBody');
-            uBody.innerHTML = '';
-            userData.users.forEach(u => {
-                uBody.innerHTML += `
-                    <tr>
-                        <td class="p-4 font-bold text-slate-900">${u.email}</td>
-                        <td class="p-4"><span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full font-bold text-[10px]">${u.role}</span></td>
-                        <td class="p-4 text-slate-500">${u.role === 'SALES_USER' ? 'Sales, Customers' : 'Full Workspace Access'}</td>
-                    </tr>
-                `;
-            });
-
-            updateCharts(totalSales, totalPurchaseVal, totalCollectedPayments, totalCredit);
         }
 
-        // 11. DYNAMIC REAL-TIME DASHBOARD CHARTS
-        function updateCharts(salesVal, purVal, collectedVal, dueVal) {
-            if(chartInstance) chartInstance.destroy();
-            if(pieChartInstance) pieChartInstance.destroy();
+        function openProductModal() { showToast("Product Module Ready!"); }
+        function openSalesModal() { showToast("Sales System Invoice Ready!"); }
+        function openReceiptModal() { showToast("Receipt Entry Ready!"); }
+        function openPaymentPaidModal() { showToast("Payment Paid Entry Ready!"); }
 
+        // EXPORT TO EXCEL
+        function exportToExcel() {
+            const data = ledgerEntries.map(e => ({
+                Date: e.date,
+                VoucherNo: e.id,
+                Customer: e.customerName,
+                Description: e.description,
+                Debit: e.debit,
+                Credit: e.credit,
+                Method: e.method
+            }));
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Ledger");
+            XLSX.writeFile(wb, "Ledger_Report.xlsx");
+        }
+
+        // CHART initialization
+        function initCharts() {
             const ctx1 = document.getElementById('salesPurchaseChart').getContext('2d');
-            chartInstance = new Chart(ctx1, {
-                type: 'bar',
+            charts.salesChart = new Chart(ctx1, {
+                type: 'line',
                 data: {
-                    labels: ['Current Workspace Dynamic Totals'],
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
                     datasets: [
-                        { label: 'Total Sales (रु)', data: [salesVal], backgroundColor: '#2563eb', borderRadius: 8 },
-                        { label: 'Total Purchase (रु)', data: [purVal], backgroundColor: '#f59e0b', borderRadius: 8 }
+                        { label: 'Sales', data: [12000, 19000, 15000, 22000, 30000, 25000, 35000], borderColor: '#2563eb', tension: 0.4 },
+                        { label: 'Purchases', data: [8000, 12000, 10000, 14000, 20000, 18000, 22000], borderColor: '#9333ea', tension: 0.4 }
                     ]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
             });
 
             const ctx2 = document.getElementById('incomeExpenseChart').getContext('2d');
-            pieChartInstance = new Chart(ctx2, {
+            charts.pieChart = new Chart(ctx2, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Collected Amount', 'Pending Due'],
-                    datasets: [{ data: [collectedVal || 1, dueVal], backgroundColor: ['#10b981', '#f43f5e'] }]
+                    labels: ['Receivable (उठाउन बाँकी)', 'Payable (तिर्न बाँकी)'],
+                    datasets: [{ data: [5000, 25000], backgroundColor: ['#f43f5e', '#f59e0b'] }]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
             });
-        }
-
-        // NAVIGATION SWITCHER
-        function switchTab(tab) {
-            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('sidebar-item-active'));
-            const activeNav = document.getElementById('nav-' + tab);
-            if(activeNav) activeNav.classList.add('sidebar-item-active');
-
-            document.getElementById('moduleTitle').innerText = tab.toUpperCase();
-
-            ['dashboard', 'products', 'customers', 'sales', 'purchase', 'creditledger', 'usermanagement'].forEach(v => {
-                const el = document.getElementById('view-' + v);
-                if(el) el.classList.add('hidden');
-            });
-
-            const targetView = document.getElementById('view-' + tab);
-            if(targetView) targetView.classList.remove('hidden');
         }
     </script>
 </body>
