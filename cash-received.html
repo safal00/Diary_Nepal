@@ -1,372 +1,353 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Purchase System</title>
+  <!-- React र Babel Libraries (Browser मा React चलाउन) -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
 
-// ==========================================
-// १. AUTHENTICATION CONTEXT & PROVIDER
-// (Refresh गर्दा Session सुरक्षित राख्ने कोड)
-// ==========================================
-const AuthContext = createContext();
+  <div id="root"></div>
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  <script type="text/babel">
+    const { createContext, useContext, useState, useEffect } = React;
 
-  useEffect(() => {
-    // Refresh गर्दा Session चेक गर्ने
-    const savedToken = localStorage.getItem('authToken');
-    const savedUser = localStorage.getItem('userData');
+    // १. Auth Context
+    const AuthContext = createContext();
 
-    if (savedToken && savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (error) {
-        console.error("Session restore error:", error);
+    const AuthProvider = ({ children }) => {
+      const [user, setUser] = useState(null);
+      const [loading, setLoading] = useState(true);
+
+      useEffect(() => {
+        const savedToken = localStorage.getItem('authToken');
+        const savedUser = localStorage.getItem('userData');
+        if (savedToken && savedUser) {
+          try {
+            setUser(JSON.parse(savedUser));
+          } catch (error) {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userData');
+          }
+        }
+        setLoading(false);
+      }, []);
+
+      const login = (userData, token) => {
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('userData', JSON.stringify(userData));
+        setUser(userData);
+      };
+
+      const logout = () => {
         localStorage.removeItem('authToken');
         localStorage.removeItem('userData');
-      }
-    }
-    setLoading(false);
-  }, []);
+        setUser(null);
+      };
 
-  const login = (userData, token) => {
-    localStorage.setItem('authToken', token);
-    localStorage.setItem('userData', JSON.stringify(userData));
-    setUser(userData);
-  };
+      if (loading) return <div style={{ padding: '20px', textAlign: 'center' }}>Loading Session...</div>;
 
-  const logout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userData');
-    setUser(null);
-  };
-
-  if (loading) {
-    return <div style={{ padding: '20px', textAlign: 'center' }}>Loading Session...</div>;
-  }
-
-  return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-export const useAuth = () => useContext(AuthContext);
-
-
-// ==========================================
-// २. LOGIN FORM COMPONENT
-// ==========================================
-const LoginForm = () => {
-  const { login } = useAuth();
-  const [username, setUsername] = useState('');
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (!username.trim()) return;
-
-    // सिमुलेटेड Token र User डेटा (आफ्नो API सँग कनेक्ट गर्न सकिन्छ)
-    const fakeToken = "jwt-secret-token-12345";
-    const userData = { username: username };
-
-    login(userData, fakeToken);
-  };
-
-  return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px', border: '1px solid #ccc', borderRadius: '8px' }}>
-      <h2>Sign In</h2>
-      <form onSubmit={handleLogin}>
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px' }}>Username / Email:</label>
-          <input 
-            type="text" 
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Username लेख्नुहोस्"
-            style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-            required
-          />
-        </div>
-        <button type="submit" style={{ width: '100%', padding: '10px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-          Login
-        </button>
-      </form>
-    </div>
-  );
-};
-
-
-// ==========================================
-// ३. PURCHASE SYSTEM COMPONENT
-// (Flexbile Product, Supplier & Empty Data)
-// ==========================================
-const PurchaseSystem = () => {
-  const { user, logout } = useAuth();
-
-  // Pure Empty States (कुनै Demo Data राखिएको छैन)
-  const [suppliers, setSuppliers] = useState([]);
-  const [products, setProducts] = useState([]);
-
-  const [selectedSupplier, setSelectedSupplier] = useState('');
-  const [selectedProduct, setSelectedProduct] = useState('');
-  const [customProductInput, setCustomProductInput] = useState('');
-  const [isCustomProduct, setIsCustomProduct] = useState(false);
-
-  // Initial Empty Purchase Form
-  const [purchaseDetails, setPurchaseDetails] = useState({
-    quantity: '',
-    purchasePrice: '',
-    sellingPrice: '',
-    unit: '',
-    category: ''
-  });
-
-  const [newSupplierName, setNewSupplierName] = useState('');
-  const [showSupplierModal, setShowSupplierModal] = useState(false);
-
-  // New Supplier Add गर्ने
-  const handleAddSupplier = (e) => {
-    e.preventDefault();
-    if (!newSupplierName.trim()) return;
-
-    const newSupplier = { id: Date.now(), name: newSupplierName };
-    setSuppliers([...suppliers, newSupplier]);
-    setSelectedSupplier(newSupplier.name);
-    setNewSupplierName('');
-    setShowSupplierModal(false);
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setPurchaseDetails({ ...purchaseDetails, [name]: value });
-  };
-
-  // Purchase Save गर्ने
-  const handlePurchaseSubmit = (e) => {
-    e.preventDefault();
-
-    const finalProductName = isCustomProduct ? customProductInput : selectedProduct;
-
-    if (!selectedSupplier) {
-      alert("कृपया Supplier छान्नुहोस् वा नयाँ थप्नुहोस्।");
-      return;
-    }
-    if (!finalProductName) {
-      alert("कृपया Product छान्नुहोस् वा नयाँ नाम टाइप गर्नुहोस्।");
-      return;
-    }
-
-    const purchaseData = {
-      supplier: selectedSupplier,
-      productName: finalProductName,
-      quantity: Number(purchaseDetails.quantity),
-      purchasePrice: Number(purchaseDetails.purchasePrice),
-      sellingPrice: Number(purchaseDetails.sellingPrice),
-      unit: purchaseDetails.unit,
-      category: purchaseDetails.category,
-      date: new Date().toISOString()
+      return (
+        <AuthContext.Provider value={{ user, login, logout }}>
+          {children}
+        </AuthContext.Provider>
+      );
     };
 
-    console.log("Saved Purchase Data:", purchaseData);
+    const useAuth = () => useContext(AuthContext);
 
-    // नयाँ Product टाइप गरिएको भए inventory/list मा थप्ने
-    if (isCustomProduct) {
-      setProducts([...products, { id: Date.now(), name: finalProductName }]);
-    }
+    // २. Login Form
+    const LoginForm = () => {
+      const { login } = useAuth();
+      const [username, setUsername] = useState('');
 
-    alert("Purchase Entry सफलतापूर्वक सेभ भयो!");
+      const handleLogin = (e) => {
+        e.preventDefault();
+        if (!username.trim()) return;
+        login({ username: username }, "jwt-secret-token-12345");
+      };
 
-    // Form Reset गर्ने
-    setSelectedProduct('');
-    setCustomProductInput('');
-    setIsCustomProduct(false);
-    setPurchaseDetails({
-      quantity: '',
-      purchasePrice: '',
-      sellingPrice: '',
-      unit: '',
-      category: ''
-    });
-  };
+      return (
+        <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px', border: '1px solid #ccc', borderRadius: '8px', fontFamily: 'sans-serif' }}>
+          <h2>Sign In</h2>
+          <form onSubmit={handleLogin}>
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px' }}>Username / Email:</label>
+              <input 
+                type="text" 
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Username लेख्नुहोस्"
+                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                required
+              />
+            </div>
+            <button type="submit" style={{ width: '100%', padding: '10px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+              Login
+            </button>
+          </form>
+        </div>
+      );
+    };
 
-  return (
-    <div style={{ maxWidth: '750px', margin: '20px auto', padding: '20px', border: '1px solid #ddd', borderRadius: '8px' }}>
-      {/* Header Area */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #ccc', pb: '10px', marginBottom: '20px' }}>
-        <h3>Dashboard | Welcome, {user?.username}</h3>
-        <button onClick={logout} style={{ padding: '8px 15px', backgroundColor: '#dc3545', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-          Logout
-        </button>
-      </div>
+    // ३. Purchase System Component
+    const PurchaseSystem = () => {
+      const { user, logout } = useAuth();
 
-      <h2>Purchase Entry System</h2>
-      <form onSubmit={handlePurchaseSubmit}>
+      const [suppliers, setSuppliers] = useState([]);
+      const [products, setProducts] = useState([]);
 
-        {/* 1. Supplier Section */}
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Supplier:</label>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <select 
-              value={selectedSupplier} 
-              onChange={(e) => setSelectedSupplier(e.target.value)}
-              style={{ flex: 1, padding: '8px' }}
-            >
-              <option value="">-- Supplier छान्नुहोस् --</option>
-              {suppliers.map((s) => (
-                <option key={s.id} value={s.name}>{s.name}</option>
-              ))}
-            </select>
-            <button type="button" onClick={() => setShowSupplierModal(true)} style={{ padding: '8px 12px', cursor: 'pointer' }}>
-              + Add New Supplier
+      const [selectedSupplier, setSelectedSupplier] = useState('');
+      const [selectedProduct, setSelectedProduct] = useState('');
+      const [customProductInput, setCustomProductInput] = useState('');
+      const [isCustomProduct, setIsCustomProduct] = useState(false);
+
+      const [purchaseDetails, setPurchaseDetails] = useState({
+        quantity: '',
+        purchasePrice: '',
+        sellingPrice: '',
+        unit: '',
+        category: ''
+      });
+
+      const [newSupplierName, setNewSupplierName] = useState('');
+      const [showSupplierModal, setShowSupplierModal] = useState(false);
+
+      const handleAddSupplier = (e) => {
+        e.preventDefault();
+        if (!newSupplierName.trim()) return;
+        const newSupplier = { id: Date.now(), name: newSupplierName };
+        setSuppliers([...suppliers, newSupplier]);
+        setSelectedSupplier(newSupplier.name);
+        setNewSupplierName('');
+        setShowSupplierModal(false);
+      };
+
+      const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setPurchaseDetails({ ...purchaseDetails, [name]: value });
+      };
+
+      const handlePurchaseSubmit = (e) => {
+        e.preventDefault();
+        const finalProductName = isCustomProduct ? customProductInput : selectedProduct;
+
+        if (!selectedSupplier) {
+          alert("कृपया Supplier छान्नुहोस् वा नयाँ थप्नुहोस्।");
+          return;
+        }
+        if (!finalProductName) {
+          alert("कृपया Product छान्नुहोस् वा नयाँ नाम टाइप गर्नुहोस्।");
+          return;
+        }
+
+        const purchaseData = {
+          supplier: selectedSupplier,
+          productName: finalProductName,
+          quantity: Number(purchaseDetails.quantity),
+          purchasePrice: Number(purchaseDetails.purchasePrice),
+          sellingPrice: Number(purchaseDetails.sellingPrice),
+          unit: purchaseDetails.unit,
+          category: purchaseDetails.category,
+          date: new Date().toISOString()
+        };
+
+        console.log("Saved Purchase Data:", purchaseData);
+
+        if (isCustomProduct) {
+          setProducts([...products, { id: Date.now(), name: finalProductName }]);
+        }
+
+        alert("Purchase Entry सफलतापूर्वक सेभ भयो!");
+
+        setSelectedProduct('');
+        setCustomProductInput('');
+        setIsCustomProduct(false);
+        setPurchaseDetails({
+          quantity: '',
+          purchasePrice: '',
+          sellingPrice: '',
+          unit: '',
+          category: ''
+        });
+      };
+
+      return (
+        <div style={{ maxWidth: '750px', margin: '20px auto', padding: '20px', border: '1px solid #ddd', borderRadius: '8px', fontFamily: 'sans-serif' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #ccc', paddingBottom: '10px', marginBottom: '20px' }}>
+            <h3>Dashboard | Welcome, {user?.username}</h3>
+            <button onClick={logout} style={{ padding: '8px 15px', backgroundColor: '#dc3545', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+              Logout
             </button>
           </div>
+
+          <h2>Purchase Entry System</h2>
+          <form onSubmit={handlePurchaseSubmit}>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Supplier:</label>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <select 
+                  value={selectedSupplier} 
+                  onChange={(e) => setSelectedSupplier(e.target.value)}
+                  style={{ flex: 1, padding: '8px' }}
+                >
+                  <option value="">-- Supplier छान्नुहोस् --</option>
+                  {suppliers.map((s) => (
+                    <option key={s.id} value={s.name}>{s.name}</option>
+                  ))}
+                </select>
+                <button type="button" onClick={() => setShowSupplierModal(true)} style={{ padding: '8px 12px', cursor: 'pointer' }}>
+                  + Add New Supplier
+                </button>
+              </div>
+            </div>
+
+            {showSupplierModal && (
+              <div style={{ padding: '12px', backgroundColor: '#f8f9fa', marginBottom: '20px', borderRadius: '5px', border: '1px solid #ccc' }}>
+                <input 
+                  type="text" 
+                  placeholder="Supplier को नाम लेख्नुहोस्"
+                  value={newSupplierName}
+                  onChange={(e) => setNewSupplierName(e.target.value)}
+                  style={{ padding: '8px', width: '60%', marginRight: '10px' }}
+                />
+                <button type="button" onClick={handleAddSupplier} style={{ padding: '8px 15px', backgroundColor: '#28a745', color: '#fff', border: 'none', cursor: 'pointer' }}>Save</button>
+                <button type="button" onClick={() => setShowSupplierModal(false)} style={{ padding: '8px 15px', marginLeft: '5px', cursor: 'pointer' }}>Cancel</button>
+              </div>
+            )}
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Product System:</label>
+              
+              <div style={{ marginBottom: '10px' }}>
+                <label style={{ marginRight: '15px', cursor: 'pointer' }}>
+                  <input 
+                    type="radio" 
+                    name="productType" 
+                    checked={!isCustomProduct} 
+                    onChange={() => setIsCustomProduct(false)} 
+                  />
+                  {" "}Existing Product छान्नुहोस्
+                </label>
+                <label style={{ cursor: 'pointer' }}>
+                  <input 
+                    type="radio" 
+                    name="productType" 
+                    checked={isCustomProduct} 
+                    onChange={() => setIsCustomProduct(true)} 
+                  />
+                  {" "}नयाँ Product को नाम टाइप गर्नुहोस्
+                </label>
+              </div>
+
+              {!isCustomProduct ? (
+                <select 
+                  value={selectedProduct} 
+                  onChange={(e) => setSelectedProduct(e.target.value)}
+                  style={{ width: '100%', padding: '8px' }}
+                >
+                  <option value="">-- Existing Product छान्नुहोस् --</option>
+                  {products.map((p) => (
+                    <option key={p.id} value={p.name}>{p.name}</option>
+                  ))}
+                </select>
+              ) : (
+                <input 
+                  type="text" 
+                  placeholder="Product को नाम लेख्नुहोस् (उदा: Camera, Frame, Mobile, Canvas Roll)"
+                  value={customProductInput}
+                  onChange={(e) => setCustomProductInput(e.target.value)}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+              )}
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Category:</label>
+                <input 
+                  type="text" 
+                  name="category"
+                  placeholder="Category (उदा: Electronics)"
+                  value={purchaseDetails.category}
+                  onChange={handleInputChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Unit:</label>
+                <input 
+                  type="text" 
+                  name="unit"
+                  placeholder="Unit (उदा: Pcs, Kg, Roll)"
+                  value={purchaseDetails.unit}
+                  onChange={handleInputChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Quantity:</label>
+                <input 
+                  type="number" 
+                  name="quantity"
+                  placeholder="परिमाण"
+                  value={purchaseDetails.quantity}
+                  onChange={handleInputChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                  required
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Purchase Price (खरिद मूल्य):</label>
+                <input 
+                  type="number" 
+                  name="purchasePrice"
+                  placeholder="0.00"
+                  value={purchaseDetails.purchasePrice}
+                  onChange={handleInputChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                  required
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Selling Price (बिक्री मूल्य):</label>
+                <input 
+                  type="number" 
+                  name="sellingPrice"
+                  placeholder="0.00"
+                  value={purchaseDetails.sellingPrice}
+                  onChange={handleInputChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+              </div>
+            </div>
+
+            <button type="submit" style={{ width: '100%', padding: '12px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '16px', cursor: 'pointer' }}>
+              Save Purchase Entry
+            </button>
+          </form>
         </div>
+      );
+    };
 
-        {/* Supplier Add Form */}
-        {showSupplierModal && (
-          <div style={{ padding: '12px', backgroundColor: '#f8f9fa', marginBottom: '20px', borderRadius: '5px', border: '1px solid #ccc' }}>
-            <input 
-              type="text" 
-              placeholder="Supplier को नाम लेख्नुहोस्"
-              value={newSupplierName}
-              onChange={(e) => setNewSupplierName(e.target.value)}
-              style={{ padding: '8px', width: '60%', marginRight: '10px' }}
-            />
-            <button type="button" onClick={handleAddSupplier} style={{ padding: '8px 15px', backgroundColor: '#28a745', color: '#fff', border: 'none', cursor: 'pointer' }}>Save</button>
-            <button type="button" onClick={() => setShowSupplierModal(false)} style={{ padding: '8px 15px', marginLeft: '5px', cursor: 'pointer' }}>Cancel</button>
-          </div>
-        )}
+    const MainApp = () => {
+      const { user } = useAuth();
+      return user ? <PurchaseSystem /> : <LoginForm />;
+    };
 
-        {/* 2. Product System (Flexible) */}
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Product System:</label>
-          
-          <div style={{ marginBottom: '10px' }}>
-            <label style={{ marginRight: '15px', cursor: 'pointer' }}>
-              <input 
-                type="radio" 
-                name="productType" 
-                checked={!isCustomProduct} 
-                onChange={() => setIsCustomProduct(false)} 
-              />
-              {" "}Existing Product छान्नुहोस्
-            </label>
-            <label style={{ cursor: 'pointer' }}>
-              <input 
-                type="radio" 
-                name="productType" 
-                checked={isCustomProduct} 
-                onChange={() => setIsCustomProduct(true)} 
-              />
-              {" "}नयाँ Product को नाम टाइप गर्नुहोस्
-            </label>
-          </div>
+    const App = () => (
+      <AuthProvider>
+        <MainApp />
+      </AuthProvider>
+    );
 
-          {!isCustomProduct ? (
-            <select 
-              value={selectedProduct} 
-              onChange={(e) => setSelectedProduct(e.target.value)}
-              style={{ width: '100%', padding: '8px' }}
-            >
-              <option value="">-- Existing Product छान्नुहोस् --</option>
-              {products.map((p) => (
-                <option key={p.id} value={p.name}>{p.name}</option>
-              ))}
-            </select>
-          ) : (
-            <input 
-              type="text" 
-              placeholder="Product को नाम लेख्नुहोस् (उदा: Camera, Frame, Mobile, Canvas Roll)"
-              value={customProductInput}
-              onChange={(e) => setCustomProductInput(e.target.value)}
-              style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-            />
-          )}
-        </div>
-
-        {/* 3. Product Details Form (No Demo Data) */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px' }}>Category:</label>
-            <input 
-              type="text" 
-              name="category"
-              placeholder="Category (उदा: Electronics)"
-              value={purchaseDetails.category}
-              onChange={handleInputChange}
-              style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px' }}>Unit:</label>
-            <input 
-              type="text" 
-              name="unit"
-              placeholder="Unit (उदा: Pcs, Kg, Roll)"
-              value={purchaseDetails.unit}
-              onChange={handleInputChange}
-              style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px' }}>Quantity:</label>
-            <input 
-              type="number" 
-              name="quantity"
-              placeholder="परिमाण"
-              value={purchaseDetails.quantity}
-              onChange={handleInputChange}
-              style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-              required
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px' }}>Purchase Price (खरिद मूल्य):</label>
-            <input 
-              type="number" 
-              name="purchasePrice"
-              placeholder="0.00"
-              value={purchaseDetails.purchasePrice}
-              onChange={handleInputChange}
-              style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-              required
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px' }}>Selling Price (बिक्री मूल्य):</label>
-            <input 
-              type="number" 
-              name="sellingPrice"
-              placeholder="0.00"
-              value={purchaseDetails.sellingPrice}
-              onChange={handleInputChange}
-              style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-            />
-          </div>
-        </div>
-
-        <button type="submit" style={{ width: '100%', padding: '12px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '16px', cursor: 'pointer' }}>
-          Save Purchase Entry
-        </button>
-      </form>
-    </div>
-  );
-};
-
-
-// ==========================================
-// ४. MAIN APPLICATION WRAPPER
-// ==========================================
-const MainApp = () => {
-  const { user } = useAuth();
-  
-  // यदि User Logged in छ भने Dashboard/Purchase देखाउने, नभए Login Form देखाउने
-  return user ? <PurchaseSystem /> : <LoginForm />;
-};
-
-export default function App() {
-  return (
-    <AuthProvider>
-      <MainApp />
-    </AuthProvider>
-  );
-}
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
