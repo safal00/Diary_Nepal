@@ -1,3 +1,14 @@
+assets/
+│
+├── css/
+├── js/
+├── images/
+├── icons/
+index.html
+dashboard.html
+
+assets/css/style.css
+assets/js/app.js
 <!DOCTYPE html>
 <html lang="en">
 
@@ -26,3 +37,147 @@ window.location="dashboard.html";
 </body>
 
 </html>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Canvas Hub Ledger</title>
+
+<link rel="stylesheet" href="assets/css/style.css">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<h2>Canvas Hub</h2>
+
+<p>Ledger Book</p>
+
+<ul>
+
+<li><i class="fa fa-house"></i> Dashboard</li>
+
+<li><i class="fa fa-users"></i> Customers</li>
+
+<li><i class="fa fa-book"></i> Ledger</li>
+
+<li><i class="fa fa-box"></i> Inventory</li>
+
+<li><i class="fa fa-cart-shopping"></i> Purchase</li>
+
+<li><i class="fa fa-sack-dollar"></i> Sales</li>
+
+<li><i class="fa fa-chart-line"></i> Reports</li>
+
+<li><i class="fa fa-gear"></i> Settings</li>
+
+</ul>
+
+</div>
+
+<div class="content">
+
+<h1>Dashboard</h1>
+
+<p>Welcome Back 👋</p>
+
+</div>
+
+<script src="assets/js/app.js"></script>
+
+</body>
+
+</html>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#f3f6fb;
+display:flex;
+}
+
+.sidebar{
+
+width:260px;
+
+height:100vh;
+
+background:#0B5ED7;
+
+color:white;
+
+padding:30px;
+
+position:fixed;
+
+left:0;
+
+top:0;
+
+}
+
+.sidebar h2{
+
+font-size:28px;
+
+margin-bottom:5px;
+
+}
+
+.sidebar p{
+
+margin-bottom:35px;
+
+color:#dbe7ff;
+
+}
+
+.sidebar ul{
+
+list-style:none;
+
+}
+
+.sidebar ul li{
+
+padding:16px;
+
+margin-bottom:12px;
+
+border-radius:12px;
+
+cursor:pointer;
+
+}
+
+.sidebar ul li:hover{
+
+background:white;
+
+color:#0B5ED7;
+
+}
+
+.content{
+
+margin-left:260px;
+
+padding:40px;
+
+width:100%;
+
+}
+console.log("Canvas Hub Ledger Loaded Successfully");
