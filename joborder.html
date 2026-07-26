@@ -24,6 +24,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- SheetJS for XLSX export -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Google Sign-In SDK -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -58,23 +60,92 @@
                 <div id="authLogoContainer" class="w-14 h-14 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center text-white text-2xl font-bold mb-3 shadow-lg shadow-blue-500/30 overflow-hidden">
                     <i class="fa-solid fa-book-journal-whills"></i>
                 </div>
-                <h2 id="modalTitle" class="text-2xl font-extrabold text-slate-900 dark:text-white">Sign In</h2>
+                <h2 id="modalTitle" class="text-2xl font-extrabold text-slate-900 dark:text-white">Welcome Back</h2>
                 <p id="modalSub" class="text-slate-400 text-xs mt-1">Multi-Tenant Ledger & ERP Portal</p>
             </div>
 
-            <!-- Login Form -->
+            <!-- Auth Mode Switcher -->
+            <div class="flex bg-slate-100 dark:bg-slate-700/50 p-1 rounded-xl mb-6 text-xs font-bold">
+                <button id="tabBtnLogin" onclick="switchAuthTab('login')" class="flex-1 py-2 rounded-lg bg-white dark:bg-slate-800 text-blue-600 dark:text-white shadow-sm transition">Sign In</button>
+                <button id="tabBtnRegister" onclick="switchAuthTab('register')" class="flex-1 py-2 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white transition">Sign Up</button>
+            </div>
+
+            <!-- Error/Success Alert Box -->
+            <div id="authAlert" class="text-xs font-bold hidden p-3 rounded-xl border text-center mb-4"></div>
+
+            <!-- 1. LOGIN FORM -->
             <form id="loginForm" onsubmit="handleEmailLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Email Address</label>
-                    <input type="email" id="loginEmail" value="admin@ledger.com" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="enter your email" required>
+                    <input type="email" id="loginEmail" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="name@company.com" required>
+                </div>
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300">Password</label>
+                        <a href="javascript:void(0)" onclick="switchAuthTab('forgot')" class="text-[11px] font-bold text-blue-600 hover:underline">Forgot?</a>
+                    </div>
+                    <input type="password" id="loginPassword" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-lg shadow-blue-500/25 text-xs">Sign In</button>
+            </form>
+
+            <!-- 2. REGISTER FORM -->
+            <form id="registerForm" onsubmit="handleEmailRegister(event)" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Full Name / Business Name</label>
+                    <input type="text" id="regName" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="John Doe or Acme Corp" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Email Address</label>
+                    <input type="email" id="regEmail" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="name@company.com" required>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Password</label>
-                    <input type="password" id="loginPassword" value="admin123" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="••••••••" required>
+                    <input type="password" id="regPassword" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="At least 6 characters" minlength="6" required>
                 </div>
-                <div id="authError" class="text-rose-600 text-xs font-bold hidden bg-rose-50 p-3 rounded-xl border border-rose-200 text-center"></div>
-                <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-lg shadow-blue-500/25 text-xs">Sign In</button>
+                <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-lg shadow-blue-500/25 text-xs">Create Account</button>
             </form>
+
+            <!-- 3. FORGOT PASSWORD FORM -->
+            <form id="forgotForm" onsubmit="handleForgotPassword(event)" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Registered Email</label>
+                    <input type="email" id="forgotEmail" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="name@company.com" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">New Password</label>
+                    <input type="password" id="forgotNewPassword" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter new password" minlength="6" required>
+                </div>
+                <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-lg shadow-blue-500/25 text-xs">Reset Password</button>
+                <button type="button" onclick="switchAuthTab('login')" class="w-full py-2 text-xs font-bold text-slate-500 hover:text-slate-800 dark:hover:text-white">Back to Sign In</button>
+            </form>
+
+            <!-- Social Divider & Google Sign-In -->
+            <div id="socialAuthSection" class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-700">
+                <div class="relative flex py-1 items-center mb-4">
+                    <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
+                    <span class="flex-shrink mx-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Or continue with</span>
+                    <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
+                </div>
+
+                <!-- Google Sign-In Container -->
+                <div class="flex justify-center">
+                    <div id="g_id_onload"
+                        data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+                        data-callback="handleGoogleSignIn"
+                        data-auto_prompt="false">
+                    </div>
+                    <div class="g_id_signin w-full flex justify-center"
+                        data-type="standard"
+                        data-size="large"
+                        data-theme="outline"
+                        data-text="sign_in_with"
+                        data-shape="rectangular"
+                        data-logo_alignment="left"
+                        data-width="360">
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -88,7 +159,7 @@
                 </div>
                 <div class="overflow-hidden">
                     <h1 class="font-extrabold text-white text-base leading-tight truncate" id="sidebarCompName">Ledger Hub</h1>
-                    <span class="text-[10px] text-blue-400 font-semibold tracking-wider uppercase" id="userRoleBadge">ADMIN</span>
+                    <span class="text-[10px] text-blue-400 font-semibold tracking-wider uppercase" id="userRoleBadge">USER</span>
                 </div>
             </div>
 
@@ -137,10 +208,10 @@
         <!-- User Profile Footer -->
         <div class="bg-slate-800 p-3 rounded-2xl flex items-center justify-between border border-slate-700">
             <div class="flex items-center gap-2.5 overflow-hidden">
-                <div id="userAvatar" class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">A</div>
+                <div id="userAvatar" class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">U</div>
                 <div class="truncate text-xs">
-                    <div id="userNameDisplay" class="font-bold text-white truncate">Admin</div>
-                    <div id="userEmailDisplay" class="text-slate-400 text-[10px] truncate">admin@ledger.com</div>
+                    <div id="userNameDisplay" class="font-bold text-white truncate">User</div>
+                    <div id="userEmailDisplay" class="text-slate-400 text-[10px] truncate">user@ledger.com</div>
                 </div>
             </div>
             <button onclick="handleLogout()" class="text-slate-400 hover:text-white ms-2 text-xs" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
@@ -168,7 +239,7 @@
                     <i class="fa-solid fa-moon dark:hidden text-indigo-600"></i><i class="fa-solid fa-sun hidden dark:inline text-amber-400"></i>
                 </button>
                 <span class="text-xs font-semibold text-slate-500 dark:text-slate-300 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700" id="currentDateDisplay"></span>
-                <div id="headerUserInitials" class="w-9 h-9 bg-slate-900 dark:bg-slate-700 text-white rounded-xl flex items-center justify-center font-bold text-xs shadow-md">AD</div>
+                <div id="headerUserInitials" class="w-9 h-9 bg-slate-900 dark:bg-slate-700 text-white rounded-xl flex items-center justify-center font-bold text-xs shadow-md">U</div>
             </div>
         </header>
 
@@ -330,7 +401,7 @@
                         </div>
                     </div>
 
-                    <!-- CUSTOMER SUMMARY SUMMARY CARDS FOR LEDGER -->
+                    <!-- CUSTOMER SUMMARY CARDS FOR LEDGER -->
                     <div id="customerSummaryBox" class="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600">
                         <div>
                             <span class="text-slate-400 block text-[10px] font-bold uppercase">Customer Name</span>
@@ -408,387 +479,298 @@
                         <h3 class="font-bold text-slate-900 dark:text-white text-base">Sales System & Invoices</h3>
                         <p class="text-xs text-slate-400">Create new sales invoice, track entries, and manage sales billing.</p>
                     </div>
-                    <button onclick="openSalesModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
-                        <i class="fa-solid fa-cart-plus me-1.5"></i> New Sales Invoice
-                    </button>
-                </div>
-
-                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
-                            <tr>
-                                <th class="p-4">Date</th>
-                                <th class="p-4">Invoice No</th>
-                                <th class="p-4">Customer</th>
-                                <th class="p-4">Method</th>
-                                <th class="p-4 text-right">Total Amount</th>
-                                <th class="p-4 text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="salesTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- 6. PURCHASE SYSTEM VIEW -->
-            <div id="view-purchase" class="space-y-6 hidden">
-                <div class="flex flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow gap-4">
-                    <div>
-                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Purchase System</h3>
-                        <p class="text-xs text-slate-400">Record stock purchases, suppliers, and payment methods (Cash/Bank/Cheque/Credit).</p>
-                    </div>
-                    <button onclick="openPurchaseModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
-                        <i class="fa-solid fa-bag-shopping me-1.5"></i> Add New Purchase
-                    </button>
-                </div>
-
-                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
-                            <tr>
-                                <th class="p-4">Date</th>
-                                <th class="p-4">Bill No</th>
-                                <th class="p-4">Supplier</th>
-                                <th class="p-4">Payment Method</th>
-                                <th class="p-4 text-right">Total Amount</th>
-                                <th class="p-4 text-right">Outstanding Payable</th>
-                                <th class="p-4 text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="purchaseTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- 7. PAYMENT RECEIPT VIEW -->
-            <div id="view-receipt" class="space-y-6 hidden">
-                <div class="flex flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow gap-4">
-                    <div>
-                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Payment Receipt (प्राप्त रकम)</h3>
-                        <p class="text-xs text-slate-400">Record money received from customers to reduce their outstanding balance.</p>
-                    </div>
-                    <button onclick="openReceiptModal()" class="bg-emerald-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition">
-                        <i class="fa-solid fa-hand-holding-dollar me-1.5"></i> Record Receipt
-                    </button>
-                </div>
-            </div>
-
-            <!-- 8. PAYMENT PAID VIEW -->
-            <div id="view-paymentpaid" class="space-y-6 hidden">
-                <div class="flex flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow gap-4">
-                    <div>
-                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Payment Paid (भुक्तानी रकम)</h3>
-                        <p class="text-xs text-slate-400">Record payments made to suppliers or customers.</p>
-                    </div>
-                    <button onclick="openPaymentPaidModal()" class="bg-rose-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-rose-700 transition">
-                        <i class="fa-solid fa-money-bill-wave me-1.5"></i> Record Payment
-                    </button>
-                </div>
-            </div>
-
-            <!-- 9. RETURN VIEW -->
-            <div id="view-returns" class="space-y-6 hidden">
-                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
-                    <h3 class="font-bold text-slate-900 dark:text-white text-base">Sales / Purchase Returns</h3>
-                    <p class="text-xs text-slate-400 mt-1">Manage return logs and stock balance reversals.</p>
-                </div>
-            </div>
-
-            <!-- 10. ADJUSTMENT VIEW -->
-            <div id="view-adjustments" class="space-y-6 hidden">
-                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
-                    <h3 class="font-bold text-slate-900 dark:text-white text-base">Stock / Ledger Adjustments</h3>
-                    <p class="text-xs text-slate-400 mt-1">Perform manual ledger or inventory balance adjustments.</p>
-                </div>
-            </div>
-
-            <!-- 11. REPORTS VIEW -->
-            <div id="view-reports" class="space-y-6 hidden">
-                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow flex justify-between items-center">
-                    <div>
-                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Reports & Analytics</h3>
-                        <p class="text-xs text-slate-400">Export financial summaries and detailed transaction histories.</p>
-                    </div>
-                    <button onclick="exportToExcel()" class="bg-emerald-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition">
-                        <i class="fa-solid fa-file-excel me-1.5"></i> Export Excel
-                    </button>
-                </div>
-            </div>
-
-            <!-- 12. SETTINGS & PREFERENCES VIEW -->
-            <div id="view-settings" class="space-y-6 hidden">
-                <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 card-shadow">
-                    <div class="border-b border-slate-100 dark:border-slate-700 pb-4 mb-6">
-                        <h3 class="font-bold text-slate-900 dark:text-white text-base"><i class="fa-solid fa-sliders text-blue-600 me-2"></i>Company Settings & Preferences</h3>
-                        <p class="text-xs text-slate-400 mt-1">Customize your business details, branding, logo, and system preferences.</p>
-                    </div>
-
-                    <form id="settingsForm" onsubmit="saveCompanySettings(event)" class="space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Company Name *</label>
-                                <input type="text" id="setCompanyName" required class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Company Logo</label>
-                                <div class="flex items-center gap-4">
-                                    <input type="file" id="setCompanyLogo" accept="image/*" onchange="previewLogoUpload(event)" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-slate-700 dark:file:text-white">
-                                    <div id="logoPreviewBox" class="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-600 flex items-center justify-center shrink-0 overflow-hidden">
-                                        <i class="fa-solid fa-building text-slate-400 text-lg"></i>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Phone Number</label>
-                                <input type="text" id="setCompanyPhone" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Email Address</label>
-                                <input type="email" id="setCompanyEmail" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <div class="md:col-span-2">
-                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Address</label>
-                                <input type="text" id="setCompanyAddress" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">PAN/VAT Number</label>
-                                <input type="text" id="setCompanyPan" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Currency Symbol</label>
-                                <input type="text" id="setCurrencySymbol" value="रु" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Date Format</label>
-                                <select id="setDateFormat" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option value="YYYY-MM-DD">YYYY-MM-DD (2026-07-26)</option>
-                                    <option value="DD/MM/YYYY">DD/MM/YYYY (26/07/2026)</option>
-                                    <option value="MM/DD/YYYY">MM/DD/YYYY (07/26/2026)</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Default Language (Optional)</label>
-                                <select id="setDefaultLanguage" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option value="Nepali">Nepali (नेपाली)</option>
-                                    <option value="English">English</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
-                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-6 py-3 rounded-xl transition shadow-lg shadow-blue-500/20">
-                                <i class="fa-solid fa-floppy-disk me-1.5"></i> Save Settings
-                            </button>
-                        </div>
-                    </form>
                 </div>
             </div>
 
         </div>
     </main>
 
-    <!-- MODAL POPUPS -->
-    <!-- Add/Edit Customer Modal -->
-    <div id="customerModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-lg w-full p-6 border border-slate-100 dark:border-slate-700">
-            <div class="flex justify-between items-center mb-5 pb-3 border-b border-slate-100 dark:border-slate-700">
-                <h3 id="custModalTitle" class="font-bold text-slate-900 dark:text-white text-base">Add New Customer</h3>
-                <button onclick="closeCustomerModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <form onsubmit="saveCustomer(event)" class="space-y-4">
-                <input type="hidden" id="custEditIndex" value="-1">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Customer Name *</label>
-                    <input type="text" id="custName" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Mobile Number</label>
-                        <input type="text" id="custMobile" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">PAN/VAT</label>
-                        <input type="text" id="custPan" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Address</label>
-                    <input type="text" id="custAddress" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Opening Balance (रु)</label>
-                    <input type="number" step="0.01" id="custOpeningBalance" value="0" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
-                </div>
-                <div class="flex justify-end gap-3 pt-3">
-                    <button type="button" onclick="closeCustomerModal()" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-xl">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700">Save Customer</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Purchase Modal -->
-    <div id="purchaseModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-lg w-full p-6 border border-slate-100 dark:border-slate-700">
-            <div class="flex justify-between items-center mb-5 pb-3 border-b border-slate-100 dark:border-slate-700">
-                <h3 class="font-bold text-slate-900 dark:text-white text-base">Add New Purchase Entry</h3>
-                <button onclick="closePurchaseModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <form onsubmit="savePurchase(event)" class="space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Supplier Name *</label>
-                        <input type="text" id="purSupplier" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Bill / Ref No.</label>
-                        <input type="text" id="purBillNo" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Total Payable Amount *</label>
-                        <input type="number" step="0.01" id="purAmount" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Payment Method *</label>
-                        <select id="purMethod" onchange="togglePurchaseCreditView()" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
-                            <option value="Cash">Cash</option>
-                            <option value="Bank">Bank</option>
-                            <option value="Cheque">Cheque</option>
-                            <option value="Credit">Credit (उधार)</option>
-                        </select>
-                    </div>
-                </div>
-                <div id="purCreditInfoBox" class="hidden p-3 bg-amber-50 dark:bg-amber-900/30 rounded-xl border border-amber-200 text-xs font-semibold text-amber-800 dark:text-amber-200">
-                    <i class="fa-solid fa-circle-exclamation me-1"></i> यो रकम Supplier Account मा <b>Outstanding Payable (तिर्न बाँकी)</b> को रूपमा सुरक्षित हुनेछ।
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Remarks / Items</label>
-                    <input type="text" id="purRemarks" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
-                </div>
-                <div class="flex justify-end gap-3 pt-3">
-                    <button type="button" onclick="closePurchaseModal()" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-xl">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700">Save Purchase</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Ledger Entry Modal -->
-    <div id="ledgerEntryModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-lg w-full p-6 border border-slate-100 dark:border-slate-700">
-            <div class="flex justify-between items-center mb-5 pb-3 border-b border-slate-100 dark:border-slate-700">
-                <h3 class="font-bold text-slate-900 dark:text-white text-base">Add Ledger Entry</h3>
-                <button onclick="closeLedgerEntryModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <form onsubmit="saveLedgerEntry(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Select Customer *</label>
-                    <select id="ledCustSelect" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold"></select>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Entry Type *</label>
-                        <select id="ledType" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
-                            <option value="DEBIT">Debit (उधार दिइएको - Sale/Due)</option>
-                            <option value="CREDIT">Credit (रकम प्राप्त भएको - Payment)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Amount (रु) *</label>
-                        <input type="number" step="0.01" id="ledAmount" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Payment Method</label>
-                        <select id="ledMethod" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
-                            <option value="Cash">Cash</option>
-                            <option value="Bank">Bank</option>
-                            <option value="QR">QR</option>
-                            <option value="Cheque">Cheque</option>
-                            <option value="Credit">Credit</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Voucher No.</label>
-                        <input type="text" id="ledVoucher" placeholder="Auto Generated" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Description / Particulars</label>
-                    <input type="text" id="ledRemarks" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-semibold">
-                </div>
-                <div class="flex justify-end gap-3 pt-3">
-                    <button type="button" onclick="closeLedgerEntryModal()" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-xl">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700">Add Entry</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MAIN SYSTEM APPLICATION LOGIC -->
+    <!-- JS APP SCRIPT -->
     <script>
-        // Default Company Settings State
-        let companySettings = JSON.parse(localStorage.getItem('sysCompanySettings')) || {
-            name: "Ledger Hub",
-            logo: "",
-            phone: "+977-9800000000",
-            email: "info@ledgerhub.com",
-            address: "Kathmandu, Nepal",
-            pan: "600012345",
-            currency: "रु",
-            dateFormat: "YYYY-MM-DD",
-            language: "Nepali"
+        // System Application State
+        let currentUser = null;
+        let db = {
+            users: [],
+            customers: [],
+            products: [],
+            ledger: []
         };
 
-        // Dummy System Data State
-        let customers = JSON.parse(localStorage.getItem('sysCustomers')) || [
-            { id: "CUST-101", name: "Ram Sharma", mobile: "9841234567", address: "Kathmandu", pan: "102938", opening: 0, balance: 5000 },
-            { id: "CUST-102", name: "Sita Verma", mobile: "9801122334", address: "Lalitpur", pan: "882716", opening: 0, balance: -2000 }
-        ];
+        // Utility: Hash passwords using SHA-256 for secure storage
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
 
-        let ledgerEntries = JSON.parse(localStorage.getItem('sysLedgerEntries')) || [
-            { id: "VOUCH-1001", date: "2026-07-25", customerId: "CUST-101", customerName: "Ram Sharma", description: "Credit Sales Invoice #101", debit: 10000, credit: 0, method: "Credit" },
-            { id: "VOUCH-1002", date: "2026-07-26", customerId: "CUST-101", customerName: "Ram Sharma", description: "Part Payment Received", debit: 0, credit: 5000, method: "Cash" },
-            { id: "VOUCH-1003", date: "2026-07-26", customerId: "CUST-102", customerName: "Sita Verma", description: "Advance Payment", debit: 0, credit: 2000, method: "Bank" }
-        ];
-
-        let purchases = JSON.parse(localStorage.getItem('sysPurchases')) || [
-            { id: "PUR-101", date: "2026-07-26", supplier: "ABC Suppliers", billNo: "INV-9901", total: 25000, method: "Credit", payable: 25000, remarks: "Raw Materials" }
-        ];
-
-        let products = [
-            { code: "P-01", name: "Standard Product A", category: "General", cost: 500, price: 750, qty: 120 }
-        ];
-
-        let charts = {};
-
-        // INITIALIZATION
-        window.addEventListener('DOMContentLoaded', () => {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('currentDateDisplay').innerText = today;
-            document.getElementById('printDate').innerText = today;
-
-            applyCompanySettingsUI();
-            renderDashboard();
-            renderCustomers();
-            renderCustomerLedgerView();
-            renderPurchases();
-            renderProducts();
-            initCharts();
+        // Initialize Authentication & Session Management
+        document.addEventListener('DOMContentLoaded', () => {
+            loadGlobalUsers();
+            checkExistingSession();
+            updateDateDisplay();
         });
 
-        // TOAST NOTIFICATION
+        function loadGlobalUsers() {
+            const savedUsers = localStorage.getItem('ledger_registered_users');
+            if (savedUsers) {
+                db.users = JSON.parse(savedUsers);
+            }
+        }
+
+        function saveGlobalUsers() {
+            localStorage.setItem('ledger_registered_users', JSON.stringify(db.users));
+        }
+
+        function checkExistingSession() {
+            const session = localStorage.getItem('ledger_session');
+            if (session) {
+                const user = JSON.parse(session);
+                const activeUser = db.users.find(u => u.email === user.email);
+                if (activeUser) {
+                    currentUser = activeUser;
+                    onAuthSuccess();
+                    return;
+                }
+            }
+            showAuthModal();
+        }
+
+        function showAuthModal() {
+            document.getElementById('authModal').classList.remove('hidden');
+        }
+
+        function hideAuthModal() {
+            document.getElementById('authModal').classList.add('hidden');
+        }
+
+        function switchAuthTab(tab) {
+            hideAuthAlert();
+            const loginForm = document.getElementById('loginForm');
+            const regForm = document.getElementById('registerForm');
+            const forgotForm = document.getElementById('forgotForm');
+            const socialSection = document.getElementById('socialAuthSection');
+            
+            const btnLogin = document.getElementById('tabBtnLogin');
+            const btnReg = document.getElementById('tabBtnRegister');
+
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                regForm.classList.add('hidden');
+                forgotForm.classList.add('hidden');
+                socialSection.classList.remove('hidden');
+
+                btnLogin.className = "flex-1 py-2 rounded-lg bg-white dark:bg-slate-800 text-blue-600 dark:text-white shadow-sm transition";
+                btnReg.className = "flex-1 py-2 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white transition";
+                document.getElementById('modalTitle').innerText = "Welcome Back";
+            } else if (tab === 'register') {
+                loginForm.classList.add('hidden');
+                regForm.classList.remove('hidden');
+                forgotForm.classList.add('hidden');
+                socialSection.classList.remove('hidden');
+
+                btnReg.className = "flex-1 py-2 rounded-lg bg-white dark:bg-slate-800 text-blue-600 dark:text-white shadow-sm transition";
+                btnLogin.className = "flex-1 py-2 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white transition";
+                document.getElementById('modalTitle').innerText = "Create Account";
+            } else if (tab === 'forgot') {
+                loginForm.classList.add('hidden');
+                regForm.classList.add('hidden');
+                forgotForm.classList.remove('hidden');
+                socialSection.classList.add('hidden');
+                document.getElementById('modalTitle').innerText = "Reset Password";
+            }
+        }
+
+        function showAuthAlert(msg, isError = true) {
+            const alert = document.getElementById('authAlert');
+            alert.innerText = msg;
+            alert.classList.remove('hidden', 'bg-rose-50', 'border-rose-200', 'text-rose-600', 'bg-emerald-50', 'border-emerald-200', 'text-emerald-600');
+            if (isError) {
+                alert.classList.add('bg-rose-50', 'border-rose-200', 'text-rose-600');
+            } else {
+                alert.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-600');
+            }
+        }
+
+        function hideAuthAlert() {
+            document.getElementById('authAlert').classList.add('hidden');
+        }
+
+        // Handlers for Authentication
+        async function handleEmailLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+            const password = document.getElementById('loginPassword').value;
+
+            const hashedPassword = await hashPassword(password);
+            const user = db.users.find(u => u.email === email && u.password === hashedPassword);
+
+            if (user) {
+                currentUser = user;
+                localStorage.setItem('ledger_session', JSON.stringify({ email: user.email, name: user.name }));
+                onAuthSuccess();
+                showToast(`Welcome back, ${user.name}!`);
+            } else {
+                showAuthAlert("Invalid email address or password.");
+            }
+        }
+
+        async function handleEmailRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim().toLowerCase();
+            const password = document.getElementById('regPassword').value;
+
+            if (db.users.some(u => u.email === email)) {
+                showAuthAlert("An account with this email address already exists.");
+                return;
+            }
+
+            const hashedPassword = await hashPassword(password);
+            const newUser = {
+                id: 'USR_' + Date.now(),
+                name: name,
+                email: email,
+                password: hashedPassword,
+                provider: 'email',
+                createdAt: new Date().toISOString()
+            };
+
+            db.users.push(newUser);
+            saveGlobalUsers();
+
+            currentUser = newUser;
+            localStorage.setItem('ledger_session', JSON.stringify({ email: newUser.email, name: newUser.name }));
+            onAuthSuccess();
+            showToast("Account successfully created!");
+        }
+
+        async function handleForgotPassword(e) {
+            e.preventDefault();
+            const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
+            const newPassword = document.getElementById('forgotNewPassword').value;
+
+            const userIndex = db.users.findIndex(u => u.email === email);
+            if (userIndex === -1) {
+                showAuthAlert("No account found with this email address.");
+                return;
+            }
+
+            db.users[userIndex].password = await hashPassword(newPassword);
+            saveGlobalUsers();
+            showAuthAlert("Password updated successfully! Please sign in.", false);
+            setTimeout(() => switchAuthTab('login'), 1500);
+        }
+
+        // Google Authentication Callback
+        function parseJwt(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                return JSON.parse(jsonPayload);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function handleGoogleSignIn(response) {
+            const payload = parseJwt(response.credential);
+            if (!payload || !payload.email) {
+                showAuthAlert("Google authentication failed.");
+                return;
+            }
+
+            let user = db.users.find(u => u.email === payload.email);
+            if (!user) {
+                user = {
+                    id: 'USR_G_' + Date.now(),
+                    name: payload.name || payload.email.split('@')[0],
+                    email: payload.email.toLowerCase(),
+                    provider: 'google',
+                    picture: payload.picture,
+                    createdAt: new Date().toISOString()
+                };
+                db.users.push(user);
+                saveGlobalUsers();
+            }
+
+            currentUser = user;
+            localStorage.setItem('ledger_session', JSON.stringify({ email: user.email, name: user.name }));
+            onAuthSuccess();
+            showToast(`Signed in with Google as ${user.name}`);
+        }
+
+        function onAuthSuccess() {
+            hideAuthModal();
+            loadUserData();
+            updateUIUser();
+            renderDashboard();
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('ledger_session');
+            currentUser = null;
+            showAuthModal();
+            showToast("Signed out successfully.");
+        }
+
+        // Multi-Tenant Isolated Storage
+        function getUserStorageKey(key) {
+            return `user_${currentUser.id}_${key}`;
+        }
+
+        function loadUserData() {
+            db.customers = JSON.parse(localStorage.getItem(getUserStorageKey('customers')) || '[]');
+            db.products = JSON.parse(localStorage.getItem(getUserStorageKey('products')) || '[]');
+            db.ledger = JSON.parse(localStorage.getItem(getUserStorageKey('ledger')) || '[]');
+        }
+
+        function saveUserData() {
+            localStorage.setItem(getUserStorageKey('customers'), JSON.stringify(db.customers));
+            localStorage.setItem(getUserStorageKey('products'), JSON.stringify(db.products));
+            localStorage.setItem(getUserStorageKey('ledger'), JSON.stringify(db.ledger));
+        }
+
+        function updateUIUser() {
+            const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+            document.getElementById('userNameDisplay').innerText = currentUser.name;
+            document.getElementById('userEmailDisplay').innerText = currentUser.email;
+            document.getElementById('sidebarCompName').innerText = currentUser.name + "'s Ledger";
+            document.getElementById('userAvatar').innerText = initials || 'U';
+            document.getElementById('headerUserInitials').innerText = initials || 'U';
+        }
+
+        // Navigation
+        function switchTab(tabId) {
+            document.querySelectorAll('#workspaceContent > div').forEach(div => div.classList.add('hidden'));
+            const targetView = document.getElementById(`view-${tabId}`);
+            if (targetView) targetView.classList.remove('hidden');
+
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('sidebar-item-active');
+                item.classList.add('hover:bg-slate-800');
+            });
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.classList.add('sidebar-item-active');
+                activeNav.classList.remove('hover:bg-slate-800');
+            }
+
+            document.getElementById('moduleTitle').innerText = tabId.charAt(0).toUpperCase() + tabId.slice(1);
+            if (tabId === 'dashboard') renderDashboard();
+            if (tabId === 'customers') renderCustomers();
+            if (tabId === 'creditledger') renderCustomerLedgerView();
+            if (tabId === 'products') renderProducts();
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+        }
+
         function showToast(msg) {
             const toast = document.getElementById('toast');
             document.getElementById('toastMsg').innerText = msg;
@@ -796,569 +778,25 @@
             setTimeout(() => toast.classList.add('hidden'), 3000);
         }
 
-        // DARK MODE TOGGLE
-        function toggleDarkMode() {
-            document.documentElement.classList.toggle('dark');
+        function updateDateDisplay() {
+            const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+            const today = new Date().toLocaleDateString('en-US', options);
+            document.getElementById('currentDateDisplay').innerText = today;
+            document.getElementById('printDate').innerText = new Date().toLocaleString();
         }
 
-        // AUTH & LOGOUT
-        function handleEmailLogin(e) {
-            e.preventDefault();
-            document.getElementById('authModal').classList.add('hidden');
-            showToast("Successfully Logged In!");
-        }
-
-        function handleLogout() {
-            document.getElementById('authModal').classList.remove('hidden');
-        }
-
-        // TAB NAVIGATION
-        function switchTab(tabId) {
-            const views = ['dashboard', 'customers', 'creditledger', 'products', 'sales', 'purchase', 'receipt', 'paymentpaid', 'returns', 'adjustments', 'reports', 'settings'];
-            views.forEach(v => {
-                const el = document.getElementById('view-' + v);
-                const nav = document.getElementById('nav-' + v);
-                if (el) el.classList.add('hidden');
-                if (nav) nav.classList.remove('sidebar-item-active');
-            });
-
-            const activeView = document.getElementById('view-' + tabId);
-            const activeNav = document.getElementById('nav-' + tabId);
-            if (activeView) activeView.classList.remove('hidden');
-            if (activeNav) activeNav.classList.add('sidebar-item-active');
-
-            const titles = {
-                dashboard: "Dashboard", customers: "Customer Information", creditledger: "Ledger Entries & Customer Ledger",
-                products: "Product & Inventory", sales: "Sales System", purchase: "Purchase System",
-                receipt: "Payment Receipt", paymentpaid: "Payment Paid", returns: "Returns",
-                adjustments: "Adjustments", reports: "Reports & Analytics", settings: "Settings & Preferences"
-            };
-            document.getElementById('moduleTitle').innerText = titles[tabId] || "Workspace";
-        }
-
-        // 1. SETTINGS & PREFERENCES FUNCTIONS
-        function applyCompanySettingsUI() {
-            document.getElementById('sidebarCompName').innerText = companySettings.name;
-            document.getElementById('printCompName').innerText = companySettings.name;
-            document.getElementById('printCompAddress').innerText = `${companySettings.address} | PAN/VAT: ${companySettings.pan}`;
-
-            // Set Form Values
-            document.getElementById('setCompanyName').value = companySettings.name;
-            document.getElementById('setCompanyPhone').value = companySettings.phone;
-            document.getElementById('setCompanyEmail').value = companySettings.email;
-            document.getElementById('setCompanyAddress').value = companySettings.address;
-            document.getElementById('setCompanyPan').value = companySettings.pan;
-            document.getElementById('setCurrencySymbol').value = companySettings.currency;
-            document.getElementById('setDateFormat').value = companySettings.dateFormat;
-            document.getElementById('setDefaultLanguage').value = companySettings.language;
-
-            // Render Logo
-            const logoBox = document.getElementById('sidebarLogo');
-            const previewBox = document.getElementById('logoPreviewBox');
-            if (companySettings.logo) {
-                logoBox.innerHTML = `<img src="${companySettings.logo}" class="w-full h-full object-cover">`;
-                previewBox.innerHTML = `<img src="${companySettings.logo}" class="w-full h-full object-cover">`;
-                document.getElementById('authLogoContainer').innerHTML = `<img src="${companySettings.logo}" class="w-full h-full object-cover">`;
-            }
-        }
-
-        function previewLogoUpload(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    companySettings.logo = evt.target.result;
-                    document.getElementById('logoPreviewBox').innerHTML = `<img src="${evt.target.result}" class="w-full h-full object-cover">`;
-                }
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function saveCompanySettings(e) {
-            e.preventDefault();
-            companySettings.name = document.getElementById('setCompanyName').value;
-            companySettings.phone = document.getElementById('setCompanyPhone').value;
-            companySettings.email = document.getElementById('setCompanyEmail').value;
-            companySettings.address = document.getElementById('setCompanyAddress').value;
-            companySettings.pan = document.getElementById('setCompanyPan').value;
-            companySettings.currency = document.getElementById('setCurrencySymbol').value;
-            companySettings.dateFormat = document.getElementById('setDateFormat').value;
-            companySettings.language = document.getElementById('setDefaultLanguage').value;
-
-            localStorage.setItem('sysCompanySettings', JSON.stringify(companySettings));
-            applyCompanySettingsUI();
-            renderDashboard();
-            renderCustomerLedgerView();
-            showToast("Company Settings Saved Successfully!");
-        }
-
-        // 2. DASHBOARD FUNCTIONS
+        // Placeholder render functions for existing dashboard/modules
         function renderDashboard() {
-            let totalReceivable = 0;
-            let totalPayable = 0;
-
-            customers.forEach(c => {
-                if (c.balance > 0) totalReceivable += c.balance;
-            });
-
-            purchases.forEach(p => {
-                if (p.method === 'Credit') totalPayable += (p.payable || 0);
-            });
-
-            const curr = companySettings.currency || "रु";
-            document.getElementById('dashTotalCustomers').innerText = customers.length;
-            document.getElementById('dashTotalReceivable').innerText = `${curr} ${totalReceivable.toFixed(2)}`;
-            document.getElementById('dashTotalPayable').innerText = `${curr} ${totalPayable.toFixed(2)}`;
-
-            let totPurchaseSum = purchases.reduce((a, b) => a + Number(b.total || 0), 0);
-            document.getElementById('dashTotalPurchase').innerText = `${curr} ${totPurchaseSum.toFixed(2)}`;
-
-            // Render Recent Table
-            const tbody = document.getElementById('recentTxTableBody');
-            tbody.innerHTML = '';
-            ledgerEntries.slice(-5).reverse().forEach(entry => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="p-3">${entry.date}</td>
-                        <td class="p-3 font-bold">${entry.id}</td>
-                        <td class="p-3">${entry.customerName}</td>
-                        <td class="p-3">${entry.description}</td>
-                        <td class="p-3 text-right text-rose-600 font-bold">${entry.debit ? curr + ' ' + entry.debit.toFixed(2) : '-'}</td>
-                        <td class="p-3 text-right text-emerald-600 font-bold">${entry.credit ? curr + ' ' + entry.credit.toFixed(2) : '-'}</td>
-                        <td class="p-3"><span class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700 text-[10px] font-bold">${entry.method}</span></td>
-                    </tr>
-                `;
-            });
+            document.getElementById('dashTotalCustomers').innerText = db.customers.length;
         }
 
-        // 3. CUSTOMERS MODULE
-        function renderCustomers() {
-            const tbody = document.getElementById('customerTableBody');
-            const searchName = document.getElementById('custSearchName').value.toLowerCase();
-            const searchMob = document.getElementById('custSearchMobile').value;
-            const filterBal = document.getElementById('custFilterBalance').value;
-
-            tbody.innerHTML = '';
-            const curr = companySettings.currency || "रु";
-
-            customers.filter(c => {
-                const matchName = c.name.toLowerCase().includes(searchName);
-                const matchMob = c.mobile.includes(searchMob);
-                let matchBal = true;
-                if (filterBal === 'DUE') matchBal = c.balance > 0;
-                if (filterBal === 'ZERO') matchBal = c.balance === 0;
-                if (filterBal === 'ADVANCE') matchBal = c.balance < 0;
-                return matchName && matchMob && matchBal;
-            }).forEach((c, idx) => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="p-4 font-bold text-slate-400">${c.id}</td>
-                        <td class="p-4 font-bold text-slate-900 dark:text-white">${c.name}</td>
-                        <td class="p-4">${c.mobile || '-'}</td>
-                        <td class="p-4">${c.address || '-'}</td>
-                        <td class="p-4">${c.pan || '-'}</td>
-                        <td class="p-4 text-right">${curr} ${Number(c.opening||0).toFixed(2)}</td>
-                        <td class="p-4 text-right font-extrabold ${c.balance > 0 ? 'text-rose-600' : c.balance < 0 ? 'text-emerald-600' : ''}">${curr} ${c.balance.toFixed(2)}</td>
-                        <td class="p-4 text-center">
-                            <button onclick="editCustomer(${idx})" class="text-blue-600 hover:text-blue-800 me-2"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteCustomer(${idx})" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            // Update Ledger Customer Select Dropdown
-            const ledSelect = document.getElementById('ledgerCustomerSelect');
-            const modalSelect = document.getElementById('ledCustSelect');
-            ledSelect.innerHTML = '<option value="ALL">-- All Customer Entries --</option>';
-            modalSelect.innerHTML = '';
-            customers.forEach(c => {
-                ledSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-                modalSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-            });
-        }
-
-        function openCustomerModal() {
-            document.getElementById('custEditIndex').value = -1;
-            document.getElementById('custName').value = '';
-            document.getElementById('custMobile').value = '';
-            document.getElementById('custPan').value = '';
-            document.getElementById('custAddress').value = '';
-            document.getElementById('custOpeningBalance').value = 0;
-            document.getElementById('custModalTitle').innerText = "Add New Customer";
-            document.getElementById('customerModal').classList.remove('hidden');
-        }
-
-        function closeCustomerModal() {
-            document.getElementById('customerModal').classList.add('hidden');
-        }
-
-        function saveCustomer(e) {
-            e.preventDefault();
-            const idx = parseInt(document.getElementById('custEditIndex').value);
-            const name = document.getElementById('custName').value;
-            const mobile = document.getElementById('custMobile').value;
-            const pan = document.getElementById('custPan').value;
-            const address = document.getElementById('custAddress').value;
-            const opening = parseFloat(document.getElementById('custOpeningBalance').value) || 0;
-
-            if (idx === -1) {
-                const newCust = {
-                    id: "CUST-" + (101 + customers.length),
-                    name, mobile, pan, address, opening, balance: opening
-                };
-                customers.push(newCust);
-                showToast("Customer Added Successfully!");
-            } else {
-                customers[idx].name = name;
-                customers[idx].mobile = mobile;
-                customers[idx].pan = pan;
-                customers[idx].address = address;
-                showToast("Customer Updated!");
-            }
-            localStorage.setItem('sysCustomers', JSON.stringify(customers));
-            closeCustomerModal();
-            renderCustomers();
-            renderDashboard();
-        }
-
-        function editCustomer(idx) {
-            const c = customers[idx];
-            document.getElementById('custEditIndex').value = idx;
-            document.getElementById('custName').value = c.name;
-            document.getElementById('custMobile').value = c.mobile;
-            document.getElementById('custPan').value = c.pan;
-            document.getElementById('custAddress').value = c.address;
-            document.getElementById('custOpeningBalance').value = c.opening;
-            document.getElementById('custModalTitle').innerText = "Edit Customer Details";
-            document.getElementById('customerModal').classList.remove('hidden');
-        }
-
-        function deleteCustomer(idx) {
-            if (confirm("Are you sure you want to delete this customer?")) {
-                customers.splice(idx, 1);
-                localStorage.setItem('sysCustomers', JSON.stringify(customers));
-                renderCustomers();
-                renderDashboard();
-                showToast("Customer Deleted!");
-            }
-        }
-
-        // 4. CUSTOMER LEDGER & OUTSTANDING BALANCE
-        function renderCustomerLedgerView() {
-            const selectedCustId = document.getElementById('ledgerCustomerSelect').value;
-            const filterMethod = document.getElementById('ledgerFilterPayment').value;
-            const startDate = document.getElementById('ledgerStartDate').value;
-            const endDate = document.getElementById('ledgerEndDate').value;
-            const tbody = document.getElementById('ledgerTableBody');
-            const curr = companySettings.currency || "रु";
-
-            tbody.innerHTML = '';
-            let filtered = ledgerEntries.filter(entry => {
-                let matchCust = selectedCustId === 'ALL' || entry.customerId === selectedCustId;
-                let matchMethod = filterMethod === 'ALL' || entry.method === filterMethod;
-                let matchStart = !startDate || entry.date >= startDate;
-                let matchEnd = !endDate || entry.date <= endDate;
-                return matchCust && matchMethod && matchStart && matchEnd;
-            });
-
-            let runningBal = 0;
-            let totalDebit = 0;
-            let totalCredit = 0;
-
-            if (selectedCustId !== 'ALL') {
-                const custObj = customers.find(c => c.id === selectedCustId);
-                if (custObj) {
-                    runningBal = custObj.opening || 0;
-                    document.getElementById('custHeadName').innerText = custObj.name;
-                }
-            } else {
-                document.getElementById('custHeadName').innerText = "-- All Customers --";
-            }
-
-            filtered.forEach(entry => {
-                totalDebit += entry.debit || 0;
-                totalCredit += entry.credit || 0;
-                runningBal += (entry.debit || 0) - (entry.credit || 0);
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="p-4">${entry.date}</td>
-                        <td class="p-4 font-bold text-slate-500">${entry.id}</td>
-                        <td class="p-4 font-bold">${entry.customerName}</td>
-                        <td class="p-4">${entry.description}</td>
-                        <td class="p-4 text-right text-rose-600 font-bold">${entry.debit ? curr + ' ' + entry.debit.toFixed(2) : '-'}</td>
-                        <td class="p-4 text-right text-emerald-600 font-bold">${entry.credit ? curr + ' ' + entry.credit.toFixed(2) : '-'}</td>
-                        <td class="p-4 text-right font-extrabold text-blue-600">${curr} ${runningBal.toFixed(2)}</td>
-                        <td class="p-4"><span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-[10px] font-bold rounded-lg">${entry.method}</span></td>
-                        <td class="p-4 text-center no-print">
-                            <button onclick="deleteLedgerEntry('${entry.id}')" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            // Update Summary Header Cards
-            document.getElementById('custHeadTotalDebit').innerText = `${curr} ${totalDebit.toFixed(2)}`;
-            document.getElementById('custHeadTotalCredit').innerText = `${curr} ${totalCredit.toFixed(2)}`;
-
-            const outBox = document.getElementById('custHeadOutstanding');
-            let finalOutstanding = runningBal;
-            if (selectedCustId === 'ALL') {
-                finalOutstanding = totalDebit - totalCredit;
-            }
-
-            if (finalOutstanding >= 0) {
-                outBox.innerText = `${curr} ${finalOutstanding.toFixed(2)} (Receivable)`;
-                outBox.className = "text-rose-600 font-extrabold text-sm";
-            } else {
-                outBox.innerText = `- ${curr} ${Math.abs(finalOutstanding).toFixed(2)} (Payable)`;
-                outBox.className = "text-emerald-600 font-extrabold text-sm";
-            }
-        }
-
-        function openLedgerEntryModal() {
-            document.getElementById('ledAmount').value = '';
-            document.getElementById('ledRemarks').value = '';
-            document.getElementById('ledVoucher').value = 'VOUCH-' + (1001 + ledgerEntries.length);
-            document.getElementById('ledgerEntryModal').classList.remove('hidden');
-        }
-
-        function closeLedgerEntryModal() {
-            document.getElementById('ledgerEntryModal').classList.add('hidden');
-        }
-
-        function saveLedgerEntry(e) {
-            e.preventDefault();
-            const custId = document.getElementById('ledCustSelect').value;
-            const custObj = customers.find(c => c.id === custId);
-            const type = document.getElementById('ledType').value;
-            const amt = parseFloat(document.getElementById('ledAmount').value) || 0;
-            const method = document.getElementById('ledMethod').value;
-            const voucher = document.getElementById('ledVoucher').value || ('VOUCH-' + (1001 + ledgerEntries.length));
-            const remarks = document.getElementById('ledRemarks').value;
-
-            const newEntry = {
-                id: voucher,
-                date: new Date().toISOString().split('T')[0],
-                customerId: custId,
-                customerName: custObj ? custObj.name : "N/A",
-                description: remarks || (type === 'DEBIT' ? 'Manual Sales Entry' : 'Manual Receipt Entry'),
-                debit: type === 'DEBIT' ? amt : 0,
-                credit: type === 'CREDIT' ? amt : 0,
-                method: method
-            };
-
-            ledgerEntries.push(newEntry);
-            if (custObj) {
-                custObj.balance += (newEntry.debit - newEntry.credit);
-            }
-
-            localStorage.setItem('sysLedgerEntries', JSON.stringify(ledgerEntries));
-            localStorage.setItem('sysCustomers', JSON.stringify(customers));
-
-            closeLedgerEntryModal();
-            renderCustomerLedgerView();
-            renderCustomers();
-            renderDashboard();
-            showToast("Ledger Entry Saved!");
-        }
-
-        function deleteLedgerEntry(voucherId) {
-            if (confirm("Are you sure you want to delete this entry?")) {
-                const idx = ledgerEntries.findIndex(e => e.id === voucherId);
-                if (idx !== -1) {
-                    const entry = ledgerEntries[idx];
-                    const custObj = customers.find(c => c.id === entry.customerId);
-                    if (custObj) {
-                        custObj.balance -= (entry.debit - entry.credit);
-                    }
-                    ledgerEntries.splice(idx, 1);
-                    localStorage.setItem('sysLedgerEntries', JSON.stringify(ledgerEntries));
-                    localStorage.setItem('sysCustomers', JSON.stringify(customers));
-                    renderCustomerLedgerView();
-                    renderCustomers();
-                    renderDashboard();
-                    showToast("Entry Deleted!");
-                }
-            }
-        }
-
-        // SHARE LEDGER REPORT FUNCTIONALITY
-        function shareLedgerReport() {
-            const selectedCustId = document.getElementById('ledgerCustomerSelect').value;
-            const curr = companySettings.currency || "रु";
-            let shareText = `*${companySettings.name} - Ledger Report*\n`;
-
-            if (selectedCustId !== 'ALL') {
-                const cust = customers.find(c => c.id === selectedCustId);
-                if (cust) {
-                    shareText += `Customer: ${cust.name}\nMobile: ${cust.mobile}\nOutstanding Balance: ${curr} ${cust.balance.toFixed(2)}\n`;
-                }
-            } else {
-                shareText += `Summary: All Customers Ledger\n`;
-            }
-
-            shareText += `\nThank you for doing business with us!`;
-
-            if (navigator.share) {
-                navigator.share({
-                    title: `${companySettings.name} Ledger Report`,
-                    text: shareText
-                }).catch(() => {});
-            } else {
-                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
-            }
-        }
-
-        // 5. PURCHASE SYSTEM & CREDIT PURCHASE
-        function renderPurchases() {
-            const tbody = document.getElementById('purchaseTableBody');
-            const curr = companySettings.currency || "रु";
-            tbody.innerHTML = '';
-
-            purchases.forEach((p, idx) => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="p-4">${p.date}</td>
-                        <td class="p-4 font-bold text-slate-500">${p.billNo || p.id}</td>
-                        <td class="p-4 font-bold">${p.supplier}</td>
-                        <td class="p-4"><span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-[10px] font-bold rounded-lg">${p.method}</span></td>
-                        <td class="p-4 text-right font-bold text-slate-900 dark:text-white">${curr} ${Number(p.total).toFixed(2)}</td>
-                        <td class="p-4 text-right font-bold text-amber-600">${p.method === 'Credit' ? curr + ' ' + (p.payable || 0).toFixed(2) : '-'}</td>
-                        <td class="p-4 text-center">
-                            <button onclick="deletePurchase(${idx})" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function openPurchaseModal() {
-            document.getElementById('purSupplier').value = '';
-            document.getElementById('purBillNo').value = '';
-            document.getElementById('purAmount').value = '';
-            document.getElementById('purRemarks').value = '';
-            document.getElementById('purMethod').value = 'Cash';
-            togglePurchaseCreditView();
-            document.getElementById('purchaseModal').classList.remove('hidden');
-        }
-
-        function closePurchaseModal() {
-            document.getElementById('purchaseModal').classList.add('hidden');
-        }
-
-        function togglePurchaseCreditView() {
-            const method = document.getElementById('purMethod').value;
-            const box = document.getElementById('purCreditInfoBox');
-            if (method === 'Credit') box.classList.remove('hidden');
-            else box.classList.add('hidden');
-        }
-
-        function savePurchase(e) {
-            e.preventDefault();
-            const supplier = document.getElementById('purSupplier').value;
-            const billNo = document.getElementById('purBillNo').value;
-            const total = parseFloat(document.getElementById('purAmount').value) || 0;
-            const method = document.getElementById('purMethod').value;
-            const remarks = document.getElementById('purRemarks').value;
-
-            const newPurchase = {
-                id: "PUR-" + (101 + purchases.length),
-                date: new Date().toISOString().split('T')[0],
-                supplier, billNo, total, method,
-                payable: method === 'Credit' ? total : 0,
-                remarks
-            };
-
-            purchases.push(newPurchase);
-            localStorage.setItem('sysPurchases', JSON.stringify(purchases));
-
-            closePurchaseModal();
-            renderPurchases();
-            renderDashboard();
-            showToast("Purchase Entry Recorded!");
-        }
-
-        function deletePurchase(idx) {
-            if (confirm("Are you sure you want to delete this purchase entry?")) {
-                purchases.splice(idx, 1);
-                localStorage.setItem('sysPurchases', JSON.stringify(purchases));
-                renderPurchases();
-                renderDashboard();
-                showToast("Purchase Entry Deleted!");
-            }
-        }
-
-        // 6. PRODUCTS & INVENTORY
-        function renderProducts() {
-            const tbody = document.getElementById('productTableBody');
-            const curr = companySettings.currency || "रु";
-            tbody.innerHTML = '';
-            products.forEach(p => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="p-4 font-bold text-slate-400">${p.code}</td>
-                        <td class="p-4 font-bold text-slate-900 dark:text-white">${p.name}</td>
-                        <td class="p-4">${p.category}</td>
-                        <td class="p-4 text-right">${curr} ${p.cost.toFixed(2)}</td>
-                        <td class="p-4 text-right font-bold text-emerald-600">${curr} ${p.price.toFixed(2)}</td>
-                        <td class="p-4 text-right font-bold">${p.qty}</td>
-                        <td class="p-4 text-center">
-                            <button class="text-blue-600 hover:text-blue-800"><i class="fa-solid fa-pen"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function openProductModal() { showToast("Product Module Ready!"); }
-        function openSalesModal() { showToast("Sales System Invoice Ready!"); }
-        function openReceiptModal() { showToast("Receipt Entry Ready!"); }
-        function openPaymentPaidModal() { showToast("Payment Paid Entry Ready!"); }
-
-        // EXPORT TO EXCEL
-        function exportToExcel() {
-            const data = ledgerEntries.map(e => ({
-                Date: e.date,
-                VoucherNo: e.id,
-                Customer: e.customerName,
-                Description: e.description,
-                Debit: e.debit,
-                Credit: e.credit,
-                Method: e.method
-            }));
-            const ws = XLSX.utils.json_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Ledger");
-            XLSX.writeFile(wb, "Ledger_Report.xlsx");
-        }
-
-        // CHART initialization
-        function initCharts() {
-            const ctx1 = document.getElementById('salesPurchaseChart').getContext('2d');
-            charts.salesChart = new Chart(ctx1, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-                    datasets: [
-                        { label: 'Sales', data: [12000, 19000, 15000, 22000, 30000, 25000, 35000], borderColor: '#2563eb', tension: 0.4 },
-                        { label: 'Purchases', data: [8000, 12000, 10000, 14000, 20000, 18000, 22000], borderColor: '#9333ea', tension: 0.4 }
-                    ]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            const ctx2 = document.getElementById('incomeExpenseChart').getContext('2d');
-            charts.pieChart = new Chart(ctx2, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Receivable (उठाउन बाँकी)', 'Payable (तिर्न बाँकी)'],
-                    datasets: [{ data: [5000, 25000], backgroundColor: ['#f43f5e', '#f59e0b'] }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-        }
+        function renderCustomers() {}
+        function renderCustomerLedgerView() {}
+        function renderProducts() {}
+        function openCustomerModal() {}
+        function openLedgerEntryModal() {}
+        function openProductModal() {}
+        function shareLedgerReport() {}
     </script>
 </body>
 </html>
