@@ -1,340 +1,684 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ne">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Canvas Hub - Ledger & ERP System</title>
+    <title>Canvas Hub - Secure Multi-User Ledger & ERP System</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- SheetJS for Excel Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- jsPDF for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
         @media print {
             .no-print { display: none !important; }
-            .print-area { width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; }
+            .print-container { width: 100% !important; margin: 0 !important; padding: 0 !important; }
         }
+        .print-only { display: none; }
     </style>
 </head>
-<body class="bg-slate-100 flex h-screen overflow-hidden text-slate-800">
+<body class="bg-slate-100 text-slate-800 antialiased h-screen overflow-hidden flex">
 
-    <!-- Sidebar Menu -->
+    <!-- ================= AUTH SYSTEM (LOGIN / REGISTER) ================= -->
+    <div id="authContainer" class="fixed inset-0 z-50 bg-slate-900 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            <!-- Header -->
+            <div class="bg-blue-600 p-6 text-white text-center">
+                <div class="inline-flex p-3 bg-white/10 rounded-2xl mb-2">
+                    <i data-lucide="book-open" class="w-8 h-8 text-white"></i>
+                </div>
+                <h2 class="text-2xl font-bold">Canvas Hub</h2>
+                <p class="text-xs text-blue-100 mt-1">Multi-User Secure Ledger & ERP System</p>
+            </div>
+
+            <div class="p-6">
+                <!-- LOGIN FORM -->
+                <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                    <h3 class="text-lg font-bold text-slate-800 border-b pb-2">साइन इन (Login)</h3>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Email वा Username</label>
+                        <input id="loginUser" type="text" required class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="उदा: user@company.com">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Password</label>
+                        <input id="loginPass" type="password" required class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg text-sm transition">लगइन गर्नुहोस्</button>
+                    <p class="text-xs text-center text-slate-500 mt-3">खाता छैन? <a href="#" onclick="toggleAuth('register')" class="text-blue-600 font-bold hover:underline">नयाँ एकाउन्ट बनाउनुहोस्</a></p>
+                </form>
+
+                <!-- REGISTER FORM -->
+                <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-3 hidden">
+                    <h3 class="text-lg font-bold text-slate-800 border-b pb-2">नयाँ खाता खोल्नुहोस् (Register)</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600">Full Name</label>
+                            <input id="regName" type="text" required class="w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="नाम">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600">Username/Email</label>
+                            <input id="regUser" type="text" required class="w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="User ID">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600">Password</label>
+                        <input id="regPass" type="password" required class="w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="पासवर्ड">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600">कम्पनीको नाम (Company Name)</label>
+                        <input id="regCompany" type="text" required class="w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="उदा: Canvas Stationery Pvt. Ltd.">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600">फोन नम्बर</label>
+                            <input id="regPhone" type="text" class="w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="9800000000">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600">VAT / PAN</label>
+                            <input id="regVat" type="text" class="w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="600000000">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-lg text-sm transition mt-2">दर्ता गर्नुहोस् (Register)</button>
+                    <p class="text-xs text-center text-slate-500 mt-2">पहिले नै खाता छ? <a href="#" onclick="toggleAuth('login')" class="text-blue-600 font-bold hover:underline">साइन इन गर्नुहोस्</a></p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================= MAIN APP LAYOUT ================= -->
+    <!-- Sidebar Navigation -->
     <aside class="w-64 bg-blue-600 text-white flex flex-col justify-between shrink-0 no-print">
         <div>
-            <!-- Company Branding -->
+            <!-- Branding -->
             <div class="p-5 flex items-center gap-3 border-b border-blue-500/30">
                 <div class="bg-white text-blue-600 p-2 rounded-xl shrink-0">
-                    <img id="logoDisplay" src="https://via.placeholder.com/40" class="w-6 h-6 object-contain hidden" />
-                    <i id="logoIcon" data-lucide="book-open" class="w-6 h-6"></i>
+                    <img id="appLogo" src="" class="w-6 h-6 object-contain hidden" />
+                    <i id="appIcon" data-lucide="book-open" class="w-6 h-6"></i>
                 </div>
-                <div>
-                    <h1 id="appNameDisplay" class="font-bold text-base leading-tight">Canvas Hub</h1>
-                    <p class="text-[11px] text-blue-200">Ledger Book</p>
+                <div class="overflow-hidden">
+                    <h1 id="appCompName" class="font-bold text-sm truncate">Canvas Hub</h1>
+                    <p id="appUserSub" class="text-[11px] text-blue-200">Ledger Book</p>
                 </div>
             </div>
 
-            <!-- Menu Navigation -->
-            <div class="px-4 py-3">
-                <p class="text-[10px] uppercase font-bold text-blue-200 tracking-wider mb-2">Main Menu</p>
+            <!-- Menu items -->
+            <div class="px-3 py-3">
+                <p class="text-[10px] uppercase font-bold text-blue-200 tracking-wider mb-2 px-3">MAIN MENU</p>
                 <nav class="space-y-1">
-                    <button onclick="nav('dashboard')" id="btn-dashboard" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white text-blue-600 font-semibold text-sm shadow-sm">
+                    <button onclick="nav('dashboard')" id="btn-dashboard" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white text-blue-600 font-semibold text-sm shadow-sm">
                         <i data-lucide="layout-grid" class="w-4 h-4"></i> Dashboard
                     </button>
-                    <button onclick="nav('customers')" id="btn-customers" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
+                    <button onclick="nav('customers')" id="btn-customers" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium">
                         <i data-lucide="users" class="w-4 h-4"></i> Customers
                     </button>
-                    <button onclick="nav('ledger')" id="btn-ledger" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
+                    <button onclick="nav('ledger')" id="btn-ledger" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium">
                         <i data-lucide="book" class="w-4 h-4"></i> Ledger
                     </button>
-                    <button onclick="nav('inventory')" id="btn-inventory" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
+                    <button onclick="nav('inventory')" id="btn-inventory" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium">
                         <i data-lucide="box" class="w-4 h-4"></i> Inventory
                     </button>
-                    <button onclick="nav('purchase')" id="btn-purchase" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
+                    <button onclick="nav('purchase')" id="btn-purchase" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium">
                         <i data-lucide="shopping-cart" class="w-4 h-4"></i> Purchase
                     </button>
-                    <button onclick="nav('sales')" id="btn-sales" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
+                    <button onclick="nav('sales')" id="btn-sales" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium">
                         <i data-lucide="tag" class="w-4 h-4"></i> Sales
                     </button>
-                    <button onclick="nav('reports')" id="btn-reports" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
+                    <button onclick="nav('reports')" id="btn-reports" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium">
                         <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Reports
                     </button>
-                    <button onclick="nav('settings')" id="btn-settings" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
+                    <button onclick="nav('settings')" id="btn-settings" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium">
                         <i data-lucide="settings" class="w-4 h-4"></i> Settings
-                    </button>
-                    <button onclick="nav('users')" id="btn-users" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
-                        <i data-lucide="user-cog" class="w-4 h-4"></i> Users
                     </button>
                 </nav>
             </div>
         </div>
 
-        <!-- User Profile -->
-        <div class="p-4 border-t border-blue-500/30">
-            <div class="bg-blue-700/50 p-3 rounded-xl flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-sm" id="userInitial">A</div>
-                    <div>
-                        <p class="text-sm font-semibold leading-tight" id="activeUserName">Administrator</p>
-                        <p class="text-xs text-blue-200" id="activeUserRole">admin</p>
+        <!-- User Profile Footer -->
+        <div class="p-3 border-t border-blue-500/30">
+            <div class="bg-blue-700/50 p-2.5 rounded-xl flex items-center justify-between">
+                <div class="flex items-center gap-2.5 overflow-hidden">
+                    <div id="uAvatar" class="w-8 h-8 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-xs shrink-0">A</div>
+                    <div class="truncate">
+                        <p id="uNameDisplay" class="text-xs font-semibold truncate">Administrator</p>
+                        <p id="uRoleDisplay" class="text-[10px] text-blue-200 truncate">admin</p>
                     </div>
                 </div>
+                <button onclick="handleLogout()" class="text-blue-200 hover:text-white p-1 rounded-lg" title="Logout">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
             </div>
         </div>
     </aside>
 
-    <!-- Main Workspace -->
-    <div class="flex-1 flex flex-col overflow-y-auto print-area">
-        <!-- Top Navbar -->
-        <header class="bg-white border-b px-8 py-4 flex justify-between items-center sticky top-0 z-10 no-print">
+    <!-- Main Workspace Area -->
+    <div class="flex-1 flex flex-col overflow-y-auto">
+        <!-- Header Bar -->
+        <header class="bg-white border-b px-8 py-3.5 flex justify-between items-center sticky top-0 z-10 no-print">
             <div>
-                <p class="text-xs text-slate-400">Overview</p>
-                <h2 id="headerTitle" class="text-lg font-bold text-slate-800">Dashboard</h2>
+                <p class="text-[11px] text-slate-400 font-medium">Workspace</p>
+                <h2 id="headerTitle" class="text-base font-bold text-slate-800">Dashboard</h2>
             </div>
             <div class="flex items-center gap-3">
-                <div class="flex items-center gap-2 text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg">
-                    <i data-lucide="calendar" class="w-4 h-4 text-slate-500"></i>
+                <span class="text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg border flex items-center gap-2">
+                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-500"></i>
                     <span id="dateDisplay"></span>
-                </div>
+                </span>
             </div>
         </header>
 
-        <main class="p-8 space-y-6">
+        <!-- Pages Content Container -->
+        <main class="p-6 space-y-6">
 
-            <!-- 1. DASHBOARD -->
+            <!-- 1. DASHBOARD TAB -->
             <section id="tab-dashboard" class="tab-page space-y-6">
-                <div class="grid grid-cols-4 gap-4">
-                    <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
-                        <p class="text-xs text-slate-500 font-medium">Total Customers</p>
-                        <h3 id="dashCust" class="text-2xl font-bold mt-1">0</h3>
+                <!-- Metrics -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-xl border shadow-sm">
+                        <p class="text-xs font-semibold text-slate-500">Total Customers</p>
+                        <h3 id="dashCust" class="text-2xl font-bold mt-1 text-slate-800">0</h3>
                     </div>
-                    <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
-                        <p class="text-xs text-slate-500 font-medium">Total Receivables (Debit)</p>
+                    <div class="bg-white p-5 rounded-xl border shadow-sm">
+                        <p class="text-xs font-semibold text-slate-500">Total Receivable (Debit/उधारो)</p>
                         <h3 id="dashDebit" class="text-2xl font-bold text-red-600 mt-1">Rs. 0</h3>
                     </div>
-                    <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
-                        <p class="text-xs text-slate-500 font-medium">Total Payables (Credit)</p>
+                    <div class="bg-white p-5 rounded-xl border shadow-sm">
+                        <p class="text-xs font-semibold text-slate-500">Total Payable (Credit/दिनुपर्ने)</p>
                         <h3 id="dashCredit" class="text-2xl font-bold text-emerald-600 mt-1">Rs. 0</h3>
                     </div>
-                    <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
-                        <p class="text-xs text-slate-500 font-medium">Inventory Products</p>
+                    <div class="bg-white p-5 rounded-xl border shadow-sm">
+                        <p class="text-xs font-semibold text-slate-500">Total Inventory Items</p>
                         <h3 id="dashItems" class="text-2xl font-bold text-blue-600 mt-1">0</h3>
+                    </div>
+                </div>
+
+                <!-- Recent Ledger Entries -->
+                <div class="bg-white rounded-xl border shadow-sm p-4 space-y-3">
+                    <h3 class="text-sm font-bold text-slate-700">हालैका कारोबारहरू (Recent Transactions)</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 border-b">
+                                <tr>
+                                    <th class="p-2.5">मिति</th>
+                                    <th class="p-2.5">ग्राहक/पार्टी</th>
+                                    <th class="p-2.5">विवरण</th>
+                                    <th class="p-2.5 text-right">Debit (लिनुपर्ने)</th>
+                                    <th class="p-2.5 text-right">Credit (प्राप्त)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tblRecentLedger" class="divide-y"></tbody>
+                        </table>
                     </div>
                 </div>
             </section>
 
-            <!-- 2. CUSTOMERS -->
+            <!-- 2. CUSTOMERS TAB -->
             <section id="tab-customers" class="tab-page hidden space-y-4">
                 <div class="flex justify-between items-center bg-white p-4 rounded-xl border">
-                    <h3 class="font-bold">Customer Directory</h3>
-                    <button onclick="toggleModal('custModal')" class="bg-blue-600 text-white text-xs px-4 py-2 rounded-lg font-semibold">+ Add Customer</button>
+                    <h3 class="font-bold text-sm">Customer Directory</h3>
+                    <div class="flex gap-2">
+                        <button onclick="exportExcel('tblCustMain', 'Customers')" class="bg-emerald-600 text-white text-xs px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5"><i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i> Excel Export</button>
+                        <button onclick="openCustModal()" class="bg-blue-600 text-white text-xs px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Customer</button>
+                    </div>
                 </div>
                 <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
-                    <table class="w-full text-left text-xs">
+                    <table id="tblCustMain" class="w-full text-left text-xs">
                         <thead class="bg-slate-50 border-b">
-                            <tr><th class="p-3">Name</th><th class="p-3">Phone</th><th class="p-3">Address</th><th class="p-3 text-right">Balance</th><th class="p-3 text-center">Action</th></tr>
+                            <tr>
+                                <th class="p-3">Customer Name</th>
+                                <th class="p-3">Phone</th>
+                                <th class="p-3">Address</th>
+                                <th class="p-3 text-right">Current Balance</th>
+                                <th class="p-3 text-center no-print">Actions</th>
+                            </tr>
                         </thead>
-                        <tbody id="tblCust" class="divide-y"></tbody>
+                        <tbody id="tblCustomers" class="divide-y"></tbody>
                     </table>
                 </div>
             </section>
 
-            <!-- 3. LEDGER -->
+            <!-- 3. LEDGER TAB -->
             <section id="tab-ledger" class="tab-page hidden space-y-4">
                 <div class="bg-white p-4 rounded-xl border space-y-3">
-                    <h3 class="font-bold text-sm">Add Transaction Entry</h3>
-                    <form onsubmit="addLedger(event)" class="grid grid-cols-5 gap-3">
-                        <select id="ledCust" class="p-2 border rounded-lg text-xs" required></select>
-                        <select id="ledType" class="p-2 border rounded-lg text-xs"><option value="DEBIT">Debit (उधारो / लिनुपर्ने)</option><option value="CREDIT">Credit (भुक्तानी / दिनुपर्ने)</option></select>
-                        <input id="ledAmt" type="number" placeholder="Amount" class="p-2 border rounded-lg text-xs" required />
-                        <input id="ledDesc" type="text" placeholder="Remarks" class="p-2 border rounded-lg text-xs" />
-                        <button type="submit" class="bg-blue-600 text-white rounded-lg text-xs font-semibold">Save Entry</button>
+                    <h3 class="font-bold text-xs uppercase text-slate-500">कारोबार प्रविष्टि (Add Ledger Entry)</h3>
+                    <form onsubmit="saveLedgerEntry(event)" class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                        <input id="ledId" type="hidden">
+                        <select id="ledCust" class="p-2 border rounded-lg text-xs" required><option value="">Select Customer</option></select>
+                        <select id="ledType" class="p-2 border rounded-lg text-xs">
+                            <option value="DEBIT">Debit (उधारो / लिनुपर्ने)</option>
+                            <option value="CREDIT">Credit (भुक्तानी / दिनुपर्ने)</option>
+                        </select>
+                        <input id="ledAmt" type="number" placeholder="रकम (Amount)" class="p-2 border rounded-lg text-xs" required />
+                        <input id="ledDesc" type="text" placeholder="कैफियत (Remarks)" class="p-2 border rounded-lg text-xs" />
+                        <button type="submit" class="bg-blue-600 text-white rounded-lg text-xs font-semibold py-2">Save Entry</button>
                     </form>
                 </div>
-                <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
-                    <table class="w-full text-left text-xs">
+
+                <div class="bg-white rounded-xl border shadow-sm p-4 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-sm">Ledger Transactions</h3>
+                        <div class="flex gap-2">
+                            <button onclick="exportExcel('tblLedgerMain', 'Ledger_Book')" class="bg-emerald-600 text-white text-xs px-3 py-1 rounded-lg font-semibold flex items-center gap-1"><i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i> Excel</button>
+                        </div>
+                    </div>
+                    <table id="tblLedgerMain" class="w-full text-left text-xs">
                         <thead class="bg-slate-50 border-b">
-                            <tr><th class="p-3">Date</th><th class="p-3">Customer</th><th class="p-3">Remarks</th><th class="p-3 text-right">Debit</th><th class="p-3 text-right">Credit</th></tr>
+                            <tr>
+                                <th class="p-2.5">Date</th>
+                                <th class="p-2.5">Customer</th>
+                                <th class="p-2.5">Remarks</th>
+                                <th class="p-2.5 text-right">Debit (Rs.)</th>
+                                <th class="p-2.5 text-right">Credit (Rs.)</th>
+                                <th class="p-2.5 text-center no-print">Actions</th>
+                            </tr>
                         </thead>
                         <tbody id="tblLedger" class="divide-y"></tbody>
                     </table>
                 </div>
             </section>
 
-            <!-- 4. INVENTORY -->
+            <!-- 4. INVENTORY TAB -->
             <section id="tab-inventory" class="tab-page hidden space-y-4">
                 <div class="flex justify-between items-center bg-white p-4 rounded-xl border">
-                    <h3 class="font-bold">Inventory Management</h3>
-                    <button onclick="toggleModal('itemModal')" class="bg-blue-600 text-white text-xs px-4 py-2 rounded-lg font-semibold">+ Add Product</button>
+                    <h3 class="font-bold text-sm">Inventory & Stock</h3>
+                    <div class="flex gap-2">
+                        <button onclick="exportExcel('tblInvMain', 'Inventory')" class="bg-emerald-600 text-white text-xs px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1"><i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i> Excel</button>
+                        <button onclick="openItemModal()" class="bg-blue-600 text-white text-xs px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Product</button>
+                    </div>
                 </div>
                 <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
-                    <table class="w-full text-left text-xs">
+                    <table id="tblInvMain" class="w-full text-left text-xs">
                         <thead class="bg-slate-50 border-b">
-                            <tr><th class="p-3">Item Name</th><th class="p-3">Stock Qty</th><th class="p-3">Price</th><th class="p-3 text-center">Action</th></tr>
+                            <tr>
+                                <th class="p-3">Product Name</th>
+                                <th class="p-3">Stock Quantity</th>
+                                <th class="p-3">Sales Price (Rs.)</th>
+                                <th class="p-3 text-center no-print">Actions</th>
+                            </tr>
                         </thead>
                         <tbody id="tblInventory" class="divide-y"></tbody>
                     </table>
                 </div>
             </section>
 
-            <!-- 5. PURCHASE -->
+            <!-- 5. PURCHASE TAB -->
             <section id="tab-purchase" class="tab-page hidden space-y-4">
                 <div class="bg-white p-4 rounded-xl border space-y-3">
-                    <h3 class="font-bold text-sm">Purchase Entry (Stock In)</h3>
-                    <form onsubmit="addPurchase(event)" class="grid grid-cols-4 gap-3">
-                        <select id="purItem" class="p-2 border rounded-lg text-xs" required></select>
+                    <h3 class="font-bold text-xs uppercase text-slate-500">खरिद प्रविष्टि (Purchase / Stock In)</h3>
+                    <form onsubmit="savePurchase(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                        <select id="purItem" class="p-2 border rounded-lg text-xs" required><option value="">Select Item</option></select>
                         <input id="purQty" type="number" placeholder="Quantity" class="p-2 border rounded-lg text-xs" required />
                         <input id="purCost" type="number" placeholder="Total Cost Amount" class="p-2 border rounded-lg text-xs" required />
-                        <button type="submit" class="bg-emerald-600 text-white rounded-lg text-xs font-semibold">Record Purchase</button>
+                        <button type="submit" class="bg-emerald-600 text-white rounded-lg text-xs font-semibold py-2">Record Purchase</button>
                     </form>
                 </div>
-                <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
-                    <table class="w-full text-left text-xs">
+                <div class="bg-white rounded-xl border shadow-sm overflow-hidden p-4">
+                    <table id="tblPurMain" class="w-full text-left text-xs">
                         <thead class="bg-slate-50 border-b">
-                            <tr><th class="p-3">Date</th><th class="p-3">Item</th><th class="p-3">Qty</th><th class="p-3 text-right">Total Cost</th></tr>
+                            <tr>
+                                <th class="p-2.5">Date</th>
+                                <th class="p-2.5">Item</th>
+                                <th class="p-2.5">Qty</th>
+                                <th class="p-2.5 text-right">Total Cost (Rs.)</th>
+                                <th class="p-2.5 text-center no-print">Actions</th>
+                            </tr>
                         </thead>
                         <tbody id="tblPurchase" class="divide-y"></tbody>
                     </table>
                 </div>
             </section>
 
-            <!-- 6. SALES -->
+            <!-- 6. SALES TAB -->
             <section id="tab-sales" class="tab-page hidden space-y-4">
                 <div class="bg-white p-4 rounded-xl border space-y-3">
-                    <h3 class="font-bold text-sm">Sales Entry (Out & Ledger Update)</h3>
-                    <form onsubmit="addSales(event)" class="grid grid-cols-5 gap-3">
-                        <select id="salCust" class="p-2 border rounded-lg text-xs" required></select>
-                        <select id="salItem" class="p-2 border rounded-lg text-xs" required></select>
-                        <input id="salQty" type="number" placeholder="Quantity" class="p-2 border rounded-lg text-xs" required />
+                    <h3 class="font-bold text-xs uppercase text-slate-500">बिक्री प्रविष्टि (Sales & Auto Debit)</h3>
+                    <form onsubmit="saveSales(event)" class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                        <select id="salCust" class="p-2 border rounded-lg text-xs" required><option value="">Select Customer</option></select>
+                        <select id="salItem" class="p-2 border rounded-lg text-xs" required><option value="">Select Item</option></select>
+                        <input id="salQty" type="number" placeholder="Qty" class="p-2 border rounded-lg text-xs" required />
                         <input id="salPrice" type="number" placeholder="Unit Price" class="p-2 border rounded-lg text-xs" required />
-                        <button type="submit" class="bg-blue-600 text-white rounded-lg text-xs font-semibold">Complete Sale</button>
+                        <button type="submit" class="bg-blue-600 text-white rounded-lg text-xs font-semibold py-2">Complete Sale</button>
                     </form>
                 </div>
-                <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
-                    <table class="w-full text-left text-xs">
+                <div class="bg-white rounded-xl border shadow-sm p-4 overflow-hidden">
+                    <table id="tblSalesMain" class="w-full text-left text-xs">
                         <thead class="bg-slate-50 border-b">
-                            <tr><th class="p-3">Date</th><th class="p-3">Customer</th><th class="p-3">Item</th><th class="p-3">Qty</th><th class="p-3 text-right">Amount</th></tr>
+                            <tr>
+                                <th class="p-2.5">Date</th>
+                                <th class="p-2.5">Customer</th>
+                                <th class="p-2.5">Item</th>
+                                <th class="p-2.5">Qty</th>
+                                <th class="p-2.5 text-right">Total Amount</th>
+                                <th class="p-2.5 text-center no-print">Actions & Share</th>
+                            </tr>
                         </thead>
                         <tbody id="tblSales" class="divide-y"></tbody>
                     </table>
                 </div>
             </section>
 
-            <!-- 7. REPORTS -->
+            <!-- 7. REPORTS TAB -->
             <section id="tab-reports" class="tab-page hidden space-y-4">
                 <div class="bg-white p-4 rounded-xl border flex justify-between items-center">
-                    <h3 class="font-bold">Ledger & Financial Statements</h3>
-                    <button onclick="window.print()" class="bg-slate-800 text-white text-xs px-4 py-2 rounded-lg font-semibold no-print">Print Report</button>
+                    <h3 class="font-bold text-sm">Customer Statements & Ledger Reports</h3>
+                    <div class="flex gap-2">
+                        <button onclick="window.print()" class="bg-slate-800 text-white text-xs px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1"><i data-lucide="printer" class="w-3.5 h-3.5"></i> Print Report</button>
+                    </div>
                 </div>
                 <div class="bg-white p-6 rounded-xl border space-y-4">
-                    <h4 class="font-bold border-b pb-2">Customer Outstanding Summary</h4>
+                    <h4 class="font-bold text-xs uppercase border-b pb-2 text-slate-500">Customer Wise Outstanding Summary</h4>
                     <table class="w-full text-left text-xs">
-                        <thead><tr class="border-b"><th class="pb-2">Customer</th><th class="pb-2 text-right">Balance</th></tr></thead>
-                        <tbody id="tblReport" class="divide-y"></tbody>
+                        <thead><tr class="border-b"><th class="pb-2">Customer Name</th><th class="pb-2">Phone</th><th class="pb-2 text-right">Net Outstanding Balance</th><th class="pb-2 text-center no-print">Share</th></tr></thead>
+                        <tbody id="tblReportSummary" class="divide-y"></tbody>
                     </table>
                 </div>
             </section>
 
-            <!-- 8. SETTINGS -->
+            <!-- 8. SETTINGS TAB -->
             <section id="tab-settings" class="tab-page hidden space-y-4">
-                <div class="bg-white p-6 rounded-xl border space-y-4 max-w-lg">
-                    <h3 class="font-bold">System & Company Settings</h3>
-                    <div>
-                        <label class="text-xs font-semibold">Company Name</label>
-                        <input id="cfgName" type="text" class="w-full p-2 border rounded-lg text-xs mt-1" />
+                <div class="bg-white p-6 rounded-xl border space-y-4 max-w-xl">
+                    <h3 class="font-bold text-base border-b pb-2">Company & Profile Settings</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">कम्पनीको नाम (Company Name)</label>
+                            <input id="setCompName" type="text" class="w-full p-2 border rounded-lg text-xs" />
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">फोन नम्बर</label>
+                                <input id="setPhone" type="text" class="w-full p-2 border rounded-lg text-xs" />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">VAT / PAN Number</label>
+                                <input id="setVat" type="text" class="w-full p-2 border rounded-lg text-xs" />
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">ठेगाना (Address)</label>
+                            <input id="setAddr" type="text" class="w-full p-2 border rounded-lg text-xs" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">कम्पनी लोगो URL (Image Link)</label>
+                            <input id="setLogo" type="text" placeholder="https://..." class="w-full p-2 border rounded-lg text-xs" />
+                        </div>
                     </div>
-                    <div>
-                        <label class="text-xs font-semibold">Company Logo Image URL</label>
-                        <input id="cfgLogo" type="text" class="w-full p-2 border rounded-lg text-xs mt-1" placeholder="https://example.com/logo.png" />
-                    </div>
-                    <button onclick="saveSettings()" class="bg-blue-600 text-white text-xs px-4 py-2 rounded-lg font-semibold">Save Changes</button>
-                </div>
-            </section>
-
-            <!-- 9. USERS -->
-            <section id="tab-users" class="tab-page hidden space-y-4">
-                <div class="flex justify-between items-center bg-white p-4 rounded-xl border">
-                    <h3 class="font-bold">System Users</h3>
-                    <button onclick="toggleModal('userModal')" class="bg-blue-600 text-white text-xs px-4 py-2 rounded-lg font-semibold">+ Add User</button>
-                </div>
-                <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b">
-                            <tr><th class="p-3">Username</th><th class="p-3">Role</th><th class="p-3 text-center">Action</th></tr>
-                        </thead>
-                        <tbody id="tblUsers" class="divide-y"></tbody>
-                    </table>
+                    <button onclick="saveSettings()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-4 py-2 rounded-lg transition">Save Profile Changes</button>
                 </div>
             </section>
 
         </main>
     </div>
 
-    <!-- MODALS -->
+    <!-- ================= MODALS & POPUPS ================= -->
+
     <!-- Customer Modal -->
-    <div id="custModal" class="fixed inset-0 bg-black/40 hidden flex items-center justify-center z-50">
-        <div class="bg-white p-6 rounded-xl w-80 space-y-3">
-            <h3 class="font-bold text-sm">Add New Customer</h3>
-            <input id="cName" placeholder="Name" class="w-full p-2 border rounded-lg text-xs" />
-            <input id="cPhone" placeholder="Phone" class="w-full p-2 border rounded-lg text-xs" />
+    <div id="custModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-xl w-96 space-y-4 shadow-xl">
+            <h3 id="custModalTitle" class="font-bold text-sm">Add Customer</h3>
+            <input id="cId" type="hidden">
+            <input id="cName" placeholder="Customer Name" class="w-full p-2 border rounded-lg text-xs" required />
+            <input id="cPhone" placeholder="Phone Number" class="w-full p-2 border rounded-lg text-xs" />
             <input id="cAddr" placeholder="Address" class="w-full p-2 border rounded-lg text-xs" />
-            <div class="flex justify-end gap-2"><button onclick="toggleModal('custModal')" class="text-xs">Cancel</button><button onclick="saveCustomer()" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Save</button></div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeModal('custModal')" class="px-3 py-1.5 rounded-lg border text-xs">Cancel</button>
+                <button onclick="saveCustomer()" class="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-xs font-semibold">Save</button>
+            </div>
         </div>
     </div>
 
-    <!-- Inventory Item Modal -->
-    <div id="itemModal" class="fixed inset-0 bg-black/40 hidden flex items-center justify-center z-50">
-        <div class="bg-white p-6 rounded-xl w-80 space-y-3">
-            <h3 class="font-bold text-sm">Add Product</h3>
-            <input id="iName" placeholder="Product Name" class="w-full p-2 border rounded-lg text-xs" />
+    <!-- Inventory Modal -->
+    <div id="itemModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-xl w-96 space-y-4 shadow-xl">
+            <h3 id="itemModalTitle" class="font-bold text-sm">Add Product Item</h3>
+            <input id="iId" type="hidden">
+            <input id="iName" placeholder="Item Name" class="w-full p-2 border rounded-lg text-xs" required />
             <input id="iQty" type="number" placeholder="Initial Stock Qty" class="w-full p-2 border rounded-lg text-xs" />
-            <input id="iPrice" type="number" placeholder="Price per Unit" class="w-full p-2 border rounded-lg text-xs" />
-            <div class="flex justify-end gap-2"><button onclick="toggleModal('itemModal')" class="text-xs">Cancel</button><button onclick="saveItem()" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Save</button></div>
+            <input id="iPrice" type="number" placeholder="Sales Price per Unit" class="w-full p-2 border rounded-lg text-xs" />
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeModal('itemModal')" class="px-3 py-1.5 rounded-lg border text-xs">Cancel</button>
+                <button onclick="saveInventoryItem()" class="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-xs font-semibold">Save Item</button>
+            </div>
         </div>
     </div>
 
-    <!-- User Modal -->
-    <div id="userModal" class="fixed inset-0 bg-black/40 hidden flex items-center justify-center z-50">
-        <div class="bg-white p-6 rounded-xl w-80 space-y-3">
-            <h3 class="font-bold text-sm">Add System User</h3>
-            <input id="uName" placeholder="Username" class="w-full p-2 border rounded-lg text-xs" />
-            <select id="uRole" class="w-full p-2 border rounded-lg text-xs"><option value="Staff">Staff</option><option value="Manager">Manager</option></select>
-            <div class="flex justify-end gap-2"><button onclick="toggleModal('userModal')" class="text-xs">Cancel</button><button onclick="saveUser()" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Save</button></div>
+    <!-- Invoice Print/View Modal -->
+    <div id="invoiceModal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <!-- Header bar -->
+            <div class="bg-slate-800 text-white p-4 flex justify-between items-center no-print">
+                <h3 class="text-sm font-bold">Sales Invoice / Receipt</h3>
+                <div class="flex items-center gap-2">
+                    <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 font-semibold"><i data-lucide="printer" class="w-3.5 h-3.5"></i> Print / Save PDF</button>
+                    <button onclick="closeModal('invoiceModal')" class="text-slate-400 hover:text-white p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+            </div>
+            <!-- Invoice Printable Body -->
+            <div id="invoicePrintArea" class="p-8 space-y-6 overflow-y-auto print-container">
+                <div class="flex justify-between items-start border-b pb-4">
+                    <div>
+                        <h2 id="invCompName" class="text-lg font-bold text-blue-600">Company Name</h2>
+                        <p id="invCompAddr" class="text-xs text-slate-500">Address, Nepal</p>
+                        <p id="invCompPhone" class="text-xs text-slate-500">Phone: -</p>
+                        <p id="invCompVat" class="text-xs text-slate-500">VAT/PAN: -</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded-full text-xs">INVOICE</span>
+                        <p id="invDate" class="text-xs text-slate-500 mt-2">Date: -</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 font-medium uppercase">Billed To:</p>
+                    <h4 id="invCustName" class="font-bold text-sm text-slate-800">Customer Name</h4>
+                </div>
+                <table class="w-full text-left text-xs border-y">
+                    <thead>
+                        <tr class="bg-slate-50 border-b">
+                            <th class="py-2 px-3">Item Description</th>
+                            <th class="py-2 px-3 text-center">Qty</th>
+                            <th class="py-2 px-3 text-right">Price</th>
+                            <th class="py-2 px-3 text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="invItemName" class="py-2.5 px-3">Product Name</td>
+                            <td id="invItemQty" class="py-2.5 px-3 text-center">1</td>
+                            <td id="invItemPrice" class="py-2.5 px-3 text-right">Rs. 0</td>
+                            <td id="invItemTotal" class="py-2.5 px-3 text-right font-bold">Rs. 0</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="flex justify-between items-center pt-2">
+                    <p class="text-xs text-slate-400">Thank you for your business!</p>
+                    <div class="text-right">
+                        <p class="text-xs font-semibold">Grand Total:</p>
+                        <h3 id="invGrandTotal" class="text-lg font-bold text-blue-600">Rs. 0</h3>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- APPLICATION JAVASCRIPT LOGIC -->
+
+    <!-- ================= JAVASCRIPT APP LOGIC ================= -->
     <script>
-        // Database State
-        let app = {
-            company: JSON.parse(localStorage.getItem('ch_company')) || { name: 'Canvas Hub', logo: '' },
-            customers: JSON.parse(localStorage.getItem('ch_customers')) || [],
-            inventory: JSON.parse(localStorage.getItem('ch_inventory')) || [],
-            ledger: JSON.parse(localStorage.getItem('ch_ledger')) || [],
-            purchases: JSON.parse(localStorage.getItem('ch_purchases')) || [],
-            sales: JSON.parse(localStorage.getItem('ch_sales')) || [],
-            users: JSON.parse(localStorage.getItem('ch_users')) || [{ id: 1, name: 'Administrator', role: 'admin' }]
+        // Data Structure & Storage Keys
+        let currentUser = null;
+        let appData = {
+            customers: [],
+            inventory: [],
+            ledger: [],
+            purchases: [],
+            sales: []
         };
 
-        function dbSave() {
-            localStorage.setItem('ch_company', JSON.stringify(app.company));
-            localStorage.setItem('ch_customers', JSON.stringify(app.customers));
-            localStorage.setItem('ch_inventory', JSON.stringify(app.inventory));
-            localStorage.setItem('ch_ledger', JSON.stringify(app.ledger));
-            localStorage.setItem('ch_purchases', JSON.stringify(app.purchases));
-            localStorage.setItem('ch_sales', JSON.stringify(app.sales));
-            localStorage.setItem('ch_users', JSON.stringify(app.users));
+        // Initialize App
+        document.addEventListener("DOMContentLoaded", () => {
+            lucide.createIcons();
+            document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('ne-NP') + ' (' + new Date().toDateString() + ')';
+            
+            // Check logged in user
+            const session = localStorage.getItem('ch_active_user');
+            if (session) {
+                currentUser = JSON.parse(session);
+                loadUserData();
+                showAppUI();
+            } else {
+                showAuthUI();
+            }
+        });
+
+        // Auth Logic
+        function toggleAuth(view) {
+            if(view === 'register') {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('registerForm').classList.remove('hidden');
+            } else {
+                document.getElementById('registerForm').classList.add('hidden');
+                document.getElementById('loginForm').classList.remove('hidden');
+            }
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const user = document.getElementById('regUser').value.trim();
+            const pass = document.getElementById('regPass').value;
+            const name = document.getElementById('regName').value;
+            const comp = document.getElementById('regCompany').value;
+            const phone = document.getElementById('regPhone').value;
+            const vat = document.getElementById('regVat').value;
+
+            let usersDB = JSON.parse(localStorage.getItem('ch_users_db')) || [];
+            if (usersDB.find(u => u.username.toLowerCase() === user.toLowerCase())) {
+                alert("यो Username/Email पहिले नै दर्ता छ!");
+                return;
+            }
+
+            const newUser = {
+                id: 'usr_' + Date.now(),
+                username: user,
+                password: pass,
+                fullName: name,
+                company: { name: comp, phone: phone, vat: vat, address: 'Kathmandu, Nepal', logo: '' }
+            };
+
+            usersDB.push(newUser);
+            localStorage.setItem('ch_users_db', JSON.stringify(usersDB));
+            
+            alert("खाता सफलतापुर्वक सिर्जना भयो! अब लगइन गर्नुहोस्।");
+            toggleAuth('login');
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const user = document.getElementById('loginUser').value.trim();
+            const pass = document.getElementById('loginPass').value;
+
+            let usersDB = JSON.parse(localStorage.getItem('ch_users_db')) || [];
+            const found = usersDB.find(u => u.username.toLowerCase() === user.toLowerCase() && u.password === pass);
+
+            if (!found) {
+                alert("गलत Username वा Password!");
+                return;
+            }
+
+            currentUser = found;
+            localStorage.setItem('ch_active_user', JSON.stringify(currentUser));
+            loadUserData();
+            showAppUI();
+        }
+
+        function handleLogout() {
+            if(confirm("साच्चै साइन आउट (Logout) गर्न चाहनुहुन्छ?")) {
+                localStorage.removeItem('ch_active_user');
+                currentUser = null;
+                showAuthUI();
+            }
+        }
+
+        function showAuthUI() {
+            document.getElementById('authContainer').classList.remove('hidden');
+        }
+
+        function showAppUI() {
+            document.getElementById('authContainer').classList.add('hidden');
+            renderUserProfile();
             render();
         }
 
-        document.addEventListener("DOMContentLoaded", () => {
-            lucide.createIcons();
-            document.getElementById('dateDisplay').innerText = new Date().toDateString();
-            render();
-        });
+        // Data Management Per User
+        function loadUserData() {
+            const dataKey = 'ch_data_' + currentUser.id;
+            const stored = localStorage.getItem(dataKey);
+            if (stored) {
+                appData = JSON.parse(stored);
+            } else {
+                appData = { customers: [], inventory: [], ledger: [], purchases: [], sales: [] };
+            }
+        }
 
-        // Tab Navigation
+        function saveData() {
+            const dataKey = 'ch_data_' + currentUser.id;
+            localStorage.setItem(dataKey, JSON.stringify(appData));
+            
+            // Also update user profile if company changes
+            let usersDB = JSON.parse(localStorage.getItem('ch_users_db')) || [];
+            const idx = usersDB.findIndex(u => u.id === currentUser.id);
+            if(idx !== -1) {
+                usersDB[idx] = currentUser;
+                localStorage.setItem('ch_users_db', JSON.stringify(usersDB));
+            }
+            localStorage.setItem('ch_active_user', JSON.stringify(currentUser));
+            
+            render();
+        }
+
+        function renderUserProfile() {
+            document.getElementById('appCompName').innerText = currentUser.company.name || 'Canvas Hub';
+            document.getElementById('uNameDisplay').innerText = currentUser.fullName;
+            document.getElementById('uRoleDisplay').innerText = currentUser.username;
+            document.getElementById('uAvatar').innerText = currentUser.fullName.charAt(0).toUpperCase();
+
+            document.getElementById('setCompName').value = currentUser.company.name || '';
+            document.getElementById('setPhone').value = currentUser.company.phone || '';
+            document.getElementById('setVat').value = currentUser.company.vat || '';
+            document.getElementById('setAddr').value = currentUser.company.address || '';
+            document.getElementById('setLogo').value = currentUser.company.logo || '';
+
+            if (currentUser.company.logo) {
+                document.getElementById('appLogo').src = currentUser.company.logo;
+                document.getElementById('appLogo').classList.remove('hidden');
+                document.getElementById('appIcon').classList.add('hidden');
+            } else {
+                document.getElementById('appLogo').classList.add('hidden');
+                document.getElementById('appIcon').classList.remove('hidden');
+            }
+        }
+
+        function saveSettings() {
+            currentUser.company.name = document.getElementById('setCompName').value;
+            currentUser.company.phone = document.getElementById('setPhone').value;
+            currentUser.company.vat = document.getElementById('setVat').value;
+            currentUser.company.address = document.getElementById('setAddr').value;
+            currentUser.company.logo = document.getElementById('setLogo').value;
+            
+            saveData();
+            renderUserProfile();
+            alert("कम्पनीको विवरण सफलतापुर्वक अपडेट भयो!");
+        }
+
+        // Navigation
         function nav(tab) {
             document.querySelectorAll('.tab-page').forEach(p => p.classList.add('hidden'));
-            document.querySelectorAll('.nav-item').forEach(b => {
+            document.querySelectorAll('.nav-btn').forEach(b => {
                 b.classList.remove('bg-white', 'text-blue-600', 'font-semibold', 'shadow-sm');
                 b.classList.add('text-blue-100');
             });
@@ -347,171 +691,344 @@
             document.getElementById('headerTitle').innerText = tab.charAt(0).toUpperCase() + tab.slice(1);
         }
 
-        function toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-        // Settings
-        function saveSettings() {
-            app.company.name = document.getElementById('cfgName').value;
-            app.company.logo = document.getElementById('cfgLogo').value;
-            dbSave();
-            alert("Settings updated!");
+        // CUSTOMERS CRUD
+        function openCustModal(id = null) {
+            if(id) {
+                const c = appData.customers.find(x => x.id === id);
+                document.getElementById('custModalTitle').innerText = "Edit Customer";
+                document.getElementById('cId').value = c.id;
+                document.getElementById('cName').value = c.name;
+                document.getElementById('cPhone').value = c.phone;
+                document.getElementById('cAddr').value = c.address;
+            } else {
+                document.getElementById('custModalTitle').innerText = "Add Customer";
+                document.getElementById('cId').value = "";
+                document.getElementById('cName').value = "";
+                document.getElementById('cPhone').value = "";
+                document.getElementById('cAddr').value = "";
+            }
+            document.getElementById('custModal').classList.remove('hidden');
         }
 
-        // Customer Logic
         function saveCustomer() {
-            const name = document.getElementById('cName').value;
-            if(!name) return;
-            app.customers.push({ id: Date.now(), name, phone: document.getElementById('cPhone').value, address: document.getElementById('cAddr').value, balance: 0 });
-            toggleModal('custModal');
-            dbSave();
-        }
-        function deleteCustomer(id) {
-            app.customers = app.customers.filter(c => c.id !== id);
-            dbSave();
+            const id = document.getElementById('cId').value;
+            const name = document.getElementById('cName').value.trim();
+            const phone = document.getElementById('cPhone').value.trim();
+            const addr = document.getElementById('cAddr').value.trim();
+
+            if(!name) return alert("नाम राख्न अनिवार्य छ!");
+
+            if(id) {
+                const c = appData.customers.find(x => x.id == id);
+                c.name = name; c.phone = phone; c.address = addr;
+            } else {
+                appData.customers.push({ id: Date.now(), name, phone, address: addr, balance: 0 });
+            }
+            closeModal('custModal');
+            saveData();
         }
 
-        // Ledger Logic
-        function addLedger(e) {
+        function deleteCustomer(id) {
+            if(confirm("के तपाईं यस ग्राहकलाई हटाउन चाहनुहुन्छ?")) {
+                appData.customers = appData.customers.filter(c => c.id !== id);
+                saveData();
+            }
+        }
+
+        // LEDGER CRUD
+        function saveLedgerEntry(e) {
             e.preventDefault();
             const custId = Number(document.getElementById('ledCust').value);
             const type = document.getElementById('ledType').value;
             const amt = Number(document.getElementById('ledAmt').value);
             const desc = document.getElementById('ledDesc').value;
 
-            const cust = app.customers.find(c => c.id === custId);
-            if(!cust) return;
+            const cust = appData.customers.find(c => c.id === custId);
+            if(!cust) return alert("कृपया ग्राहक छान्नुहोस्!");
 
             cust.balance += (type === 'DEBIT' ? amt : -amt);
-            app.ledger.unshift({ id: Date.now(), date: new Date().toLocaleDateString(), customer: cust.name, type, amt, desc });
-            dbSave();
+            appData.ledger.unshift({
+                id: Date.now(),
+                date: new Date().toLocaleDateString(),
+                customer: cust.name,
+                type, amt, desc
+            });
+
+            document.getElementById('ledAmt').value = '';
+            document.getElementById('ledDesc').value = '';
+            saveData();
         }
 
-        // Inventory Logic
-        function saveItem() {
-            const name = document.getElementById('iName').value;
-            if(!name) return;
-            app.inventory.push({ id: Date.now(), name, qty: Number(document.getElementById('iQty').value), price: Number(document.getElementById('iPrice').value) });
-            toggleModal('itemModal');
-            dbSave();
+        function deleteLedger(id) {
+            if(confirm("कारोबार रेकर्ड हटाउन चाहनुहुन्छ?")) {
+                appData.ledger = appData.ledger.filter(l => l.id !== id);
+                saveData();
+            }
         }
 
-        // Purchase Logic
-        function addPurchase(e) {
+        // INVENTORY CRUD
+        function openItemModal(id = null) {
+            if(id) {
+                const i = appData.inventory.find(x => x.id === id);
+                document.getElementById('itemModalTitle').innerText = "Edit Product";
+                document.getElementById('iId').value = i.id;
+                document.getElementById('iName').value = i.name;
+                document.getElementById('iQty').value = i.qty;
+                document.getElementById('iPrice').value = i.price;
+            } else {
+                document.getElementById('itemModalTitle').innerText = "Add Product";
+                document.getElementById('iId').value = "";
+                document.getElementById('iName').value = "";
+                document.getElementById('iQty').value = "";
+                document.getElementById('iPrice').value = "";
+            }
+            document.getElementById('itemModal').classList.remove('hidden');
+        }
+
+        function saveInventoryItem() {
+            const id = document.getElementById('iId').value;
+            const name = document.getElementById('iName').value.trim();
+            const qty = Number(document.getElementById('iQty').value) || 0;
+            const price = Number(document.getElementById('iPrice').value) || 0;
+
+            if(!name) return alert("सामानको नाम अनिवार्य छ!");
+
+            if(id) {
+                const item = appData.inventory.find(x => x.id == id);
+                item.name = name; item.qty = qty; item.price = price;
+            } else {
+                appData.inventory.push({ id: Date.now(), name, qty, price });
+            }
+            closeModal('itemModal');
+            saveData();
+        }
+
+        function deleteItem(id) {
+            if(confirm("सामान हटाउन चाहनुहुन्छ?")) {
+                appData.inventory = appData.inventory.filter(i => i.id !== id);
+                saveData();
+            }
+        }
+
+        // PURCHASE
+        function savePurchase(e) {
             e.preventDefault();
             const itemId = Number(document.getElementById('purItem').value);
             const qty = Number(document.getElementById('purQty').value);
             const cost = Number(document.getElementById('purCost').value);
 
-            const item = app.inventory.find(i => i.id === itemId);
+            const item = appData.inventory.find(i => i.id === itemId);
             if(!item) return;
 
             item.qty += qty;
-            app.purchases.unshift({ id: Date.now(), date: new Date().toLocaleDateString(), item: item.name, qty, cost });
-            dbSave();
+            appData.purchases.unshift({ id: Date.now(), date: new Date().toLocaleDateString(), item: item.name, qty, cost });
+            saveData();
         }
 
-        // Sales Logic
-        function addSales(e) {
+        // SALES
+        function saveSales(e) {
             e.preventDefault();
             const custId = Number(document.getElementById('salCust').value);
             const itemId = Number(document.getElementById('salItem').value);
             const qty = Number(document.getElementById('salQty').value);
             const price = Number(document.getElementById('salPrice').value);
 
-            const cust = app.customers.find(c => c.id === custId);
-            const item = app.inventory.find(i => i.id === itemId);
+            const cust = appData.customers.find(c => c.id === custId);
+            const item = appData.inventory.find(i => i.id === itemId);
 
-            if(!cust || !item) return;
-            if(item.qty < qty) return alert("Not enough stock available!");
+            if(!cust || !item) return alert("ग्राहक र सामान छान्नुहोस्!");
+            if(item.qty < qty) return alert("स्टक पर्याप्त छैन!");
 
             item.qty -= qty;
             const total = qty * price;
-            cust.balance += total; // Auto Debit to Ledger
+            cust.balance += total;
 
-            app.sales.unshift({ id: Date.now(), date: new Date().toLocaleDateString(), customer: cust.name, item: item.name, qty, total });
-            app.ledger.unshift({ id: Date.now(), date: new Date().toLocaleDateString(), customer: cust.name, type: 'DEBIT', amt: total, desc: `Sale: ${item.name} (x${qty})` });
+            const saleEntry = { id: Date.now(), date: new Date().toLocaleDateString(), customer: cust.name, item: item.name, qty, price, total };
+            appData.sales.unshift(saleEntry);
+            
+            // Auto Ledger Entry
+            appData.ledger.unshift({ id: Date.now(), date: new Date().toLocaleDateString(), customer: cust.name, type: 'DEBIT', amt: total, desc: `Sales: ${item.name} (Qty: ${qty})` });
 
-            dbSave();
+            saveData();
+            viewInvoice(saleEntry.id);
         }
 
-        // User Logic
-        function saveUser() {
-            const name = document.getElementById('uName').value;
-            if(!name) return;
-            app.users.push({ id: Date.now(), name, role: document.getElementById('uRole').value });
-            toggleModal('userModal');
-            dbSave();
+        // SHARE & UTILITIES
+        function shareWhatsApp(phone, text) {
+            const cleanPhone = phone ? phone.replace(/[^0-9]/g, '') : '';
+            const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
         }
 
-        // Global Render Function
+        function shareLedgerSummary(custName, balance, phone) {
+            const msg = `नमस्ते ${custName} ज्यु,\n\n${currentUser.company.name} बाट तपाईंको हालसम्मको बाँकी बक्यौता रकम: Rs. ${balance} रहेको छ।\nकृपया यथाशीघ्र भुक्तानी गरिदिनुहोला।\n\nधन्यवाद!\n${currentUser.company.name}\nPh: ${currentUser.company.phone}`;
+            shareWhatsApp(phone, msg);
+        }
+
+        function viewInvoice(saleId) {
+            const sale = appData.sales.find(s => s.id === saleId);
+            if(!sale) return;
+
+            document.getElementById('invCompName').innerText = currentUser.company.name;
+            document.getElementById('invCompAddr').innerText = currentUser.company.address || '';
+            document.getElementById('invCompPhone').innerText = "Phone: " + (currentUser.company.phone || '-');
+            document.getElementById('invCompVat').innerText = "VAT/PAN: " + (currentUser.company.vat || '-');
+            
+            document.getElementById('invDate').innerText = "Date: " + sale.date;
+            document.getElementById('invCustName').innerText = sale.customer;
+            document.getElementById('invItemName').innerText = sale.item;
+            document.getElementById('invItemQty').innerText = sale.qty;
+            document.getElementById('invItemPrice').innerText = "Rs. " + sale.price;
+            document.getElementById('invItemTotal').innerText = "Rs. " + sale.total;
+            document.getElementById('invGrandTotal').innerText = "Rs. " + sale.total;
+
+            document.getElementById('invoiceModal').classList.remove('hidden');
+        }
+
+        function exportExcel(tableId, filename) {
+            const table = document.getElementById(tableId);
+            const wb = XLSX.utils.table_to_book(table, { sheet: "Sheet1" });
+            XLSX.writeFile(wb, `${filename}_${new Date().toISOString().slice(0,10)}.xlsx`);
+        }
+
+        // RENDER EVERYTHING
         function render() {
-            // Render Company Info
-            document.getElementById('appNameDisplay').innerText = app.company.name;
-            document.getElementById('cfgName').value = app.company.name;
-            document.getElementById('cfgLogo').value = app.company.logo;
-
-            if(app.company.logo) {
-                document.getElementById('logoDisplay').src = app.company.logo;
-                document.getElementById('logoDisplay').classList.remove('hidden');
-                document.getElementById('logoIcon').classList.add('hidden');
-            }
-
-            // Calculations
+            // Dashboard Totals
             let totalDebit = 0, totalCredit = 0;
-            app.customers.forEach(c => {
+            appData.customers.forEach(c => {
                 if(c.balance > 0) totalDebit += c.balance;
                 else totalCredit += Math.abs(c.balance);
             });
 
-            document.getElementById('dashCust').innerText = app.customers.length;
+            document.getElementById('dashCust').innerText = appData.customers.length;
             document.getElementById('dashDebit').innerText = "Rs. " + totalDebit;
             document.getElementById('dashCredit').innerText = "Rs. " + totalCredit;
-            document.getElementById('dashItems').innerText = app.inventory.length;
+            document.getElementById('dashItems').innerText = appData.inventory.length;
 
-            // Render Customers Table & Dropdowns
-            const tblCust = document.getElementById('tblCust');
+            // Render Recent Ledger
+            document.getElementById('tblRecentLedger').innerHTML = appData.ledger.slice(0, 5).map(l => `
+                <tr>
+                    <td class="p-2.5">${l.date}</td>
+                    <td class="p-2.5 font-semibold">${l.customer}</td>
+                    <td class="p-2.5">${l.desc||'-'}</td>
+                    <td class="p-2.5 text-right font-bold text-red-600">${l.type==='DEBIT'?'Rs. '+l.amt:'-'}</td>
+                    <td class="p-2.5 text-right font-bold text-emerald-600">${l.type==='CREDIT'?'Rs. '+l.amt:'-'}</td>
+                </tr>
+            `).join('');
+
+            // Render Customers Table & Select Options
+            const tblCustomers = document.getElementById('tblCustomers');
             const ledCust = document.getElementById('ledCust');
             const salCust = document.getElementById('salCust');
-            const tblReport = document.getElementById('tblReport');
+            const tblReportSummary = document.getElementById('tblReportSummary');
 
-            tblCust.innerHTML = '';
-            tblReport.innerHTML = '';
+            tblCustomers.innerHTML = '';
+            tblReportSummary.innerHTML = '';
             ledCust.innerHTML = '<option value="">Select Customer</option>';
             salCust.innerHTML = '<option value="">Select Customer</option>';
 
-            app.customers.forEach(c => {
-                tblCust.innerHTML += `<tr><td class="p-3 font-semibold">${c.name}</td><td class="p-3">${c.phone}</td><td class="p-3">${c.address}</td><td class="p-3 text-right font-bold ${c.balance >= 0 ? 'text-red-600' : 'text-emerald-600'}">Rs. ${Math.abs(c.balance)} ${c.balance>=0?'Dr':'Cr'}</td><td class="p-3 text-center"><button onclick="deleteCustomer(${c.id})" class="text-red-500">Delete</button></td></tr>`;
-                tblReport.innerHTML += `<tr><td class="py-2">${c.name}</td><td class="py-2 text-right font-bold">Rs. ${c.balance}</td></tr>`;
+            appData.customers.forEach(c => {
+                tblCustomers.innerHTML += `
+                    <tr>
+                        <td class="p-3 font-semibold text-slate-800">${c.name}</td>
+                        <td class="p-3">${c.phone || '-'}</td>
+                        <td class="p-3">${c.address || '-'}</td>
+                        <td class="p-3 text-right font-bold ${c.balance >= 0 ? 'text-red-600' : 'text-emerald-600'}">Rs. ${Math.abs(c.balance)} ${c.balance>=0?'Dr':'Cr'}</td>
+                        <td class="p-3 text-center no-print">
+                            <div class="flex items-center justify-center gap-2">
+                                <button onclick="shareLedgerSummary('${c.name}', ${c.balance}, '${c.phone}')" class="text-emerald-600 hover:text-emerald-800 font-medium text-xs border px-2 py-1 rounded-md bg-emerald-50" title="Share via WhatsApp">
+                                    <i data-lucide="message-circle" class="w-3.5 h-3.5 inline"></i>
+                                </button>
+                                <button onclick="openCustModal(${c.id})" class="text-blue-600 hover:underline">Edit</button>
+                                <button onclick="deleteCustomer(${c.id})" class="text-red-600 hover:underline">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+
+                tblReportSummary.innerHTML += `
+                    <tr>
+                        <td class="py-2.5 font-semibold">${c.name}</td>
+                        <td class="py-2.5">${c.phone||'-'}</td>
+                        <td class="py-2.5 text-right font-bold ${c.balance>=0?'text-red-600':'text-emerald-600'}">Rs. ${c.balance}</td>
+                        <td class="py-2.5 text-center no-print">
+                            <button onclick="shareLedgerSummary('${c.name}', ${c.balance}, '${c.phone}')" class="text-xs bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full font-semibold">WhatsApp Share</button>
+                        </td>
+                    </tr>
+                `;
+
                 ledCust.innerHTML += `<option value="${c.id}">${c.name}</option>`;
                 salCust.innerHTML += `<option value="${c.id}">${c.name}</option>`;
             });
 
-            // Render Inventory Table & Dropdowns
-            const tblInv = document.getElementById('tblInventory');
+            // Inventory Render
+            const tblInventory = document.getElementById('tblInventory');
             const purItem = document.getElementById('purItem');
             const salItem = document.getElementById('salItem');
 
-            tblInv.innerHTML = '';
+            tblInventory.innerHTML = '';
             purItem.innerHTML = '<option value="">Select Product</option>';
             salItem.innerHTML = '<option value="">Select Product</option>';
 
-            app.inventory.forEach(i => {
-                tblInv.innerHTML += `<tr><td class="p-3 font-semibold">${i.name}</td><td class="p-3 font-bold text-blue-600">${i.qty}</td><td class="p-3">Rs. ${i.price}</td><td class="p-3 text-center"><button onclick="app.inventory=app.inventory.filter(x=>x.id!==${i.id});dbSave();" class="text-red-500">Delete</button></td></tr>`;
+            appData.inventory.forEach(i => {
+                tblInventory.innerHTML += `
+                    <tr>
+                        <td class="p-3 font-semibold">${i.name}</td>
+                        <td class="p-3 font-bold text-blue-600">${i.qty}</td>
+                        <td class="p-3">Rs. ${i.price}</td>
+                        <td class="p-3 text-center no-print">
+                            <button onclick="openItemModal(${i.id})" class="text-blue-600 hover:underline mr-2">Edit</button>
+                            <button onclick="deleteItem(${i.id})" class="text-red-600 hover:underline">Delete</button>
+                        </td>
+                    </tr>
+                `;
                 purItem.innerHTML += `<option value="${i.id}">${i.name}</option>`;
                 salItem.innerHTML += `<option value="${i.id}">${i.name}</option>`;
             });
 
-            // Ledger
-            document.getElementById('tblLedger').innerHTML = app.ledger.map(l => `<tr><td class="p-3">${l.date}</td><td class="p-3 font-semibold">${l.customer}</td><td class="p-3">${l.desc||'-'}</td><td class="p-3 text-right font-semibold">${l.type==='DEBIT'?'Rs. '+l.amt:'-'}</td><td class="p-3 text-right text-emerald-600 font-semibold">${l.type==='CREDIT'?'Rs. '+l.amt:'-'}</td></tr>`).join('');
+            // Ledger Render
+            document.getElementById('tblLedger').innerHTML = appData.ledger.map(l => `
+                <tr>
+                    <td class="p-2.5">${l.date}</td>
+                    <td class="p-2.5 font-semibold">${l.customer}</td>
+                    <td class="p-2.5">${l.desc||'-'}</td>
+                    <td class="p-2.5 text-right font-semibold text-red-600">${l.type==='DEBIT'?'Rs. '+l.amt:'-'}</td>
+                    <td class="p-2.5 text-right font-semibold text-emerald-600">${l.type==='CREDIT'?'Rs. '+l.amt:'-'}</td>
+                    <td class="p-2.5 text-center no-print">
+                        <button onclick="deleteLedger(${l.id})" class="text-red-500 hover:underline">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
 
-            // Purchase
-            document.getElementById('tblPurchase').innerHTML = app.purchases.map(p => `<tr><td class="p-3">${p.date}</td><td class="p-3 font-semibold">${p.item}</td><td class="p-3">${p.qty}</td><td class="p-3 text-right font-bold">Rs. ${p.cost}</td></tr>`).join('');
+            // Purchase Render
+            document.getElementById('tblPurchase').innerHTML = appData.purchases.map(p => `
+                <tr>
+                    <td class="p-2.5">${p.date}</td>
+                    <td class="p-2.5 font-semibold">${p.item}</td>
+                    <td class="p-2.5">${p.qty}</td>
+                    <td class="p-2.5 text-right font-bold">Rs. ${p.cost}</td>
+                    <td class="p-2.5 text-center no-print">
+                        <button onclick="appData.purchases=appData.purchases.filter(x=>x.id!==${p.id});saveData();" class="text-red-500 hover:underline">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
 
-            // Sales
-            document.getElementById('tblSales').innerHTML = app.sales.map(s => `<tr><td class="p-3">${s.date}</td><td class="p-3 font-semibold">${s.customer}</td><td class="p-3">${s.item}</td><td class="p-3">${s.qty}</td><td class="p-3 text-right font-bold">Rs. ${s.total}</td></tr>`).join('');
-
-            // Users
-            document.getElementById('tblUsers').innerHTML = app.users.map(u => `<tr><td class="p-3 font-semibold">${u.name}</td><td class="p-3">${u.role}</td><td class="p-3 text-center"><button onclick="app.users=app.users.filter(x=>x.id!==${u.id});dbSave();" class="text-red-500">Remove</button></td></tr>`).join('');
+            // Sales Render
+            document.getElementById('tblSales').innerHTML = appData.sales.map(s => `
+                <tr>
+                    <td class="p-2.5">${s.date}</td>
+                    <td class="p-2.5 font-semibold">${s.customer}</td>
+                    <td class="p-2.5">${s.item}</td>
+                    <td class="p-2.5">${s.qty}</td>
+                    <td class="p-2.5 text-right font-bold text-blue-600">Rs. ${s.total}</td>
+                    <td class="p-2.5 text-center no-print flex items-center justify-center gap-2">
+                        <button onclick="viewInvoice(${s.id})" class="text-blue-600 hover:underline bg-blue-50 px-2 py-1 rounded border">View Bill</button>
+                        <button onclick="shareWhatsApp('', 'Hi ${s.customer}, your sales bill for ${s.item} (Qty: ${s.qty}) total Amount is Rs. ${s.total}. Thank you!')" class="text-emerald-600 hover:underline bg-emerald-50 px-2 py-1 rounded border">WhatsApp</button>
+                    </td>
+                </tr>
+            `).join('');
 
             lucide.createIcons();
         }
