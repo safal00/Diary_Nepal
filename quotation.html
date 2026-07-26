@@ -3,404 +3,515 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Ledger & Inventory System</title>
+    <title>Canvas Hub - Ledger & ERP System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-area { width: 100% !important; margin: 0 !important; padding: 0 !important; }
+        }
     </style>
 </head>
 <body class="bg-slate-100 flex h-screen overflow-hidden text-slate-800">
 
-    <!-- Sidebar -->
-    <aside class="w-64 bg-blue-600 text-white flex flex-col justify-between shrink-0">
+    <!-- Sidebar Menu -->
+    <aside class="w-64 bg-blue-600 text-white flex flex-col justify-between shrink-0 no-print">
         <div>
-            <!-- Company Logo & Name Header -->
-            <div class="p-5 flex items-center justify-between border-b border-blue-500/30">
-                <div class="flex items-center gap-3">
-                    <img id="companyLogo" src="https://via.placeholder.com/40" class="w-9 h-9 rounded-lg bg-white object-cover" alt="Logo">
-                    <div>
-                        <h1 id="companyNameDisplay" class="font-bold text-base leading-tight">My Business</h1>
-                        <p class="text-[10px] text-blue-200">Ledger System</p>
-                    </div>
+            <!-- Company Branding -->
+            <div class="p-5 flex items-center gap-3 border-b border-blue-500/30">
+                <div class="bg-white text-blue-600 p-2 rounded-xl shrink-0">
+                    <img id="logoDisplay" src="https://via.placeholder.com/40" class="w-6 h-6 object-contain hidden" />
+                    <i id="logoIcon" data-lucide="book-open" class="w-6 h-6"></i>
                 </div>
-                <button onclick="openSettings()" class="text-blue-200 hover:text-white" title="Change Company Info">
-                    <i data-lucide="settings" class="w-4 h-4"></i>
-                </button>
+                <div>
+                    <h1 id="appNameDisplay" class="font-bold text-base leading-tight">Canvas Hub</h1>
+                    <p class="text-[11px] text-blue-200">Ledger Book</p>
+                </div>
             </div>
 
-            <!-- Navigation Links -->
-            <div class="px-4 py-4 space-y-1">
-                <button onclick="switchTab('dashboard')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white text-blue-600 font-semibold text-sm shadow-sm">
-                    <i data-lucide="layout-grid" class="w-4 h-4"></i> Dashboard
-                </button>
-                <button onclick="switchTab('customers')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
-                    <i data-lucide="users" class="w-4 h-4"></i> Customers
-                </button>
-                <button onclick="switchTab('ledger')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
-                    <i data-lucide="book-open" class="w-4 h-4"></i> Ledger / Entry
-                </button>
-                <button onclick="switchTab('inventory')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
-                    <i data-lucide="box" class="w-4 h-4"></i> Inventory
-                </button>
+            <!-- Menu Navigation -->
+            <div class="px-4 py-3">
+                <p class="text-[10px] uppercase font-bold text-blue-200 tracking-wider mb-2">Main Menu</p>
+                <nav class="space-y-1">
+                    <button onclick="nav('dashboard')" id="btn-dashboard" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white text-blue-600 font-semibold text-sm shadow-sm">
+                        <i data-lucide="layout-grid" class="w-4 h-4"></i> Dashboard
+                    </button>
+                    <button onclick="nav('customers')" id="btn-customers" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
+                        <i data-lucide="users" class="w-4 h-4"></i> Customers
+                    </button>
+                    <button onclick="nav('ledger')" id="btn-ledger" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
+                        <i data-lucide="book" class="w-4 h-4"></i> Ledger
+                    </button>
+                    <button onclick="nav('inventory')" id="btn-inventory" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
+                        <i data-lucide="box" class="w-4 h-4"></i> Inventory
+                    </button>
+                    <button onclick="nav('purchase')" id="btn-purchase" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
+                        <i data-lucide="shopping-cart" class="w-4 h-4"></i> Purchase
+                    </button>
+                    <button onclick="nav('sales')" id="btn-sales" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
+                        <i data-lucide="tag" class="w-4 h-4"></i> Sales
+                    </button>
+                    <button onclick="nav('reports')" id="btn-reports" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
+                        <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Reports
+                    </button>
+                    <button onclick="nav('settings')" id="btn-settings" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
+                        <i data-lucide="settings" class="w-4 h-4"></i> Settings
+                    </button>
+                    <button onclick="nav('users')" id="btn-users" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-500/50 text-sm font-medium transition">
+                        <i data-lucide="user-cog" class="w-4 h-4"></i> Users
+                    </button>
+                </nav>
             </div>
         </div>
 
+        <!-- User Profile -->
         <div class="p-4 border-t border-blue-500/30">
-            <div class="bg-blue-700/50 p-3 rounded-xl flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-800 font-bold flex items-center justify-center text-xs">Admin</div>
-                <div class="text-xs">
-                    <p class="font-semibold leading-tight">Active User</p>
-                    <p class="text-blue-200 text-[10px]">Owner</p>
+            <div class="bg-blue-700/50 p-3 rounded-xl flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-sm" id="userInitial">A</div>
+                    <div>
+                        <p class="text-sm font-semibold leading-tight" id="activeUserName">Administrator</p>
+                        <p class="text-xs text-blue-200" id="activeUserRole">admin</p>
+                    </div>
                 </div>
             </div>
         </div>
     </aside>
 
-    <!-- Main Section -->
-    <div class="flex-1 flex flex-col overflow-y-auto">
-        <!-- Header -->
-        <header class="bg-white border-b px-8 py-4 flex justify-between items-center sticky top-0 z-10">
-            <h2 id="pageTitle" class="text-xl font-bold text-slate-800">Dashboard</h2>
-            <div class="text-xs font-medium text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg flex items-center gap-2">
-                <i data-lucide="calendar" class="w-4 h-4"></i>
-                <span id="currentDate"></span>
+    <!-- Main Workspace -->
+    <div class="flex-1 flex flex-col overflow-y-auto print-area">
+        <!-- Top Navbar -->
+        <header class="bg-white border-b px-8 py-4 flex justify-between items-center sticky top-0 z-10 no-print">
+            <div>
+                <p class="text-xs text-slate-400">Overview</p>
+                <h2 id="headerTitle" class="text-lg font-bold text-slate-800">Dashboard</h2>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2 text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg">
+                    <i data-lucide="calendar" class="w-4 h-4 text-slate-500"></i>
+                    <span id="dateDisplay"></span>
+                </div>
             </div>
         </header>
 
         <main class="p-8 space-y-6">
 
-            <!-- 1. DASHBOARD VIEW -->
-            <div id="tab-dashboard" class="tab-content space-y-6">
+            <!-- 1. DASHBOARD -->
+            <section id="tab-dashboard" class="tab-page space-y-6">
                 <div class="grid grid-cols-4 gap-4">
                     <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
                         <p class="text-xs text-slate-500 font-medium">Total Customers</p>
-                        <h3 id="dashTotalCustomers" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+                        <h3 id="dashCust" class="text-2xl font-bold mt-1">0</h3>
                     </div>
                     <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
-                        <p class="text-xs text-slate-500 font-medium">Total Debit (पाउन बाँकी)</p>
-                        <h3 id="dashTotalDebit" class="text-2xl font-bold text-red-600 mt-1">Rs. 0</h3>
+                        <p class="text-xs text-slate-500 font-medium">Total Receivables (Debit)</p>
+                        <h3 id="dashDebit" class="text-2xl font-bold text-red-600 mt-1">Rs. 0</h3>
                     </div>
                     <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
-                        <p class="text-xs text-slate-500 font-medium">Total Credit (तिर्न बाँकी)</p>
-                        <h3 id="dashTotalCredit" class="text-2xl font-bold text-emerald-600 mt-1">Rs. 0</h3>
+                        <p class="text-xs text-slate-500 font-medium">Total Payables (Credit)</p>
+                        <h3 id="dashCredit" class="text-2xl font-bold text-emerald-600 mt-1">Rs. 0</h3>
                     </div>
                     <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
-                        <p class="text-xs text-slate-500 font-medium">Total Stock Items</p>
-                        <h3 id="dashTotalStock" class="text-2xl font-bold text-blue-600 mt-1">0</h3>
+                        <p class="text-xs text-slate-500 font-medium">Inventory Products</p>
+                        <h3 id="dashItems" class="text-2xl font-bold text-blue-600 mt-1">0</h3>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- 2. CUSTOMERS VIEW -->
-            <div id="tab-customers" class="tab-content hidden space-y-6">
+            <!-- 2. CUSTOMERS -->
+            <section id="tab-customers" class="tab-page hidden space-y-4">
                 <div class="flex justify-between items-center bg-white p-4 rounded-xl border">
-                    <h3 class="font-bold text-lg">Customer List</h3>
-                    <button onclick="toggleModal('customerModal')" class="bg-blue-600 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center gap-2">
-                        <i data-lucide="plus" class="w-4 h-4"></i> Add Customer
-                    </button>
+                    <h3 class="font-bold">Customer Directory</h3>
+                    <button onclick="toggleModal('custModal')" class="bg-blue-600 text-white text-xs px-4 py-2 rounded-lg font-semibold">+ Add Customer</button>
                 </div>
-
                 <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-50 border-b text-xs uppercase text-slate-500 font-semibold">
-                            <tr>
-                                <th class="p-4">Name</th>
-                                <th class="p-4">Phone</th>
-                                <th class="p-4">Address</th>
-                                <th class="p-4 text-right">Balance</th>
-                                <th class="p-4 text-center">Action</th>
-                            </tr>
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 border-b">
+                            <tr><th class="p-3">Name</th><th class="p-3">Phone</th><th class="p-3">Address</th><th class="p-3 text-right">Balance</th><th class="p-3 text-center">Action</th></tr>
                         </thead>
-                        <tbody id="customerTableBody" class="divide-y divide-slate-100">
-                            <!-- Dynamic Content -->
-                        </tbody>
+                        <tbody id="tblCust" class="divide-y"></tbody>
                     </table>
                 </div>
-            </div>
+            </section>
 
-            <!-- 3. LEDGER & TRANSACTION ENTRY VIEW -->
-            <div id="tab-ledger" class="tab-content hidden space-y-6">
-                <div class="bg-white p-6 rounded-xl border shadow-sm space-y-4">
-                    <h3 class="font-bold text-base">New Ledger Entry (कारोबार थप्नुहोस्)</h3>
-                    <form id="ledgerForm" onsubmit="addTransaction(event)" class="grid grid-cols-5 gap-4">
-                        <div>
-                            <label class="text-xs font-semibold text-slate-600">Select Customer</label>
-                            <select id="ledgerCustomer" class="w-full mt-1 p-2 border rounded-lg text-sm" required></select>
-                        </div>
-                        <div>
-                            <label class="text-xs font-semibold text-slate-600">Type</label>
-                            <select id="ledgerType" class="w-full mt-1 p-2 border rounded-lg text-sm">
-                                <option value="DEBIT">Debit (उधारो दिइएको/लानु पर्ने)</option>
-                                <option value="CREDIT">Credit (रकम प्राप्त/भुक्तानी)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="text-xs font-semibold text-slate-600">Amount (Rs.)</label>
-                            <input type="number" id="ledgerAmount" class="w-full mt-1 p-2 border rounded-lg text-sm" placeholder="0.00" required />
-                        </div>
-                        <div>
-                            <label class="text-xs font-semibold text-slate-600">Description</label>
-                            <input type="text" id="ledgerDesc" class="w-full mt-1 p-2 border rounded-lg text-sm" placeholder="Details..." />
-                        </div>
-                        <div class="flex items-end">
-                            <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg text-sm">Save Entry</button>
-                        </div>
+            <!-- 3. LEDGER -->
+            <section id="tab-ledger" class="tab-page hidden space-y-4">
+                <div class="bg-white p-4 rounded-xl border space-y-3">
+                    <h3 class="font-bold text-sm">Add Transaction Entry</h3>
+                    <form onsubmit="addLedger(event)" class="grid grid-cols-5 gap-3">
+                        <select id="ledCust" class="p-2 border rounded-lg text-xs" required></select>
+                        <select id="ledType" class="p-2 border rounded-lg text-xs"><option value="DEBIT">Debit (उधारो / लिनुपर्ने)</option><option value="CREDIT">Credit (भुक्तानी / दिनुपर्ने)</option></select>
+                        <input id="ledAmt" type="number" placeholder="Amount" class="p-2 border rounded-lg text-xs" required />
+                        <input id="ledDesc" type="text" placeholder="Remarks" class="p-2 border rounded-lg text-xs" />
+                        <button type="submit" class="bg-blue-600 text-white rounded-lg text-xs font-semibold">Save Entry</button>
                     </form>
                 </div>
-
-                <!-- Ledger History -->
-                <div class="bg-white rounded-xl border shadow-sm p-4">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-base">Recent Transactions Log</h3>
-                        <button onclick="window.print()" class="text-xs bg-slate-100 px-3 py-1.5 rounded font-semibold flex items-center gap-1">
-                            <i data-lucide="printer" class="w-3.5 h-3.5"></i> Print Report
-                        </button>
-                    </div>
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-50 border-b text-xs uppercase text-slate-500">
-                            <tr>
-                                <th class="p-3">Date</th>
-                                <th class="p-3">Customer</th>
-                                <th class="p-3">Description</th>
-                                <th class="p-3 text-right">Debit</th>
-                                <th class="p-3 text-right">Credit</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ledgerTableBody" class="divide-y divide-slate-100"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- 4. INVENTORY VIEW -->
-            <div id="tab-inventory" class="tab-content hidden space-y-6">
-                <div class="flex justify-between items-center bg-white p-4 rounded-xl border">
-                    <h3 class="font-bold text-lg">Inventory & Stock</h3>
-                    <button onclick="toggleModal('inventoryModal')" class="bg-blue-600 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center gap-2">
-                        <i data-lucide="plus" class="w-4 h-4"></i> Add Item
-                    </button>
-                </div>
-
                 <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-50 border-b text-xs uppercase text-slate-500 font-semibold">
-                            <tr>
-                                <th class="p-4">Item Name</th>
-                                <th class="p-4">Stock Quantity</th>
-                                <th class="p-4">Unit Price</th>
-                                <th class="p-4 text-center">Action</th>
-                            </tr>
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 border-b">
+                            <tr><th class="p-3">Date</th><th class="p-3">Customer</th><th class="p-3">Remarks</th><th class="p-3 text-right">Debit</th><th class="p-3 text-right">Credit</th></tr>
                         </thead>
-                        <tbody id="inventoryTableBody" class="divide-y divide-slate-100"></tbody>
+                        <tbody id="tblLedger" class="divide-y"></tbody>
                     </table>
                 </div>
-            </div>
+            </section>
+
+            <!-- 4. INVENTORY -->
+            <section id="tab-inventory" class="tab-page hidden space-y-4">
+                <div class="flex justify-between items-center bg-white p-4 rounded-xl border">
+                    <h3 class="font-bold">Inventory Management</h3>
+                    <button onclick="toggleModal('itemModal')" class="bg-blue-600 text-white text-xs px-4 py-2 rounded-lg font-semibold">+ Add Product</button>
+                </div>
+                <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 border-b">
+                            <tr><th class="p-3">Item Name</th><th class="p-3">Stock Qty</th><th class="p-3">Price</th><th class="p-3 text-center">Action</th></tr>
+                        </thead>
+                        <tbody id="tblInventory" class="divide-y"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 5. PURCHASE -->
+            <section id="tab-purchase" class="tab-page hidden space-y-4">
+                <div class="bg-white p-4 rounded-xl border space-y-3">
+                    <h3 class="font-bold text-sm">Purchase Entry (Stock In)</h3>
+                    <form onsubmit="addPurchase(event)" class="grid grid-cols-4 gap-3">
+                        <select id="purItem" class="p-2 border rounded-lg text-xs" required></select>
+                        <input id="purQty" type="number" placeholder="Quantity" class="p-2 border rounded-lg text-xs" required />
+                        <input id="purCost" type="number" placeholder="Total Cost Amount" class="p-2 border rounded-lg text-xs" required />
+                        <button type="submit" class="bg-emerald-600 text-white rounded-lg text-xs font-semibold">Record Purchase</button>
+                    </form>
+                </div>
+                <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 border-b">
+                            <tr><th class="p-3">Date</th><th class="p-3">Item</th><th class="p-3">Qty</th><th class="p-3 text-right">Total Cost</th></tr>
+                        </thead>
+                        <tbody id="tblPurchase" class="divide-y"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 6. SALES -->
+            <section id="tab-sales" class="tab-page hidden space-y-4">
+                <div class="bg-white p-4 rounded-xl border space-y-3">
+                    <h3 class="font-bold text-sm">Sales Entry (Out & Ledger Update)</h3>
+                    <form onsubmit="addSales(event)" class="grid grid-cols-5 gap-3">
+                        <select id="salCust" class="p-2 border rounded-lg text-xs" required></select>
+                        <select id="salItem" class="p-2 border rounded-lg text-xs" required></select>
+                        <input id="salQty" type="number" placeholder="Quantity" class="p-2 border rounded-lg text-xs" required />
+                        <input id="salPrice" type="number" placeholder="Unit Price" class="p-2 border rounded-lg text-xs" required />
+                        <button type="submit" class="bg-blue-600 text-white rounded-lg text-xs font-semibold">Complete Sale</button>
+                    </form>
+                </div>
+                <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 border-b">
+                            <tr><th class="p-3">Date</th><th class="p-3">Customer</th><th class="p-3">Item</th><th class="p-3">Qty</th><th class="p-3 text-right">Amount</th></tr>
+                        </thead>
+                        <tbody id="tblSales" class="divide-y"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 7. REPORTS -->
+            <section id="tab-reports" class="tab-page hidden space-y-4">
+                <div class="bg-white p-4 rounded-xl border flex justify-between items-center">
+                    <h3 class="font-bold">Ledger & Financial Statements</h3>
+                    <button onclick="window.print()" class="bg-slate-800 text-white text-xs px-4 py-2 rounded-lg font-semibold no-print">Print Report</button>
+                </div>
+                <div class="bg-white p-6 rounded-xl border space-y-4">
+                    <h4 class="font-bold border-b pb-2">Customer Outstanding Summary</h4>
+                    <table class="w-full text-left text-xs">
+                        <thead><tr class="border-b"><th class="pb-2">Customer</th><th class="pb-2 text-right">Balance</th></tr></thead>
+                        <tbody id="tblReport" class="divide-y"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 8. SETTINGS -->
+            <section id="tab-settings" class="tab-page hidden space-y-4">
+                <div class="bg-white p-6 rounded-xl border space-y-4 max-w-lg">
+                    <h3 class="font-bold">System & Company Settings</h3>
+                    <div>
+                        <label class="text-xs font-semibold">Company Name</label>
+                        <input id="cfgName" type="text" class="w-full p-2 border rounded-lg text-xs mt-1" />
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold">Company Logo Image URL</label>
+                        <input id="cfgLogo" type="text" class="w-full p-2 border rounded-lg text-xs mt-1" placeholder="https://example.com/logo.png" />
+                    </div>
+                    <button onclick="saveSettings()" class="bg-blue-600 text-white text-xs px-4 py-2 rounded-lg font-semibold">Save Changes</button>
+                </div>
+            </section>
+
+            <!-- 9. USERS -->
+            <section id="tab-users" class="tab-page hidden space-y-4">
+                <div class="flex justify-between items-center bg-white p-4 rounded-xl border">
+                    <h3 class="font-bold">System Users</h3>
+                    <button onclick="toggleModal('userModal')" class="bg-blue-600 text-white text-xs px-4 py-2 rounded-lg font-semibold">+ Add User</button>
+                </div>
+                <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 border-b">
+                            <tr><th class="p-3">Username</th><th class="p-3">Role</th><th class="p-3 text-center">Action</th></tr>
+                        </thead>
+                        <tbody id="tblUsers" class="divide-y"></tbody>
+                    </table>
+                </div>
+            </section>
 
         </main>
     </div>
 
-    <!-- MODAL: Customer Add -->
-    <div id="customerModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center z-50">
-        <div class="bg-white rounded-xl p-6 w-96 space-y-4">
-            <h3 class="font-bold text-lg">Add New Customer</h3>
-            <input id="custName" type="text" placeholder="Customer Name" class="w-full p-2 border rounded-lg text-sm" />
-            <input id="custPhone" type="text" placeholder="Phone Number" class="w-full p-2 border rounded-lg text-sm" />
-            <input id="custAddress" type="text" placeholder="Address" class="w-full p-2 border rounded-lg text-sm" />
-            <div class="flex justify-end gap-2">
-                <button onclick="toggleModal('customerModal')" class="px-4 py-2 text-xs font-semibold text-slate-500">Cancel</button>
-                <button onclick="saveCustomer()" class="px-4 py-2 text-xs font-semibold bg-blue-600 text-white rounded-lg">Save</button>
-            </div>
+    <!-- MODALS -->
+    <!-- Customer Modal -->
+    <div id="custModal" class="fixed inset-0 bg-black/40 hidden flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-xl w-80 space-y-3">
+            <h3 class="font-bold text-sm">Add New Customer</h3>
+            <input id="cName" placeholder="Name" class="w-full p-2 border rounded-lg text-xs" />
+            <input id="cPhone" placeholder="Phone" class="w-full p-2 border rounded-lg text-xs" />
+            <input id="cAddr" placeholder="Address" class="w-full p-2 border rounded-lg text-xs" />
+            <div class="flex justify-end gap-2"><button onclick="toggleModal('custModal')" class="text-xs">Cancel</button><button onclick="saveCustomer()" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Save</button></div>
         </div>
     </div>
 
-    <!-- MODAL: Inventory Add -->
-    <div id="inventoryModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center z-50">
-        <div class="bg-white rounded-xl p-6 w-96 space-y-4">
-            <h3 class="font-bold text-lg">Add Stock Item</h3>
-            <input id="itemName" type="text" placeholder="Product Name" class="w-full p-2 border rounded-lg text-sm" />
-            <input id="itemQty" type="number" placeholder="Quantity" class="w-full p-2 border rounded-lg text-sm" />
-            <input id="itemPrice" type="number" placeholder="Price per unit" class="w-full p-2 border rounded-lg text-sm" />
-            <div class="flex justify-end gap-2">
-                <button onclick="toggleModal('inventoryModal')" class="px-4 py-2 text-xs font-semibold text-slate-500">Cancel</button>
-                <button onclick="saveInventory()" class="px-4 py-2 text-xs font-semibold bg-blue-600 text-white rounded-lg">Save</button>
-            </div>
+    <!-- Inventory Item Modal -->
+    <div id="itemModal" class="fixed inset-0 bg-black/40 hidden flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-xl w-80 space-y-3">
+            <h3 class="font-bold text-sm">Add Product</h3>
+            <input id="iName" placeholder="Product Name" class="w-full p-2 border rounded-lg text-xs" />
+            <input id="iQty" type="number" placeholder="Initial Stock Qty" class="w-full p-2 border rounded-lg text-xs" />
+            <input id="iPrice" type="number" placeholder="Price per Unit" class="w-full p-2 border rounded-lg text-xs" />
+            <div class="flex justify-end gap-2"><button onclick="toggleModal('itemModal')" class="text-xs">Cancel</button><button onclick="saveItem()" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Save</button></div>
         </div>
     </div>
 
-    <!-- SCRIPT APPLICATION LOGIC -->
+    <!-- User Modal -->
+    <div id="userModal" class="fixed inset-0 bg-black/40 hidden flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-xl w-80 space-y-3">
+            <h3 class="font-bold text-sm">Add System User</h3>
+            <input id="uName" placeholder="Username" class="w-full p-2 border rounded-lg text-xs" />
+            <select id="uRole" class="w-full p-2 border rounded-lg text-xs"><option value="Staff">Staff</option><option value="Manager">Manager</option></select>
+            <div class="flex justify-end gap-2"><button onclick="toggleModal('userModal')" class="text-xs">Cancel</button><button onclick="saveUser()" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Save</button></div>
+        </div>
+    </div>
+
+    <!-- APPLICATION JAVASCRIPT LOGIC -->
     <script>
-        // Init Storage Engine
-        let db = {
-            company: JSON.parse(localStorage.getItem('company')) || { name: 'Canvas Hub', logo: 'https://via.placeholder.com/40' },
-            customers: JSON.parse(localStorage.getItem('customers')) || [],
-            transactions: JSON.parse(localStorage.getItem('transactions')) || [],
-            inventory: JSON.parse(localStorage.getItem('inventory')) || []
+        // Database State
+        let app = {
+            company: JSON.parse(localStorage.getItem('ch_company')) || { name: 'Canvas Hub', logo: '' },
+            customers: JSON.parse(localStorage.getItem('ch_customers')) || [],
+            inventory: JSON.parse(localStorage.getItem('ch_inventory')) || [],
+            ledger: JSON.parse(localStorage.getItem('ch_ledger')) || [],
+            purchases: JSON.parse(localStorage.getItem('ch_purchases')) || [],
+            sales: JSON.parse(localStorage.getItem('ch_sales')) || [],
+            users: JSON.parse(localStorage.getItem('ch_users')) || [{ id: 1, name: 'Administrator', role: 'admin' }]
         };
 
-        function saveData() {
-            localStorage.setItem('company', JSON.stringify(db.company));
-            localStorage.setItem('customers', JSON.stringify(db.customers));
-            localStorage.setItem('transactions', JSON.stringify(db.transactions));
-            localStorage.setItem('inventory', JSON.stringify(db.inventory));
-            renderAll();
+        function dbSave() {
+            localStorage.setItem('ch_company', JSON.stringify(app.company));
+            localStorage.setItem('ch_customers', JSON.stringify(app.customers));
+            localStorage.setItem('ch_inventory', JSON.stringify(app.inventory));
+            localStorage.setItem('ch_ledger', JSON.stringify(app.ledger));
+            localStorage.setItem('ch_purchases', JSON.stringify(app.purchases));
+            localStorage.setItem('ch_sales', JSON.stringify(app.sales));
+            localStorage.setItem('ch_users', JSON.stringify(app.users));
+            render();
         }
 
-        // Initialize UI
         document.addEventListener("DOMContentLoaded", () => {
             lucide.createIcons();
-            document.getElementById('currentDate').innerText = new Date().toDateString();
-            renderAll();
+            document.getElementById('dateDisplay').innerText = new Date().toDateString();
+            render();
         });
 
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById('tab-' + tabId).classList.remove('hidden');
-            document.getElementById('pageTitle').innerText = tabId.toUpperCase();
-        }
-
-        function toggleModal(id) {
-            document.getElementById(id).classList.toggle('hidden');
-        }
-
-        // Company Settings
-        function openSettings() {
-            const newName = prompt("Company Name:", db.company.name);
-            const newLogo = prompt("Company Logo URL:", db.company.logo);
-            if(newName) db.company.name = newName;
-            if(newLogo) db.company.logo = newLogo;
-            saveData();
-        }
-
-        // Customers CRUD
-        function saveCustomer() {
-            const name = document.getElementById('custName').value;
-            const phone = document.getElementById('custPhone').value;
-            const address = document.getElementById('custAddress').value;
-            if(!name) return alert("Enter Customer Name!");
-
-            db.customers.push({ id: Date.now(), name, phone, address, balance: 0 });
-            toggleModal('customerModal');
-            saveData();
-        }
-
-        function deleteCustomer(id) {
-            if(confirm("Confirm Delete Customer?")) {
-                db.customers = db.customers.filter(c => c.id !== id);
-                saveData();
-            }
-        }
-
-        // Transactions / Ledger
-        function addTransaction(e) {
-            e.preventDefault();
-            const customerId = Number(document.getElementById('ledgerCustomer').value);
-            const type = document.getElementById('ledgerType').value;
-            const amount = Number(document.getElementById('ledgerAmount').value);
-            const desc = document.getElementById('ledgerDesc').value;
-
-            const cust = db.customers.find(c => c.id === customerId);
-            if(!cust) return alert("Select a Customer!");
-
-            if(type === 'DEBIT') cust.balance += amount;
-            else cust.balance -= amount;
-
-            db.transactions.unshift({
-                id: Date.now(),
-                date: new Date().toLocaleDateString(),
-                customerName: cust.name,
-                type,
-                amount,
-                desc
+        // Tab Navigation
+        function nav(tab) {
+            document.querySelectorAll('.tab-page').forEach(p => p.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(b => {
+                b.classList.remove('bg-white', 'text-blue-600', 'font-semibold', 'shadow-sm');
+                b.classList.add('text-blue-100');
             });
 
-            document.getElementById('ledgerForm').reset();
-            saveData();
+            document.getElementById('tab-' + tab).classList.remove('hidden');
+            const activeBtn = document.getElementById('btn-' + tab);
+            activeBtn.classList.add('bg-white', 'text-blue-600', 'font-semibold', 'shadow-sm');
+            activeBtn.classList.remove('text-blue-100');
+
+            document.getElementById('headerTitle').innerText = tab.charAt(0).toUpperCase() + tab.slice(1);
         }
 
-        // Inventory CRUD
-        function saveInventory() {
-            const name = document.getElementById('itemName').value;
-            const qty = Number(document.getElementById('itemQty').value);
-            const price = Number(document.getElementById('itemPrice').value);
+        function toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); }
 
-            if(!name) return alert("Product Name Required!");
-            db.inventory.push({ id: Date.now(), name, qty, price });
-            toggleModal('inventoryModal');
-            saveData();
+        // Settings
+        function saveSettings() {
+            app.company.name = document.getElementById('cfgName').value;
+            app.company.logo = document.getElementById('cfgLogo').value;
+            dbSave();
+            alert("Settings updated!");
         }
 
-        function deleteInventory(id) {
-            db.inventory = db.inventory.filter(i => i.id !== id);
-            saveData();
+        // Customer Logic
+        function saveCustomer() {
+            const name = document.getElementById('cName').value;
+            if(!name) return;
+            app.customers.push({ id: Date.now(), name, phone: document.getElementById('cPhone').value, address: document.getElementById('cAddr').value, balance: 0 });
+            toggleModal('custModal');
+            dbSave();
+        }
+        function deleteCustomer(id) {
+            app.customers = app.customers.filter(c => c.id !== id);
+            dbSave();
         }
 
-        // Render Views
-        function renderAll() {
+        // Ledger Logic
+        function addLedger(e) {
+            e.preventDefault();
+            const custId = Number(document.getElementById('ledCust').value);
+            const type = document.getElementById('ledType').value;
+            const amt = Number(document.getElementById('ledAmt').value);
+            const desc = document.getElementById('ledDesc').value;
+
+            const cust = app.customers.find(c => c.id === custId);
+            if(!cust) return;
+
+            cust.balance += (type === 'DEBIT' ? amt : -amt);
+            app.ledger.unshift({ id: Date.now(), date: new Date().toLocaleDateString(), customer: cust.name, type, amt, desc });
+            dbSave();
+        }
+
+        // Inventory Logic
+        function saveItem() {
+            const name = document.getElementById('iName').value;
+            if(!name) return;
+            app.inventory.push({ id: Date.now(), name, qty: Number(document.getElementById('iQty').value), price: Number(document.getElementById('iPrice').value) });
+            toggleModal('itemModal');
+            dbSave();
+        }
+
+        // Purchase Logic
+        function addPurchase(e) {
+            e.preventDefault();
+            const itemId = Number(document.getElementById('purItem').value);
+            const qty = Number(document.getElementById('purQty').value);
+            const cost = Number(document.getElementById('purCost').value);
+
+            const item = app.inventory.find(i => i.id === itemId);
+            if(!item) return;
+
+            item.qty += qty;
+            app.purchases.unshift({ id: Date.now(), date: new Date().toLocaleDateString(), item: item.name, qty, cost });
+            dbSave();
+        }
+
+        // Sales Logic
+        function addSales(e) {
+            e.preventDefault();
+            const custId = Number(document.getElementById('salCust').value);
+            const itemId = Number(document.getElementById('salItem').value);
+            const qty = Number(document.getElementById('salQty').value);
+            const price = Number(document.getElementById('salPrice').value);
+
+            const cust = app.customers.find(c => c.id === custId);
+            const item = app.inventory.find(i => i.id === itemId);
+
+            if(!cust || !item) return;
+            if(item.qty < qty) return alert("Not enough stock available!");
+
+            item.qty -= qty;
+            const total = qty * price;
+            cust.balance += total; // Auto Debit to Ledger
+
+            app.sales.unshift({ id: Date.now(), date: new Date().toLocaleDateString(), customer: cust.name, item: item.name, qty, total });
+            app.ledger.unshift({ id: Date.now(), date: new Date().toLocaleDateString(), customer: cust.name, type: 'DEBIT', amt: total, desc: `Sale: ${item.name} (x${qty})` });
+
+            dbSave();
+        }
+
+        // User Logic
+        function saveUser() {
+            const name = document.getElementById('uName').value;
+            if(!name) return;
+            app.users.push({ id: Date.now(), name, role: document.getElementById('uRole').value });
+            toggleModal('userModal');
+            dbSave();
+        }
+
+        // Global Render Function
+        function render() {
             // Render Company Info
-            document.getElementById('companyNameDisplay').innerText = db.company.name;
-            document.getElementById('companyLogo').src = db.company.logo;
+            document.getElementById('appNameDisplay').innerText = app.company.name;
+            document.getElementById('cfgName').value = app.company.name;
+            document.getElementById('cfgLogo').value = app.company.logo;
 
-            // Render Customer Table & Dropdown
-            const custBody = document.getElementById('customerTableBody');
-            const custSelect = document.getElementById('ledgerCustomer');
-            custBody.innerHTML = '';
-            custSelect.innerHTML = '<option value="">Select Customer</option>';
+            if(app.company.logo) {
+                document.getElementById('logoDisplay').src = app.company.logo;
+                document.getElementById('logoDisplay').classList.remove('hidden');
+                document.getElementById('logoIcon').classList.add('hidden');
+            }
 
+            // Calculations
             let totalDebit = 0, totalCredit = 0;
-
-            db.customers.forEach(c => {
+            app.customers.forEach(c => {
                 if(c.balance > 0) totalDebit += c.balance;
                 else totalCredit += Math.abs(c.balance);
-
-                custBody.innerHTML += `
-                    <tr>
-                        <td class="p-4 font-semibold">${c.name}</td>
-                        <td class="p-4 text-slate-500">${c.phone}</td>
-                        <td class="p-4 text-slate-500">${c.address}</td>
-                        <td class="p-4 text-right font-bold ${c.balance >= 0 ? 'text-red-600' : 'text-emerald-600'}">Rs. ${Math.abs(c.balance)} ${c.balance >= 0 ? 'Dr' : 'Cr'}</td>
-                        <td class="p-4 text-center">
-                            <button onclick="deleteCustomer(${c.id})" class="text-red-500 hover:underline text-xs">Delete</button>
-                        </td>
-                    </tr>`;
-                custSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
             });
 
-            // Render Dashboard Stats
-            document.getElementById('dashTotalCustomers').innerText = db.customers.length;
-            document.getElementById('dashTotalDebit').innerText = "Rs. " + totalDebit;
-            document.getElementById('dashTotalCredit').innerText = "Rs. " + totalCredit;
-            document.getElementById('dashTotalStock').innerText = db.inventory.length;
+            document.getElementById('dashCust').innerText = app.customers.length;
+            document.getElementById('dashDebit').innerText = "Rs. " + totalDebit;
+            document.getElementById('dashCredit').innerText = "Rs. " + totalCredit;
+            document.getElementById('dashItems').innerText = app.inventory.length;
 
-            // Render Transactions
-            const ledgerBody = document.getElementById('ledgerTableBody');
-            ledgerBody.innerHTML = '';
-            db.transactions.forEach(t => {
-                ledgerBody.innerHTML += `
-                    <tr>
-                        <td class="p-3 text-slate-500">${t.date}</td>
-                        <td class="p-3 font-semibold">${t.customerName}</td>
-                        <td class="p-3 text-slate-500">${t.desc || '-'}</td>
-                        <td class="p-3 text-right font-semibold">${t.type === 'DEBIT' ? 'Rs. ' + t.amount : '-'}</td>
-                        <td class="p-3 text-right font-semibold text-emerald-600">${t.type === 'CREDIT' ? 'Rs. ' + t.amount : '-'}</td>
-                    </tr>`;
+            // Render Customers Table & Dropdowns
+            const tblCust = document.getElementById('tblCust');
+            const ledCust = document.getElementById('ledCust');
+            const salCust = document.getElementById('salCust');
+            const tblReport = document.getElementById('tblReport');
+
+            tblCust.innerHTML = '';
+            tblReport.innerHTML = '';
+            ledCust.innerHTML = '<option value="">Select Customer</option>';
+            salCust.innerHTML = '<option value="">Select Customer</option>';
+
+            app.customers.forEach(c => {
+                tblCust.innerHTML += `<tr><td class="p-3 font-semibold">${c.name}</td><td class="p-3">${c.phone}</td><td class="p-3">${c.address}</td><td class="p-3 text-right font-bold ${c.balance >= 0 ? 'text-red-600' : 'text-emerald-600'}">Rs. ${Math.abs(c.balance)} ${c.balance>=0?'Dr':'Cr'}</td><td class="p-3 text-center"><button onclick="deleteCustomer(${c.id})" class="text-red-500">Delete</button></td></tr>`;
+                tblReport.innerHTML += `<tr><td class="py-2">${c.name}</td><td class="py-2 text-right font-bold">Rs. ${c.balance}</td></tr>`;
+                ledCust.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                salCust.innerHTML += `<option value="${c.id}">${c.name}</option>`;
             });
 
-            // Render Inventory
-            const invBody = document.getElementById('inventoryTableBody');
-            invBody.innerHTML = '';
-            db.inventory.forEach(i => {
-                invBody.innerHTML += `
-                    <tr>
-                        <td class="p-4 font-semibold">${i.name}</td>
-                        <td class="p-4 font-bold text-blue-600">${i.qty}</td>
-                        <td class="p-4">Rs. ${i.price}</td>
-                        <td class="p-4 text-center">
-                            <button onclick="deleteInventory(${i.id})" class="text-red-500 hover:underline text-xs">Delete</button>
-                        </td>
-                    </tr>`;
+            // Render Inventory Table & Dropdowns
+            const tblInv = document.getElementById('tblInventory');
+            const purItem = document.getElementById('purItem');
+            const salItem = document.getElementById('salItem');
+
+            tblInv.innerHTML = '';
+            purItem.innerHTML = '<option value="">Select Product</option>';
+            salItem.innerHTML = '<option value="">Select Product</option>';
+
+            app.inventory.forEach(i => {
+                tblInv.innerHTML += `<tr><td class="p-3 font-semibold">${i.name}</td><td class="p-3 font-bold text-blue-600">${i.qty}</td><td class="p-3">Rs. ${i.price}</td><td class="p-3 text-center"><button onclick="app.inventory=app.inventory.filter(x=>x.id!==${i.id});dbSave();" class="text-red-500">Delete</button></td></tr>`;
+                purItem.innerHTML += `<option value="${i.id}">${i.name}</option>`;
+                salItem.innerHTML += `<option value="${i.id}">${i.name}</option>`;
             });
+
+            // Ledger
+            document.getElementById('tblLedger').innerHTML = app.ledger.map(l => `<tr><td class="p-3">${l.date}</td><td class="p-3 font-semibold">${l.customer}</td><td class="p-3">${l.desc||'-'}</td><td class="p-3 text-right font-semibold">${l.type==='DEBIT'?'Rs. '+l.amt:'-'}</td><td class="p-3 text-right text-emerald-600 font-semibold">${l.type==='CREDIT'?'Rs. '+l.amt:'-'}</td></tr>`).join('');
+
+            // Purchase
+            document.getElementById('tblPurchase').innerHTML = app.purchases.map(p => `<tr><td class="p-3">${p.date}</td><td class="p-3 font-semibold">${p.item}</td><td class="p-3">${p.qty}</td><td class="p-3 text-right font-bold">Rs. ${p.cost}</td></tr>`).join('');
+
+            // Sales
+            document.getElementById('tblSales').innerHTML = app.sales.map(s => `<tr><td class="p-3">${s.date}</td><td class="p-3 font-semibold">${s.customer}</td><td class="p-3">${s.item}</td><td class="p-3">${s.qty}</td><td class="p-3 text-right font-bold">Rs. ${s.total}</td></tr>`).join('');
+
+            // Users
+            document.getElementById('tblUsers').innerHTML = app.users.map(u => `<tr><td class="p-3 font-semibold">${u.name}</td><td class="p-3">${u.role}</td><td class="p-3 text-center"><button onclick="app.users=app.users.filter(x=>x.id!==${u.id});dbSave();" class="text-red-500">Remove</button></td></tr>`).join('');
 
             lucide.createIcons();
         }
