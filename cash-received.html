@@ -1,305 +1,372 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Luxury Invoice</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-<style>
-*{box-sizing:border-box}
-body{font-family:'Poppins',sans-serif;background:linear-gradient(120deg,#eef2ff,#dbeafe,#f5f3ff);margin:0;padding:15px}
-.container{max-width:1100px;width:95%;margin:20px auto;background:white;border-radius:20px;padding:25px;box-shadow:0 10px 40px rgba(0,0,0,.1);overflow:visible}
-#invoice{width:100%;max-width:100%;margin:0 auto;overflow:visible}
+// ==========================================
+// १. AUTHENTICATION CONTEXT & PROVIDER
+// (Refresh गर्दा Session सुरक्षित राख्ने कोड)
+// ==========================================
+const AuthContext = createContext();
 
-/* TEXT CUTTING + MOBILE FIX */
-input,td,th{
-  overflow-wrap:anywhere;
-  word-break:break-word;
-  line-height:1.6;
-  height:auto;
-}
-input{
-  padding:12px 14px;
-  font-size:14px;
-  min-height:42px;
-}
-.company-header div{display:flex;align-items:stretch;margin-bottom:10px;gap:10px;flex-wrap:wrap}
-.buyer-row{display:flex;align-items:stretch;margin-bottom:10px;gap:10px;flex-wrap:wrap}
-.header input{white-space:normal}
-html,body{overflow-x:hidden;-webkit-text-size-adjust:100%}
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-.header{background:#3b82f6;color:white;padding:25px;border-radius:15px;display:flex;justify-content:space-between;flex-wrap:wrap;margin-bottom:20px;gap:10px;overflow:visible}
-.header input{border:none;width:100%;min-width:0}
-.company-header h2{margin:0;font-size:28px}
-.company-header input{flex:1;min-width:200px}
+  useEffect(() => {
+    // Refresh गर्दा Session चेक गर्ने
+    const savedToken = localStorage.getItem('authToken');
+    const savedUser = localStorage.getItem('userData');
 
-.company{background:#f1f5f9;padding:15px;border-radius:12px;margin-bottom:20px}
-.buyer-row{display:flex;align-items:center;margin-bottom:10px;gap:10px;flex-wrap:wrap}
-.buyer-row input{flex:1;border-radius:8px;border:1px solid #ddd}
-.company input{border-radius:8px;border:1px solid #ddd;width:100%}
+    if (savedToken && savedUser) {
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (error) {
+        console.error("Session restore error:", error);
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userData');
+      }
+    }
+    setLoading(false);
+  }, []);
 
-.table{width:100%;border-collapse:collapse;table-layout:fixed}
-th{background:#3b82f6;color:white;padding:10px;border-right:1px solid #ffffff55}
-th:last-child{border-right:none}
-td{padding:10px;border:1px solid #cbd5e1;text-align:center}
-
-.btn{background:linear-gradient(120deg,#0f172a,#334155);border:none;padding:10px 18px;border-radius:8px;color:white;cursor:pointer;margin-top:10px}
-.preview-img{max-width:100px;border-radius:8px;margin-top:5px;display:none}
-.img-wrap{position:relative;display:inline-block}
-.remove-img{position:absolute;top:-8px;right:-8px;background:red;color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;display:none}
-.img-wrap:hover .remove-img{display:block}
-
-#invoiceTable tbody td button{display:none}
-#invoiceTable tbody tr:hover td button{display:inline-block}
-
-.summary{margin-top:20px;width:100%;max-width:350px;margin-left:auto}
-.summary div{display:flex;justify-content:space-between;padding:6px 0}
-.summary input{width:100px;padding:5px;border:1px solid #ddd;border-radius:6px}
-.grand{font-weight:700;font-size:18px;border-top:2px solid #000;margin-top:8px;padding-top:8px}
-
-.notes{margin-top:25px;background:#f8fafc;padding:15px;border-radius:10px}
-.table-wrapper{overflow-x:auto;width:100%}
-
-@media print{{
- body{padding:5px}
- .header{flex-direction:column}
- .header input{width:100%}
-}
-
-</style>
-</head>
-
-<body>
-<div class="container" id="invoice">
-
-<div class="header">
-<div class="company-header">
-<div><b>Company Name :</b> <input type="text" placeholder="Company Name"></div>
-<div><b>Address :</b> <input type="text" placeholder="Address"></div>
-<div><b>Phone :</b> <input type="text" placeholder="Phone"></div>
-</div>
-
-<div>
-Invoice No <input type="text" placeholder="INV-001"><br><br>
-Invoice Date <input type="text" placeholder="DD/MM/YYYY">
-</div>
-</div>
-
-<div class="company">
-
-<div class="buyer-row">
-<b>Buyers Details :</b>
-<input type="text" placeholder="Client Name">
-</div>
-
-<div class="buyer-row">
-<b>Address :</b>
-<input type="text" placeholder="Client Address">
-</div>
-
-<div class="buyer-row">
-<b>Phone :</b>
-<input type="text" placeholder="Client Phone">
-</div>
-
-</div>
-
-<div class="table-wrapper">
-<table class="table" id="invoiceTable">
-<thead>
-<tr>
-<th>S.N</th>
-<th>Description</th>
-<th>Size</th>
-<th>Qty</th>
-<th>Rate</th>
-<th>Amount</th>
-
-</tr>
-</thead>
-<tbody></tbody>
-</table>
-</div>
-
-
-
-<div class="summary" id="summaryBox" style="display:none">
-<div>Subtotal <span>Rs <span id="subtotal">0</span></span></div>
-<div>Tax (%) <input type="number" id="tax" value="0" oninput="calcTotal()"></div>
-<div>Discount <input type="number" id="discount" value="0" oninput="calcTotal()"></div>
-<div class="grand">Grand Total <span>Rs <span id="grand">0</span></span></div>
-</div>
-
-<div style="margin-top:30px;padding:15px 0;border-top:1px solid #ddd;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:20px">
-<div>Prepared By: <input type="text" placeholder="Name" style="border:none;border-bottom:1px solid #000;outline:none;width:200px"></div>
-<div>Received By: <input type="text" placeholder="Name" style="border:none;border-bottom:1px solid #000;outline:none;width:200px"></div>
-</div>
-
-<div style="text-align:center;margin-top:10px;font-weight:600;font-size:18px">Thank You For Doing Business With Us</div>
-
-</div>
-
-<!-- ACTION BUTTONS -->
-<div class="action-buttons" style="margin-top:15px;text-align:center">
-<button class="btn" onclick="addRow()">+ Add Item</button>
-<button class="btn" onclick="removeSelectedRow()">Remove Row</button>
-<button class="btn" onclick="downloadPDF()">Download PDF</button>
-<button class="btn" onclick="printInvoice()">Print</button>
-<button class="btn" onclick="shareInvoice()">Share</button>
-<button class="btn" onclick="savePhoto()">Save as Photo</button>
-</div>
-
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script>
-let sn=1;
-
-// auto add first row so Add Item always works visibly
-// Do NOT auto add first row. Summary will show only after adding item
-window.onload=function(){ checkSummary(); }
-let historyStack=[];
-
-function saveState(){
-  historyStack.push(document.querySelector('#invoiceTable tbody').innerHTML);
-  if(historyStack.length>50) historyStack.shift();
-}
-
-function undo(){
-  if(historyStack.length>0){
-    document.querySelector('#invoiceTable tbody').innerHTML = historyStack.pop();
-    calcTotal();
-  }
-}
-
-document.addEventListener('keydown',function(e){
-  if(e.ctrlKey && e.key==='z'){
-    e.preventDefault();
-    undo();
-  }
-
-  // Delete selected row using keyboard Delete key
-  if(e.key==='Delete' && selectedRow){
-    saveState();
-    selectedRow.remove();
-    selectedRow=null;
-    renumberRows();
-    calcTotal();
-  }
-});
-
-let selectedRow=null;
-
-function addRow(){
-  checkSummary();
-  saveState();
-  let t=document.querySelector('#invoiceTable tbody');
-  let r=t.insertRow();
-  r.innerHTML=`
-  <td></td>
-  <td contenteditable></td>
-  <td contenteditable></td>
-  <td contenteditable oninput='calc(this)'></td>
-  <td contenteditable oninput='calc(this)'></td>
-  <td></td>
-  `;
-
-  // click to select row
-  r.onclick=function(){
-    document.querySelectorAll('#invoiceTable tbody tr').forEach(tr=>tr.style.background='');
-    this.style.background='#dbeafe';
-    selectedRow=this;
+  const login = (userData, token) => {
+    localStorage.setItem('authToken', token);
+    localStorage.setItem('userData', JSON.stringify(userData));
+    setUser(userData);
   };
 
-  renumberRows();
-}
+  const logout = () => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userData');
+    setUser(null);
+  };
 
-function removeSelectedRow(){
-  if(!selectedRow) return alert('Please select a row');
-  saveState();
-  selectedRow.remove();
-  selectedRow=null;
-  renumberRows();
-  calcTotal();
-}
+  if (loading) {
+    return <div style={{ padding: '20px', textAlign: 'center' }}>Loading Session...</div>;
+  }
+
+  return (
+    <AuthContext.Provider value={{ user, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => useContext(AuthContext);
 
 
-function renumberRows(){
-  let rows=document.querySelectorAll('#invoiceTable tbody tr');
-  rows.forEach((row,index)=>{
-    row.cells[0].innerText=index+1;
+// ==========================================
+// २. LOGIN FORM COMPONENT
+// ==========================================
+const LoginForm = () => {
+  const { login } = useAuth();
+  const [username, setUsername] = useState('');
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (!username.trim()) return;
+
+    // सिमुलेटेड Token र User डेटा (आफ्नो API सँग कनेक्ट गर्न सकिन्छ)
+    const fakeToken = "jwt-secret-token-12345";
+    const userData = { username: username };
+
+    login(userData, fakeToken);
+  };
+
+  return (
+    <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px', border: '1px solid #ccc', borderRadius: '8px' }}>
+      <h2>Sign In</h2>
+      <form onSubmit={handleLogin}>
+        <div style={{ marginBottom: '15px' }}>
+          <label style={{ display: 'block', marginBottom: '5px' }}>Username / Email:</label>
+          <input 
+            type="text" 
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Username लेख्नुहोस्"
+            style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+            required
+          />
+        </div>
+        <button type="submit" style={{ width: '100%', padding: '10px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+          Login
+        </button>
+      </form>
+    </div>
+  );
+};
+
+
+// ==========================================
+// ३. PURCHASE SYSTEM COMPONENT
+// (Flexbile Product, Supplier & Empty Data)
+// ==========================================
+const PurchaseSystem = () => {
+  const { user, logout } = useAuth();
+
+  // Pure Empty States (कुनै Demo Data राखिएको छैन)
+  const [suppliers, setSuppliers] = useState([]);
+  const [products, setProducts] = useState([]);
+
+  const [selectedSupplier, setSelectedSupplier] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState('');
+  const [customProductInput, setCustomProductInput] = useState('');
+  const [isCustomProduct, setIsCustomProduct] = useState(false);
+
+  // Initial Empty Purchase Form
+  const [purchaseDetails, setPurchaseDetails] = useState({
+    quantity: '',
+    purchasePrice: '',
+    sellingPrice: '',
+    unit: '',
+    category: ''
   });
-}
 
+  const [newSupplierName, setNewSupplierName] = useState('');
+  const [showSupplierModal, setShowSupplierModal] = useState(false);
 
-function calc(el){
-  let r=el.parentElement;
-  let q=parseFloat(r.cells[3].innerText)||0;
-  let rate=parseFloat(r.cells[4].innerText)||0;
-  r.cells[5].innerText=(q*rate)||'';
-  calcTotal();
-}
+  // New Supplier Add गर्ने
+  const handleAddSupplier = (e) => {
+    e.preventDefault();
+    if (!newSupplierName.trim()) return;
 
-function calcTotal(){
-  checkSummary();
-  let sum=0;
-  document.querySelectorAll('#invoiceTable tbody tr').forEach(r=>sum+=Number(r.cells[5].innerText)||0);
-  document.getElementById('subtotal').innerText=sum;
-  let tax=parseFloat(document.getElementById('tax').value)||0;
-  let discount=parseFloat(document.getElementById('discount').value)||0;
-  let grand=sum + (sum*tax/100) - discount;
-  document.getElementById('grand').innerText=grand;
-}
+    const newSupplier = { id: Date.now(), name: newSupplierName };
+    setSuppliers([...suppliers, newSupplier]);
+    setSelectedSupplier(newSupplier.name);
+    setNewSupplierName('');
+    setShowSupplierModal(false);
+  };
 
-function downloadPDF(){
-const element=document.getElementById('invoice');
-html2pdf().set({
-margin:[10,10,10,10],
-filename:'Invoice.pdf',
-html2canvas:{scale:3,backgroundColor:'#ffffff',useCORS:true,scrollY:0},
-jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
-}).from(element).save();
-}
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setPurchaseDetails({ ...purchaseDetails, [name]: value });
+  };
 
-function printInvoice(){window.print();}
+  // Purchase Save गर्ने
+  const handlePurchaseSubmit = (e) => {
+    e.preventDefault();
 
-function shareInvoice(){
-  window.scrollTo(0,0);
-  const invoice=document.getElementById('invoice');
-  html2canvas(invoice,{scale:3,backgroundColor:'#ffffff',useCORS:true,scrollY:-window.scrollY,windowWidth:invoice.scrollWidth,windowHeight:invoice.scrollHeight}).then(canvas=>{
-    canvas.toBlob(async function(blob){
-      const file=new File([blob],'invoice.jpg',{type:'image/jpeg'});
-      if(navigator.share){
-        try{ await navigator.share({files:[file],title:'Invoice',text:'Invoice'}); }
-        catch(err){ alert('Sharing cancelled or not supported'); }
-      }else{
-        const link=document.createElement('a');
-        link.download='invoice.jpg';
-        link.href=canvas.toDataURL('image/jpeg',1.0);
-        link.click();
-      }
+    const finalProductName = isCustomProduct ? customProductInput : selectedProduct;
+
+    if (!selectedSupplier) {
+      alert("कृपया Supplier छान्नुहोस् वा नयाँ थप्नुहोस्।");
+      return;
+    }
+    if (!finalProductName) {
+      alert("कृपया Product छान्नुहोस् वा नयाँ नाम टाइप गर्नुहोस्।");
+      return;
+    }
+
+    const purchaseData = {
+      supplier: selectedSupplier,
+      productName: finalProductName,
+      quantity: Number(purchaseDetails.quantity),
+      purchasePrice: Number(purchaseDetails.purchasePrice),
+      sellingPrice: Number(purchaseDetails.sellingPrice),
+      unit: purchaseDetails.unit,
+      category: purchaseDetails.category,
+      date: new Date().toISOString()
+    };
+
+    console.log("Saved Purchase Data:", purchaseData);
+
+    // नयाँ Product टाइप गरिएको भए inventory/list मा थप्ने
+    if (isCustomProduct) {
+      setProducts([...products, { id: Date.now(), name: finalProductName }]);
+    }
+
+    alert("Purchase Entry सफलतापूर्वक सेभ भयो!");
+
+    // Form Reset गर्ने
+    setSelectedProduct('');
+    setCustomProductInput('');
+    setIsCustomProduct(false);
+    setPurchaseDetails({
+      quantity: '',
+      purchasePrice: '',
+      sellingPrice: '',
+      unit: '',
+      category: ''
     });
-  });
-}
+  };
+
+  return (
+    <div style={{ maxWidth: '750px', margin: '20px auto', padding: '20px', border: '1px solid #ddd', borderRadius: '8px' }}>
+      {/* Header Area */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #ccc', pb: '10px', marginBottom: '20px' }}>
+        <h3>Dashboard | Welcome, {user?.username}</h3>
+        <button onClick={logout} style={{ padding: '8px 15px', backgroundColor: '#dc3545', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+          Logout
+        </button>
+      </div>
+
+      <h2>Purchase Entry System</h2>
+      <form onSubmit={handlePurchaseSubmit}>
+
+        {/* 1. Supplier Section */}
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Supplier:</label>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <select 
+              value={selectedSupplier} 
+              onChange={(e) => setSelectedSupplier(e.target.value)}
+              style={{ flex: 1, padding: '8px' }}
+            >
+              <option value="">-- Supplier छान्नुहोस् --</option>
+              {suppliers.map((s) => (
+                <option key={s.id} value={s.name}>{s.name}</option>
+              ))}
+            </select>
+            <button type="button" onClick={() => setShowSupplierModal(true)} style={{ padding: '8px 12px', cursor: 'pointer' }}>
+              + Add New Supplier
+            </button>
+          </div>
+        </div>
+
+        {/* Supplier Add Form */}
+        {showSupplierModal && (
+          <div style={{ padding: '12px', backgroundColor: '#f8f9fa', marginBottom: '20px', borderRadius: '5px', border: '1px solid #ccc' }}>
+            <input 
+              type="text" 
+              placeholder="Supplier को नाम लेख्नुहोस्"
+              value={newSupplierName}
+              onChange={(e) => setNewSupplierName(e.target.value)}
+              style={{ padding: '8px', width: '60%', marginRight: '10px' }}
+            />
+            <button type="button" onClick={handleAddSupplier} style={{ padding: '8px 15px', backgroundColor: '#28a745', color: '#fff', border: 'none', cursor: 'pointer' }}>Save</button>
+            <button type="button" onClick={() => setShowSupplierModal(false)} style={{ padding: '8px 15px', marginLeft: '5px', cursor: 'pointer' }}>Cancel</button>
+          </div>
+        )}
+
+        {/* 2. Product System (Flexible) */}
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Product System:</label>
+          
+          <div style={{ marginBottom: '10px' }}>
+            <label style={{ marginRight: '15px', cursor: 'pointer' }}>
+              <input 
+                type="radio" 
+                name="productType" 
+                checked={!isCustomProduct} 
+                onChange={() => setIsCustomProduct(false)} 
+              />
+              {" "}Existing Product छान्नुहोस्
+            </label>
+            <label style={{ cursor: 'pointer' }}>
+              <input 
+                type="radio" 
+                name="productType" 
+                checked={isCustomProduct} 
+                onChange={() => setIsCustomProduct(true)} 
+              />
+              {" "}नयाँ Product को नाम टाइप गर्नुहोस्
+            </label>
+          </div>
+
+          {!isCustomProduct ? (
+            <select 
+              value={selectedProduct} 
+              onChange={(e) => setSelectedProduct(e.target.value)}
+              style={{ width: '100%', padding: '8px' }}
+            >
+              <option value="">-- Existing Product छान्नुहोस् --</option>
+              {products.map((p) => (
+                <option key={p.id} value={p.name}>{p.name}</option>
+              ))}
+            </select>
+          ) : (
+            <input 
+              type="text" 
+              placeholder="Product को नाम लेख्नुहोस् (उदा: Camera, Frame, Mobile, Canvas Roll)"
+              value={customProductInput}
+              onChange={(e) => setCustomProductInput(e.target.value)}
+              style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+            />
+          )}
+        </div>
+
+        {/* 3. Product Details Form (No Demo Data) */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px' }}>Category:</label>
+            <input 
+              type="text" 
+              name="category"
+              placeholder="Category (उदा: Electronics)"
+              value={purchaseDetails.category}
+              onChange={handleInputChange}
+              style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+            />
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px' }}>Unit:</label>
+            <input 
+              type="text" 
+              name="unit"
+              placeholder="Unit (उदा: Pcs, Kg, Roll)"
+              value={purchaseDetails.unit}
+              onChange={handleInputChange}
+              style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+            />
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px' }}>Quantity:</label>
+            <input 
+              type="number" 
+              name="quantity"
+              placeholder="परिमाण"
+              value={purchaseDetails.quantity}
+              onChange={handleInputChange}
+              style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+              required
+            />
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px' }}>Purchase Price (खरिद मूल्य):</label>
+            <input 
+              type="number" 
+              name="purchasePrice"
+              placeholder="0.00"
+              value={purchaseDetails.purchasePrice}
+              onChange={handleInputChange}
+              style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+              required
+            />
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px' }}>Selling Price (बिक्री मूल्य):</label>
+            <input 
+              type="number" 
+              name="sellingPrice"
+              placeholder="0.00"
+              value={purchaseDetails.sellingPrice}
+              onChange={handleInputChange}
+              style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+            />
+          </div>
+        </div>
+
+        <button type="submit" style={{ width: '100%', padding: '12px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '16px', cursor: 'pointer' }}>
+          Save Purchase Entry
+        </button>
+      </form>
+    </div>
+  );
+};
 
 
-function checkSummary(){
-  let rows=document.querySelectorAll('#invoiceTable tbody tr').length;
-  document.getElementById('summaryBox').style.display = rows>0 ? 'block' : 'none';
-}
+// ==========================================
+// ४. MAIN APPLICATION WRAPPER
+// ==========================================
+const MainApp = () => {
+  const { user } = useAuth();
+  
+  // यदि User Logged in छ भने Dashboard/Purchase देखाउने, नभए Login Form देखाउने
+  return user ? <PurchaseSystem /> : <LoginForm />;
+};
 
-function savePhoto(){
-  window.scrollTo(0,0);
-  const invoice=document.getElementById('invoice');
-  html2canvas(invoice,{scale:3,backgroundColor:'#ffffff',useCORS:true,scrollY:-window.scrollY,windowWidth:invoice.scrollWidth,windowHeight:invoice.scrollHeight}).then(canvas=>{
-    let link=document.createElement('a');
-    link.download='invoice-photo.jpg';
-    link.href=canvas.toDataURL('image/jpeg',1.0);
-    link.click();
-  });
+export default function App() {
+  return (
+    <AuthProvider>
+      <MainApp />
+    </AuthProvider>
+  );
 }
-</script>
-</body>
-</html>
