@@ -104,15 +104,6 @@
                 <a href="#creditledger" onclick="switchTab('creditledger')" id="nav-creditledger" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
                     <i class="fa-solid fa-book text-sm w-4"></i> Ledger Entries & Customer Ledger
                 </a>
-                <a href="#reports" onclick="switchTab('reports')" id="nav-reports" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-chart-pie text-sm w-4 text-emerald-400"></i> Reports & Analytics
-                </a>
-                <a href="#backup" onclick="switchTab('backup')" id="nav-backup" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-database text-sm w-4 text-amber-400"></i> Backup & Restore
-                </a>
-                <a href="#settings" onclick="switchTab('settings')" id="nav-settings" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-gear text-sm w-4 text-purple-400"></i> Settings & Preferences
-                </a>
                 <a href="#products" onclick="switchTab('products')" id="nav-products" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
                     <i class="fa-solid fa-tag text-sm w-4"></i> Product & Inventory
                 </a>
@@ -134,8 +125,8 @@
                 <a href="#adjustments" onclick="switchTab('adjustments')" id="nav-adjustments" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
                     <i class="fa-solid fa-sliders text-sm w-4 text-purple-400"></i> Adjustment
                 </a>
-                <a href="#usermanagement" onclick="switchTab('usermanagement')" id="nav-usermanagement" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-user-gear text-sm w-4"></i> User Management
+                <a href="#reports" onclick="switchTab('reports')" id="nav-reports" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-chart-pie text-sm w-4 text-emerald-400"></i> Reports & Analytics
                 </a>
             </nav>
         </div>
@@ -156,7 +147,7 @@
     <!-- RIGHT MAIN CONTENT SECTION -->
     <main class="flex-1 overflow-y-auto px-8 py-6 space-y-6">
         
-        <!-- Printable Header (Only shows in Print Mode) -->
+        <!-- Printable Header -->
         <div class="print-only mb-6 border-b pb-4">
             <h1 class="text-2xl font-bold text-slate-900" id="printCompName">Digital Ledger System</h1>
             <p class="text-sm text-slate-600" id="printCompAddress">Kathmandu, Nepal | PAN/VAT: N/A</p>
@@ -174,9 +165,7 @@
                     <i class="fa-solid fa-moon dark:hidden text-indigo-600"></i><i class="fa-solid fa-sun hidden dark:inline text-amber-400"></i>
                 </button>
                 <span class="text-xs font-semibold text-slate-500 dark:text-slate-300 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700" id="currentDateDisplay"></span>
-                <div id="headerUserInitials" class="w-9 h-9 bg-slate-900 dark:bg-slate-700 text-white rounded-xl flex items-center justify-center font-bold text-xs shadow-md">
-                    AD
-                </div>
+                <div id="headerUserInitials" class="w-9 h-9 bg-slate-900 dark:bg-slate-700 text-white rounded-xl flex items-center justify-center font-bold text-xs shadow-md">AD</div>
             </div>
         </header>
 
@@ -259,7 +248,6 @@
                     </button>
                 </div>
 
-                <!-- Customer Search & Filter Bar -->
                 <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow flex flex-wrap gap-3">
                     <input type="text" id="custSearchName" oninput="renderCustomers()" placeholder="Search by Customer Name..." class="px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none flex-1 min-w-[200px]">
                     <input type="text" id="custSearchMobile" oninput="renderCustomers()" placeholder="Search by Mobile..." class="px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none flex-1 min-w-[150px]">
@@ -290,7 +278,7 @@
                 </div>
             </div>
 
-            <!-- 3 & 4. LEDGER ENTRIES & CUSTOMER LEDGER PAGE VIEW -->
+            <!-- 3. CUSTOMER LEDGER VIEW -->
             <div id="view-creditledger" class="space-y-6 hidden">
                 <div class="flex flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow gap-4">
                     <div>
@@ -307,7 +295,6 @@
                     </div>
                 </div>
 
-                <!-- Customer Ledger Filter & Header Details -->
                 <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div>
@@ -336,7 +323,6 @@
                         </div>
                     </div>
 
-                    <!-- Selected Customer Statement Header Card -->
                     <div id="customerHeaderDetails" class="hidden p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600 grid grid-cols-2 md:grid-cols-5 gap-4 text-xs font-semibold">
                         <div><span class="text-slate-400 block text-[10px]">CUSTOMER NAME</span><span id="custHeadName" class="text-slate-900 dark:text-white font-bold"></span></div>
                         <div><span class="text-slate-400 block text-[10px]">OPENING BAL.</span><span id="custHeadOpening"></span></div>
@@ -346,7 +332,6 @@
                     </div>
                 </div>
 
-                <!-- Main Ledger Table -->
                 <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
@@ -359,165 +344,20 @@
                                 <th class="p-4 text-right">Credit (प्राप्त)</th>
                                 <th class="p-4 text-right">Running Balance</th>
                                 <th class="p-4">Method</th>
-                                <th class="p-4 text-center">Attach</th>
                                 <th class="p-4 text-center no-print">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="ledgerTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
                     </table>
                 </div>
-
-                <!-- Export & Reminders Bar -->
-                <div class="flex flex-wrap gap-2 justify-between items-center bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow no-print">
-                    <div class="flex gap-2">
-                        <button onclick="exportLedgerToExcel()" class="px-3.5 py-2 bg-emerald-600 text-white font-bold text-xs rounded-xl hover:bg-emerald-700 transition"><i class="fa-solid fa-file-excel me-1.5"></i> Export Excel</button>
-                        <button onclick="exportLedgerToCSV()" class="px-3.5 py-2 bg-slate-700 text-white font-bold text-xs rounded-xl hover:bg-slate-800 transition"><i class="fa-solid fa-file-csv me-1.5"></i> Export CSV</button>
-                        <button onclick="window.print()" class="px-3.5 py-2 bg-rose-600 text-white font-bold text-xs rounded-xl hover:bg-rose-700 transition"><i class="fa-solid fa-file-pdf me-1.5"></i> Download PDF/Print</button>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="sendDueReminder('whatsapp')" class="px-3.5 py-2 bg-emerald-500 text-white font-bold text-xs rounded-xl hover:bg-emerald-600 transition"><i class="fa-brands fa-whatsapp me-1.5"></i> WhatsApp Reminder</button>
-                        <button onclick="sendDueReminder('sms')" class="px-3.5 py-2 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700 transition"><i class="fa-solid fa-comment-sms me-1.5"></i> SMS Reminder</button>
-                    </div>
-                </div>
             </div>
 
-            <!-- 5. REPORTS VIEW -->
-            <div id="view-reports" class="space-y-6 hidden">
-                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
-                    <h3 class="font-bold text-slate-900 dark:text-white text-base">Comprehensive Financial Reports</h3>
-                    <p class="text-xs text-slate-400">Generate Daily, Weekly, Monthly, Custom Date, and Outstanding Ledger Summaries.</p>
-                </div>
-
-                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow space-y-4">
-                    <div class="flex flex-wrap items-center gap-3">
-                        <button onclick="generateReport('daily')" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-blue-600 hover:text-white text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl transition">Daily Report</button>
-                        <button onclick="generateReport('weekly')" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-blue-600 hover:text-white text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl transition">Weekly Report</button>
-                        <button onclick="generateReport('monthly')" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-blue-600 hover:text-white text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl transition">Monthly Report</button>
-                        <button onclick="generateReport('outstanding')" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-blue-600 hover:text-white text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl transition">Outstanding Report</button>
-                        <button onclick="generateReport('income_expense')" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-blue-600 hover:text-white text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl transition">Income/Expense Summary</button>
-                    </div>
-
-                    <div class="flex flex-wrap items-end gap-3 pt-2 border-t border-slate-100 dark:border-slate-700">
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Custom Start</label>
-                            <input type="date" id="repStartDate" class="px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Custom End</label>
-                            <input type="date" id="repEndDate" class="px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none">
-                        </div>
-                        <button onclick="generateReport('custom')" class="px-4 py-2 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700 transition">Filter Custom Date</button>
-                    </div>
-                </div>
-
-                <!-- Report Render Container -->
-                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow space-y-4">
-                    <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-3">
-                        <h4 class="font-bold text-slate-900 dark:text-white text-sm" id="reportTitleHeader">Daily Activity Summary</h4>
-                        <button onclick="window.print()" class="px-3 py-1.5 bg-slate-800 text-white text-xs font-bold rounded-xl no-print"><i class="fa-solid fa-print me-1"></i> Print Report</button>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
-                                <tr>
-                                    <th class="p-3">Date / Item</th>
-                                    <th class="p-3">Voucher / Party</th>
-                                    <th class="p-3">Category</th>
-                                    <th class="p-3 text-right">Debit / Out (रु)</th>
-                                    <th class="p-3 text-right">Credit / In (रु)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="reportTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 8. BACKUP & RESTORE VIEW -->
-            <div id="view-backup" class="space-y-6 hidden">
-                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
-                    <h3 class="font-bold text-slate-900 dark:text-white text-base">Local Data Backup & Restore Engine</h3>
-                    <p class="text-xs text-slate-400">Save, export, import JSON backups or reset database securely.</p>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 card-shadow space-y-3">
-                        <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-lg font-bold"><i class="fa-solid fa-download"></i></div>
-                        <h4 class="font-bold text-slate-900 dark:text-white text-sm">Export System Backup</h4>
-                        <p class="text-xs text-slate-400">Download complete ledger data, customer info, transactions, and settings into a .JSON file.</p>
-                        <button onclick="exportBackupJSON()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition shadow-lg shadow-blue-500/20">Download JSON Backup</button>
-                    </div>
-
-                    <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 card-shadow space-y-3">
-                        <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-lg font-bold"><i class="fa-solid fa-upload"></i></div>
-                        <h4 class="font-bold text-slate-900 dark:text-white text-sm">Import / Restore Backup</h4>
-                        <p class="text-xs text-slate-400">Upload a saved JSON file to restore customer profiles, ledger entries, and ERP data.</p>
-                        <input type="file" id="importJsonFile" accept=".json" class="hidden" onchange="importBackupJSON(event)">
-                        <button onclick="document.getElementById('importJsonFile').click()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow-lg shadow-emerald-500/20">Select JSON File</button>
-                    </div>
-
-                    <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 card-shadow space-y-3">
-                        <div class="w-10 h-10 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center text-lg font-bold"><i class="fa-solid fa-trash-can"></i></div>
-                        <h4 class="font-bold text-slate-900 dark:text-white text-sm">Clear / Reset Database</h4>
-                        <p class="text-xs text-slate-400">Warning: Permanently erases all local storage data and resets system to default state.</p>
-                        <button onclick="resetSystemData()" class="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition shadow-lg shadow-rose-500/20">Reset System Data</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 9. SETTINGS VIEW -->
-            <div id="view-settings" class="space-y-6 hidden">
-                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
-                    <h3 class="font-bold text-slate-900 dark:text-white text-base">System Settings & Company Configuration</h3>
-                    <p class="text-xs text-slate-400">Configure business information, print headers, currency, date formats, and dark mode.</p>
-                </div>
-
-                <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 card-shadow max-w-2xl space-y-4">
-                    <form onsubmit="saveCompanySettings(event)" class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Company / Shop Name</label>
-                            <input type="text" id="setCompName" class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" required>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Phone Number</label>
-                                <input type="text" id="setCompPhone" class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">PAN / VAT Number</label>
-                                <input type="text" id="setCompPan" class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Address</label>
-                            <input type="text" id="setCompAddress" class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold">
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Currency Symbol</label>
-                                <input type="text" id="setCompCurrency" value="रु" class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Date Format</label>
-                                <select id="setDateFormat" class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold">
-                                    <option value="YYYY-MM-DD">YYYY-MM-DD (AD Standard)</option>
-                                    <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button type="submit" class="py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md transition">Save Settings</button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- EXISTING ERP VIEWS (PRODUCTS, SALES, PURCHASE, RECEIPT, PAID, RETURNS, ADJUSTMENTS, USER MANAGEMENT) -->
-
-            <!-- PRODUCT & INVENTORY VIEW -->
+            <!-- 4. PRODUCT & INVENTORY VIEW -->
             <div id="view-products" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                <div class="flex flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow gap-4">
                     <div>
-                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Product & Inventory Catalog</h3>
-                        <p class="text-xs text-slate-400">Add products and manage real-time stock levels.</p>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Product & Inventory Management</h3>
+                        <p class="text-xs text-slate-400">Manage stock items, purchase price, selling price, and quantities.</p>
                     </div>
                     <button onclick="openProductModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
                         <i class="fa-solid fa-plus me-1.5"></i> Add New Product
@@ -528,11 +368,13 @@
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
                             <tr>
+                                <th class="p-4">Code</th>
                                 <th class="p-4">Product Name</th>
-                                <th class="p-4">Purchase Rate</th>
-                                <th class="p-4">Selling Rate</th>
-                                <th class="p-4">Available Stock</th>
-                                <th class="p-4 text-center">Status</th>
+                                <th class="p-4">Category</th>
+                                <th class="p-4 text-right">Cost Price</th>
+                                <th class="p-4 text-right">Selling Price</th>
+                                <th class="p-4 text-right">Stock Qty</th>
+                                <th class="p-4 text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="productTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
@@ -540,15 +382,15 @@
                 </div>
             </div>
 
-            <!-- SALES SYSTEM VIEW -->
+            <!-- 5. SALES SYSTEM VIEW -->
             <div id="view-sales" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                <div class="flex flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow gap-4">
                     <div>
-                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Sales Registry</h3>
-                        <p class="text-xs text-slate-400">Record cash/credit sales with itemized quantity and auto stock deduction.</p>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Sales System & Invoices</h3>
+                        <p class="text-xs text-slate-400">Create new sales invoice, track entries, and manage sales billing.</p>
                     </div>
-                    <button onclick="openSalesModal()" class="bg-emerald-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition">
-                        <i class="fa-solid fa-cart-plus me-1.5"></i> New Sales Invoice Entry
+                    <button onclick="openSalesModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
+                        <i class="fa-solid fa-cart-plus me-1.5"></i> New Sales Invoice
                     </button>
                 </div>
 
@@ -556,11 +398,14 @@
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
                             <tr>
+                                <th class="p-4">Invoice No</th>
                                 <th class="p-4">Date</th>
                                 <th class="p-4">Customer</th>
-                                <th class="p-4">Product Details</th>
-                                <th class="p-4">Mode</th>
+                                <th class="p-4">Product</th>
+                                <th class="p-4 text-right">Qty</th>
                                 <th class="p-4 text-right">Total Amount</th>
+                                <th class="p-4">Payment</th>
+                                <th class="p-4 text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="salesTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
@@ -568,15 +413,15 @@
                 </div>
             </div>
 
-            <!-- PURCHASE SYSTEM VIEW -->
+            <!-- 6. PURCHASE SYSTEM VIEW -->
             <div id="view-purchase" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                <div class="flex flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow gap-4">
                     <div>
-                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Purchase System Engine</h3>
-                        <p class="text-xs text-slate-400">Record purchases from suppliers to auto-increase inventory stock.</p>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Purchase System</h3>
+                        <p class="text-xs text-slate-400">Record vendor purchases and update stock inventory automatically.</p>
                     </div>
                     <button onclick="openPurchaseModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
-                        <i class="fa-solid fa-bag-shopping me-1.5"></i> Add New Purchase Entry
+                        <i class="fa-solid fa-bag-shopping me-1.5"></i> New Purchase Entry
                     </button>
                 </div>
 
@@ -584,11 +429,13 @@
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
                             <tr>
+                                <th class="p-4">Bill No</th>
                                 <th class="p-4">Date</th>
-                                <th class="p-4">Supplier Name</th>
-                                <th class="p-4">Product Name</th>
-                                <th class="p-4">Quantity</th>
-                                <th class="p-4 text-right">Total Amount</th>
+                                <th class="p-4">Vendor Name</th>
+                                <th class="p-4">Product</th>
+                                <th class="p-4 text-right">Qty</th>
+                                <th class="p-4 text-right">Total Cost</th>
+                                <th class="p-4 text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="purchaseTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
@@ -596,888 +443,1431 @@
                 </div>
             </div>
 
-            <!-- PAYMENT RECEIPT VIEW -->
+            <!-- 7. PAYMENT RECEIPT VIEW -->
             <div id="view-receipt" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                <div class="flex flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow gap-4">
                     <div>
-                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Payment Receipt Module</h3>
-                        <p class="text-xs text-slate-400">Record payments received from credit customers.</p>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Cash & Payment Receipts</h3>
+                        <p class="text-xs text-slate-400">Record incoming payments from customers to clear ledger dues.</p>
                     </div>
+                    <button onclick="openReceiptModal()" class="bg-emerald-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition">
+                        <i class="fa-solid fa-receipt me-1.5"></i> New Receipt Entry
+                    </button>
                 </div>
-                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden p-4">
-                    <p class="text-xs text-slate-500">Payment receipt records are integrated dynamically into Customer Ledger Entries.</p>
-                </div>
-            </div>
 
-            <!-- PAYMENT PAID VIEW -->
-            <div id="view-paymentpaid" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
-                    <div>
-                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Payment Paid Module</h3>
-                        <p class="text-xs text-slate-400">Record outgoing payments paid to suppliers or vendors.</p>
-                    </div>
-                </div>
-                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden p-4">
-                    <p class="text-xs text-slate-500">Outgoing payment entries are maintained in system logs and reports.</p>
-                </div>
-            </div>
-
-            <!-- RETURN VIEW -->
-            <div id="view-returns" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
-                    <div>
-                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Sales & Purchase Return Engine</h3>
-                        <p class="text-xs text-slate-400">Manage item returns and auto-adjust balances.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ADJUSTMENT VIEW -->
-            <div id="view-adjustments" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
-                    <div>
-                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Ledger Adjustment Module</h3>
-                        <p class="text-xs text-slate-400">Manual Debit/Credit entries for discounts or bad debts.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- USER MANAGEMENT VIEW -->
-            <div id="view-usermanagement" class="space-y-6 hidden">
-                <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
-                    <div>
-                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Sub-User Accounts & Role Permissions</h3>
-                        <p class="text-xs text-slate-400">Active session profile information.</p>
-                    </div>
-                </div>
                 <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
                             <tr>
-                                <th class="p-4">User Email</th>
-                                <th class="p-4">Role</th>
-                                <th class="p-4">Status</th>
+                                <th class="p-4">Receipt No</th>
+                                <th class="p-4">Date</th>
+                                <th class="p-4">Customer Name</th>
+                                <th class="p-4 text-right">Amount Received</th>
+                                <th class="p-4">Method</th>
+                                <th class="p-4">Remarks</th>
+                                <th class="p-4 text-center">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="userTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300">
-                            <tr>
-                                <td class="p-4">admin@ledger.com</td>
-                                <td class="p-4"><span class="px-2 py-1 bg-blue-100 text-blue-600 rounded-md text-[10px] font-bold">ADMIN</span></td>
-                                <td class="p-4"><span class="text-emerald-600 font-bold">Active</span></td>
-                            </tr>
-                        </tbody>
+                        <tbody id="receiptTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- 8. PAYMENT PAID VIEW -->
+            <div id="view-paymentpaid" class="space-y-6 hidden">
+                <div class="flex flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow gap-4">
+                    <div>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Vendor Payments Paid</h3>
+                        <p class="text-xs text-slate-400">Record payments made to suppliers and vendor accounts.</p>
+                    </div>
+                    <button onclick="openPaymentPaidModal()" class="bg-rose-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-rose-700 transition">
+                        <i class="fa-solid fa-money-bill-transfer me-1.5"></i> New Payment Paid Entry
+                    </button>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
+                            <tr>
+                                <th class="p-4">Voucher No</th>
+                                <th class="p-4">Date</th>
+                                <th class="p-4">Party / Vendor</th>
+                                <th class="p-4 text-right">Amount Paid</th>
+                                <th class="p-4">Method</th>
+                                <th class="p-4">Remarks</th>
+                                <th class="p-4 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paymentPaidTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 9. RETURNS VIEW -->
+            <div id="view-returns" class="space-y-6 hidden">
+                <div class="flex flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow gap-4">
+                    <div>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Sales & Purchase Returns</h3>
+                        <p class="text-xs text-slate-400">Manage item returns and adjust inventory & accounts instantly.</p>
+                    </div>
+                    <button onclick="openReturnModal()" class="bg-amber-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-amber-700 transition">
+                        <i class="fa-solid fa-rotate-left me-1.5"></i> New Return Entry
+                    </button>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
+                            <tr>
+                                <th class="p-4">Return ID</th>
+                                <th class="p-4">Date</th>
+                                <th class="p-4">Type</th>
+                                <th class="p-4">Customer/Vendor</th>
+                                <th class="p-4">Product</th>
+                                <th class="p-4 text-right">Qty</th>
+                                <th class="p-4 text-right">Total Return Amt</th>
+                                <th class="p-4 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="returnTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 10. ADJUSTMENTS VIEW -->
+            <div id="view-adjustments" class="space-y-6 hidden">
+                <div class="flex flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow gap-4">
+                    <div>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Stock & Ledger Adjustments</h3>
+                        <p class="text-xs text-slate-400">Manual stock corrections or ledger balance adjustments.</p>
+                    </div>
+                    <button onclick="openAdjustmentModal()" class="bg-purple-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-purple-700 transition">
+                        <i class="fa-solid fa-sliders me-1.5"></i> New Adjustment
+                    </button>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
+                            <tr>
+                                <th class="p-4">Adj ID</th>
+                                <th class="p-4">Date</th>
+                                <th class="p-4">Product</th>
+                                <th class="p-4">Type</th>
+                                <th class="p-4 text-right">Qty Change</th>
+                                <th class="p-4">Reason / Notes</th>
+                                <th class="p-4 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adjustmentTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 11. REPORTS VIEW -->
+            <div id="view-reports" class="space-y-6 hidden">
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                    <h3 class="font-bold text-slate-900 dark:text-white text-base">Comprehensive Financial Reports</h3>
+                    <p class="text-xs text-slate-400">View live summary statements calculated from local database transactions.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                        <span class="text-xs font-bold text-slate-400 uppercase">Total Sales Generated</span>
+                        <div id="reportSalesTotal" class="text-xl font-extrabold text-blue-600 mt-2">रु 0.00</div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                        <span class="text-xs font-bold text-slate-400 uppercase">Total Purchases</span>
+                        <div id="reportPurchaseTotal" class="text-xl font-extrabold text-purple-600 mt-2">रु 0.00</div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                        <span class="text-xs font-bold text-slate-400 uppercase">Total Cash Collections</span>
+                        <div id="reportCollectionTotal" class="text-xl font-extrabold text-emerald-600 mt-2">रु 0.00</div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
+                        <span class="text-xs font-bold text-slate-400 uppercase">Total Outstanding Due</span>
+                        <div id="reportOutstandingTotal" class="text-xl font-extrabold text-rose-600 mt-2">रु 0.00</div>
+                    </div>
                 </div>
             </div>
 
         </div>
     </main>
 
-    <!-- MODALS SECTION -->
-
-    <!-- MODAL 1: ADD / EDIT CUSTOMER MODAL -->
-    <div id="customerModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100 dark:border-slate-700">
-            <h3 id="customerModalTitle" class="font-bold text-slate-900 dark:text-white text-base mb-4">Add New Customer</h3>
-            <form onsubmit="saveCustomer(event)" class="space-y-3">
-                <input type="hidden" id="editCustIndex" value="">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Customer ID (Auto Generated)</label>
-                    <input type="text" id="custAutoId" class="w-full p-2.5 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-bold" readonly>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Customer Name *</label>
-                    <input type="text" id="custName" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="e.g. Ram Kumar" required>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Mobile Number *</label>
-                        <input type="text" id="custMobile" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="9800000000" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">PAN/VAT (Optional)</label>
-                        <input type="text" id="custPan" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="600000000">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Address</label>
-                        <input type="text" id="custAddress" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="Kathmandu">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Email (Optional)</label>
-                        <input type="email" id="custEmail" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="ram@email.com">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Opening Balance (रु)</label>
-                    <input type="number" step="any" id="custOpeningBal" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="0.00">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Notes / Remarks</label>
-                    <textarea id="custNotes" rows="2" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="Additional details..."></textarea>
-                </div>
-                <div class="flex gap-2 pt-2">
-                    <button type="button" onclick="closeCustomerModal()" class="w-1/2 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs rounded-xl">Cancel</button>
-                    <button type="submit" class="w-1/2 py-2.5 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700">Save Customer</button>
-                </div>
-            </form>
+    <!-- GLOBAL DYNAMIC MODALS CONTAINER -->
+    <div id="dynamicModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-lg w-full p-6 border border-slate-100 dark:border-slate-700">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-100 dark:border-slate-700 pb-3">
+                <h3 id="dynamicModalTitle" class="text-base font-extrabold text-slate-900 dark:text-white">Form</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-base"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="dynamicModalBody"></div>
         </div>
     </div>
 
-    <!-- MODAL 2: LEDGER ENTRY MODAL -->
-    <div id="ledgerEntryModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100 dark:border-slate-700">
-            <h3 id="ledgerModalTitle" class="font-bold text-slate-900 dark:text-white text-base mb-4">Add Ledger Transaction</h3>
-            <form onsubmit="saveLedgerEntry(event)" class="space-y-3">
-                <input type="hidden" id="editLedgerId" value="">
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Voucher No. (Auto)</label>
-                        <input type="text" id="ledVoucherNo" class="w-full p-2.5 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-bold" readonly>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Date *</label>
-                        <input type="date" id="ledDate" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" required>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Select Customer *</label>
-                    <select id="ledCustSelect" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" required></select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Transaction Type *</label>
-                    <select id="ledType" onchange="toggleDebitCreditInput()" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold">
-                        <option value="DEBIT">Debit (उधार दिएको / Sale Credit)</option>
-                        <option value="CREDIT">Credit (पैसा प्राप्त गरेको / Payment Received)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Amount (रु) *</label>
-                    <input type="number" step="any" id="ledAmount" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="0.00" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Payment Method</label>
-                    <select id="ledPaymentMethod" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold">
-                        <option value="Cash">Cash</option>
-                        <option value="Bank">Bank Transfer</option>
-                        <option value="QR">QR Payment Record</option>
-                        <option value="Cheque">Cheque</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Description / Remarks</label>
-                    <input type="text" id="ledRemarks" class="w-full p-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="Transaction details...">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Bill/Image Attachment (Optional)</label>
-                    <input type="file" id="ledAttachment" accept="image/*" class="w-full text-xs text-slate-500">
-                </div>
-                <div class="flex gap-2 pt-2">
-                    <button type="button" onclick="closeLedgerEntryModal()" class="w-1/2 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs rounded-xl">Cancel</button>
-                    <button type="submit" class="w-1/2 py-2.5 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700">Save Ledger Entry</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- PRODUCT MODAL -->
-    <div id="productModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100 dark:border-slate-700">
-            <h3 class="font-bold text-slate-900 dark:text-white text-base mb-4">Add New Product</h3>
-            <form onsubmit="saveProduct(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Product Name</label>
-                    <input type="text" id="prodName" class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="e.g. Rice 25kg Bag" required>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Purchase Price (रु)</label>
-                        <input type="number" id="prodCost" class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="1000" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Selling Price (रु)</label>
-                        <input type="number" id="prodPrice" class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="1200" required>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Initial Stock Quantity</label>
-                    <input type="number" id="prodStock" class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-semibold" placeholder="50" required>
-                </div>
-                <div class="flex gap-2 pt-2">
-                    <button type="button" onclick="closeProductModal()" class="w-1/2 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs rounded-xl">Cancel</button>
-                    <button type="submit" class="w-1/2 py-2.5 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700">Save Product</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- JAVASCRIPT APPLICATION CORE LOGIC -->
+    <!-- APPLICATION LOGIC & DATABASE ENGINE JS -->
     <script>
-        // CORE STATE STORED IN LOCALSTORAGE
-        let state = {
-            settings: JSON.parse(localStorage.getItem('sys_settings')) || {
-                companyName: 'Digital Ledger ERP',
-                phone: '9800000000',
-                pan: '600123456',
-                address: 'Kathmandu, Nepal',
-                currency: 'रु',
-                dateFormat: 'YYYY-MM-DD',
-                darkMode: false
-            },
-            customers: JSON.parse(localStorage.getItem('sys_customers')) || [
-                { id: 'CUST-1001', name: 'Ramesh Sharma', mobile: '9841234567', address: 'Kathmandu', email: 'ramesh@gmail.com', pan: '600112233', openingBal: 5000, notes: 'VIP Client' },
-                { id: 'CUST-1002', name: 'Sita Thapa', mobile: '9808765432', address: 'Lalitpur', email: 'sita@yahoo.com', pan: '', openingBal: 0, notes: '' }
-            ],
-            ledger: JSON.parse(localStorage.getItem('sys_ledger')) || [
-                { id: '1', voucherNo: 'VOUCH-1001', customerId: 'CUST-1001', date: '2026-07-20', description: 'Goods purchased on credit', debit: 2500, credit: 0, method: 'Cash', attachment: '' },
-                { id: '2', voucherNo: 'VOUCH-1002', customerId: 'CUST-1001', date: '2026-07-22', description: 'Payment via QR', debit: 0, credit: 1500, method: 'QR', attachment: '' },
-                { id: '3', voucherNo: 'VOUCH-1003', customerId: 'CUST-1002', date: '2026-07-25', description: 'Initial Sales', debit: 4000, credit: 0, method: 'Cash', attachment: '' }
-            ],
-            products: JSON.parse(localStorage.getItem('sys_products')) || [
-                { id: '1', name: 'Rice 25kg Bag', cost: 1800, price: 2100, stock: 45 },
-                { id: '2', name: 'Sunflower Oil 5L', cost: 1100, price: 1300, stock: 30 }
-            ],
-            deletedStack: []
-        };
+        // -------------------------------------------------------------
+        // LOCAL DATABASE INIT (Data Persistence)
+        // -------------------------------------------------------------
+        const DB_KEY = "ERP_SYSTEM_DATABASE_V1";
 
-        let salesChartInstance = null;
-        let pieChartInstance = null;
+        function getDB() {
+            const data = localStorage.getItem(DB_KEY);
+            if (!data) {
+                const initialDB = {
+                    customers: [
+                        { id: "CUST-101", name: "Ram Shrestha", mobile: "9841000000", address: "Kathmandu", pan: "102938475", openingBalance: 1000, currentBalance: 1000 },
+                        { id: "CUST-102", name: "Sita Sharma", mobile: "9851000000", address: "Lalitpur", pan: "987654321", openingBalance: 0, currentBalance: 0 }
+                    ],
+                    ledgers: [
+                        { id: "L-101", date: "2026-07-01", customerId: "CUST-101", voucherNo: "VCH-001", description: "Opening Credit Sale", debit: 1000, credit: 0, method: "Cash" }
+                    ],
+                    products: [
+                        { id: "PROD-1", code: "P101", name: "Standard Office Desk", category: "Furniture", costPrice: 4000, sellingPrice: 6000, stockQty: 25 },
+                        { id: "PROD-2", code: "P102", name: "Ergonomic Chair", category: "Furniture", costPrice: 2500, sellingPrice: 4500, stockQty: 40 }
+                    ],
+                    sales: [],
+                    purchases: [],
+                    receipts: [],
+                    paymentsPaid: [],
+                    returns: [],
+                    adjustments: []
+                };
+                localStorage.setItem(DB_KEY, JSON.stringify(initialDB));
+                return initialDB;
+            }
+            return JSON.parse(data);
+        }
 
-        // INITIALIZATION
-        window.addEventListener('DOMContentLoaded', () => {
-            initSystemSettings();
-            renderDashboard();
-            renderCustomers();
-            renderCustomerLedgerView();
-            renderProducts();
-            updateCurrentDate();
-            checkAuthStatus();
+        function saveDB(db) {
+            localStorage.setItem(DB_KEY, JSON.stringify(db));
+            refreshSystemData();
+        }
+
+        // -------------------------------------------------------------
+        // APP STATE & SYSTEM SETUP
+        // -------------------------------------------------------------
+        document.addEventListener("DOMContentLoaded", () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById("currentDateDisplay").innerText = today;
+            document.getElementById("printDate").innerText = today;
+
+            // Authentication Check
+            const loggedIn = sessionStorage.getItem("IS_LOGGED_IN");
+            if (loggedIn === "TRUE") {
+                document.getElementById("authModal").classList.add("hidden");
+            }
+
+            initDashboardCharts();
+            refreshSystemData();
         });
 
-        function saveState() {
-            localStorage.setItem('sys_settings', JSON.stringify(state.settings));
-            localStorage.setItem('sys_customers', JSON.stringify(state.customers));
-            localStorage.setItem('sys_ledger', JSON.stringify(state.ledger));
-            localStorage.setItem('sys_products', JSON.stringify(state.products));
+        function handleEmailLogin(e) {
+            e.preventDefault();
+            sessionStorage.setItem("IS_LOGGED_IN", "TRUE");
+            document.getElementById("authModal").classList.add("hidden");
+            showToast("Successfully signed in!");
         }
 
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMsg').innerText = msg;
-            toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 3000);
-        }
-
-        function updateCurrentDate() {
-            const now = new Date();
-            document.getElementById('currentDateDisplay').innerText = now.toDateString();
-            document.getElementById('printDate').innerText = now.toLocaleString();
-        }
-
-        // NAVIGATION LOGIC
-        function switchTab(tabId) {
-            const views = ['dashboard', 'customers', 'creditledger', 'reports', 'backup', 'settings', 'products', 'sales', 'purchase', 'receipt', 'paymentpaid', 'returns', 'adjustments', 'usermanagement'];
-            views.forEach(v => {
-                const el = document.getElementById(`view-${v}`);
-                if(el) el.classList.add('hidden');
-                const nav = document.getElementById(`nav-${v}`);
-                if(nav) nav.classList.remove('sidebar-item-active');
-            });
-
-            const activeView = document.getElementById(`view-${tabId}`);
-            if(activeView) activeView.classList.remove('hidden');
-            const activeNav = document.getElementById(`nav-${tabId}`);
-            if(activeNav) activeNav.classList.add('sidebar-item-active');
-
-            const titleMap = {
-                dashboard: 'Dashboard', customers: 'Customer Information', creditledger: 'Ledger Entries & Customer Ledger',
-                reports: 'Reports & Analytics', backup: 'Backup & Restore', settings: 'Settings & Preferences',
-                products: 'Product & Inventory', sales: 'Sales System', purchase: 'Purchase System'
-            };
-            document.getElementById('moduleTitle').innerText = titleMap[tabId] || 'Workspace';
-
-            if(tabId === 'dashboard') renderDashboard();
-            if(tabId === 'customers') renderCustomers();
-            if(tabId === 'creditledger') renderCustomerLedgerView();
-            if(tabId === 'reports') generateReport('daily');
-        }
-
-        // SETTINGS & DARK MODE
-        function initSystemSettings() {
-            if(state.settings.darkMode) document.documentElement.classList.add('dark');
-            document.getElementById('sidebarCompName').innerText = state.settings.companyName;
-            document.getElementById('printCompName').innerText = state.settings.companyName;
-            document.getElementById('printCompAddress').innerText = `${state.settings.address} | PAN: ${state.settings.pan}`;
-            
-            document.getElementById('setCompName').value = state.settings.companyName;
-            document.getElementById('setCompPhone').value = state.settings.phone;
-            document.getElementById('setCompPan').value = state.settings.pan;
-            document.getElementById('setCompAddress').value = state.settings.address;
-            document.getElementById('setCompCurrency').value = state.settings.currency;
-            document.getElementById('setDateFormat').value = state.settings.dateFormat;
+        function handleLogout() {
+            sessionStorage.removeItem("IS_LOGGED_IN");
+            document.getElementById("authModal").classList.remove("hidden");
         }
 
         function toggleDarkMode() {
-            state.settings.darkMode = !state.settings.darkMode;
-            document.documentElement.classList.toggle('dark', state.settings.darkMode);
-            saveState();
+            document.documentElement.classList.toggle("dark");
         }
 
-        function saveCompanySettings(e) {
-            e.preventDefault();
-            state.settings.companyName = document.getElementById('setCompName').value;
-            state.settings.phone = document.getElementById('setCompPhone').value;
-            state.settings.pan = document.getElementById('setCompPan').value;
-            state.settings.address = document.getElementById('setCompAddress').value;
-            state.settings.currency = document.getElementById('setCompCurrency').value;
-            state.settings.dateFormat = document.getElementById('setDateFormat').value;
-            saveState();
-            initSystemSettings();
-            showToast('Settings Saved Successfully!');
+        function showToast(msg) {
+            const toast = document.getElementById("toast");
+            document.getElementById("toastMsg").innerText = msg;
+            toast.classList.remove("hidden");
+            setTimeout(() => toast.classList.add("hidden"), 3000);
         }
 
-        // 1. DASHBOARD LOGIC
-        function renderDashboard() {
-            const curr = state.settings.currency;
+        // -------------------------------------------------------------
+        // NAVIGATION & TAB SWITCHING
+        // -------------------------------------------------------------
+        function switchTab(tabId) {
+            const views = ["dashboard", "customers", "creditledger", "products", "sales", "purchase", "receipt", "paymentpaid", "returns", "adjustments", "reports"];
+            views.forEach(v => {
+                const el = document.getElementById(`view-${v}`);
+                if (el) el.classList.add("hidden");
+                const nav = document.getElementById(`nav-${v}`);
+                if (nav) nav.classList.remove("sidebar-item-active");
+            });
+
+            const currentView = document.getElementById(`view-${tabId}`);
+            if (currentView) currentView.classList.remove("hidden");
+
+            const currentNav = document.getElementById(`nav-${tabId}`);
+            if (currentNav) currentNav.classList.add("sidebar-item-active");
+
+            // Capitalize title
+            const titleMap = {
+                dashboard: "Dashboard",
+                customers: "Customer Information",
+                creditledger: "Ledger Entries & Customer Ledger",
+                products: "Product & Inventory",
+                sales: "Sales System",
+                purchase: "Purchase System",
+                receipt: "Payment Receipt",
+                paymentpaid: "Payment Paid",
+                returns: "Returns",
+                adjustments: "Adjustments",
+                reports: "Reports & Analytics"
+            };
+            document.getElementById("moduleTitle").innerText = titleMap[tabId] || "Dashboard";
+            
+            refreshSystemData();
+        }
+
+        // -------------------------------------------------------------
+        // MODALS HANDLING
+        // -------------------------------------------------------------
+        function closeModal() {
+            document.getElementById("dynamicModal").classList.add("hidden");
+        }
+
+        function openModalContainer(title, htmlContent) {
+            document.getElementById("dynamicModalTitle").innerText = title;
+            document.getElementById("dynamicModalBody").innerHTML = htmlContent;
+            document.getElementById("dynamicModal").classList.remove("hidden");
+        }
+
+        // -------------------------------------------------------------
+        // DATA REFRESH & CALCULATION ENGINE
+        // -------------------------------------------------------------
+        function refreshSystemData() {
+            const db = getDB();
+
+            // Re-calculate Customer Balances from Ledger
+            db.customers.forEach(cust => {
+                let bal = Number(cust.openingBalance) || 0;
+                db.ledgers.filter(l => l.customerId === cust.id).forEach(l => {
+                    bal += (Number(l.debit) || 0) - (Number(l.credit) || 0);
+                });
+                cust.currentBalance = bal;
+            });
+
+            renderCustomers();
+            renderCustomerLedgerView();
+            renderProducts();
+            renderSales();
+            renderPurchases();
+            renderReceipts();
+            renderPaymentsPaid();
+            renderReturns();
+            renderAdjustments();
+            updateDashboardMetrics(db);
+            updateReportsView(db);
+        }
+
+        // -------------------------------------------------------------
+        // 1. DASHBOARD REFRESH
+        // -------------------------------------------------------------
+        function updateDashboardMetrics(db) {
+            document.getElementById("dashTotalCustomers").innerText = db.customers.length;
+
             let totalReceivable = 0;
             let totalPayable = 0;
-            let todayTx = 0;
-            let monthSummary = 0;
-
-            const todayStr = new Date().toISOString().split('T')[0];
-            const currentMonthStr = todayStr.substring(0, 7);
-
-            // Compute customer balances
-            state.customers.forEach(cust => {
-                let bal = Number(cust.openingBal || 0);
-                state.ledger.filter(l => l.customerId === cust.id).forEach(l => {
-                    bal += (Number(l.debit) - Number(l.credit));
-                });
-                if(bal > 0) totalReceivable += bal;
-                else if(bal < 0) totalPayable += Math.abs(bal);
+            db.customers.forEach(c => {
+                if (c.currentBalance > 0) totalReceivable += c.currentBalance;
+                else if (c.currentBalance < 0) totalPayable += Math.abs(c.currentBalance);
             });
 
-            // Calculate Today & Month Tx
-            state.ledger.forEach(l => {
-                const amount = Number(l.debit) + Number(l.credit);
-                if(l.date === todayStr) todayTx += amount;
-                if(l.date.startsWith(currentMonthStr)) monthSummary += amount;
-            });
+            document.getElementById("dashTotalReceivable").innerText = `रु ${totalReceivable.toFixed(2)}`;
+            document.getElementById("dashTotalPayable").innerText = `रु ${totalPayable.toFixed(2)}`;
 
-            document.getElementById('dashTotalCustomers').innerText = state.customers.length;
-            document.getElementById('dashTotalReceivable').innerText = `${curr} ${totalReceivable.toFixed(2)}`;
-            document.getElementById('dashTotalPayable').innerText = `${curr} ${totalPayable.toFixed(2)}`;
-            document.getElementById('dashTodayTransactions').innerText = `${curr} ${todayTx.toFixed(2)}`;
-            document.getElementById('dashMonthSummary').innerText = `${curr} ${monthSummary.toFixed(2)}`;
-            document.getElementById('dashTotalPurchase').innerText = `${curr} 0.00`;
+            let totalSales = db.sales.reduce((acc, s) => acc + (Number(s.total) || 0), 0);
+            let totalPurchases = db.purchases.reduce((acc, p) => acc + (Number(p.total) || 0), 0);
+
+            document.getElementById("dashTodayTransactions").innerText = `रु ${totalSales.toFixed(2)}`;
+            document.getElementById("dashMonthSummary").innerText = `रु ${totalSales.toFixed(2)}`;
+            document.getElementById("dashTotalPurchase").innerText = `रु ${totalPurchases.toFixed(2)}`;
 
             // Recent Transactions Table
-            const recent = [...state.ledger].reverse().slice(0, 5);
-            const tbody = document.getElementById('recentTxTableBody');
-            tbody.innerHTML = recent.map(l => {
-                const cust = state.customers.find(c => c.id === l.customerId);
-                return `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
-                        <td class="p-3">${l.date}</td>
-                        <td class="p-3 font-bold text-blue-600">${l.voucherNo}</td>
-                        <td class="p-3">${cust ? cust.name : 'N/A'}</td>
-                        <td class="p-3">${l.description}</td>
-                        <td class="p-3 text-right text-rose-600">${curr} ${Number(l.debit).toFixed(2)}</td>
-                        <td class="p-3 text-right text-emerald-600">${curr} ${Number(l.credit).toFixed(2)}</td>
-                        <td class="p-3"><span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-[10px]">${l.method}</span></td>
-                    </tr>
-                `;
-            }).join('');
-
-            initCharts(totalReceivable, totalPayable);
-        }
-
-        function initCharts(receivable, payable) {
-            if(salesChartInstance) salesChartInstance.destroy();
-            if(pieChartInstance) pieChartInstance.destroy();
-
-            const ctx1 = document.getElementById('salesPurchaseChart').getContext('2d');
-            salesChartInstance = new Chart(ctx1, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-                    datasets: [{
-                        label: 'Sales / Debit',
-                        data: [12000, 19000, 15000, 25000, 22000, 30000, 28000],
-                        borderColor: '#2563eb',
-                        tension: 0.3,
-                        fill: false
-                    }, {
-                        label: 'Receipts / Credit',
-                        data: [10000, 15000, 14000, 20000, 21000, 28000, 25000],
-                        borderColor: '#10b981',
-                        tension: 0.3,
-                        fill: false
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            const ctx2 = document.getElementById('incomeExpenseChart').getContext('2d');
-            pieChartInstance = new Chart(ctx2, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Receivables', 'Payables'],
-                    datasets: [{
-                        data: [receivable || 100, payable || 0],
-                        backgroundColor: ['#e11d48', '#f59e0b']
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-        }
-
-        // 2. CUSTOMER MANAGEMENT LOGIC
-        function renderCustomers() {
-            const nameSearch = document.getElementById('custSearchName').value.toLowerCase();
-            const mobileSearch = document.getElementById('custSearchMobile').value;
-            const filterBal = document.getElementById('custFilterBalance').value;
-            const curr = state.settings.currency;
-
-            const tbody = document.getElementById('customerTableBody');
-            tbody.innerHTML = '';
-
-            state.customers.filter(cust => {
-                let bal = Number(cust.openingBal || 0);
-                state.ledger.filter(l => l.customerId === cust.id).forEach(l => bal += (Number(l.debit) - Number(l.credit)));
-                
-                const matchName = cust.name.toLowerCase().includes(nameSearch);
-                const matchMobile = cust.mobile.includes(mobileSearch);
-                let matchBal = true;
-                if(filterBal === 'DUE') matchBal = bal > 0;
-                if(filterBal === 'ZERO') matchBal = bal === 0;
-                if(filterBal === 'ADVANCE') matchBal = bal < 0;
-
-                return matchName && matchMobile && matchBal;
-            }).forEach((cust, index) => {
-                let bal = Number(cust.openingBal || 0);
-                state.ledger.filter(l => l.customerId === cust.id).forEach(l => bal += (Number(l.debit) - Number(l.credit)));
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
-                        <td class="p-4 font-bold text-blue-600">${cust.id}</td>
-                        <td class="p-4 font-bold">${cust.name}</td>
-                        <td class="p-4">${cust.mobile}</td>
-                        <td class="p-4">${cust.address || '-'}</td>
-                        <td class="p-4">${cust.pan || '-'}</td>
-                        <td class="p-4 text-right">${curr} ${Number(cust.openingBal || 0).toFixed(2)}</td>
-                        <td class="p-4 text-right font-extrabold ${bal > 0 ? 'text-rose-600' : 'text-emerald-600'}">${curr} ${bal.toFixed(2)}</td>
-                        <td class="p-4 text-center">
-                            <button onclick="editCustomer('${cust.id}')" class="text-blue-600 hover:text-blue-800 me-2"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="deleteCustomer('${cust.id}')" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function openCustomerModal() {
-            document.getElementById('editCustIndex').value = '';
-            document.getElementById('custModalTitle').innerText = 'Add New Customer';
-            document.getElementById('custAutoId').value = `CUST-${1001 + state.customers.length}`;
-            document.getElementById('custName').value = '';
-            document.getElementById('custMobile').value = '';
-            document.getElementById('custPan').value = '';
-            document.getElementById('custAddress').value = '';
-            document.getElementById('custEmail').value = '';
-            document.getElementById('custOpeningBal').value = '';
-            document.getElementById('custNotes').value = '';
-            document.getElementById('customerModal').classList.remove('hidden');
-        }
-
-        function closeCustomerModal() {
-            document.getElementById('customerModal').classList.add('hidden');
-        }
-
-        function saveCustomer(e) {
-            e.preventDefault();
-            const id = document.getElementById('custAutoId').value;
-            const name = document.getElementById('custName').value;
-            const mobile = document.getElementById('custMobile').value;
-            const pan = document.getElementById('custPan').value;
-            const address = document.getElementById('custAddress').value;
-            const email = document.getElementById('custEmail').value;
-            const openingBal = Number(document.getElementById('custOpeningBal').value || 0);
-            const notes = document.getElementById('custNotes').value;
-
-            const existingIndex = state.customers.findIndex(c => c.id === id);
-            if(existingIndex > -1) {
-                state.customers[existingIndex] = { id, name, mobile, pan, address, email, openingBal, notes };
-            } else {
-                state.customers.push({ id, name, mobile, pan, address, email, openingBal, notes });
-            }
-
-            saveState();
-            closeCustomerModal();
-            renderCustomers();
-            renderCustomerLedgerView();
-            showToast('Customer Profile Saved Successfully!');
-        }
-
-        function editCustomer(custId) {
-            const cust = state.customers.find(c => c.id === custId);
-            if(!cust) return;
-            document.getElementById('custModalTitle').innerText = 'Edit Customer Profile';
-            document.getElementById('custAutoId').value = cust.id;
-            document.getElementById('custName').value = cust.name;
-            document.getElementById('custMobile').value = cust.mobile;
-            document.getElementById('custPan').value = cust.pan || '';
-            document.getElementById('custAddress').value = cust.address || '';
-            document.getElementById('custEmail').value = cust.email || '';
-            document.getElementById('custOpeningBal').value = cust.openingBal || 0;
-            document.getElementById('custNotes').value = cust.notes || '';
-            document.getElementById('customerModal').classList.remove('hidden');
-        }
-
-        function deleteCustomer(custId) {
-            if(!confirm('Are you sure you want to delete this customer?')) return;
-            state.customers = state.customers.filter(c => c.id !== custId);
-            saveState();
-            renderCustomers();
-            showToast('Customer Deleted');
-        }
-
-        // 3 & 4. LEDGER ENTRIES & CUSTOMER LEDGER LOGIC
-        function renderCustomerLedgerView() {
-            const selectCust = document.getElementById('ledgerCustomerSelect');
-            const selectedCustId = selectCust.value;
-            const curr = state.settings.currency;
-
-            // Populate customer dropdown
-            selectCust.innerHTML = '<option value="ALL">-- All Customer Entries --</option>' + 
-                state.customers.map(c => `<option value="${c.id}">${c.name} (${c.id})</option>`).join('');
-            selectCust.value = selectedCustId || 'ALL';
-
-            const methodFilter = document.getElementById('ledgerFilterPayment').value;
-            const startDate = document.getElementById('ledgerStartDate').value;
-            const endDate = document.getElementById('ledgerEndDate').value;
-
-            const custHeaderDiv = document.getElementById('customerHeaderDetails');
-
-            if(selectedCustId !== 'ALL') {
-                custHeaderDiv.classList.remove('hidden');
-                const cust = state.customers.find(c => c.id === selectedCustId);
-                document.getElementById('custHeadName').innerText = cust.name;
-                document.getElementById('custHeadOpening').innerText = `${curr} ${Number(cust.openingBal || 0).toFixed(2)}`;
-
-                let totalDeb = 0, totalCred = 0;
-                state.ledger.filter(l => l.customerId === selectedCustId).forEach(l => {
-                    totalDeb += Number(l.debit);
-                    totalCred += Number(l.credit);
-                });
-
-                const closing = Number(cust.openingBal || 0) + totalDeb - totalCred;
-                document.getElementById('custHeadTotalDebit').innerText = `${curr} ${totalDeb.toFixed(2)}`;
-                document.getElementById('custHeadTotalCredit').innerText = `${curr} ${totalCred.toFixed(2)}`;
-                document.getElementById('custHeadClosing').innerText = `${curr} ${closing.toFixed(2)}`;
-            } else {
-                custHeaderDiv.classList.add('hidden');
-            }
-
-            // Render Ledger Entries Table
-            const tbody = document.getElementById('ledgerTableBody');
-            tbody.innerHTML = '';
-
-            let runningBal = 0;
-
-            state.ledger.filter(l => {
-                const matchCust = (selectedCustId === 'ALL' || l.customerId === selectedCustId);
-                const matchMethod = (methodFilter === 'ALL' || l.method === methodFilter);
-                const matchStart = (!startDate || l.date >= startDate);
-                const matchEnd = (!endDate || l.date <= endDate);
-                return matchCust && matchMethod && matchStart && matchEnd;
-            }).forEach((l, index) => {
-                const cust = state.customers.find(c => c.id === l.customerId);
-                if(index === 0 && selectedCustId !== 'ALL') {
-                    runningBal = Number(cust ? cust.openingBal || 0 : 0);
-                }
-                runningBal += (Number(l.debit) - Number(l.credit));
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
-                        <td class="p-4">${l.date}</td>
-                        <td class="p-4 font-bold text-blue-600">${l.voucherNo}</td>
-                        <td class="p-4 font-bold">${cust ? cust.name : 'N/A'}</td>
-                        <td class="p-4">${l.description}</td>
-                        <td class="p-4 text-right text-rose-600 font-bold">${Number(l.debit) > 0 ? curr + ' ' + Number(l.debit).toFixed(2) : '-'}</td>
-                        <td class="p-4 text-right text-emerald-600 font-bold">${Number(l.credit) > 0 ? curr + ' ' + Number(l.credit).toFixed(2) : '-'}</td>
-                        <td class="p-4 text-right font-extrabold">${curr} ${runningBal.toFixed(2)}</td>
-                        <td class="p-4"><span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded text-[10px] font-bold">${l.method}</span></td>
-                        <td class="p-4 text-center">${l.attachment ? '<i class="fa-solid fa-paperclip text-blue-500"></i>' : '-'}</td>
-                        <td class="p-4 text-center no-print">
-                            <button onclick="editLedgerEntry('${l.id}')" class="text-blue-600 hover:text-blue-800 me-2"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="deleteLedgerEntry('${l.id}')" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function openLedgerEntryModal() {
-            document.getElementById('editLedgerId').value = '';
-            document.getElementById('ledgerModalTitle').innerText = 'Add Ledger Entry';
-            document.getElementById('ledVoucherNo').value = `VOUCH-${1001 + state.ledger.length}`;
-            document.getElementById('ledDate').value = new Date().toISOString().split('T')[0];
-            document.getElementById('ledAmount').value = '';
-            document.getElementById('ledRemarks').value = '';
-
-            const sel = document.getElementById('ledCustSelect');
-            sel.innerHTML = state.customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-
-            document.getElementById('ledgerEntryModal').classList.remove('hidden');
-        }
-
-        function closeLedgerEntryModal() {
-            document.getElementById('ledgerEntryModal').classList.add('hidden');
-        }
-
-        function saveLedgerEntry(e) {
-            e.preventDefault();
-            const id = document.getElementById('editLedgerId').value || String(Date.now());
-            const voucherNo = document.getElementById('ledVoucherNo').value;
-            const date = document.getElementById('ledDate').value;
-            const customerId = document.getElementById('ledCustSelect').value;
-            const type = document.getElementById('ledType').value;
-            const amount = Number(document.getElementById('ledAmount').value || 0);
-            const method = document.getElementById('ledPaymentMethod').value;
-            const description = document.getElementById('ledRemarks').value || (type === 'DEBIT' ? 'Debit Sales' : 'Payment Received');
-
-            const debit = type === 'DEBIT' ? amount : 0;
-            const credit = type === 'CREDIT' ? amount : 0;
-
-            const existingIdx = state.ledger.findIndex(l => l.id === id);
-            const entryObj = { id, voucherNo, customerId, date, description, debit, credit, method, attachment: '' };
-
-            if(existingIdx > -1) {
-                state.ledger[existingIdx] = entryObj;
-            } else {
-                state.ledger.push(entryObj);
-            }
-
-            saveState();
-            closeLedgerEntryModal();
-            renderCustomerLedgerView();
-            renderDashboard();
-            showToast('Ledger Entry Saved!');
-        }
-
-        function editLedgerEntry(id) {
-            const l = state.ledger.find(item => item.id === id);
-            if(!l) return;
-
-            openLedgerEntryModal();
-            document.getElementById('editLedgerId').value = l.id;
-            document.getElementById('ledgerModalTitle').innerText = 'Edit Ledger Entry';
-            document.getElementById('ledVoucherNo').value = l.voucherNo;
-            document.getElementById('ledDate').value = l.date;
-            document.getElementById('ledCustSelect').value = l.customerId;
-            document.getElementById('ledType').value = l.debit > 0 ? 'DEBIT' : 'CREDIT';
-            document.getElementById('ledAmount').value = l.debit > 0 ? l.debit : l.credit;
-            document.getElementById('ledPaymentMethod').value = l.method;
-            document.getElementById('ledRemarks').value = l.description;
-        }
-
-        function deleteLedgerEntry(id) {
-            if(!confirm('Are you sure you want to delete this ledger entry?')) return;
-            const deleted = state.ledger.find(l => l.id === id);
-            if(deleted) state.deletedStack.push(deleted);
-
-            state.ledger = state.ledger.filter(l => l.id !== id);
-            saveState();
-            renderCustomerLedgerView();
-            renderDashboard();
-            showToast('Ledger Entry Deleted. (Undo available)');
-        }
-
-        function undoDelete() {
-            if(state.deletedStack.length === 0) return showToast('Nothing to undo!');
-            const restored = state.deletedStack.pop();
-            state.ledger.push(restored);
-            saveState();
-            renderCustomerLedgerView();
-            renderDashboard();
-            showToast('Deleted Transaction Restored!');
-        }
-
-        // 5. REPORTS LOGIC
-        function generateReport(type) {
-            const tbody = document.getElementById('reportTableBody');
-            const curr = state.settings.currency;
-            tbody.innerHTML = '';
-
-            let filtered = [...state.ledger];
-            const today = new Date().toISOString().split('T')[0];
-
-            if(type === 'daily') {
-                document.getElementById('reportTitleHeader').innerText = `Daily Report (${today})`;
-                filtered = filtered.filter(l => l.date === today);
-            } else if(type === 'outstanding') {
-                document.getElementById('reportTitleHeader').innerText = 'Outstanding Receivables Report';
-                tbody.innerHTML = state.customers.map(c => {
-                    let bal = Number(c.openingBal || 0);
-                    state.ledger.filter(l => l.customerId === c.id).forEach(l => bal += (Number(l.debit) - Number(l.credit)));
-                    if(bal <= 0) return '';
+            const tbody = document.getElementById("recentTxTableBody");
+            if (tbody) {
+                tbody.innerHTML = db.ledgers.slice(-5).reverse().map(l => {
+                    const cust = db.customers.find(c => c.id === l.customerId);
                     return `
                         <tr>
-                            <td class="p-3">${c.id}</td>
-                            <td class="p-3 font-bold">${c.name}</td>
-                            <td class="p-3">${c.mobile}</td>
-                            <td class="p-3 text-right text-rose-600 font-bold">${curr} ${bal.toFixed(2)}</td>
-                            <td class="p-3 text-right">-</td>
+                            <td class="p-3">${l.date}</td>
+                            <td class="p-3 font-bold">${l.voucherNo}</td>
+                            <td class="p-3">${cust ? cust.name : 'N/A'}</td>
+                            <td class="p-3">${l.description}</td>
+                            <td class="p-3 text-right text-rose-600 font-bold">रु ${(Number(l.debit) || 0).toFixed(2)}</td>
+                            <td class="p-3 text-right text-emerald-600 font-bold">रु ${(Number(l.credit) || 0).toFixed(2)}</td>
+                            <td class="p-3">${l.method || 'Cash'}</td>
                         </tr>
                     `;
                 }).join('');
-                return;
+            }
+        }
+
+        let salesChartObj, incomeChartObj;
+        function initDashboardCharts() {
+            const ctx1 = document.getElementById('salesPurchaseChart')?.getContext('2d');
+            if (ctx1) {
+                salesChartObj = new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [
+                            { label: 'Sales (रु)', data: [12000, 19000, 15000, 25000, 22000, 30000, 28000], borderColor: '#2563eb', fill: false, tension: 0.3 },
+                            { label: 'Purchases (रु)', data: [8000, 12000, 9000, 18000, 14000, 20000, 19000], borderColor: '#9333ea', fill: false, tension: 0.3 }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
             }
 
-            tbody.innerHTML = filtered.map(l => {
-                const cust = state.customers.find(c => c.id === l.customerId);
-                return `
-                    <tr>
-                        <td class="p-3">${l.date}</td>
-                        <td class="p-3 font-bold">${l.voucherNo} (${cust ? cust.name : 'N/A'})</td>
-                        <td class="p-3">${l.description}</td>
-                        <td class="p-3 text-right text-rose-600">${curr} ${Number(l.debit).toFixed(2)}</td>
-                        <td class="p-3 text-right text-emerald-600">${curr} ${Number(l.credit).toFixed(2)}</td>
-                    </tr>
-                `;
-            }).join('');
+            const ctx2 = document.getElementById('incomeExpenseChart')?.getContext('2d');
+            if (ctx2) {
+                incomeChartObj = new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Total Receivable', 'Total Payable'],
+                        datasets: [{ data: [60, 40], backgroundColor: ['#e11d48', '#d97706'] }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
         }
 
-        // 7. PRINT & EXPORT LOGIC
-        function exportLedgerToExcel() {
-            const worksheet = XLSX.utils.json_to_sheet(state.ledger);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Ledger");
-            XLSX.writeFile(workbook, "Ledger_Export.xlsx");
-        }
+        // -------------------------------------------------------------
+        // 2. CUSTOMER INFORMATION MODULE
+        // -------------------------------------------------------------
+        function renderCustomers() {
+            const db = getDB();
+            const nameSearch = document.getElementById("custSearchName")?.value.toLowerCase() || "";
+            const mobileSearch = document.getElementById("custSearchMobile")?.value || "";
+            const filterBal = document.getElementById("custFilterBalance")?.value || "ALL";
 
-        function exportLedgerToCSV() {
-            let csv = 'Date,VoucherNo,CustomerID,Description,Debit,Credit,Method\n';
-            state.ledger.forEach(l => {
-                csv += `${l.date},${l.voucherNo},${l.customerId},"${l.description}",${l.debit},${l.credit},${l.method}\n`;
+            let filtered = db.customers.filter(c => {
+                const matchName = c.name.toLowerCase().includes(nameSearch);
+                const matchMobile = c.mobile.includes(mobileSearch);
+                let matchBal = true;
+                if (filterBal === "DUE") matchBal = c.currentBalance > 0;
+                if (filterBal === "ZERO") matchBal = c.currentBalance === 0;
+                if (filterBal === "ADVANCE") matchBal = c.currentBalance < 0;
+                return matchName && matchMobile && matchBal;
             });
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('href', url);
-            a.setAttribute('download', 'Ledger_Export.csv');
-            a.click();
-        }
 
-        function sendDueReminder(type) {
-            const custId = document.getElementById('ledgerCustomerSelect').value;
-            if(custId === 'ALL') return alert('Please select a specific customer first!');
-            const cust = state.customers.find(c => c.id === custId);
-            if(!cust) return;
-
-            let bal = Number(cust.openingBal || 0);
-            state.ledger.filter(l => l.customerId === cust.id).forEach(l => bal += (Number(l.debit) - Number(l.credit)));
-
-            const msg = encodeURIComponent(`Dear ${cust.name}, your total outstanding balance at ${state.settings.companyName} is ${state.settings.currency} ${bal.toFixed(2)}. Please clear your dues at your earliest convenience.`);
-
-            if(type === 'whatsapp') {
-                window.open(`https://wa.me/977${cust.mobile}?text=${msg}`, '_blank');
-            } else {
-                window.open(`sms:${cust.mobile}?body=${msg}`, '_blank');
-            }
-        }
-
-        // 8. BACKUP & RESTORE LOGIC
-        function exportBackupJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
-            const dlAnchor = document.createElement('a');
-            dlAnchor.setAttribute("href", dataStr);
-            dlAnchor.setAttribute("download", `Ledger_Backup_${new Date().toISOString().split('T')[0]}.json`);
-            document.body.appendChild(dlAnchor);
-            dlAnchor.click();
-            dlAnchor.remove();
-        }
-
-        function importBackupJSON(e) {
-            const fileReader = new FileReader();
-            fileReader.onload = function (event) {
-                try {
-                    const parsed = JSON.parse(event.target.result);
-                    if(parsed.customers && parsed.ledger) {
-                        state = parsed;
-                        saveState();
-                        alert('Backup Restored Successfully!');
-                        location.reload();
-                    } else {
-                        alert('Invalid Backup File Structure!');
-                    }
-                } catch (err) {
-                    alert('Error parsing JSON file!');
-                }
-            };
-            fileReader.readAsText(e.target.files[0]);
-        }
-
-        function resetSystemData() {
-            if(confirm('WARNING: Are you sure you want to clear all data?')) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
-
-        // PRODUCT MANAGEMENT LOGIC
-        function renderProducts() {
-            const tbody = document.getElementById('productTableBody');
-            const curr = state.settings.currency;
-            tbody.innerHTML = state.products.map(p => `
+            const tbody = document.getElementById("customerTableBody");
+            if (!tbody) return;
+            tbody.innerHTML = filtered.map(c => `
                 <tr>
-                    <td class="p-4 font-bold">${p.name}</td>
-                    <td class="p-4">${curr} ${Number(p.cost).toFixed(2)}</td>
-                    <td class="p-4">${curr} ${Number(p.price).toFixed(2)}</td>
-                    <td class="p-4 font-bold ${p.stock < 10 ? 'text-rose-600' : 'text-slate-800 dark:text-white'}">${p.stock} units</td>
-                    <td class="p-4 text-center"><span class="px-2 py-1 ${p.stock > 0 ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'} rounded text-[10px] font-bold">${p.stock > 0 ? 'In Stock' : 'Out of Stock'}</span></td>
+                    <td class="p-4 font-bold text-blue-600">${c.id}</td>
+                    <td class="p-4 font-bold">${c.name}</td>
+                    <td class="p-4">${c.mobile}</td>
+                    <td class="p-4">${c.address}</td>
+                    <td class="p-4">${c.pan || 'N/A'}</td>
+                    <td class="p-4 text-right">रु ${(Number(c.openingBalance) || 0).toFixed(2)}</td>
+                    <td class="p-4 text-right font-extrabold ${c.currentBalance > 0 ? 'text-rose-600' : 'text-emerald-600'}">रु ${(Number(c.currentBalance) || 0).toFixed(2)}</td>
+                    <td class="p-4 text-center space-x-2">
+                        <button onclick="openCustomerModal('${c.id}')" class="text-blue-600 hover:text-blue-800"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                        <button onclick="deleteCustomer('${c.id}')" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i> Delete</button>
+                    </td>
                 </tr>
             `).join('');
         }
 
-        function openProductModal() { document.getElementById('productModal').classList.remove('hidden'); }
-        function closeProductModal() { document.getElementById('productModal').classList.add('hidden'); }
-        function saveProduct(e) {
-            e.preventDefault();
-            state.products.push({
-                id: String(Date.now()),
-                name: document.getElementById('prodName').value,
-                cost: Number(document.getElementById('prodCost').value),
-                price: Number(document.getElementById('prodPrice').value),
-                stock: Number(document.getElementById('prodStock').value)
-            });
-            saveState();
-            closeProductModal();
-            renderProducts();
-            showToast('Product Added!');
+        function openCustomerModal(custId = null) {
+            const db = getDB();
+            const cust = custId ? db.customers.find(c => c.id === custId) : null;
+            const html = `
+                <form onsubmit="saveCustomer(event, '${custId || ''}')" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold mb-1">Customer Name</label>
+                        <input type="text" id="mCustName" value="${cust ? cust.name : ''}" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Mobile Number</label>
+                            <input type="text" id="mCustMobile" value="${cust ? cust.mobile : ''}" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold mb-1">PAN / VAT No.</label>
+                            <input type="text" id="mCustPan" value="${cust ? cust.pan : ''}" class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold mb-1">Address</label>
+                        <input type="text" id="mCustAddress" value="${cust ? cust.address : ''}" class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold mb-1">Opening Balance (रु)</label>
+                        <input type="number" id="mCustOpening" value="${cust ? cust.openingBalance : 0}" ${cust ? 'disabled' : ''} class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700">Save Customer</button>
+                </form>
+            `;
+            openModalContainer(cust ? "Edit Customer" : "Add New Customer", html);
         }
 
-        // AUTHENTICATION LOGIC
-        function checkAuthStatus() {
-            if(!sessionStorage.getItem('sys_logged_in')) {
-                document.getElementById('authModal').classList.remove('hidden');
+        function saveCustomer(e, custId) {
+            e.preventDefault();
+            const db = getDB();
+            if (custId) {
+                const cust = db.customers.find(c => c.id === custId);
+                cust.name = document.getElementById("mCustName").value;
+                cust.mobile = document.getElementById("mCustMobile").value;
+                cust.pan = document.getElementById("mCustPan").value;
+                cust.address = document.getElementById("mCustAddress").value;
+                showToast("Customer updated successfully!");
             } else {
-                document.getElementById('authModal').classList.add('hidden');
+                const newId = "CUST-" + (Math.floor(Math.random() * 900) + 100);
+                const opening = Number(document.getElementById("mCustOpening").value) || 0;
+                db.customers.push({
+                    id: newId,
+                    name: document.getElementById("mCustName").value,
+                    mobile: document.getElementById("mCustMobile").value,
+                    pan: document.getElementById("mCustPan").value,
+                    address: document.getElementById("mCustAddress").value,
+                    openingBalance: opening,
+                    currentBalance: opening
+                });
+                showToast("New customer created!");
             }
+            saveDB(db);
+            closeModal();
         }
 
-        function handleEmailLogin(e) {
+        function deleteCustomer(custId) {
+            if (!confirm("Are you sure you want to delete this customer?")) return;
+            const db = getDB();
+            db.customers = db.customers.filter(c => c.id !== custId);
+            db.ledgers = db.ledgers.filter(l => l.customerId !== custId);
+            saveDB(db);
+            showToast("Customer deleted!");
+        }
+
+        // -------------------------------------------------------------
+        // 3. LEDGER ENTRIES & CUSTOMER LEDGER MODULE
+        // -------------------------------------------------------------
+        function renderCustomerLedgerView() {
+            const db = getDB();
+            const custSelect = document.getElementById("ledgerCustomerSelect");
+            if (!custSelect) return;
+
+            // Populate Dropdown
+            const selectedVal = custSelect.value;
+            custSelect.innerHTML = `<option value="ALL">-- All Customer Entries --</option>` +
+                db.customers.map(c => `<option value="${c.id}">${c.name} (${c.id})</option>`).join('');
+            custSelect.value = selectedVal;
+
+            const customerId = custSelect.value;
+            const filterPayment = document.getElementById("ledgerFilterPayment").value;
+            const startDate = document.getElementById("ledgerStartDate").value;
+            const endDate = document.getElementById("ledgerEndDate").value;
+
+            // Filter Ledgers
+            let list = db.ledgers.filter(l => {
+                let matchCust = (customerId === "ALL") || (l.customerId === customerId);
+                let matchPay = (filterPayment === "ALL") || (l.method === filterPayment);
+                let matchDate = true;
+                if (startDate) matchDate = matchDate && (l.date >= startDate);
+                if (endDate) matchDate = matchDate && (l.date <= endDate);
+                return matchCust && matchPay && matchDate;
+            });
+
+            // Customer Statement Header
+            const headerDiv = document.getElementById("customerHeaderDetails");
+            if (customerId !== "ALL" && headerDiv) {
+                headerDiv.classList.remove("hidden");
+                const cust = db.customers.find(c => c.id === customerId);
+                let totalDebit = list.reduce((a, b) => a + (Number(b.debit) || 0), 0);
+                let totalCredit = list.reduce((a, b) => a + (Number(b.credit) || 0), 0);
+
+                document.getElementById("custHeadName").innerText = cust ? cust.name : "N/A";
+                document.getElementById("custHeadOpening").innerText = `रु ${(Number(cust?.openingBalance) || 0).toFixed(2)}`;
+                document.getElementById("custHeadTotalDebit").innerText = `रु ${totalDebit.toFixed(2)}`;
+                document.getElementById("custHeadTotalCredit").innerText = `रु ${totalCredit.toFixed(2)}`;
+                document.getElementById("custHeadClosing").innerText = `रु ${(Number(cust?.currentBalance) || 0).toFixed(2)}`;
+            } else if (headerDiv) {
+                headerDiv.classList.add("hidden");
+            }
+
+            // Render Table
+            let runningBal = 0;
+            const tbody = document.getElementById("ledgerTableBody");
+            if (!tbody) return;
+            tbody.innerHTML = list.map(l => {
+                runningBal += (Number(l.debit) || 0) - (Number(l.credit) || 0);
+                const cust = db.customers.find(c => c.id === l.customerId);
+                return `
+                    <tr>
+                        <td class="p-4">${l.date}</td>
+                        <td class="p-4 font-bold text-blue-600">${l.voucherNo}</td>
+                        <td class="p-4 font-bold">${cust ? cust.name : 'N/A'}</td>
+                        <td class="p-4">${l.description}</td>
+                        <td class="p-4 text-right text-rose-600 font-bold">रु ${(Number(l.debit) || 0).toFixed(2)}</td>
+                        <td class="p-4 text-right text-emerald-600 font-bold">रु ${(Number(l.credit) || 0).toFixed(2)}</td>
+                        <td class="p-4 text-right font-extrabold text-slate-900 dark:text-white">रु ${runningBal.toFixed(2)}</td>
+                        <td class="p-4"><span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded-lg text-[10px]">${l.method || 'Cash'}</span></td>
+                        <td class="p-4 text-center space-x-2 no-print">
+                            <button onclick="openLedgerEntryModal('${l.id}')" class="text-blue-600 hover:text-blue-800"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteLedgerEntry('${l.id}')" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openLedgerEntryModal(entryId = null) {
+            const db = getDB();
+            const entry = entryId ? db.ledgers.find(l => l.id === entryId) : null;
+            const html = `
+                <form onsubmit="saveLedgerEntry(event, '${entryId || ''}')" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold mb-1">Select Customer</label>
+                        <select id="mLedgerCustomer" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                            ${db.customers.map(c => `<option value="${c.id}" ${entry && entry.customerId === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Date</label>
+                            <input type="date" id="mLedgerDate" value="${entry ? entry.date : new Date().toISOString().split('T')[0]}" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Payment Method</label>
+                            <select id="mLedgerMethod" class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                                <option value="Cash" ${entry && entry.method === 'Cash' ? 'selected' : ''}>Cash</option>
+                                <option value="Bank" ${entry && entry.method === 'Bank' ? 'selected' : ''}>Bank</option>
+                                <option value="QR" ${entry && entry.method === 'QR' ? 'selected' : ''}>QR</option>
+                                <option value="Cheque" ${entry && entry.method === 'Cheque' ? 'selected' : ''}>Cheque</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold mb-1">Description</label>
+                        <input type="text" id="mLedgerDesc" value="${entry ? entry.description : ''}" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Debit / Due Amount (रु)</label>
+                            <input type="number" id="mLedgerDebit" value="${entry ? entry.debit : 0}" class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Credit / Received (रु)</label>
+                            <input type="number" id="mLedgerCredit" value="${entry ? entry.credit : 0}" class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700">Save Ledger Entry</button>
+                </form>
+            `;
+            openModalContainer(entry ? "Edit Ledger Entry" : "New Ledger Entry", html);
+        }
+
+        function saveLedgerEntry(e, entryId) {
             e.preventDefault();
-            sessionStorage.setItem('sys_logged_in', 'true');
-            document.getElementById('authModal').classList.add('hidden');
-            showToast('Logged In Successfully!');
+            const db = getDB();
+            if (entryId) {
+                const entry = db.ledgers.find(l => l.id === entryId);
+                entry.customerId = document.getElementById("mLedgerCustomer").value;
+                entry.date = document.getElementById("mLedgerDate").value;
+                entry.method = document.getElementById("mLedgerMethod").value;
+                entry.description = document.getElementById("mLedgerDesc").value;
+                entry.debit = Number(document.getElementById("mLedgerDebit").value) || 0;
+                entry.credit = Number(document.getElementById("mLedgerCredit").value) || 0;
+                showToast("Ledger entry updated!");
+            } else {
+                const newId = "L-" + (Math.floor(Math.random() * 900) + 100);
+                const vNo = "VCH-" + (Math.floor(Math.random() * 9000) + 1000);
+                db.ledgers.push({
+                    id: newId,
+                    voucherNo: vNo,
+                    customerId: document.getElementById("mLedgerCustomer").value,
+                    date: document.getElementById("mLedgerDate").value,
+                    method: document.getElementById("mLedgerMethod").value,
+                    description: document.getElementById("mLedgerDesc").value,
+                    debit: Number(document.getElementById("mLedgerDebit").value) || 0,
+                    credit: Number(document.getElementById("mLedgerCredit").value) || 0
+                });
+                showToast("Ledger entry saved!");
+            }
+            saveDB(db);
+            closeModal();
         }
 
-        function handleLogout() {
-            sessionStorage.removeItem('sys_logged_in');
-            checkAuthStatus();
+        function deleteLedgerEntry(entryId) {
+            if (!confirm("Are you sure you want to delete this ledger entry?")) return;
+            const db = getDB();
+            db.ledgers = db.ledgers.filter(l => l.id !== entryId);
+            saveDB(db);
+            showToast("Ledger entry removed!");
+        }
+
+        // -------------------------------------------------------------
+        // 4. PRODUCT & INVENTORY MODULE
+        // -------------------------------------------------------------
+        function renderProducts() {
+            const db = getDB();
+            const tbody = document.getElementById("productTableBody");
+            if (!tbody) return;
+            tbody.innerHTML = db.products.map(p => `
+                <tr>
+                    <td class="p-4 font-bold text-blue-600">${p.code}</td>
+                    <td class="p-4 font-bold">${p.name}</td>
+                    <td class="p-4">${p.category}</td>
+                    <td class="p-4 text-right">रु ${(Number(p.costPrice) || 0).toFixed(2)}</td>
+                    <td class="p-4 text-right">रु ${(Number(p.sellingPrice) || 0).toFixed(2)}</td>
+                    <td class="p-4 text-right font-bold ${p.stockQty < 5 ? 'text-rose-600' : 'text-emerald-600'}">${p.stockQty}</td>
+                    <td class="p-4 text-center space-x-2">
+                        <button onclick="openProductModal('${p.id}')" class="text-blue-600 hover:text-blue-800"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                        <button onclick="deleteProduct('${p.id}')" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i> Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openProductModal(prodId = null) {
+            const db = getDB();
+            const p = prodId ? db.products.find(x => x.id === prodId) : null;
+            const html = `
+                <form onsubmit="saveProduct(event, '${prodId || ''}')" class="space-y-3">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Product Code</label>
+                            <input type="text" id="mProdCode" value="${p ? p.code : 'P' + (db.products.length + 101)}" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Category</label>
+                            <input type="text" id="mProdCat" value="${p ? p.category : 'General'}" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold mb-1">Product Name</label>
+                        <input type="text" id="mProdName" value="${p ? p.name : ''}" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Cost Price (रु)</label>
+                            <input type="number" id="mProdCost" value="${p ? p.costPrice : 0}" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Selling Price (रु)</label>
+                            <input type="number" id="mProdSell" value="${p ? p.sellingPrice : 0}" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Stock Quantity</label>
+                            <input type="number" id="mProdStock" value="${p ? p.stockQty : 0}" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700">Save Product</button>
+                </form>
+            `;
+            openModalContainer(p ? "Edit Product" : "Add New Product", html);
+        }
+
+        function saveProduct(e, prodId) {
+            e.preventDefault();
+            const db = getDB();
+            if (prodId) {
+                const p = db.products.find(x => x.id === prodId);
+                p.code = document.getElementById("mProdCode").value;
+                p.category = document.getElementById("mProdCat").value;
+                p.name = document.getElementById("mProdName").value;
+                p.costPrice = Number(document.getElementById("mProdCost").value) || 0;
+                p.sellingPrice = Number(document.getElementById("mProdSell").value) || 0;
+                p.stockQty = Number(document.getElementById("mProdStock").value) || 0;
+                showToast("Product updated!");
+            } else {
+                db.products.push({
+                    id: "PROD-" + (Math.floor(Math.random() * 900) + 100),
+                    code: document.getElementById("mProdCode").value,
+                    category: document.getElementById("mProdCat").value,
+                    name: document.getElementById("mProdName").value,
+                    costPrice: Number(document.getElementById("mProdCost").value) || 0,
+                    sellingPrice: Number(document.getElementById("mProdSell").value) || 0,
+                    stockQty: Number(document.getElementById("mProdStock").value) || 0
+                });
+                showToast("Product added!");
+            }
+            saveDB(db);
+            closeModal();
+        }
+
+        function deleteProduct(prodId) {
+            if (!confirm("Are you sure you want to delete this product?")) return;
+            const db = getDB();
+            db.products = db.products.filter(p => p.id !== prodId);
+            saveDB(db);
+            showToast("Product deleted!");
+        }
+
+        // -------------------------------------------------------------
+        // 5. SALES SYSTEM MODULE
+        // -------------------------------------------------------------
+        function renderSales() {
+            const db = getDB();
+            const tbody = document.getElementById("salesTableBody");
+            if (!tbody) return;
+            tbody.innerHTML = db.sales.map(s => {
+                const cust = db.customers.find(c => c.id === s.customerId);
+                const prod = db.products.find(p => p.id === s.productId);
+                return `
+                    <tr>
+                        <td class="p-4 font-bold text-blue-600">${s.invNo}</td>
+                        <td class="p-4">${s.date}</td>
+                        <td class="p-4 font-bold">${cust ? cust.name : 'N/A'}</td>
+                        <td class="p-4">${prod ? prod.name : 'N/A'}</td>
+                        <td class="p-4 text-right font-bold">${s.qty}</td>
+                        <td class="p-4 text-right font-extrabold text-slate-900 dark:text-white">रु ${(Number(s.total) || 0).toFixed(2)}</td>
+                        <td class="p-4"><span class="px-2 py-1 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-bold">${s.paymentType}</span></td>
+                        <td class="p-4 text-center space-x-2">
+                            <button onclick="deleteSales('${s.id}')" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i> Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openSalesModal() {
+            const db = getDB();
+            const html = `
+                <form onsubmit="saveSalesInvoice(event)" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold mb-1">Select Customer</label>
+                        <select id="mSalesCustomer" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                            ${db.customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold mb-1">Select Product</label>
+                        <select id="mSalesProduct" onchange="updateSalesRate()" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                            ${db.products.map(p => `<option value="${p.id}" data-rate="${p.sellingPrice}">[Stock: ${p.stockQty}] ${p.name} - रु ${p.sellingPrice}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Quantity</label>
+                            <input type="number" id="mSalesQty" value="1" min="1" oninput="calculateSalesTotal()" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Rate (रु)</label>
+                            <input type="number" id="mSalesRate" value="${db.products[0]?.sellingPrice || 0}" oninput="calculateSalesTotal()" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Total Invoice (रु)</label>
+                            <input type="number" id="mSalesTotal" value="${db.products[0]?.sellingPrice || 0}" readonly class="w-full p-2.5 bg-slate-100 border text-xs font-bold rounded-xl dark:bg-slate-600 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Payment Status</label>
+                            <select id="mSalesPayType" class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                                <option value="Credit (उधार)">Credit (उधार)</option>
+                                <option value="Paid (नगद)">Paid (नगद)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700">Generate Invoice & Save</button>
+                </form>
+            `;
+            openModalContainer("New Sales Invoice", html);
+        }
+
+        function updateSalesRate() {
+            const select = document.getElementById("mSalesProduct");
+            const rate = select.options[select.selectedIndex].getAttribute("data-rate");
+            document.getElementById("mSalesRate").value = rate;
+            calculateSalesTotal();
+        }
+
+        function calculateSalesTotal() {
+            const qty = Number(document.getElementById("mSalesQty").value) || 0;
+            const rate = Number(document.getElementById("mSalesRate").value) || 0;
+            document.getElementById("mSalesTotal").value = qty * rate;
+        }
+
+        function saveSalesInvoice(e) {
+            e.preventDefault();
+            const db = getDB();
+            const custId = document.getElementById("mSalesCustomer").value;
+            const prodId = document.getElementById("mSalesProduct").value;
+            const qty = Number(document.getElementById("mSalesQty").value) || 0;
+            const total = Number(document.getElementById("mSalesTotal").value) || 0;
+            const payType = document.getElementById("mSalesPayType").value;
+
+            // Reduce Stock
+            const prod = db.products.find(p => p.id === prodId);
+            if (prod) prod.stockQty -= qty;
+
+            const invNo = "INV-" + (Math.floor(Math.random() * 9000) + 1000);
+            db.sales.push({
+                id: "SALE-" + Date.now(),
+                invNo: invNo,
+                date: new Date().toISOString().split('T')[0],
+                customerId: custId,
+                productId: prodId,
+                qty: qty,
+                total: total,
+                paymentType: payType
+            });
+
+            // Post into Customer Ledger if Credit or Paid
+            db.ledgers.push({
+                id: "L-" + Date.now(),
+                voucherNo: invNo,
+                customerId: custId,
+                date: new Date().toISOString().split('T')[0],
+                method: payType.includes('Paid') ? 'Cash' : 'Credit',
+                description: `Sales Invoice #${invNo} (${prod ? prod.name : ''})`,
+                debit: total,
+                credit: payType.includes('Paid') ? total : 0
+            });
+
+            saveDB(db);
+            closeModal();
+            showToast("Sales Invoice saved successfully!");
+        }
+
+        function deleteSales(salesId) {
+            if (!confirm("Are you sure you want to delete this sales invoice?")) return;
+            const db = getDB();
+            db.sales = db.sales.filter(s => s.id !== salesId);
+            saveDB(db);
+            showToast("Sales invoice removed!");
+        }
+
+        // -------------------------------------------------------------
+        // 6. PURCHASE SYSTEM MODULE
+        // -------------------------------------------------------------
+        function renderPurchases() {
+            const db = getDB();
+            const tbody = document.getElementById("purchaseTableBody");
+            if (!tbody) return;
+            tbody.innerHTML = db.purchases.map(p => {
+                const prod = db.products.find(x => x.id === p.productId);
+                return `
+                    <tr>
+                        <td class="p-4 font-bold text-blue-600">${p.billNo}</td>
+                        <td class="p-4">${p.date}</td>
+                        <td class="p-4 font-bold">${p.vendor}</td>
+                        <td class="p-4">${prod ? prod.name : 'N/A'}</td>
+                        <td class="p-4 text-right font-bold">${p.qty}</td>
+                        <td class="p-4 text-right font-extrabold text-slate-900 dark:text-white">रु ${(Number(p.total) || 0).toFixed(2)}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="deletePurchase('${p.id}')" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i> Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openPurchaseModal() {
+            const db = getDB();
+            const html = `
+                <form onsubmit="savePurchaseEntry(event)" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold mb-1">Vendor / Party Name</label>
+                        <input type="text" id="mPurVendor" required placeholder="Vendor Name" class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold mb-1">Select Product</label>
+                        <select id="mPurProduct" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                            ${db.products.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Quantity</label>
+                            <input type="number" id="mPurQty" value="1" min="1" oninput="calcPurTotal()" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Cost Rate (रु)</label>
+                            <input type="number" id="mPurRate" value="1000" oninput="calcPurTotal()" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold mb-1">Total Amount (रु)</label>
+                        <input type="number" id="mPurTotal" value="1000" readonly class="w-full p-2.5 bg-slate-100 border text-xs font-bold rounded-xl dark:bg-slate-600 dark:text-white">
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700">Save Purchase Entry</button>
+                </form>
+            `;
+            openModalContainer("New Purchase Entry", html);
+        }
+
+        function calcPurTotal() {
+            const q = Number(document.getElementById("mPurQty").value) || 0;
+            const r = Number(document.getElementById("mPurRate").value) || 0;
+            document.getElementById("mPurTotal").value = q * r;
+        }
+
+        function savePurchaseEntry(e) {
+            e.preventDefault();
+            const db = getDB();
+            const vendor = document.getElementById("mPurVendor").value;
+            const prodId = document.getElementById("mPurProduct").value;
+            const qty = Number(document.getElementById("mPurQty").value) || 0;
+            const total = Number(document.getElementById("mPurTotal").value) || 0;
+
+            // Increase Stock Quantity
+            const prod = db.products.find(p => p.id === prodId);
+            if (prod) prod.stockQty += qty;
+
+            db.purchases.push({
+                id: "PUR-" + Date.now(),
+                billNo: "PUR-BILL-" + (Math.floor(Math.random() * 9000) + 1000),
+                date: new Date().toISOString().split('T')[0],
+                vendor: vendor,
+                productId: prodId,
+                qty: qty,
+                total: total
+            });
+
+            saveDB(db);
+            closeModal();
+            showToast("Purchase Entry Saved & Stock Increased!");
+        }
+
+        function deletePurchase(purId) {
+            if (!confirm("Are you sure you want to delete this purchase entry?")) return;
+            const db = getDB();
+            db.purchases = db.purchases.filter(p => p.id !== purId);
+            saveDB(db);
+            showToast("Purchase entry removed!");
+        }
+
+        // -------------------------------------------------------------
+        // 7. PAYMENT RECEIPT MODULE
+        // -------------------------------------------------------------
+        function renderReceipts() {
+            const db = getDB();
+            const tbody = document.getElementById("receiptTableBody");
+            if (!tbody) return;
+            tbody.innerHTML = db.receipts.map(r => {
+                const cust = db.customers.find(c => c.id === r.customerId);
+                return `
+                    <tr>
+                        <td class="p-4 font-bold text-blue-600">${r.receiptNo}</td>
+                        <td class="p-4">${r.date}</td>
+                        <td class="p-4 font-bold">${cust ? cust.name : 'N/A'}</td>
+                        <td class="p-4 text-right font-bold text-emerald-600">रु ${(Number(r.amount) || 0).toFixed(2)}</td>
+                        <td class="p-4">${r.method}</td>
+                        <td class="p-4">${r.remarks}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="deleteReceipt('${r.id}')" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i> Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openReceiptModal() {
+            const db = getDB();
+            const html = `
+                <form onsubmit="saveReceiptEntry(event)" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold mb-1">Select Customer</label>
+                        <select id="mRecCustomer" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                            ${db.customers.map(c => `<option value="${c.id}">${c.name} (Due: रु ${c.currentBalance})</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Amount Received (रु)</label>
+                            <input type="number" id="mRecAmount" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Payment Method</label>
+                            <select id="mRecMethod" class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                                <option value="Cash">Cash</option>
+                                <option value="Bank">Bank</option>
+                                <option value="QR">QR</option>
+                                <option value="Cheque">Cheque</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold mb-1">Remarks / Note</label>
+                        <input type="text" id="mRecRemarks" placeholder="Optional notes" class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-emerald-600 text-white font-bold text-xs rounded-xl hover:bg-emerald-700">Save Receipt Entry</button>
+                </form>
+            `;
+            openModalContainer("New Receipt Entry", html);
+        }
+
+        function saveReceiptEntry(e) {
+            e.preventDefault();
+            const db = getDB();
+            const custId = document.getElementById("mRecCustomer").value;
+            const amt = Number(document.getElementById("mRecAmount").value) || 0;
+            const method = document.getElementById("mRecMethod").value;
+            const remarks = document.getElementById("mRecRemarks").value;
+            const rNo = "RCT-" + (Math.floor(Math.random() * 9000) + 1000);
+
+            db.receipts.push({
+                id: "RCT-" + Date.now(),
+                receiptNo: rNo,
+                date: new Date().toISOString().split('T')[0],
+                customerId: custId,
+                amount: amt,
+                method: method,
+                remarks: remarks
+            });
+
+            // Credit Ledger to reduce customer due
+            db.ledgers.push({
+                id: "L-" + Date.now(),
+                voucherNo: rNo,
+                customerId: custId,
+                date: new Date().toISOString().split('T')[0],
+                method: method,
+                description: `Payment Received (${remarks || 'Cash Receive'})`,
+                debit: 0,
+                credit: amt
+            });
+
+            saveDB(db);
+            closeModal();
+            showToast("Payment Receipt Saved & Ledger Updated!");
+        }
+
+        function deleteReceipt(rId) {
+            if (!confirm("Are you sure you want to delete this receipt?")) return;
+            const db = getDB();
+            db.receipts = db.receipts.filter(r => r.id !== rId);
+            saveDB(db);
+            showToast("Receipt deleted!");
+        }
+
+        // -------------------------------------------------------------
+        // 8. PAYMENT PAID MODULE
+        // -------------------------------------------------------------
+        function renderPaymentsPaid() {
+            const db = getDB();
+            const tbody = document.getElementById("paymentPaidTableBody");
+            if (!tbody) return;
+            tbody.innerHTML = db.paymentsPaid.map(p => `
+                <tr>
+                    <td class="p-4 font-bold text-blue-600">${p.voucherNo}</td>
+                    <td class="p-4">${p.date}</td>
+                    <td class="p-4 font-bold">${p.party}</td>
+                    <td class="p-4 text-right font-bold text-rose-600">रु ${(Number(p.amount) || 0).toFixed(2)}</td>
+                    <td class="p-4">${p.method}</td>
+                    <td class="p-4">${p.remarks}</td>
+                    <td class="p-4 text-center">
+                        <button onclick="deletePaymentPaid('${p.id}')" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i> Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openPaymentPaidModal() {
+            const html = `
+                <form onsubmit="savePaymentPaidEntry(event)" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold mb-1">Party / Supplier Name</label>
+                        <input type="text" id="mPaidParty" required placeholder="Vendor name" class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Amount Paid (रु)</label>
+                            <input type="number" id="mPaidAmount" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Payment Method</label>
+                            <select id="mPaidMethod" class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                                <option value="Cash">Cash</option>
+                                <option value="Bank">Bank</option>
+                                <option value="QR">QR</option>
+                                <option value="Cheque">Cheque</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold mb-1">Remarks</label>
+                        <input type="text" id="mPaidRemarks" placeholder="Note" class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-rose-600 text-white font-bold text-xs rounded-xl hover:bg-rose-700">Save Payment Paid</button>
+                </form>
+            `;
+            openModalContainer("New Payment Paid Entry", html);
+        }
+
+        function savePaymentPaidEntry(e) {
+            e.preventDefault();
+            const db = getDB();
+            db.paymentsPaid.push({
+                id: "PAID-" + Date.now(),
+                voucherNo: "PAY-" + (Math.floor(Math.random() * 9000) + 1000),
+                date: new Date().toISOString().split('T')[0],
+                party: document.getElementById("mPaidParty").value,
+                amount: Number(document.getElementById("mPaidAmount").value) || 0,
+                method: document.getElementById("mPaidMethod").value,
+                remarks: document.getElementById("mPaidRemarks").value
+            });
+            saveDB(db);
+            closeModal();
+            showToast("Payment Paid Entry Saved!");
+        }
+
+        function deletePaymentPaid(pId) {
+            if (!confirm("Are you sure you want to delete this payment record?")) return;
+            const db = getDB();
+            db.paymentsPaid = db.paymentsPaid.filter(p => p.id !== pId);
+            saveDB(db);
+            showToast("Record deleted!");
+        }
+
+        // -------------------------------------------------------------
+        // 9. RETURNS MODULE
+        // -------------------------------------------------------------
+        function renderReturns() {
+            const db = getDB();
+            const tbody = document.getElementById("returnTableBody");
+            if (!tbody) return;
+            tbody.innerHTML = db.returns.map(r => {
+                const prod = db.products.find(p => p.id === r.productId);
+                return `
+                    <tr>
+                        <td class="p-4 font-bold text-blue-600">${r.returnId}</td>
+                        <td class="p-4">${r.date}</td>
+                        <td class="p-4 font-bold">${r.type}</td>
+                        <td class="p-4">${r.partyName}</td>
+                        <td class="p-4">${prod ? prod.name : 'N/A'}</td>
+                        <td class="p-4 text-right font-bold">${r.qty}</td>
+                        <td class="p-4 text-right font-extrabold text-slate-900 dark:text-white">रु ${(Number(r.amount) || 0).toFixed(2)}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="deleteReturn('${r.id}')" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i> Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openReturnModal() {
+            const db = getDB();
+            const html = `
+                <form onsubmit="saveReturnEntry(event)" class="space-y-3">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Return Type</label>
+                            <select id="mRetType" class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                                <option value="Sales Return">Sales Return</option>
+                                <option value="Purchase Return">Purchase Return</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Party / Customer Name</label>
+                            <input type="text" id="mRetParty" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold mb-1">Select Product</label>
+                        <select id="mRetProduct" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                            ${db.products.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Return Qty</label>
+                            <input type="number" id="mRetQty" value="1" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Total Return Amount (रु)</label>
+                            <input type="number" id="mRetAmt" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-amber-600 text-white font-bold text-xs rounded-xl hover:bg-amber-700">Save Return Entry</button>
+                </form>
+            `;
+            openModalContainer("New Return Entry", html);
+        }
+
+        function saveReturnEntry(e) {
+            e.preventDefault();
+            const db = getDB();
+            const type = document.getElementById("mRetType").value;
+            const prodId = document.getElementById("mRetProduct").value;
+            const qty = Number(document.getElementById("mRetQty").value) || 0;
+
+            // Adjust stock
+            const prod = db.products.find(p => p.id === prodId);
+            if (prod) {
+                if (type === "Sales Return") prod.stockQty += qty;
+                else prod.stockQty -= qty;
+            }
+
+            db.returns.push({
+                id: "RET-" + Date.now(),
+                returnId: "RET-" + (Math.floor(Math.random() * 9000) + 1000),
+                date: new Date().toISOString().split('T')[0],
+                type: type,
+                partyName: document.getElementById("mRetParty").value,
+                productId: prodId,
+                qty: qty,
+                amount: Number(document.getElementById("mRetAmt").value) || 0
+            });
+
+            saveDB(db);
+            closeModal();
+            showToast("Return Entry Saved & Inventory Updated!");
+        }
+
+        function deleteReturn(rId) {
+            if (!confirm("Are you sure you want to delete this return record?")) return;
+            const db = getDB();
+            db.returns = db.returns.filter(r => r.id !== rId);
+            saveDB(db);
+            showToast("Record removed!");
+        }
+
+        // -------------------------------------------------------------
+        // 10. ADJUSTMENTS MODULE
+        // -------------------------------------------------------------
+        function renderAdjustments() {
+            const db = getDB();
+            const tbody = document.getElementById("adjustmentTableBody");
+            if (!tbody) return;
+            tbody.innerHTML = db.adjustments.map(a => {
+                const prod = db.products.find(p => p.id === a.productId);
+                return `
+                    <tr>
+                        <td class="p-4 font-bold text-blue-600">${a.adjId}</td>
+                        <td class="p-4">${a.date}</td>
+                        <td class="p-4 font-bold">${prod ? prod.name : 'N/A'}</td>
+                        <td class="p-4">${a.type}</td>
+                        <td class="p-4 text-right font-bold">${a.qty}</td>
+                        <td class="p-4">${a.reason}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="deleteAdjustment('${a.id}')" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i> Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openAdjustmentModal() {
+            const db = getDB();
+            const html = `
+                <form onsubmit="saveAdjustmentEntry(event)" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold mb-1">Select Product</label>
+                        <select id="mAdjProduct" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                            ${db.products.map(p => `<option value="${p.id}">${p.name} (Current Stock: ${p.stockQty})</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Adjustment Type</label>
+                            <select id="mAdjType" class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                                <option value="Add Stock">Add Stock (+)</option>
+                                <option value="Reduce Stock">Reduce Stock (-)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Quantity Change</label>
+                            <input type="number" id="mAdjQty" value="1" required class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold mb-1">Reason / Notes</label>
+                        <input type="text" id="mAdjReason" required placeholder="e.g., Damaged item, Correction" class="w-full p-2.5 bg-slate-50 border text-xs rounded-xl dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-purple-600 text-white font-bold text-xs rounded-xl hover:bg-purple-700">Save Stock Adjustment</button>
+                </form>
+            `;
+            openModalContainer("New Adjustment Entry", html);
+        }
+
+        function saveAdjustmentEntry(e) {
+            e.preventDefault();
+            const db = getDB();
+            const prodId = document.getElementById("mAdjProduct").value;
+            const type = document.getElementById("mAdjType").value;
+            const qty = Number(document.getElementById("mAdjQty").value) || 0;
+
+            const prod = db.products.find(p => p.id === prodId);
+            if (prod) {
+                if (type === "Add Stock") prod.stockQty += qty;
+                else prod.stockQty -= qty;
+            }
+
+            db.adjustments.push({
+                id: "ADJ-" + Date.now(),
+                adjId: "ADJ-" + (Math.floor(Math.random() * 9000) + 1000),
+                date: new Date().toISOString().split('T')[0],
+                productId: prodId,
+                type: type,
+                qty: qty,
+                reason: document.getElementById("mAdjReason").value
+            });
+
+            saveDB(db);
+            closeModal();
+            showToast("Adjustment applied successfully!");
+        }
+
+        function deleteAdjustment(aId) {
+            if (!confirm("Are you sure you want to delete this adjustment?")) return;
+            const db = getDB();
+            db.adjustments = db.adjustments.filter(a => a.id !== aId);
+            saveDB(db);
+            showToast("Adjustment deleted!");
+        }
+
+        // -------------------------------------------------------------
+        // 11. REPORTS VIEW & EXPORT TOOLS
+        // -------------------------------------------------------------
+        function updateReportsView(db) {
+            let totalSales = db.sales.reduce((a, b) => a + (Number(b.total) || 0), 0);
+            let totalPurchases = db.purchases.reduce((a, b) => a + (Number(b.total) || 0), 0);
+            let totalReceipts = db.receipts.reduce((a, b) => a + (Number(b.amount) || 0), 0);
+            let totalDue = db.customers.reduce((a, b) => a + (b.currentBalance > 0 ? b.currentBalance : 0), 0);
+
+            if(document.getElementById("reportSalesTotal")) document.getElementById("reportSalesTotal").innerText = `रु ${totalSales.toFixed(2)}`;
+            if(document.getElementById("reportPurchaseTotal")) document.getElementById("reportPurchaseTotal").innerText = `रु ${totalPurchases.toFixed(2)}`;
+            if(document.getElementById("reportCollectionTotal")) document.getElementById("reportCollectionTotal").innerText = `रु ${totalReceipts.toFixed(2)}`;
+            if(document.getElementById("reportOutstandingTotal")) document.getElementById("reportOutstandingTotal").innerText = `रु ${totalDue.toFixed(2)}`;
+        }
+
+        function exportLedgerToExcel() {
+            const db = getDB();
+            const ws = XLSX.utils.json_to_sheet(db.ledgers);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Ledgers");
+            XLSX.writeFile(wb, "Customer_Ledgers.xlsx");
+        }
+
+        function exportLedgerToCSV() {
+            const db = getDB();
+            const ws = XLSX.utils.json_to_sheet(db.ledgers);
+            const csv = XLSX.utils.sheet_to_csv(ws);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute("download", "Customer_Ledgers.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function sendDueReminder(type) {
+            const custSelect = document.getElementById("ledgerCustomerSelect");
+            if (!custSelect || custSelect.value === "ALL") {
+                alert("Please select a specific customer from the dropdown first to send a reminder.");
+                return;
+            }
+            const db = getDB();
+            const cust = db.customers.find(c => c.id === custSelect.value);
+            if (!cust) return;
+
+            const msg = `Namaste ${cust.name}, your total outstanding balance is Rs. ${cust.currentBalance.toFixed(2)}. Please settle the bill at your earliest convenience. Thank you!`;
+            
+            if (type === 'whatsapp') {
+                window.open(`https://wa.me/977${cust.mobile}?text=${encodeURIComponent(msg)}`, '_blank');
+            } else {
+                window.open(`sms:${cust.mobile}?body=${encodeURIComponent(msg)}`, '_blank');
+            }
         }
     </script>
 </body>
