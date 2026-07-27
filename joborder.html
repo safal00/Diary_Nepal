@@ -1,802 +1,1276 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Multi-Tenant Digital Ledger & ERP System</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- SheetJS for XLSX export -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <!-- Google Sign-In SDK -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diary Nepal — Digital Workspace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<style>
+:root{
+  --bg:#f1f5f9; --panel:#ffffff; --panel2:#f8fafc; --text:#0f172a; --muted:#64748b;
+  --border:#e6ebf2; --side:#0b1120; --side2:#121c30; --accent:#2563eb; --accent2:#1d4ed8;
+  --green:#16a34a; --red:#e11d48; --orange:#d97706; --purple:#7c3aed; --shadow:0 1px 3px rgba(15,23,42,.06),0 8px 24px rgba(15,23,42,.05);
+}
+[data-theme="dark"]{
+  --bg:#070d18; --panel:#0f172a; --panel2:#131f36; --text:#e2e8f0; --muted:#94a3b8;
+  --border:#1e293b; --side:#050a14; --side2:#0d1526; --shadow:0 1px 3px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
+h1,h2,h3,h4,.brand-name{font-family:'Poppins','Inter',sans-serif}
+button,input,select,textarea{font-family:inherit;font-size:14px;color:inherit}
+a{color:inherit;text-decoration:none}
+::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:#94a3b855;border-radius:8px}
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .sidebar-bg { background-color: #0f172a; }
-        .card-shadow { box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.03); }
-        .sidebar-item-active { background-color: #2563eb; color: #ffffff; }
-        
-        /* Print Stylesheet */
-        @media print {
-            aside, header, .no-print, button, input, select { display: none !important; }
-            main { padding: 0 !important; margin: 0 !important; width: 100% !important; overflow: visible !important; }
-            body { background: white !important; color: black !important; }
-            .card-shadow { box-shadow: none !important; border: 1px solid #ccc !important; }
-            .print-only { display: block !important; }
-        }
-        .print-only { display: none; }
-    </style>
+/* ---------- AUTH ---------- */
+#auth{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;
+ background:radial-gradient(1200px 600px at 10% 0%,#1e3a8a 0%,#0b1120 55%,#050a14 100%)}
+.auth-card{width:100%;max-width:940px;background:var(--panel);border-radius:22px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+.auth-side{background:linear-gradient(160deg,#1d4ed8,#0f172a);color:#fff;padding:46px 38px;display:flex;flex-direction:column;justify-content:space-between}
+.auth-side h2{font-size:28px;line-height:1.25;margin-bottom:12px}
+.auth-side p{color:#c7d2fe;font-size:14px;line-height:1.7}
+.auth-feats{list-style:none;margin-top:26px;display:grid;gap:12px}
+.auth-feats li{display:flex;gap:10px;align-items:center;font-size:13.5px;color:#e0e7ff}
+.auth-feats i{width:26px;height:26px;display:grid;place-items:center;background:#ffffff22;border-radius:8px;font-size:11px}
+.auth-form{padding:42px 38px}
+.auth-tabs{display:flex;background:var(--panel2);border:1px solid var(--border);padding:5px;border-radius:12px;margin-bottom:24px}
+.auth-tabs button{flex:1;border:0;background:transparent;padding:10px;border-radius:9px;font-weight:600;color:var(--muted);cursor:pointer}
+.auth-tabs button.on{background:var(--accent);color:#fff;box-shadow:0 6px 16px rgba(37,99,235,.3)}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12.5px;font-weight:600;margin-bottom:6px;color:var(--muted)}
+.field label span{color:var(--red)}
+.inp{width:100%;padding:11px 13px;border:1px solid var(--border);background:var(--panel2);border-radius:10px;outline:none;transition:.18s}
+.inp:focus{border-color:var(--accent);background:var(--panel);box-shadow:0 0 0 4px rgba(37,99,235,.14)}
+.inp.err{border-color:var(--red);box-shadow:0 0 0 4px rgba(225,29,72,.12)}
+.err-msg{color:var(--red);font-size:11.5px;margin-top:5px;display:none}
+.err-msg.show{display:block}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 18px;border:0;border-radius:10px;background:var(--accent);color:#fff;font-weight:600;cursor:pointer;transition:.16s}
+.btn:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn.block{width:100%}
+.btn.ghost{background:var(--panel2);color:var(--text);border:1px solid var(--border)}
+.btn.ghost:hover{background:var(--border)}
+.btn.danger{background:var(--red)}.btn.danger:hover{background:#be123c}
+.btn.green{background:var(--green)}.btn.green:hover{background:#15803d}
+.btn.sm{padding:7px 12px;font-size:12.5px;border-radius:8px}
+.muted{color:var(--muted);font-size:13px}
+
+/* ---------- LAYOUT ---------- */
+.app{display:none;min-height:100vh}
+.app.on{display:block}
+.sidebar{position:fixed;inset:0 auto 0 0;width:282px;background:var(--side);color:#cbd5e1;display:flex;flex-direction:column;z-index:60;transition:transform .28s}
+.brand{display:flex;gap:14px;align-items:center;padding:22px 22px 20px;border-bottom:1px solid #ffffff14}
+.brand-ico{width:44px;height:44px;border-radius:13px;background:linear-gradient(140deg,#3b82f6,#1d4ed8);display:grid;place-items:center;color:#fff;font-size:19px;box-shadow:0 8px 20px rgba(37,99,235,.35)}
+.brand-name{color:#fff;font-weight:700;font-size:17px;line-height:1.1}
+.brand-sub{font-size:11px;letter-spacing:.14em;color:#60a5fa;font-weight:600;margin-top:3px}
+.nav-label{font-size:10.5px;letter-spacing:.16em;color:#64748b;font-weight:700;padding:20px 24px 10px}
+.nav{flex:1;overflow-y:auto;padding:0 14px 14px}
+.nav a{display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:11px;font-size:14.5px;font-weight:500;color:#cbd5e1;margin-bottom:3px;cursor:pointer;transition:.16s}
+.nav a i{width:20px;text-align:center;font-size:15px}
+.nav a:hover{background:#ffffff0f;color:#fff}
+.nav a.active{background:var(--accent);color:#fff;box-shadow:0 8px 20px rgba(37,99,235,.35)}
+.nav a.active i{color:#fff!important}
+.side-foot{margin:14px;background:#ffffff10;border-radius:14px;padding:12px;display:flex;align-items:center;gap:11px}
+.avat{width:38px;height:38px;border-radius:11px;background:linear-gradient(140deg,#3b82f6,#1d4ed8);color:#fff;display:grid;place-items:center;font-weight:700}
+.side-foot .n{color:#fff;font-weight:600;font-size:13.5px}
+.side-foot .e{color:#94a3b8;font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.icon-btn{background:transparent;border:0;color:#94a3b8;cursor:pointer;padding:7px;border-radius:9px}
+.icon-btn:hover{background:#ffffff18;color:#fff}
+.main{margin-left:282px;padding:26px 30px 60px;min-height:100vh}
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.crumb{font-size:12.5px;color:var(--muted);font-weight:500}
+.page-title{font-size:29px;font-weight:700;letter-spacing:-.5px;margin-top:3px}
+.top-actions{display:flex;align-items:center;gap:10px}
+.pill{background:var(--panel);border:1px solid var(--border);border-radius:11px;padding:9px 14px;font-weight:600;font-size:13.5px;box-shadow:var(--shadow);cursor:pointer}
+.round{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--panel);border:1px solid var(--border);box-shadow:var(--shadow);cursor:pointer;position:relative}
+.round:hover{border-color:var(--accent);color:var(--accent)}
+.avatar-top{width:42px;height:42px;border-radius:50%;background:#0f172a;color:#fff;display:grid;place-items:center;font-weight:700;cursor:pointer}
+[data-theme="dark"] .avatar-top{background:#2563eb}
+.badge-dot{position:absolute;top:-4px;right:-4px;min-width:19px;height:19px;padding:0 4px;border-radius:10px;background:var(--red);color:#fff;font-size:10.5px;font-weight:700;display:grid;place-items:center}
+.hamb{display:none}
+
+/* ---------- CARDS ---------- */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:16px;margin-bottom:22px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:18px;box-shadow:var(--shadow);position:relative;transition:.18s}
+.card:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(15,23,42,.09)}
+.card .lbl{font-size:11px;letter-spacing:.07em;font-weight:700;color:var(--muted);text-transform:uppercase;padding-right:30px;line-height:1.5}
+.card .val{font-size:25px;font-weight:700;margin-top:12px;letter-spacing:-.5px}
+.card .sub{font-size:11.5px;color:var(--muted);margin-top:6px}
+.eye{position:absolute;top:14px;right:13px;width:30px;height:30px;border-radius:9px;border:1px solid var(--border);background:var(--panel2);color:var(--muted);cursor:pointer;display:grid;place-items:center;transition:.16s}
+.eye:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow);margin-bottom:20px}
+.panel-h{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.panel-h h3{font-size:17px;font-weight:600;display:flex;align-items:center;gap:10px}
+.panel-h .spacer{flex:1}
+.grid2{display:grid;grid-template-columns:1fr 400px;gap:20px}
+@media(max-width:1150px){.grid2{grid-template-columns:1fr}}
+.chart-box{position:relative;height:290px}
+
+/* ---------- FORMS ---------- */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:15px}
+.form-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.seg{display:flex;gap:6px;background:var(--panel2);border:1px solid var(--border);padding:5px;border-radius:11px;flex-wrap:wrap}
+.seg button{border:0;background:transparent;padding:8px 14px;border-radius:8px;font-weight:600;font-size:13px;color:var(--muted);cursor:pointer}
+.seg button.on{background:var(--accent);color:#fff}
+
+/* ---------- TABLES ---------- */
+.tbl-tools{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.search{position:relative;flex:1;min-width:180px;max-width:330px}
+.search i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12.5px}
+.search input{width:100%;padding:10px 12px 10px 34px;border:1px solid var(--border);background:var(--panel2);border-radius:10px;outline:none}
+.search input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(37,99,235,.12)}
+.tbl-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+thead th{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:12px 12px;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
+thead th i{opacity:.35;margin-left:5px;font-size:10px}
+tbody td{padding:12px;border-bottom:1px solid var(--border);white-space:nowrap}
+tbody tr:hover{background:var(--panel2)}
+.right{text-align:right}
+.tbl-empty{padding:30px;text-align:center;color:var(--muted);font-size:13.5px}
+.chip{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;background:#e0e7ff;color:#3730a3}
+.chip.g{background:#dcfce7;color:#166534}.chip.r{background:#ffe4e6;color:#9f1239}.chip.o{background:#fef3c7;color:#92400e}.chip.b{background:#dbeafe;color:#1e40af}
+[data-theme="dark"] .chip{background:#1e293b;color:#c7d2fe}
+[data-theme="dark"] .chip.g{background:#052e1a;color:#4ade80}[data-theme="dark"] .chip.r{background:#3f0d1c;color:#fb7185}[data-theme="dark"] .chip.o{background:#3a2a06;color:#fbbf24}[data-theme="dark"] .chip.b{background:#12213f;color:#93c5fd}
+.act{display:inline-grid;place-items:center;width:29px;height:29px;border-radius:8px;border:1px solid var(--border);background:var(--panel);cursor:pointer;color:var(--muted);margin-right:5px;font-size:12px}
+.act:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.act.d:hover{background:var(--red);border-color:var(--red)}
+.act.g:hover{background:var(--green);border-color:var(--green)}
+
+/* ---------- MODAL / TOAST ---------- */
+.modal-bd{position:fixed;inset:0;background:rgba(8,15,30,.6);backdrop-filter:blur(3px);z-index:150;display:none;align-items:flex-start;justify-content:center;padding:26px 16px;overflow-y:auto}
+.modal-bd.on{display:flex}
+.modal{background:var(--panel);width:100%;max-width:900px;border-radius:18px;box-shadow:0 30px 70px rgba(0,0,0,.35);animation:pop .22s ease}
+@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98)}}
+.modal-h{display:flex;align-items:center;gap:12px;padding:18px 22px;border-bottom:1px solid var(--border)}
+.modal-h h3{font-size:17px;flex:1}
+.modal-b{padding:20px 22px 24px;max-height:74vh;overflow-y:auto}
+.toast-wrap{position:fixed;top:18px;right:18px;z-index:300;display:flex;flex-direction:column;gap:10px}
+.toast{background:var(--panel);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:11px;padding:13px 16px;box-shadow:0 12px 30px rgba(15,23,42,.16);min-width:250px;max-width:340px;font-size:13.5px;animation:sl .25s ease}
+.toast.ok{border-left-color:var(--green)}.toast.err{border-left-color:var(--red)}.toast.warn{border-left-color:var(--orange)}
+.toast b{display:block;margin-bottom:2px}
+@keyframes sl{from{opacity:0;transform:translateX(24px)}}
+.dropdown{position:absolute;top:52px;right:0;width:310px;background:var(--panel);border:1px solid var(--border);border-radius:14px;box-shadow:0 20px 40px rgba(15,23,42,.16);padding:10px;display:none;z-index:80}
+.dropdown.on{display:block}
+.dd-item{padding:10px 12px;border-radius:9px;font-size:13px;display:flex;gap:10px;align-items:flex-start}
+.dd-item:hover{background:var(--panel2)}
+.loader{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:24px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.thumbs{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.thumb{width:96px;border:1px solid var(--border);border-radius:10px;overflow:hidden;position:relative;background:var(--panel2)}
+.thumb img{width:100%;height:70px;object-fit:cover;display:block;cursor:zoom-in}
+.thumb .nm{font-size:9.5px;padding:4px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.thumb .x{position:absolute;top:3px;right:3px;background:rgba(225,29,72,.92);color:#fff;border:0;width:19px;height:19px;border-radius:6px;cursor:pointer;font-size:10px}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:8px 14px;font-size:13.5px}
+.kv div:nth-child(odd){color:var(--muted);font-weight:600}
+.stmt{background:#fff;color:#0f172a;padding:26px;border-radius:12px;border:1px solid #e2e8f0}
+.stmt h2{font-size:20px}.stmt table{font-size:12.5px}
+.stmt thead th{color:#475569;cursor:default}
+.stmt tbody td,.stmt thead th{border-color:#e2e8f0}
+.dropzone{border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;color:var(--muted);cursor:pointer;font-size:13px}
+.dropzone:hover{border-color:var(--accent);color:var(--accent)}
+@media(max-width:980px){
+ .sidebar{transform:translateX(-100%)}.sidebar.open{transform:none}
+ .main{margin-left:0;padding:18px 16px 60px}
+ .hamb{display:grid}
+ .auth-card{grid-template-columns:1fr}.auth-side{display:none}
+ .page-title{font-size:24px}
+ .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:55;display:none}.backdrop.on{display:block}
+}
+@media(min-width:981px){.backdrop{display:none!important}}
+@media print{body *{visibility:hidden}#printArea,#printArea *{visibility:visible}#printArea{position:absolute;left:0;top:0;width:100%}}
+</style>
 </head>
-<body class="flex min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-200 transition-colors duration-200">
+<body>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed top-5 right-5 z-50 hidden bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl text-xs font-semibold flex items-center gap-3 transition-all">
-        <i class="fa-solid fa-circle-info text-blue-400 text-base"></i>
-        <span id="toastMsg">System Notification</span>
+<!-- AUTH -->
+<div id="auth">
+  <div class="auth-card">
+    <div class="auth-side">
+      <div>
+        <div class="brand-ico" style="margin-bottom:22px"><i class="fa-solid fa-chart-line"></i></div>
+        <h2>Diary Nepal<br>Digital Workspace</h2>
+        <p>Secure, email-based accounting workspace. हरेक प्रयोगकर्ताको डाटा पूर्ण रूपमा अलग र सुरक्षित।</p>
+        <ul class="auth-feats">
+          <li><i class="fa-solid fa-lock"></i> Private, isolated data per account</li>
+          <li><i class="fa-solid fa-bolt"></i> Live ledger, inventory &amp; reports</li>
+          <li><i class="fa-solid fa-share-nodes"></i> Share statements on WhatsApp &amp; Email</li>
+          <li><i class="fa-solid fa-boxes-stacked"></i> Low stock alerts &amp; adjustments</li>
+        </ul>
+      </div>
+      <p style="font-size:11.5px;color:#93c5fd">© 2026 Diary Nepal · diarynepalinfo@gmail.com</p>
     </div>
+    <div class="auth-form">
+      <div class="auth-tabs">
+        <button id="tabLogin" class="on" onclick="switchAuth('login')">Login</button>
+        <button id="tabSignup" onclick="switchAuth('signup')">Sign Up</button>
+      </div>
 
-    <!-- AUTHENTICATION MODAL -->
-    <div id="authModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-md w-full p-8 border border-slate-100 dark:border-slate-700">
-            <div class="text-center mb-6">
-                <div id="authLogoContainer" class="w-14 h-14 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center text-white text-2xl font-bold mb-3 shadow-lg shadow-blue-500/30 overflow-hidden">
-                    <i class="fa-solid fa-book-journal-whills"></i>
-                </div>
-                <h2 id="modalTitle" class="text-2xl font-extrabold text-slate-900 dark:text-white">Welcome Back</h2>
-                <p id="modalSub" class="text-slate-400 text-xs mt-1">Multi-Tenant Ledger & ERP Portal</p>
-            </div>
+      <form id="loginForm" onsubmit="doLogin(event)">
+        <h3 style="margin-bottom:5px">Welcome back 👋</h3>
+        <p class="muted" style="margin-bottom:20px">Login to access your workspace</p>
+        <div class="field"><label>Email Address <span>*</span></label>
+          <input class="inp" id="lgEmail" type="email" placeholder="you@example.com" autocomplete="email">
+          <div class="err-msg" id="lgEmailErr">Valid email required</div></div>
+        <div class="field"><label>Password <span>*</span></label>
+          <input class="inp" id="lgPass" type="password" placeholder="••••••••" autocomplete="current-password">
+          <div class="err-msg" id="lgPassErr">Password required</div></div>
+        <button class="btn block" type="submit"><i class="fa-solid fa-right-to-bracket"></i> Login securely</button>
+        <p class="muted" style="text-align:center;margin-top:16px">No account? <a onclick="switchAuth('signup')" style="color:var(--accent);font-weight:600;cursor:pointer">Create one</a></p>
+        <p class="muted" style="text-align:center;margin-top:10px;font-size:12px">Demo: <b>demo@diary.np</b> / <b>demo123</b> <a onclick="fillDemo()" style="color:var(--accent);cursor:pointer">(fill)</a></p>
+      </form>
 
-            <!-- Auth Mode Switcher -->
-            <div class="flex bg-slate-100 dark:bg-slate-700/50 p-1 rounded-xl mb-6 text-xs font-bold">
-                <button id="tabBtnLogin" onclick="switchAuthTab('login')" class="flex-1 py-2 rounded-lg bg-white dark:bg-slate-800 text-blue-600 dark:text-white shadow-sm transition">Sign In</button>
-                <button id="tabBtnRegister" onclick="switchAuthTab('register')" class="flex-1 py-2 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white transition">Sign Up</button>
-            </div>
-
-            <!-- Error/Success Alert Box -->
-            <div id="authAlert" class="text-xs font-bold hidden p-3 rounded-xl border text-center mb-4"></div>
-
-            <!-- 1. LOGIN FORM -->
-            <form id="loginForm" onsubmit="handleEmailLogin(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Email Address</label>
-                    <input type="email" id="loginEmail" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="name@company.com" required>
-                </div>
-                <div>
-                    <div class="flex justify-between items-center mb-1">
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300">Password</label>
-                        <a href="javascript:void(0)" onclick="switchAuthTab('forgot')" class="text-[11px] font-bold text-blue-600 hover:underline">Forgot?</a>
-                    </div>
-                    <input type="password" id="loginPassword" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-lg shadow-blue-500/25 text-xs">Sign In</button>
-            </form>
-
-            <!-- 2. REGISTER FORM -->
-            <form id="registerForm" onsubmit="handleEmailRegister(event)" class="space-y-4 hidden">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Full Name / Business Name</label>
-                    <input type="text" id="regName" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="John Doe or Acme Corp" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Email Address</label>
-                    <input type="email" id="regEmail" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="name@company.com" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Password</label>
-                    <input type="password" id="regPassword" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="At least 6 characters" minlength="6" required>
-                </div>
-                <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-lg shadow-blue-500/25 text-xs">Create Account</button>
-            </form>
-
-            <!-- 3. FORGOT PASSWORD FORM -->
-            <form id="forgotForm" onsubmit="handleForgotPassword(event)" class="space-y-4 hidden">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Registered Email</label>
-                    <input type="email" id="forgotEmail" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="name@company.com" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">New Password</label>
-                    <input type="password" id="forgotNewPassword" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter new password" minlength="6" required>
-                </div>
-                <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-lg shadow-blue-500/25 text-xs">Reset Password</button>
-                <button type="button" onclick="switchAuthTab('login')" class="w-full py-2 text-xs font-bold text-slate-500 hover:text-slate-800 dark:hover:text-white">Back to Sign In</button>
-            </form>
-
-            <!-- Social Divider & Google Sign-In -->
-            <div id="socialAuthSection" class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-700">
-                <div class="relative flex py-1 items-center mb-4">
-                    <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
-                    <span class="flex-shrink mx-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Or continue with</span>
-                    <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
-                </div>
-
-                <!-- Google Sign-In Container -->
-                <div class="flex justify-center">
-                    <div id="g_id_onload"
-                        data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
-                        data-callback="handleGoogleSignIn"
-                        data-auto_prompt="false">
-                    </div>
-                    <div class="g_id_signin w-full flex justify-center"
-                        data-type="standard"
-                        data-size="large"
-                        data-theme="outline"
-                        data-text="sign_in_with"
-                        data-shape="rectangular"
-                        data-logo_alignment="left"
-                        data-width="360">
-                    </div>
-                </div>
-            </div>
-        </div>
+      <form id="signupForm" onsubmit="doSignup(event)" style="display:none">
+        <h3 style="margin-bottom:5px">Create your account</h3>
+        <p class="muted" style="margin-bottom:20px">Your data stays private to this email</p>
+        <div class="field"><label>Full Name <span>*</span></label>
+          <input class="inp" id="suName" placeholder="Your name"><div class="err-msg" id="suNameErr">Name required</div></div>
+        <div class="field"><label>Business Name</label><input class="inp" id="suBiz" placeholder="e.g. Diary Nepal Traders"></div>
+        <div class="field"><label>Email Address <span>*</span></label>
+          <input class="inp" id="suEmail" type="email" placeholder="you@example.com"><div class="err-msg" id="suEmailErr">Valid email required</div></div>
+        <div class="field"><label>Password <span>*</span></label>
+          <input class="inp" id="suPass" type="password" placeholder="Min 6 characters"><div class="err-msg" id="suPassErr">Min 6 characters</div></div>
+        <div class="field"><label>Confirm Password <span>*</span></label>
+          <input class="inp" id="suPass2" type="password" placeholder="Repeat password"><div class="err-msg" id="suPass2Err">Passwords do not match</div></div>
+        <button class="btn block green" type="submit"><i class="fa-solid fa-user-plus"></i> Create account</button>
+      </form>
     </div>
+  </div>
+</div>
 
-    <!-- LEFT SIDEBAR -->
-    <aside class="w-64 sidebar-bg text-slate-300 flex flex-col justify-between shrink-0 p-4">
-        <div>
-            <!-- Brand Header -->
-            <div class="flex items-center gap-3 px-2 py-3 mb-6 border-b border-slate-800 pb-4">
-                <div id="sidebarLogo" class="w-10 h-10 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-bold text-xl shadow-md overflow-hidden shrink-0">
-                    <i class="fa-solid fa-chart-line"></i>
-                </div>
-                <div class="overflow-hidden">
-                    <h1 class="font-extrabold text-white text-base leading-tight truncate" id="sidebarCompName">Ledger Hub</h1>
-                    <span class="text-[10px] text-blue-400 font-semibold tracking-wider uppercase" id="userRoleBadge">USER</span>
-                </div>
-            </div>
+<!-- APP -->
+<div class="app" id="app">
+  <div class="backdrop" id="backdrop" onclick="toggleSide()"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-ico"><i class="fa-solid fa-chart-line"></i></div>
+      <div><div class="brand-name" id="sbName">demo user</div><div class="brand-sub" id="sbRole">USER</div></div>
+    </div>
+    <div class="nav-label">MODULES NAVIGATION</div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot">
+      <div class="avat" id="sfAvatar">D</div>
+      <div style="flex:1;min-width:0"><div class="n" id="sfBiz">Diary Nepal</div><div class="e" id="sfEmail">—</div></div>
+      <button class="icon-btn" title="Logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>
+  </aside>
 
-            <!-- Navigation Bar -->
-            <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 mb-2">Modules Navigation</div>
-            <nav class="space-y-1 text-xs font-semibold max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
-                <a href="#dashboard" onclick="switchTab('dashboard')" id="nav-dashboard" class="sidebar-item sidebar-item-active flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition">
-                    <i class="fa-solid fa-grip text-sm w-4"></i> Dashboard
-                </a>
-                <a href="#customers" onclick="switchTab('customers')" id="nav-customers" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-users text-sm w-4"></i> Customer Information
-                </a>
-                <a href="#creditledger" onclick="switchTab('creditledger')" id="nav-creditledger" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-book text-sm w-4"></i> Ledger Entries & Ledger
-                </a>
-                <a href="#products" onclick="switchTab('products')" id="nav-products" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-tag text-sm w-4"></i> Product & Inventory
-                </a>
-                <a href="#sales" onclick="switchTab('sales')" id="nav-sales" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-cart-shopping text-sm w-4"></i> Sales System
-                </a>
-                <a href="#purchase" onclick="switchTab('purchase')" id="nav-purchase" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-bag-shopping text-sm w-4"></i> Purchase System
-                </a>
-                <a href="#receipt" onclick="switchTab('receipt')" id="nav-receipt" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-receipt text-sm w-4 text-emerald-400"></i> Payment Receipt
-                </a>
-                <a href="#paymentpaid" onclick="switchTab('paymentpaid')" id="nav-paymentpaid" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-money-bill-transfer text-sm w-4 text-rose-400"></i> Payment Paid
-                </a>
-                <a href="#returns" onclick="switchTab('returns')" id="nav-returns" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-rotate-left text-sm w-4 text-amber-400"></i> Return
-                </a>
-                <a href="#adjustments" onclick="switchTab('adjustments')" id="nav-adjustments" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-sliders text-sm w-4 text-purple-400"></i> Adjustment
-                </a>
-                <a href="#reports" onclick="switchTab('reports')" id="nav-reports" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-chart-pie text-sm w-4 text-emerald-400"></i> Reports & Analytics
-                </a>
-                <a href="#settings" onclick="switchTab('settings')" id="nav-settings" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-gear text-sm w-4 text-cyan-400"></i> Settings & Preferences
-                </a>
-            </nav>
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex;gap:12px;align-items:center">
+        <button class="round hamb" onclick="toggleSide()"><i class="fa-solid fa-bars"></i></button>
+        <div><div class="crumb">Digital Workspace</div><h1 class="page-title" id="pageTitle">Dashboard</h1></div>
+      </div>
+      <div class="top-actions">
+        <div style="position:relative">
+          <button class="round" onclick="toggleBell(event)" title="Alerts"><i class="fa-regular fa-bell"></i><span class="badge-dot" id="bellCount" style="display:none">0</span></button>
+          <div class="dropdown" id="bellDd"></div>
         </div>
-
-        <!-- User Profile Footer -->
-        <div class="bg-slate-800 p-3 rounded-2xl flex items-center justify-between border border-slate-700">
-            <div class="flex items-center gap-2.5 overflow-hidden">
-                <div id="userAvatar" class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">U</div>
-                <div class="truncate text-xs">
-                    <div id="userNameDisplay" class="font-bold text-white truncate">User</div>
-                    <div id="userEmailDisplay" class="text-slate-400 text-[10px] truncate">user@ledger.com</div>
-                </div>
-            </div>
-            <button onclick="handleLogout()" class="text-slate-400 hover:text-white ms-2 text-xs" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+        <button class="round" onclick="toggleTheme()" title="Toggle theme"><i class="fa-solid fa-moon" id="themeIco"></i></button>
+        <input type="date" class="pill" id="workDate" onchange="renderPage()" style="cursor:text">
+        <div style="position:relative">
+          <div class="avatar-top" id="topAvatar" onclick="toggleUserDd(event)">D</div>
+          <div class="dropdown" id="userDd" style="width:230px">
+            <div class="dd-item" style="border-bottom:1px solid var(--border);margin-bottom:6px"><div><b id="ddName">—</b><div class="muted" id="ddEmail" style="font-size:11.5px"></div></div></div>
+            <div class="dd-item" style="cursor:pointer" onclick="go('settings');closeDds()"><i class="fa-solid fa-gear" style="color:var(--muted)"></i> Settings &amp; Preferences</div>
+            <div class="dd-item" style="cursor:pointer" onclick="exportData()"><i class="fa-solid fa-download" style="color:var(--muted)"></i> Export my data (JSON)</div>
+            <div class="dd-item" style="cursor:pointer;color:var(--red)" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</div>
+          </div>
         </div>
-    </aside>
+      </div>
+    </div>
+    <div id="view"></div>
+  </main>
+</div>
 
-    <!-- RIGHT MAIN CONTENT SECTION -->
-    <main class="flex-1 overflow-y-auto px-8 py-6 space-y-6">
-        
-        <!-- Printable Header -->
-        <div class="print-only mb-6 border-b pb-4">
-            <h1 class="text-2xl font-bold text-slate-900" id="printCompName">Digital Ledger System</h1>
-            <p class="text-sm text-slate-600" id="printCompAddress">Kathmandu, Nepal | PAN/VAT: N/A</p>
-            <p class="text-xs text-slate-500 mt-1">Generated Statement Date: <span id="printDate"></span></p>
-        </div>
+<div class="modal-bd" id="modalBd" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modalBox">
+    <div class="modal-h"><h3 id="modalTitle">Title</h3><button class="icon-btn" style="color:var(--muted)" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-b" id="modalBody"></div>
+  </div>
+</div>
+<div class="toast-wrap" id="toasts"></div>
 
-        <!-- Header Bar -->
-        <header class="flex justify-between items-center no-print">
-            <div>
-                <span class="text-xs font-semibold text-slate-400">Digital Workspace</span>
-                <h2 class="text-2xl font-bold text-slate-900 dark:text-white" id="moduleTitle">Dashboard</h2>
-            </div>
-            <div class="flex items-center gap-3">
-                <button onclick="toggleDarkMode()" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold bg-white dark:bg-slate-800 dark:text-white shadow-sm hover:bg-slate-100 transition">
-                    <i class="fa-solid fa-moon dark:hidden text-indigo-600"></i><i class="fa-solid fa-sun hidden dark:inline text-amber-400"></i>
-                </button>
-                <span class="text-xs font-semibold text-slate-500 dark:text-slate-300 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700" id="currentDateDisplay"></span>
-                <div id="headerUserInitials" class="w-9 h-9 bg-slate-900 dark:bg-slate-700 text-white rounded-xl flex items-center justify-center font-bold text-xs shadow-md">U</div>
-            </div>
-        </header>
+<script>
+/* ============ UTIL ============ */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,10);
+const num=v=>{const n=parseFloat(v);return isNaN(n)?0:n;};
+const money=n=>'₨ '+num(n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const today=()=>new Date().toISOString().slice(0,10);
+const workDate=()=>$('workDate').value||today();
+const fmtDate=d=>d? d.split('-').reverse().join('/') : '';
+const sum=(a,k)=>a.reduce((s,x)=>s+num(x[k]),0);
+function toast(msg,type='ok',title){
+  const t=document.createElement('div');t.className='toast '+type;
+  t.innerHTML='<b>'+esc(title||(type==='err'?'Error':type==='warn'?'Warning':'Success'))+'</b>'+esc(msg);
+  $('toasts').appendChild(t);setTimeout(()=>{t.style.opacity=0;t.style.transform='translateX(20px)';t.style.transition='.3s';setTimeout(()=>t.remove(),320)},3600);
+}
+function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h)+s.charCodeAt(i);return String(h>>>0);}
 
-        <!-- Dynamic Workspace Views -->
-        <div id="workspaceContent">
+/* ============ AUTH ============ */
+const USERS='dn_users_v1', SESS='dn_session_v1';
+const users=()=>JSON.parse(localStorage.getItem(USERS)||'[]');
+const saveUsers=u=>localStorage.setItem(USERS,JSON.stringify(u));
+let ME=null, DB=null;
 
-            <!-- 1. DASHBOARD VIEW -->
-            <div id="view-dashboard" class="space-y-6">
-                <!-- Top Metric Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Customers</span>
-                        <div class="text-xl font-extrabold text-slate-900 dark:text-white mt-1" id="dashTotalCustomers">0</div>
-                    </div>
-                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Receivable (उठाउन बाँकी)</span>
-                        <div class="text-xl font-extrabold text-rose-600 mt-1" id="dashTotalReceivable">रु 0.00</div>
-                    </div>
-                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Payable (तिर्न बाँकी)</span>
-                        <div class="text-xl font-extrabold text-amber-600 mt-1" id="dashTotalPayable">रु 0.00</div>
-                    </div>
-                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase">Today's Transactions</span>
-                        <div class="text-xl font-extrabold text-emerald-600 mt-1" id="dashTodayTransactions">रु 0.00</div>
-                    </div>
-                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase">This Month Summary</span>
-                        <div class="text-xl font-extrabold text-blue-600 mt-1" id="dashMonthSummary">रु 0.00</div>
-                    </div>
-                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Purchases</span>
-                        <div class="text-xl font-extrabold text-purple-600 mt-1" id="dashTotalPurchase">रु 0.00</div>
-                    </div>
-                </div>
+function switchAuth(m){
+  $('tabLogin').classList.toggle('on',m==='login');$('tabSignup').classList.toggle('on',m!=='login');
+  $('loginForm').style.display=m==='login'?'':'none';$('signupForm').style.display=m==='login'?'none':'';
+}
+function fillDemo(){$('lgEmail').value='demo@diary.np';$('lgPass').value='demo123';}
+function showErr(id,on){$(id).classList.toggle('show',on);$(id.replace('Err','')).classList.toggle('err',on);}
+function validEmail(e){return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);}
 
-                <!-- Dashboard Charts -->
-                <div class="grid grid-cols-12 gap-6">
-                    <div class="col-span-12 lg:col-span-8 bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 card-shadow">
-                        <h4 class="font-bold text-slate-900 dark:text-white text-sm mb-4"><i class="fa-solid fa-chart-area text-blue-600 me-2"></i>Real-time Sales & Financial Trend</h4>
-                        <div class="h-64"><canvas id="salesPurchaseChart"></canvas></div>
-                    </div>
-                    <div class="col-span-12 lg:col-span-4 bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 card-shadow">
-                        <h4 class="font-bold text-slate-900 dark:text-white text-sm mb-4"><i class="fa-solid fa-chart-pie text-emerald-600 me-2"></i>Receivables vs Payables Breakdown</h4>
-                        <div class="h-64 relative"><canvas id="incomeExpenseChart"></canvas></div>
-                    </div>
-                </div>
+function doSignup(e){
+  e.preventDefault();
+  const n=$('suName').value.trim(),b=$('suBiz').value.trim(),em=$('suEmail').value.trim().toLowerCase(),p=$('suPass').value,p2=$('suPass2').value;
+  let ok=true;
+  showErr('suNameErr',!n); ok=ok&&n;
+  showErr('suEmailErr',!validEmail(em)); ok=ok&&validEmail(em);
+  showErr('suPassErr',p.length<6); ok=ok&&p.length>=6;
+  showErr('suPass2Err',p!==p2||!p2); ok=ok&&p===p2&&p2;
+  if(!ok)return toast('Please fix the highlighted fields','err','Validation failed');
+  const us=users();
+  if(us.find(u=>u.email===em))return toast('This email is already registered. Please login.','err');
+  us.push({email:em,name:n,biz:b||(n+"'s Business"),pass:hash(p),created:new Date().toISOString()});
+  saveUsers(us);
+  seedUser(em,b||(n+"'s Business"));
+  toast('Account created. Welcome, '+n+'!','ok');
+  login(em);
+}
+function doLogin(e){
+  e.preventDefault();
+  const em=$('lgEmail').value.trim().toLowerCase(),p=$('lgPass').value;
+  let ok=validEmail(em); showErr('lgEmailErr',!ok); showErr('lgPassErr',!p);
+  if(!ok||!p)return;
+  const u=users().find(u=>u.email===em);
+  if(!u)return toast('No account found with this email','err');
+  if(u.pass!==hash(p))return toast('Incorrect password','err');
+  login(em);
+}
+function login(email){
+  localStorage.setItem(SESS,email);
+  ME=users().find(u=>u.email===email);
+  DB=loadDB(email);
+  $('auth').style.display='none';$('app').classList.add('on');
+  $('workDate').value=today();
+  buildNav();paintUser();go('dashboard');
+  toast('Logged in as '+ME.email,'ok','Welcome');
+}
+function logout(){
+  if(!confirm('Logout from this workspace?'))return;
+  localStorage.removeItem(SESS);ME=null;DB=null;
+  $('app').classList.remove('on');$('auth').style.display='flex';
+  $('lgPass').value='';closeDds();
+}
+function paintUser(){
+  const ini=(ME.name||ME.email)[0].toUpperCase();
+  $('sbName').textContent=ME.name;$('sfBiz').textContent=ME.biz;$('sfEmail').textContent=ME.email;
+  $('sfAvatar').textContent=ini;$('topAvatar').textContent=ini;$('ddName').textContent=ME.name;$('ddEmail').textContent=ME.email;
+}
+/* ============ DATA (isolated per user) ============ */
+const KEY=e=>'dn_data_'+e;
+function blank(biz){return {biz:biz||'My Business',customers:[],products:[],txns:[],settings:{lowStock:5,currency:'₨'}};}
+function loadDB(email){
+  try{const d=JSON.parse(localStorage.getItem(KEY(email))); if(d&&d.customers)return Object.assign(blank(),d);}catch(e){}
+  const b=blank();localStorage.setItem(KEY(email),JSON.stringify(b));return b;
+}
+function save(){ try{localStorage.setItem(KEY(ME.email),JSON.stringify(DB));}catch(e){toast('Storage full — remove some attachments','err');} }
 
-                <!-- Recent Transactions Table -->
-                <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 card-shadow">
-                    <h4 class="font-bold text-slate-900 dark:text-white text-sm mb-4"><i class="fa-solid fa-clock-rotate-left text-blue-600 me-2"></i>Recent Transactions</h4>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
-                                <tr>
-                                    <th class="p-3">Date</th>
-                                    <th class="p-3">Voucher No.</th>
-                                    <th class="p-3">Customer / Party</th>
-                                    <th class="p-3">Description</th>
-                                    <th class="p-3 text-right">Debit</th>
-                                    <th class="p-3 text-right">Credit</th>
-                                    <th class="p-3">Payment Method</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recentTxTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+function seedUser(email,biz){
+  const d=blank(biz);
+  const C=(n,m,t,op)=>({id:uid(),name:n,mobile:m,type:t,pan:'',vat:'',address:'Kathmandu',opening:op||0,created:today()});
+  const cs=[C('Ram Bahadur Thapa','9841000111','Customer',0),C('Sita Traders','9851002233','Customer',5000),
+            C('Everest Suppliers','9801122334','Supplier',0),C('Himalayan Canvas Pvt.','9812345678','Supplier',0),
+            C('Gorkha Stationery','9861009988','Customer',0)];
+  d.customers=cs;
+  const P=(n,pr,sr,st)=>({id:uid(),name:n,purchase:pr,selling:sr,initial:st,stock:st,created:today()});
+  d.products=[P('Canvas Roll',1200,1600,8),P('Digital Print Sheet',80,140,150),P('Flex Banner (sqft)',35,65,420),P('Vinyl Sticker Roll',900,1350,24),P('Sticker Cutting Blade',450,700,4)];
+  const day=k=>{const dt=new Date();dt.setDate(dt.getDate()-k);return dt.toISOString().slice(0,10);};
+  const T=(o)=>Object.assign({id:uid(),attachments:[],items:[]},o);
+  d.txns=[
+   T({date:day(26),type:'purchase',voucher:'PUR-0001',partyId:cs[2].id,desc:'Stock purchase — Canvas Roll x10',debit:0,credit:12000,mode:'Credit',items:[{productId:d.products[0].id,name:'Canvas Roll',qty:10,rate:1200}]}),
+   T({date:day(20),type:'sale',voucher:'INV-0001',partyId:cs[0].id,desc:'Sale — Canvas Roll x2',debit:3200,credit:0,mode:'Credit',items:[{productId:d.products[0].id,name:'Canvas Roll',qty:2,rate:1600}]}),
+   T({date:day(14),type:'receipt',voucher:'RCP-0001',partyId:cs[0].id,desc:'Payment received',debit:0,credit:2000,mode:'eSewa'}),
+   T({date:day(10),type:'sale',voucher:'INV-0002',partyId:cs[1].id,desc:'Sale — Flex Banner 80 sqft',debit:5200,credit:0,mode:'QR Payment',items:[{productId:d.products[2].id,name:'Flex Banner (sqft)',qty:80,rate:65}]}),
+   T({date:day(6),type:'payment',voucher:'PAY-0001',partyId:cs[2].id,desc:'Paid to supplier',debit:6000,credit:0,mode:'Bank'}),
+   T({date:day(3),type:'sale',voucher:'INV-0003',partyId:cs[4].id,desc:'Sale — Digital Print 40 sheets',debit:5600,credit:0,mode:'Credit',items:[{productId:d.products[1].id,name:'Digital Print Sheet',qty:40,rate:140}]}),
+   T({date:day(1),type:'purchase',voucher:'PUR-0002',partyId:cs[3].id,desc:'Vinyl Sticker Roll x6',debit:0,credit:5400,mode:'Cash',items:[{productId:d.products[3].id,name:'Vinyl Sticker Roll',qty:6,rate:900}]}),
+   T({date:today(),type:'sale',voucher:'INV-0004',partyId:cs[0].id,desc:'Sale — Vinyl Sticker Roll x1',debit:1350,credit:0,mode:'Khalti',items:[{productId:d.products[3].id,name:'Vinyl Sticker Roll',qty:1,rate:1350}]}),
+   T({date:today(),type:'receipt',voucher:'RCP-0002',partyId:cs[1].id,desc:'Cash collection',debit:0,credit:3000,mode:'Cash'})
+  ];
+  localStorage.setItem(KEY(email),JSON.stringify(d));
+}
 
-            <!-- 2. CUSTOMER INFORMATION VIEW -->
-            <div id="view-customers" class="space-y-6 hidden">
-                <div class="flex flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow gap-4">
-                    <div>
-                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Customer Directory</h3>
-                        <p class="text-xs text-slate-400">Manage customer profile, contact details, opening balance and PAN/VAT.</p>
-                    </div>
-                    <button onclick="openCustomerModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
-                        <i class="fa-solid fa-user-plus me-1.5"></i> Add New Customer
-                    </button>
-                </div>
+/* ============ DERIVED ============ */
+const party=id=>DB.customers.find(c=>c.id===id);
+const pname=id=>{const p=party(id);return p?p.name:'—';};
+function balance(p){
+  const t=DB.txns.filter(x=>x.partyId===p.id);
+  const d=sum(t,'debit'),c=sum(t,'credit');
+  return p.type==='Supplier' ? num(p.opening)+c-d : num(p.opening)+d-c;
+}
+const customersOnly=()=>DB.customers.filter(c=>c.type!=='Supplier');
+const suppliersOnly=()=>DB.customers.filter(c=>c.type==='Supplier');
+const salesTx=()=>DB.txns.filter(t=>t.type==='sale');
+const purchaseTx=()=>DB.txns.filter(t=>t.type==='purchase');
+const totalSales=()=>sum(salesTx(),'debit');
+const totalPurchases=()=>sum(purchaseTx(),'credit');
+const totalReceivable=()=>customersOnly().reduce((s,c)=>s+Math.max(0,balance(c)),0);
+const totalPayable=()=>suppliersOnly().reduce((s,c)=>s+Math.max(0,balance(c)),0);
+const inMonth=(d,ym)=>d&&d.slice(0,7)===ym;
+function lowStock(){const th=num(DB.settings.lowStock)||5;return DB.products.filter(p=>num(p.stock)<=th);}
+function nextVoucher(prefix){
+  const n=DB.txns.filter(t=>(t.voucher||'').startsWith(prefix)).length+1;
+  return prefix+String(n).padStart(4,'0');
+}
+function adjustStock(pid,delta){const p=DB.products.find(x=>x.id===pid);if(p){p.stock=num(p.stock)+delta;
+  const th=num(DB.settings.lowStock)||5; if(delta<0&&num(p.stock)<=th)toast('Low Stock Alert: '+p.name+' is running out ('+p.stock+' left).','warn','Inventory');}}
 
-                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow flex flex-wrap gap-3">
-                    <input type="text" id="custSearchName" oninput="renderCustomers()" placeholder="Search by Customer Name..." class="px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none flex-1 min-w-[200px]">
-                    <input type="text" id="custSearchMobile" oninput="renderCustomers()" placeholder="Search by Mobile..." class="px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none flex-1 min-w-[150px]">
-                    <select id="custFilterBalance" onchange="renderCustomers()" class="px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none">
-                        <option value="ALL">All Balances</option>
-                        <option value="DUE">Outstanding Due (>0)</option>
-                        <option value="ZERO">Zero Balance</option>
-                        <option value="ADVANCE">Advance Paid (<0)</option>
-                    </select>
-                </div>
+/* ============ NAV ============ */
+const PAGES=[
+ {id:'dashboard',label:'Dashboard',icon:'fa-grip',color:'#fff'},
+ {id:'customers',label:'Customer Information',icon:'fa-users',color:'#38bdf8'},
+ {id:'ledger',label:'Ledger Entries & Ledger',icon:'fa-book',color:'#818cf8'},
+ {id:'products',label:'Product & Inventory',icon:'fa-tags',color:'#f472b6'},
+ {id:'sales',label:'Sales System',icon:'fa-cart-shopping',color:'#fbbf24'},
+ {id:'purchases',label:'Purchase System',icon:'fa-briefcase',color:'#a78bfa'},
+ {id:'receipt',label:'Payment Receipt',icon:'fa-receipt',color:'#34d399'},
+ {id:'paid',label:'Payment Paid',icon:'fa-money-bill-wave',color:'#fb7185'},
+ {id:'returns',label:'Return',icon:'fa-rotate-left',color:'#f97316'},
+ {id:'adjustment',label:'Adjustment',icon:'fa-sliders',color:'#22d3ee'},
+ {id:'reports',label:'Reports & Analytics',icon:'fa-chart-pie',color:'#4ade80'},
+ {id:'settings',label:'Settings & Preferences',icon:'fa-gear',color:'#93c5fd'}
+];
+let CUR='dashboard';
+function buildNav(){
+  $('nav').innerHTML=PAGES.map(p=>`<a data-p="${p.id}" onclick="go('${p.id}')"><i class="fa-solid ${p.icon}" style="color:${p.color}"></i>${p.label}</a>`).join('');
+}
+function go(id){CUR=id;document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('active',a.dataset.p===id));
+  $('pageTitle').textContent=PAGES.find(p=>p.id===id).label.replace(' & ',' & ');
+  if(window.innerWidth<981){$('sidebar').classList.remove('open');$('backdrop').classList.remove('on');}
+  renderPage();window.scrollTo({top:0,behavior:'smooth'});}
+function toggleSide(){$('sidebar').classList.toggle('open');$('backdrop').classList.toggle('on');}
+function toggleTheme(){
+  const dark=document.documentElement.dataset.theme==='dark';
+  document.documentElement.dataset.theme=dark?'light':'dark';
+  $('themeIco').className='fa-solid '+(dark?'fa-moon':'fa-sun');
+  localStorage.setItem('dn_theme',dark?'light':'dark');
+  if(CUR==='dashboard')renderPage();
+}
+function toggleBell(e){e.stopPropagation();const dd=$('bellDd');$('userDd').classList.remove('on');dd.classList.toggle('on');}
+function toggleUserDd(e){e.stopPropagation();$('bellDd').classList.remove('on');$('userDd').classList.toggle('on');}
+function closeDds(){$('bellDd').classList.remove('on');$('userDd').classList.remove('on');}
+document.addEventListener('click',closeDds);
+$('bellDd').onclick=e=>e.stopPropagation();$('userDd').onclick=e=>e.stopPropagation();
+function paintBell(){
+  const ls=lowStock();
+  $('bellCount').style.display=ls.length?'grid':'none';$('bellCount').textContent=ls.length;
+  $('bellDd').innerHTML=`<div style="padding:8px 12px;font-weight:700;font-size:13px">Notifications</div>`+
+   (ls.length? ls.map(p=>`<div class="dd-item"><i class="fa-solid fa-triangle-exclamation" style="color:var(--orange);margin-top:2px"></i>
+     <div><b>Low Stock Alert:</b> ${esc(p.name)} is running out.<div class="muted" style="font-size:11.5px">Current stock: ${p.stock}</div></div></div>`).join('')
+   : `<div class="dd-item muted">All good — no low stock items 🎉</div>`);
+}
 
-                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
-                            <tr>
-                                <th class="p-4">Customer ID</th>
-                                <th class="p-4">Customer Name</th>
-                                <th class="p-4">Mobile</th>
-                                <th class="p-4">Address</th>
-                                <th class="p-4">PAN/VAT</th>
-                                <th class="p-4 text-right">Opening Bal.</th>
-                                <th class="p-4 text-right">Current Balance</th>
-                                <th class="p-4 text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="customerTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
-                    </table>
-                </div>
-            </div>
+/* ============ TABLE ENGINE ============ */
+let TBL={},tseq=0;
+function dataTable(cols,rows,opts={}){
+  const id='t'+(++tseq);TBL[id]={cols,rows,q:'',sort:opts.sort??null,dir:opts.dir||1};
+  setTimeout(()=>paint(id),0);
+  return `<div id="${id}">
+   ${opts.search===false?'':`<div class="tbl-tools"><div class="search"><i class="fa-solid fa-magnifying-glass"></i><input placeholder="${esc(opts.ph||'Search...')}" oninput="tq('${id}',this.value)"></div>${opts.tools||''}</div>`}
+   <div class="tbl-scroll"><table><thead><tr>${cols.map((c,i)=>`<th class="${c.align||''}" onclick="ts('${id}',${i})">${esc(c.label)}${c.sortable===false?'':'<i class="fa-solid fa-sort"></i>'}</th>`).join('')}</tr></thead><tbody></tbody></table></div>
+   <div class="tbl-empty" style="display:none">${esc(opts.empty||'No records found')}</div></div>`;
+}
+function tq(id,v){TBL[id].q=v.toLowerCase();paint(id);}
+function ts(id,i){const t=TBL[id];if(t.cols[i].sortable===false)return;t.dir=t.sort===i?-t.dir:1;t.sort=i;paint(id);}
+function cellVal(c,r){return c.val?c.val(r):(r[c.key]??'');}
+function paint(id){
+  const t=TBL[id],host=$(id);if(!host)return;
+  let rows=t.rows.slice();
+  if(t.q)rows=rows.filter(r=>t.cols.some(c=>String(cellVal(c,r)).toLowerCase().includes(t.q)));
+  if(t.sort!=null){const c=t.cols[t.sort];rows.sort((a,b)=>{const x=cellVal(c,a),y=cellVal(c,b);
+    const nx=parseFloat(x),ny=parseFloat(y);
+    if(!isNaN(nx)&&!isNaN(ny)&&String(x).trim()!==''&&String(y).trim()!=='')return (nx-ny)*t.dir;
+    return String(x).localeCompare(String(y))*t.dir;});}
+  host.querySelector('tbody').innerHTML=rows.map(r=>`<tr>${t.cols.map(c=>`<td class="${c.align||''}">${c.fmt?c.fmt(r):esc(cellVal(c,r))}</td>`).join('')}</tr>`).join('');
+  host.querySelector('.tbl-empty').style.display=rows.length?'none':'block';
+}
 
-            <!-- 3. CUSTOMER LEDGER VIEW -->
-            <div id="view-creditledger" class="space-y-6 hidden">
-                <div class="flex flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow gap-4">
-                    <div>
-                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Ledger Entries & Customer Ledger</h3>
-                        <p class="text-xs text-slate-400">Complete Ledger Entries with auto-voucher, debit/credit, running balance, & filters.</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="openLedgerEntryModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
-                            <i class="fa-solid fa-plus me-1.5"></i> Add New Entry
-                        </button>
-                        <button onclick="shareLedgerReport()" class="bg-emerald-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition">
-                            <i class="fa-solid fa-share-nodes me-1.5"></i> Share Ledger
-                        </button>
-                        <button onclick="window.print()" class="bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-slate-900 transition">
-                            <i class="fa-solid fa-print me-1.5"></i> Print Ledger
-                        </button>
-                    </div>
-                </div>
+/* ============ MODAL ============ */
+function modal(title,html,wide){
+  $('modalTitle').innerHTML=title;$('modalBody').innerHTML=html;
+  $('modalBox').style.maxWidth=wide||'900px';$('modalBd').classList.add('on');document.body.style.overflow='hidden';
+}
+function closeModal(){$('modalBd').classList.remove('on');document.body.style.overflow='';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
-                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Select Customer</label>
-                            <select id="ledgerCustomerSelect" onchange="renderCustomerLedgerView()" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none font-bold">
-                                <option value="ALL">-- All Customer Entries --</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Filter Payment Method</label>
-                            <select id="ledgerFilterPayment" onchange="renderCustomerLedgerView()" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none">
-                                <option value="ALL">All Methods</option>
-                                <option value="Cash">Cash</option>
-                                <option value="Bank">Bank</option>
-                                <option value="QR">QR</option>
-                                <option value="Cheque">Cheque</option>
-                                <option value="Credit">Credit</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">From Date</label>
-                            <input type="date" id="ledgerStartDate" onchange="renderCustomerLedgerView()" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">To Date</label>
-                            <input type="date" id="ledgerEndDate" onchange="renderCustomerLedgerView()" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 dark:text-white text-xs rounded-xl focus:outline-none">
-                        </div>
-                    </div>
+/* ============ PAGE ROUTER ============ */
+function renderPage(){
+  paintBell();
+  const v=$('view');
+  ({dashboard:pgDashboard,customers:pgCustomers,ledger:pgLedger,products:pgProducts,sales:pgSales,purchases:pgPurchases,
+    receipt:pgReceipt,paid:pgPaid,returns:pgReturns,adjustment:pgAdjust,reports:pgReports,settings:pgSettings}[CUR])(v);
+}
 
-                    <!-- CUSTOMER SUMMARY CARDS FOR LEDGER -->
-                    <div id="customerSummaryBox" class="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600">
-                        <div>
-                            <span class="text-slate-400 block text-[10px] font-bold uppercase">Customer Name</span>
-                            <span id="custHeadName" class="text-slate-900 dark:text-white font-extrabold text-sm">-- All Customers --</span>
-                        </div>
-                        <div>
-                            <span class="text-slate-400 block text-[10px] font-bold uppercase">Total Debit</span>
-                            <span id="custHeadTotalDebit" class="text-rose-600 font-extrabold text-sm">रु 0.00</span>
-                        </div>
-                        <div>
-                            <span class="text-slate-400 block text-[10px] font-bold uppercase">Total Credit</span>
-                            <span id="custHeadTotalCredit" class="text-emerald-600 font-extrabold text-sm">रु 0.00</span>
-                        </div>
-                        <div>
-                            <span class="text-slate-400 block text-[10px] font-bold uppercase">Outstanding Balance</span>
-                            <span id="custHeadOutstanding" class="text-blue-600 font-extrabold text-sm">रु 0.00</span>
-                        </div>
-                    </div>
-                </div>
+/* ---------- DASHBOARD ---------- */
+let chartLine,chartDonut;
+function pgDashboard(v){
+  const wd=workDate(),ym=wd.slice(0,7);
+  const todayTx=DB.txns.filter(t=>t.date===wd);
+  const monthSales=sum(salesTx().filter(t=>inMonth(t.date,ym)),'debit');
+  const cards=[
+   {k:'customers',lbl:'Total Customers',val:customersOnly().length,color:'var(--text)',sub:suppliersOnly().length+' suppliers also registered'},
+   {k:'receivable',lbl:'Total Receivable (उठाउन बाँकी)',val:money(totalReceivable()),color:'var(--red)',sub:'From '+customersOnly().filter(c=>balance(c)>0).length+' customers'},
+   {k:'payable',lbl:'Total Payable (तिर्न बाँकी)',val:money(totalPayable()),color:'var(--orange)',sub:'To '+suppliersOnly().filter(c=>balance(c)>0).length+' suppliers'},
+   {k:'todays',lbl:"Today's Transactions",val:money(todayTx.reduce((s,t)=>s+num(t.debit)+num(t.credit),0)),color:'var(--green)',sub:todayTx.length+' entries on '+fmtDate(wd)},
+   {k:'month',lbl:'This Month Summary',val:money(monthSales),color:'var(--accent)',sub:'Sales in '+ym},
+   {k:'purchases',lbl:'Total Purchases',val:money(totalPurchases()),color:'var(--purple)',sub:purchaseTx().length+' purchase vouchers'},
+   {k:'sales',lbl:'Total Sales',val:money(totalSales()),color:'var(--green)',sub:salesTx().length+' invoices issued'}
+  ];
+  const recent=DB.txns.slice().sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id)).slice(0,8);
+  v.innerHTML=`
+  <div class="cards">${cards.map(c=>`<div class="card">
+      <button class="eye" title="View details" onclick="cardView('${c.k}')"><i class="fa-regular fa-eye"></i></button>
+      <div class="lbl">${esc(c.lbl)}</div><div class="val" style="color:${c.color}">${c.val}</div><div class="sub">${esc(c.sub)}</div></div>`).join('')}</div>
+  <div class="grid2">
+    <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-chart-area" style="color:var(--accent)"></i> Real-time Sales &amp; Financial Trend</h3>
+      <div class="spacer"></div><span class="chip b">Live data</span></div>
+      <div class="chart-box"><canvas id="lineC"></canvas></div></div>
+    <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-chart-pie" style="color:var(--green)"></i> Receivables vs Payables</h3></div>
+      <div class="chart-box"><canvas id="donutC"></canvas></div></div>
+  </div>
+  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-clock-rotate-left" style="color:var(--accent)"></i> Recent Transactions</h3>
+    <div class="spacer"></div><button class="btn sm ghost" onclick="go('ledger')"><i class="fa-solid fa-arrow-right"></i> Full ledger</button></div>
+    ${dataTable([
+      {label:'Date',key:'date',fmt:r=>fmtDate(r.date)},
+      {label:'Voucher No.',key:'voucher'},
+      {label:'Customer / Party',val:r=>pname(r.partyId)},
+      {label:'Description',key:'desc'},
+      {label:'Debit',key:'debit',align:'right',fmt:r=>num(r.debit)?money(r.debit):'—'},
+      {label:'Credit',key:'credit',align:'right',fmt:r=>num(r.credit)?money(r.credit):'—'},
+      {label:'Payment Method',key:'mode',fmt:r=>`<span class="chip b">${esc(r.mode||'—')}</span>`},
+      {label:'Action',sortable:false,fmt:r=>`<button class="act" title="View" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>`}
+    ],recent,{ph:'Search recent transactions...',empty:'No transactions yet — create a sale or ledger entry.'})}
+  </div>`;
+  drawCharts();
+}
+function drawCharts(){
+  const dark=document.documentElement.dataset.theme==='dark';
+  const grid=dark?'#1e293b':'#eef2f7',tick=dark?'#94a3b8':'#64748b';
+  const labels=[],vals=[];
+  for(let i=6;i>=0;i--){const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-i);
+    const ym=d.toISOString().slice(0,7);labels.push(d.toLocaleString('en',{month:'short'}));
+    vals.push(sum(salesTx().filter(t=>inMonth(t.date,ym)),'debit'));}
+  if(chartLine)chartLine.destroy();
+  chartLine=new Chart($('lineC'),{type:'line',data:{labels,datasets:[{label:'Sales Trend',data:vals,borderColor:'#2563eb',
+    backgroundColor:'rgba(37,99,235,.10)',fill:true,tension:.42,pointRadius:4,pointBackgroundColor:'#fff',pointBorderWidth:2,borderWidth:3}]},
+    options:{maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{color:tick,usePointStyle:true,boxWidth:8}},
+      tooltip:{callbacks:{label:c=>' Sales: '+money(c.raw)}}},
+      scales:{y:{beginAtZero:true,grid:{color:grid},ticks:{color:tick,callback:v=>v.toLocaleString()}},x:{grid:{color:grid},ticks:{color:tick}}}}});
+  const r=totalReceivable(),p=totalPayable();
+  if(chartDonut)chartDonut.destroy();
+  chartDonut=new Chart($('donutC'),{type:'doughnut',data:{labels:['Receivables','Payables'],
+    datasets:[{data:[r||0.0001,p||0.0001],backgroundColor:['#e11d48','#d97706'],borderWidth:0,cutout:'58%'}]},
+    options:{maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{color:tick,usePointStyle:true,boxWidth:9}},
+      tooltip:{callbacks:{label:c=>' '+c.label+': '+money(c.raw)}}}}});
+}
+function cardView(k){
+  if(k==='customers'){
+    modal('<i class="fa-solid fa-users" style="color:var(--accent)"></i> All Customers',
+      dataTable([{label:'Customer Name',key:'name'},{label:'Mobile',key:'mobile'},{label:'Type',key:'type',fmt:r=>`<span class="chip ${r.type==='Supplier'?'o':'b'}">${esc(r.type)}</span>`},
+        {label:'Address',key:'address'},{label:'Balance',align:'right',val:r=>balance(r),fmt:r=>{const b=balance(r);return `<b style="color:${b>0?'var(--red)':'var(--green)'}">${money(Math.abs(b))}</b>`;}},
+        {label:'Action',sortable:false,fmt:r=>`<button class="act" title="Ledger" onclick="closeModal();openLedgerOf('${r.id}')"><i class="fa-solid fa-book"></i></button>`}],
+        DB.customers,{ph:'Quick search by name, mobile, address...'}));
+  }
+  if(k==='receivable'){
+    const rows=customersOnly().filter(c=>balance(c)>0).map(c=>{
+      const last=DB.txns.filter(t=>t.partyId===c.id).sort((a,b)=>b.date.localeCompare(a.date))[0];
+      const due=last?new Date(new Date(last.date).getTime()+30*864e5).toISOString().slice(0,10):'';
+      return {...c,out:balance(c),due};});
+    modal('<i class="fa-solid fa-hand-holding-dollar" style="color:var(--red)"></i> Receivables — कसले कति तिर्न बाँकी',
+      `<p class="muted" style="margin-bottom:12px">Total outstanding: <b style="color:var(--red)">${money(totalReceivable())}</b></p>`+
+      dataTable([{label:'Customer Name',key:'name'},{label:'Mobile',key:'mobile'},
+        {label:'Outstanding',key:'out',align:'right',fmt:r=>`<b style="color:var(--red)">${money(r.out)}</b>`},
+        {label:'Due Date',key:'due',fmt:r=>r.due?fmtDate(r.due):'—'},
+        {label:'Action',sortable:false,fmt:r=>`<button class="act g" title="Collect" onclick="closeModal();go('receipt')"><i class="fa-solid fa-money-bill"></i></button>
+          <button class="act" title="Ledger" onclick="closeModal();openLedgerOf('${r.id}')"><i class="fa-solid fa-book"></i></button>`}],rows,{empty:'No receivables 🎉'}));
+  }
+  if(k==='payable'){
+    const rows=suppliersOnly().filter(c=>balance(c)>0).map(c=>({...c,out:balance(c)}));
+    modal('<i class="fa-solid fa-file-invoice-dollar" style="color:var(--orange)"></i> Payables — कुन Vendor लाई कति तिर्न बाँकी',
+      `<p class="muted" style="margin-bottom:12px">Total payable: <b style="color:var(--orange)">${money(totalPayable())}</b></p>`+
+      dataTable([{label:'Vendor / Supplier',key:'name'},{label:'Mobile',key:'mobile'},{label:'Address',key:'address'},
+        {label:'Payable Amount',key:'out',align:'right',fmt:r=>`<b style="color:var(--orange)">${money(r.out)}</b>`},
+        {label:'Action',sortable:false,fmt:r=>`<button class="act" title="Pay" onclick="closeModal();go('paid')"><i class="fa-solid fa-money-bill-wave"></i></button>`}],rows,{empty:'No payables 🎉'}));
+  }
+  if(k==='todays'){
+    const wd=workDate(),rows=DB.txns.filter(t=>t.date===wd);
+    modal('<i class="fa-solid fa-calendar-day" style="color:var(--green)"></i> Transactions on '+fmtDate(wd),
+      dataTable([{label:'Voucher',key:'voucher'},{label:'Type',key:'type',fmt:r=>`<span class="chip">${esc(r.type)}</span>`},
+        {label:'Customer',val:r=>pname(r.partyId)},{label:'Amount',align:'right',val:r=>num(r.debit)+num(r.credit),fmt:r=>money(num(r.debit)+num(r.credit))},
+        {label:'Payment Mode',key:'mode'},{label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>`}],
+        rows,{empty:'No transactions recorded for this date'}));
+  }
+  if(k==='month'){
+    const ym=workDate().slice(0,7),ms=salesTx().filter(t=>inMonth(t.date,ym)),mp=purchaseTx().filter(t=>inMonth(t.date,ym));
+    const coll=sum(DB.txns.filter(t=>t.type==='receipt'&&inMonth(t.date,ym)),'credit');
+    const paid=sum(DB.txns.filter(t=>t.type==='payment'&&inMonth(t.date,ym)),'debit');
+    let cogs=0;ms.forEach(t=>(t.items||[]).forEach(i=>{const p=DB.products.find(x=>x.id===i.productId);cogs+=num(p?p.purchase:0)*num(i.qty);}));
+    const s=sum(ms,'debit'),pu=sum(mp,'credit'),profit=s-cogs;
+    const box=(l,v,c)=>`<div class="card" style="box-shadow:none"><div class="lbl">${l}</div><div class="val" style="color:${c};font-size:21px">${money(v)}</div></div>`;
+    modal('<i class="fa-solid fa-calendar" style="color:var(--accent)"></i> Monthly Summary — '+ym,
+      `<div class="cards" style="margin-bottom:18px">${box('Sales',s,'var(--green)')}${box('Purchase',pu,'var(--purple)')}${box('Collection',coll,'var(--accent)')}${box('Payment',paid,'var(--orange)')}${box('Gross Profit',profit,profit>=0?'var(--green)':'var(--red)')}</div>
+      <h4 style="margin-bottom:10px">Month transactions</h4>`+
+      dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Voucher',key:'voucher'},{label:'Type',key:'type'},
+        {label:'Party',val:r=>pname(r.partyId)},{label:'Debit',key:'debit',align:'right',fmt:r=>num(r.debit)?money(r.debit):'—'},
+        {label:'Credit',key:'credit',align:'right',fmt:r=>num(r.credit)?money(r.credit):'—'}],
+        DB.txns.filter(t=>inMonth(t.date,ym)),{empty:'No transactions this month'}));
+  }
+  if(k==='purchases'){
+    modal('<i class="fa-solid fa-briefcase" style="color:var(--purple)"></i> All Purchases',
+      dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Voucher',key:'voucher'},{label:'Supplier',val:r=>pname(r.partyId)},
+        {label:'Items',val:r=>(r.items||[]).map(i=>i.name+' x'+i.qty).join(', ')||'—'},
+        {label:'Amount',key:'credit',align:'right',fmt:r=>money(r.credit)},{label:'Mode',key:'mode'},
+        {label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>`}],
+        purchaseTx(),{empty:'No purchases recorded'}));
+  }
+  if(k==='sales'){
+    modal('<i class="fa-solid fa-cart-shopping" style="color:var(--green)"></i> All Sales',
+      dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Invoice No.',key:'voucher'},{label:'Customer',val:r=>pname(r.partyId)},
+        {label:'Items',val:r=>(r.items||[]).map(i=>i.name+' x'+i.qty).join(', ')||'—'},
+        {label:'Amount',key:'debit',align:'right',fmt:r=>money(r.debit)},{label:'Mode',key:'mode'},
+        {label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>`}],
+        salesTx(),{empty:'No sales recorded'}));
+  }
+}
 
-                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
-                            <tr>
-                                <th class="p-4">Date</th>
-                                <th class="p-4">Voucher No.</th>
-                                <th class="p-4">Customer</th>
-                                <th class="p-4">Description / Remarks</th>
-                                <th class="p-4 text-right">Debit (उधार)</th>
-                                <th class="p-4 text-right">Credit (प्राप्त)</th>
-                                <th class="p-4 text-right">Running Balance</th>
-                                <th class="p-4">Method</th>
-                                <th class="p-4 text-center no-print">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ledgerTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
-                    </table>
-                </div>
-            </div>
+/* ---------- TRANSACTION VIEW + ATTACHMENTS ---------- */
+function viewTxn(id){
+  const t=DB.txns.find(x=>x.id===id);if(!t)return;
+  modal('<i class="fa-solid fa-file-invoice" style="color:var(--accent)"></i> Transaction — '+esc(t.voucher),`
+   <div class="kv">
+     <div>Date</div><div>${fmtDate(t.date)}</div>
+     <div>Voucher No.</div><div><b>${esc(t.voucher)}</b></div>
+     <div>Type</div><div><span class="chip">${esc(t.type)}</span></div>
+     <div>Party</div><div>${esc(pname(t.partyId))}</div>
+     <div>Description</div><div>${esc(t.desc||'—')}</div>
+     <div>Payment Mode</div><div><span class="chip b">${esc(t.mode||'—')}</span></div>
+     <div>Debit</div><div style="color:var(--red)"><b>${money(t.debit)}</b></div>
+     <div>Credit</div><div style="color:var(--green)"><b>${money(t.credit)}</b></div>
+   </div>
+   ${(t.items&&t.items.length)?`<h4 style="margin:18px 0 8px">Items</h4><div class="tbl-scroll"><table><thead><tr><th>Product</th><th class="right">Qty</th><th class="right">Rate</th><th class="right">Amount</th></tr></thead><tbody>
+     ${t.items.map(i=>`<tr><td>${esc(i.name)}</td><td class="right">${i.qty}</td><td class="right">${money(i.rate)}</td><td class="right">${money(num(i.qty)*num(i.rate))}</td></tr>`).join('')}</tbody></table></div>`:''}
+   <h4 style="margin:20px 0 8px">Attachments <span class="muted" style="font-weight:400;font-size:12px">— QR screenshot, bank slip, cheque, receipt photo</span></h4>
+   <div class="dropzone" onclick="$('attInp').click()"><i class="fa-solid fa-cloud-arrow-up"></i> Click to upload image / screenshot (JPG, PNG)</div>
+   <input id="attInp" type="file" accept="image/*" multiple hidden onchange="uploadAtt('${t.id}',this.files)">
+   <div class="thumbs" id="thumbs">${attHTML(t)}</div>`);
+}
+function attHTML(t){
+  if(!t.attachments||!t.attachments.length)return '<p class="muted" style="font-size:12.5px">No attachments yet.</p>';
+  return t.attachments.map((a,i)=>`<div class="thumb"><img src="${a.data}" onclick="previewImg('${t.id}',${i})"><div class="nm">${esc(a.name)}</div>
+    <button class="x" title="Remove" onclick="delAtt('${t.id}',${i})"><i class="fa-solid fa-xmark"></i></button></div>`).join('');
+}
+function uploadAtt(id,files){
+  const t=DB.txns.find(x=>x.id===id);if(!t)return;t.attachments=t.attachments||[];
+  let left=files.length;if(!left)return;
+  [...files].forEach(f=>{
+    if(f.size>1.6*1024*1024){toast(f.name+' is too large (max 1.5MB)','err');left--;return;}
+    const r=new FileReader();r.onload=e=>{t.attachments.push({name:f.name,data:e.target.result});
+      if(--left<=0){save();$('thumbs').innerHTML=attHTML(t);toast('Attachment(s) uploaded','ok');}};
+    r.readAsDataURL(f);});
+}
+function delAtt(id,i){const t=DB.txns.find(x=>x.id===id);t.attachments.splice(i,1);save();$('thumbs').innerHTML=attHTML(t);toast('Attachment removed','ok');}
+function previewImg(id,i){const a=DB.txns.find(x=>x.id===id).attachments[i];
+  modal('<i class="fa-regular fa-image"></i> '+esc(a.name),`<img src="${a.data}" style="max-width:100%;border-radius:12px">`,'780px');}
 
-            <!-- 4. PRODUCT & INVENTORY VIEW -->
-            <div id="view-products" class="space-y-6 hidden">
-                <div class="flex flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow gap-4">
-                    <div>
-                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Product & Inventory Management</h3>
-                        <p class="text-xs text-slate-400">Manage stock items, purchase price, selling price, and quantities.</p>
-                    </div>
-                    <button onclick="openProductModal()" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
-                        <i class="fa-solid fa-plus me-1.5"></i> Add New Product
-                    </button>
-                </div>
+/* ---------- CUSTOMERS ---------- */
+let editCust=null;
+function pgCustomers(v){
+  v.innerHTML=`
+  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-user-plus" style="color:var(--accent)"></i> <span id="cFormTitle">Add New Customer</span></h3></div>
+   <form onsubmit="saveCustomer(event)">
+    <div class="form-grid">
+      <div class="field"><label>Customer Full Name <span>*</span></label><input class="inp" id="cName"><div class="err-msg" id="cNameErr">Name is required</div></div>
+      <div class="field"><label>Mobile Number <span>*</span></label><input class="inp" id="cMobile" placeholder="98XXXXXXXX"><div class="err-msg" id="cMobileErr">Valid mobile required</div></div>
+      <div class="field"><label>Party Type</label><select class="inp" id="cType"><option>Customer</option><option>Supplier</option></select></div>
+      <div class="field"><label>PAN Number</label><input class="inp" id="cPan"></div>
+      <div class="field"><label>VAT Number</label><input class="inp" id="cVat"></div>
+      <div class="field"><label>Address</label><input class="inp" id="cAddr"></div>
+      <div class="field"><label>Opening Balance (editable)</label><input class="inp" id="cOpen" type="number" step="0.01" value="0"></div>
+    </div>
+    <div class="form-actions"><button class="btn" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+      <button class="btn ghost" type="button" onclick="resetCustomer()"><i class="fa-solid fa-xmark"></i> Cancel</button></div>
+   </form></div>
+  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-users" style="color:#38bdf8"></i> Customer &amp; Supplier List</h3><div class="spacer"></div>
+    <span class="chip b">${DB.customers.length} parties</span></div>
+   ${dataTable([
+     {label:'Name',key:'name'},{label:'Mobile',key:'mobile'},{label:'Type',key:'type',fmt:r=>`<span class="chip ${r.type==='Supplier'?'o':'b'}">${esc(r.type)}</span>`},
+     {label:'PAN',key:'pan',fmt:r=>esc(r.pan||'—')},{label:'VAT',key:'vat',fmt:r=>esc(r.vat||'—')},{label:'Address',key:'address'},
+     {label:'Opening',key:'opening',align:'right',fmt:r=>money(r.opening)},
+     {label:'Balance',align:'right',val:r=>balance(r),fmt:r=>{const b=balance(r);return `<b style="color:${b>0?(r.type==='Supplier'?'var(--orange)':'var(--red)'):'var(--green)'}">${money(Math.abs(b))}</b>`}},
+     {label:'Actions',sortable:false,fmt:r=>`
+       <button class="act" title="Ledger" onclick="openLedgerOf('${r.id}')"><i class="fa-solid fa-book"></i></button>
+       <button class="act g" title="Share statement" onclick="shareStatement('${r.id}')"><i class="fa-solid fa-share-nodes"></i></button>
+       <button class="act" title="Edit" onclick="editCustomer('${r.id}')"><i class="fa-solid fa-pen"></i></button>
+       <button class="act d" title="Delete" onclick="delCustomer('${r.id}')"><i class="fa-solid fa-trash"></i></button>`}
+   ],DB.customers,{ph:'Search name, mobile, PAN, address...',empty:'No customers yet — add your first one above.'})}
+  </div>`;
+}
+function saveCustomer(e){
+  e.preventDefault();
+  const n=$('cName').value.trim(),m=$('cMobile').value.trim();
+  showErr('cNameErr',!n);showErr('cMobileErr',!/^[0-9+\-\s]{7,15}$/.test(m));
+  if(!n||!/^[0-9+\-\s]{7,15}$/.test(m))return toast('Please fill required fields correctly','err');
+  const obj={name:n,mobile:m,type:$('cType').value,pan:$('cPan').value.trim(),vat:$('cVat').value.trim(),
+    address:$('cAddr').value.trim(),opening:num($('cOpen').value)};
+  if(editCust){Object.assign(DB.customers.find(c=>c.id===editCust),obj);toast('Customer updated successfully','ok');}
+  else{DB.customers.push({id:uid(),created:today(),...obj});toast('Customer saved successfully','ok');}
+  save();editCust=null;renderPage();
+}
+function editCustomer(id){
+  const c=party(id);editCust=id;
+  $('cFormTitle').textContent='Edit Customer — '+c.name;
+  $('cName').value=c.name;$('cMobile').value=c.mobile;$('cType').value=c.type;$('cPan').value=c.pan||'';
+  $('cVat').value=c.vat||'';$('cAddr').value=c.address||'';$('cOpen').value=c.opening||0;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function resetCustomer(){editCust=null;renderPage();}
+function delCustomer(id){
+  if(DB.txns.some(t=>t.partyId===id))return toast('Cannot delete — this party has transactions. Ledger history must be preserved.','err');
+  if(!confirm('Delete this party?'))return;
+  DB.customers=DB.customers.filter(c=>c.id!==id);save();renderPage();toast('Party deleted','ok');
+}
 
-                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold uppercase text-[10px]">
-                            <tr>
-                                <th class="p-4">Code</th>
-                                <th class="p-4">Product Name</th>
-                                <th class="p-4">Category</th>
-                                <th class="p-4 text-right">Cost Price</th>
-                                <th class="p-4 text-right">Selling Price</th>
-                                <th class="p-4 text-right">Stock Qty</th>
-                                <th class="p-4 text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="productTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold text-slate-700 dark:text-slate-300"></tbody>
-                    </table>
-                </div>
-            </div>
+/* ---------- LEDGER ---------- */
+let LEDG={party:'',from:'',to:''};
+function openLedgerOf(id){LEDG.party=id;go('ledger');}
+function pgLedger(v){
+  const opts=DB.customers.map(c=>`<option value="${c.id}" ${LEDG.party===c.id?'selected':''}>${esc(c.name)} (${c.type})</option>`).join('');
+  const MODES=['Cash','Bank','Cheque','eSewa','Khalti','ConnectIPS','QR Payment','Fonepay','IME Pay','Bank Transfer','Credit Sale'];
+  v.innerHTML=`
+  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-pen-to-square" style="color:#818cf8"></i> New Ledger Entry</h3></div>
+   <form onsubmit="saveLedger(event)">
+   <div class="form-grid">
+     <div class="field"><label>Customer / Party <span>*</span></label><select class="inp" id="lParty"><option value="">— Select party —</option>${opts}</select><div class="err-msg" id="lPartyErr">Select a party</div></div>
+     <div class="field"><label>Date <span>*</span></label><input class="inp" id="lDate" type="date" value="${workDate()}"></div>
+     <div class="field"><label>Voucher No.</label><input class="inp" id="lVoucher" value="${nextVoucher('JRN-')}"></div>
+     <div class="field"><label>Payment Mode</label><select class="inp" id="lMode">${MODES.map(m=>`<option>${m}</option>`).join('')}</select></div>
+     <div class="field"><label>Description</label><input class="inp" id="lDesc" placeholder="Narration"></div>
+     <div class="field"><label>Debit (उठाउन बाँकी +)</label><input class="inp" id="lDebit" type="number" step="0.01" value="0"></div>
+     <div class="field"><label>Credit (भुक्तानी /तिर्न +)</label><input class="inp" id="lCredit" type="number" step="0.01" value="0"></div>
+   </div>
+   <div class="form-actions"><button class="btn"><i class="fa-solid fa-floppy-disk"></i> Save Entry</button>
+     <button class="btn ghost" type="button" onclick="renderPage()">Cancel</button></div></form></div>
+  ${LEDG.party?ledgerViewHTML(LEDG.party):`<div class="panel"><p class="muted"><i class="fa-solid fa-circle-info"></i> Select a party above (or from Customer Information) to view the complete chronological ledger history.</p></div>`}`;
+  $('lParty').onchange=e=>{LEDG.party=e.target.value;renderPage();};
+}
+function ledgerViewHTML(pid){
+  const p=party(pid);if(!p)return '';
+  let rows=DB.txns.filter(t=>t.partyId===pid).sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id));
+  if(LEDG.from)rows=rows.filter(t=>t.date>=LEDG.from);
+  if(LEDG.to)rows=rows.filter(t=>t.date<=LEDG.to);
+  let run=num(p.opening);
+  const data=rows.map(t=>{run+= p.type==='Supplier'?(num(t.credit)-num(t.debit)):(num(t.debit)-num(t.credit));return {...t,run};});
+  return `<div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-book" style="color:#818cf8"></i> Ledger — ${esc(p.name)}</h3>
+    <div class="spacer"></div>
+    <label class="muted" style="font-size:12px">From</label><input class="inp" style="width:150px" type="date" value="${LEDG.from}" onchange="LEDG.from=this.value;renderPage()">
+    <label class="muted" style="font-size:12px">To</label><input class="inp" style="width:150px" type="date" value="${LEDG.to}" onchange="LEDG.to=this.value;renderPage()">
+    <button class="btn sm ghost" onclick="LEDG.from='';LEDG.to='';renderPage()">Clear</button>
+    <button class="btn sm green" onclick="shareStatement('${pid}')"><i class="fa-solid fa-share-nodes"></i> Share</button></div>
+   <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
+     <div class="card" style="box-shadow:none"><div class="lbl">Opening Balance</div><div class="val" style="font-size:20px">${money(p.opening)}</div></div>
+     <div class="card" style="box-shadow:none"><div class="lbl">Total Debit</div><div class="val" style="font-size:20px;color:var(--red)">${money(sum(rows,'debit'))}</div></div>
+     <div class="card" style="box-shadow:none"><div class="lbl">Total Credit</div><div class="val" style="font-size:20px;color:var(--green)">${money(sum(rows,'credit'))}</div></div>
+     <div class="card" style="box-shadow:none"><div class="lbl">Closing ${p.type==='Supplier'?'Payable':'Receivable'}</div><div class="val" style="font-size:20px;color:var(--accent)">${money(run)}</div></div>
+   </div>
+   ${dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Voucher',key:'voucher'},{label:'Type',key:'type',fmt:r=>`<span class="chip">${esc(r.type)}</span>`},
+     {label:'Description',key:'desc'},{label:'Mode',key:'mode'},
+     {label:'Debit',key:'debit',align:'right',fmt:r=>num(r.debit)?money(r.debit):'—'},
+     {label:'Credit',key:'credit',align:'right',fmt:r=>num(r.credit)?money(r.credit):'—'},
+     {label:'Balance',key:'run',align:'right',fmt:r=>`<b>${money(r.run)}</b>`},
+     {label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>
+        <button class="act d" onclick="delTxn('${r.id}')"><i class="fa-solid fa-trash"></i></button>`}],
+     data,{ph:'Search this ledger...',empty:'No entries in the selected period'})}</div>`;
+}
+function saveLedger(e){
+  e.preventDefault();
+  const pid=$('lParty').value;showErr('lPartyErr',!pid);
+  const d=num($('lDebit').value),c=num($('lCredit').value);
+  if(!pid)return toast('Please select a party','err');
+  if(!d&&!c)return toast('Enter a debit or credit amount','err');
+  DB.txns.push({id:uid(),date:$('lDate').value||today(),type:'journal',voucher:$('lVoucher').value||nextVoucher('JRN-'),
+    partyId:pid,desc:$('lDesc').value.trim()||'Ledger entry',debit:d,credit:c,mode:$('lMode').value,items:[],attachments:[]});
+  save();LEDG.party=pid;renderPage();toast('Ledger entry saved to '+pname(pid),'ok');
+}
+function delTxn(id){
+  if(!confirm('Delete this transaction? Stock effects will be reversed.'))return;
+  const t=DB.txns.find(x=>x.id===id);
+  (t.items||[]).forEach(i=>{ if(t.type==='sale'||t.type==='return-out')adjustStock(i.productId,num(i.qty));
+    if(t.type==='purchase'||t.type==='return-in')adjustStock(i.productId,-num(i.qty)); });
+  if(t.type==='adjust'&&t.items)t.items.forEach(i=>adjustStock(i.productId,-num(i.qty)));
+  DB.txns=DB.txns.filter(x=>x.id!==id);save();renderPage();toast('Transaction deleted','ok');
+}
 
-            <!-- 5. SALES SYSTEM VIEW -->
-            <div id="view-sales" class="space-y-6 hidden">
-                <div class="flex flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow gap-4">
-                    <div>
-                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Sales System & Invoices</h3>
-                        <p class="text-xs text-slate-400">Create new sales invoice, track entries, and manage sales billing.</p>
-                    </div>
-                </div>
-            </div>
+/* ---------- PRODUCTS ---------- */
+let editProd=null;
+function pgProducts(v){
+  const ls=lowStock();
+  v.innerHTML=`
+  ${ls.length?`<div class="panel" style="border-left:4px solid var(--orange)"><b><i class="fa-solid fa-triangle-exclamation" style="color:var(--orange)"></i> Low Stock Alert</b>
+    <p class="muted" style="margin-top:6px">${ls.map(p=>esc(p.name)+' is running out ('+p.stock+' left)').join(' · ')}</p></div>`:''}
+  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-box" style="color:#f472b6"></i> <span id="pFormTitle">Add Product</span></h3></div>
+   <form onsubmit="saveProduct(event)"><div class="form-grid">
+     <div class="field"><label>Product Name <span>*</span></label><input class="inp" id="pName"><div class="err-msg" id="pNameErr">Product name required</div></div>
+     <div class="field"><label>Purchase Rate <span>*</span></label><input class="inp" id="pPur" type="number" step="0.01" value="0"></div>
+     <div class="field"><label>Selling Rate <span>*</span></label><input class="inp" id="pSell" type="number" step="0.01" value="0"></div>
+     <div class="field"><label>Initial Stock <span>*</span></label><input class="inp" id="pStock" type="number" step="1" value="0"></div>
+   </div><div class="form-actions"><button class="btn"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+     <button class="btn ghost" type="button" onclick="editProd=null;renderPage()">Cancel</button></div></form></div>
+  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-warehouse" style="color:#f472b6"></i> Inventory — Live Stock</h3><div class="spacer"></div>
+    <span class="chip b">${DB.products.length} products</span><span class="chip o">${ls.length} low</span></div>
+   ${dataTable([
+     {label:'Product Name',key:'name'},
+     {label:'Purchase Rate',key:'purchase',align:'right',fmt:r=>money(r.purchase)},
+     {label:'Selling Rate',key:'selling',align:'right',fmt:r=>money(r.selling)},
+     {label:'Initial Stock',key:'initial',align:'right'},
+     {label:'Current Stock',key:'stock',align:'right',fmt:r=>{const th=num(DB.settings.lowStock)||5;return `<b class="chip ${num(r.stock)<=th?'r':'g'}">${r.stock}</b>`}},
+     {label:'Stock Value',align:'right',val:r=>num(r.stock)*num(r.purchase),fmt:r=>money(num(r.stock)*num(r.purchase))},
+     {label:'Actions',sortable:false,fmt:r=>`<button class="act" title="Edit" onclick="editProduct('${r.id}')"><i class="fa-solid fa-pen"></i></button>
+       <button class="act d" title="Delete" onclick="delProduct('${r.id}')"><i class="fa-solid fa-trash"></i></button>
+       <button class="act g" title="Adjust stock" onclick="go('adjustment')"><i class="fa-solid fa-sliders"></i></button>`}],
+     DB.products,{ph:'Search products...',empty:'No products yet.'})}</div>`;
+}
+function saveProduct(e){
+  e.preventDefault();const n=$('pName').value.trim();showErr('pNameErr',!n);
+  if(!n)return toast('Product name is required','err');
+  const o={name:n,purchase:num($('pPur').value),selling:num($('pSell').value)};
+  if(editProd){const p=DB.products.find(x=>x.id===editProd);const diff=num($('pStock').value)-num(p.initial);
+    Object.assign(p,o,{initial:num($('pStock').value),stock:num(p.stock)+diff});toast('Product updated','ok');}
+  else DB.products.push({id:uid(),...o,initial:num($('pStock').value),stock:num($('pStock').value),created:today()}),toast('Product added to inventory','ok');
+  editProd=null;save();renderPage();
+}
+function editProduct(id){const p=DB.products.find(x=>x.id===id);editProd=id;$('pFormTitle').textContent='Edit Product — '+p.name;
+  $('pName').value=p.name;$('pPur').value=p.purchase;$('pSell').value=p.selling;$('pStock').value=p.initial;window.scrollTo({top:0,behavior:'smooth'});}
+function delProduct(id){if(!confirm('Delete this product?'))return;DB.products=DB.products.filter(p=>p.id!==id);save();renderPage();toast('Product deleted','ok');}
 
-        </div>
-    </main>
+/* ---------- SALES ---------- */
+const PAYMODES=['Cash','Bank','QR Payment','eSewa','Khalti','ConnectIPS','Cheque','Credit'];
+let cart=[];
+function pgSales(v){
+  v.innerHTML=`
+  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-cart-plus" style="color:#fbbf24"></i> New Sales Invoice</h3></div>
+   <div class="form-grid">
+     <div class="field"><label>Invoice Date <span>*</span></label><input class="inp" id="sDate" type="date" value="${workDate()}"></div>
+     <div class="field"><label>Invoice Number</label><input class="inp" id="sInv" value="${nextVoucher('INV-')}"></div>
+     <div class="field"><label>Customer <span>*</span></label><select class="inp" id="sCust"><option value="">— Select customer —</option>
+       ${customersOnly().map(c=>`<option value="${c.id}">${esc(c.name)} — ${esc(c.mobile)}</option>`).join('')}</select>
+       <div class="err-msg" id="sCustErr">Select a customer</div></div>
+     <div class="field"><label>Payment Mode</label><select class="inp" id="sMode">${PAYMODES.map(m=>`<option>${m}</option>`).join('')}</select></div>
+   </div>
+   <hr style="border:0;border-top:1px solid var(--border);margin:16px 0">
+   <div class="form-grid">
+     <div class="field"><label>Product</label><select class="inp" id="sProd" onchange="prodPick()">
+       <option value="">— Select product —</option>${DB.products.map(p=>`<option value="${p.id}">${esc(p.name)} (stock ${p.stock})</option>`).join('')}</select></div>
+     <div class="field"><label>Quantity</label><input class="inp" id="sQty" type="number" min="1" value="1"></div>
+     <div class="field"><label>Selling Price</label><input class="inp" id="sRate" type="number" step="0.01" value="0"></div>
+     <div class="field" style="display:flex;align-items:flex-end"><button class="btn ghost block" onclick="addCart()"><i class="fa-solid fa-plus"></i> Add item</button></div>
+   </div>
+   <div id="cartBox">${cartHTML()}</div>
+   <div class="form-actions"><button class="btn green" onclick="saveSale()"><i class="fa-solid fa-check"></i> Save Invoice</button>
+     <button class="btn ghost" onclick="cart=[];renderPage()">Clear</button></div></div>
+  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-file-invoice" style="color:#fbbf24"></i> Sales History</h3></div>
+   ${dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Invoice No.',key:'voucher'},{label:'Customer',val:r=>pname(r.partyId)},
+     {label:'Items',val:r=>(r.items||[]).map(i=>i.name+' x'+i.qty).join(', ')},{label:'Amount',key:'debit',align:'right',fmt:r=>money(r.debit)},
+     {label:'Mode',key:'mode',fmt:r=>`<span class="chip b">${esc(r.mode)}</span>`},
+     {label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>
+       <button class="act d" onclick="delTxn('${r.id}')"><i class="fa-solid fa-trash"></i></button>`}],
+     salesTx().sort((a,b)=>b.date.localeCompare(a.date)),{ph:'Search invoices...',empty:'No sales yet.'})}</div>`;
+}
+function prodPick(){const p=DB.products.find(x=>x.id===$('sProd').value);if(p)$('sRate').value=p.selling;}
+function cartHTML(){
+  if(!cart.length)return '<p class="muted" style="font-size:13px">No items added yet.</p>';
+  const tot=cart.reduce((s,i)=>s+i.qty*i.rate,0);
+  return `<div class="tbl-scroll"><table><thead><tr><th>Product</th><th class="right">Qty</th><th class="right">Rate</th><th class="right">Amount</th><th></th></tr></thead><tbody>
+   ${cart.map((i,x)=>`<tr><td>${esc(i.name)}</td><td class="right">${i.qty}</td><td class="right">${money(i.rate)}</td><td class="right">${money(i.qty*i.rate)}</td>
+     <td><button class="act d" onclick="cart.splice(${x},1);$('cartBox').innerHTML=cartHTML()"><i class="fa-solid fa-xmark"></i></button></td></tr>`).join('')}
+   <tr><td colspan="3" class="right"><b>Total</b></td><td class="right"><b style="color:var(--accent)">${money(tot)}</b></td><td></td></tr></tbody></table></div>`;
+}
+function addCart(){
+  const p=DB.products.find(x=>x.id===$('sProd').value);const q=num($('sQty').value),r=num($('sRate').value);
+  if(!p)return toast('Select a product','err');
+  if(q<=0)return toast('Quantity must be greater than 0','err');
+  if(q>num(p.stock))return toast('Only '+p.stock+' units of '+p.name+' in stock','err','Insufficient stock');
+  cart.push({productId:p.id,name:p.name,qty:q,rate:r});$('cartBox').innerHTML=cartHTML();toast(p.name+' added to invoice','ok');
+}
+function saveSale(){
+  const cid=$('sCust').value;showErr('sCustErr',!cid);
+  if(!cid)return toast('Please select a customer','err');
+  if(!cart.length)return toast('Add at least one item','err');
+  const total=cart.reduce((s,i)=>s+i.qty*i.rate,0),mode=$('sMode').value;
+  const t={id:uid(),date:$('sDate').value||today(),type:'sale',voucher:$('sInv').value||nextVoucher('INV-'),partyId:cid,
+    desc:'Sale — '+cart.map(i=>i.name+' x'+i.qty).join(', '),debit:total,credit:0,mode,items:cart.slice(),attachments:[]};
+  DB.txns.push(t);
+  cart.forEach(i=>adjustStock(i.productId,-num(i.qty)));
+  if(mode!=='Credit')DB.txns.push({id:uid(),date:t.date,type:'receipt',voucher:nextVoucher('RCP-'),partyId:cid,
+    desc:'Payment against '+t.voucher,debit:0,credit:total,mode,items:[],attachments:[]});
+  cart=[];save();renderPage();toast('Invoice '+t.voucher+' saved · '+money(total),'ok');
+}
 
-    <!-- JS APP SCRIPT -->
-    <script>
-        // System Application State
-        let currentUser = null;
-        let db = {
-            users: [],
-            customers: [],
-            products: [],
-            ledger: []
-        };
+/* ---------- PURCHASES ---------- */
+let pcart=[];
+function pgPurchases(v){
+  v.innerHTML=`
+  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-truck-ramp-box" style="color:#a78bfa"></i> New Purchase Entry</h3></div>
+   <div class="form-grid">
+     <div class="field"><label>Purchase Date</label><input class="inp" id="uDate" type="date" value="${workDate()}"></div>
+     <div class="field"><label>Voucher No.</label><input class="inp" id="uVou" value="${nextVoucher('PUR-')}"></div>
+     <div class="field"><label>Supplier <span>*</span></label><select class="inp" id="uSup"><option value="">— Select supplier —</option>
+       ${suppliersOnly().map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div>
+     <div class="field"><label>Payment Mode</label><select class="inp" id="uMode">${PAYMODES.map(m=>`<option>${m}</option>`).join('')}</select></div>
+     <div class="field"><label>Product</label><select class="inp" id="uProd" onchange="uPick()"><option value="">— Select —</option>
+       ${DB.products.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select></div>
+     <div class="field"><label>Quantity</label><input class="inp" id="uQty" type="number" min="1" value="1"></div>
+     <div class="field"><label>Purchase Rate</label><input class="inp" id="uRate" type="number" step="0.01" value="0"></div>
+     <div class="field" style="display:flex;align-items:flex-end"><button class="btn ghost block" onclick="addP()"><i class="fa-solid fa-plus"></i> Add item</button></div>
+   </div>
+   <div id="pcartBox">${pcartHTML()}</div>
+   <div class="form-actions"><button class="btn green" onclick="savePurchase()"><i class="fa-solid fa-check"></i> Save Purchase</button>
+     <button class="btn ghost" onclick="pcart=[];renderPage()">Clear</button></div></div>
+  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-briefcase" style="color:#a78bfa"></i> Purchase History</h3></div>
+   ${dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Voucher',key:'voucher'},{label:'Supplier',val:r=>pname(r.partyId)},
+     {label:'Items',val:r=>(r.items||[]).map(i=>i.name+' x'+i.qty).join(', ')},{label:'Amount',key:'credit',align:'right',fmt:r=>money(r.credit)},
+     {label:'Mode',key:'mode'},{label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>
+       <button class="act d" onclick="delTxn('${r.id}')"><i class="fa-solid fa-trash"></i></button>`}],
+     purchaseTx().sort((a,b)=>b.date.localeCompare(a.date)),{empty:'No purchases yet.'})}</div>`;
+}
+function uPick(){const p=DB.products.find(x=>x.id===$('uProd').value);if(p)$('uRate').value=p.purchase;}
+function pcartHTML(){
+  if(!pcart.length)return '<p class="muted" style="font-size:13px">No items added yet.</p>';
+  const tot=pcart.reduce((s,i)=>s+i.qty*i.rate,0);
+  return `<div class="tbl-scroll"><table><thead><tr><th>Product</th><th class="right">Qty</th><th class="right">Rate</th><th class="right">Amount</th><th></th></tr></thead><tbody>
+   ${pcart.map((i,x)=>`<tr><td>${esc(i.name)}</td><td class="right">${i.qty}</td><td class="right">${money(i.rate)}</td><td class="right">${money(i.qty*i.rate)}</td>
+    <td><button class="act d" onclick="pcart.splice(${x},1);$('pcartBox').innerHTML=pcartHTML()"><i class="fa-solid fa-xmark"></i></button></td></tr>`).join('')}
+   <tr><td colspan="3" class="right"><b>Total</b></td><td class="right"><b style="color:var(--accent)">${money(tot)}</b></td><td></td></tr></tbody></table></div>`;
+}
+function addP(){const p=DB.products.find(x=>x.id===$('uProd').value);const q=num($('uQty').value);
+  if(!p)return toast('Select a product','err');if(q<=0)return toast('Invalid quantity','err');
+  pcart.push({productId:p.id,name:p.name,qty:q,rate:num($('uRate').value)});$('pcartBox').innerHTML=pcartHTML();}
+function savePurchase(){
+  const sid=$('uSup').value;if(!sid)return toast('Select a supplier (add one in Customer Information as type Supplier)','err');
+  if(!pcart.length)return toast('Add at least one item','err');
+  const total=pcart.reduce((s,i)=>s+i.qty*i.rate,0),mode=$('uMode').value;
+  DB.txns.push({id:uid(),date:$('uDate').value||today(),type:'purchase',voucher:$('uVou').value||nextVoucher('PUR-'),partyId:sid,
+    desc:'Purchase — '+pcart.map(i=>i.name+' x'+i.qty).join(', '),debit:0,credit:total,mode,items:pcart.slice(),attachments:[]});
+  pcart.forEach(i=>{adjustStock(i.productId,num(i.qty));const p=DB.products.find(x=>x.id===i.productId);if(p)p.purchase=num(i.rate);});
+  if(mode!=='Credit')DB.txns.push({id:uid(),date:$('uDate').value||today(),type:'payment',voucher:nextVoucher('PAY-'),partyId:sid,
+    desc:'Payment for purchase',debit:total,credit:0,mode,items:[],attachments:[]});
+  pcart=[];save();renderPage();toast('Purchase saved · inventory updated','ok');
+}
 
-        // Utility: Hash passwords using SHA-256 for secure storage
-        async function hashPassword(password) {
-            const encoder = new TextEncoder();
-            const data = encoder.encode(password);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        }
+/* ---------- RECEIPT / PAID ---------- */
+function payForm(v,cfg){
+  v.innerHTML=`
+  <div class="panel"><div class="panel-h"><h3><i class="fa-solid ${cfg.icon}" style="color:${cfg.color}"></i> ${cfg.title}</h3></div>
+   <form onsubmit="savePay(event,'${cfg.kind}')"><div class="form-grid">
+     <div class="field"><label>${cfg.party} <span>*</span></label><select class="inp" id="yParty"><option value="">— Select —</option>
+       ${cfg.list.map(c=>`<option value="${c.id}">${esc(c.name)} — ${cfg.kind==='receipt'?'Due':'Payable'} ${money(Math.max(0,balance(c)))}</option>`).join('')}</select>
+       <div class="err-msg" id="yPartyErr">Selection required</div></div>
+     <div class="field"><label>Date</label><input class="inp" id="yDate" type="date" value="${workDate()}"></div>
+     <div class="field"><label>Voucher No.</label><input class="inp" id="yVou" value="${nextVoucher(cfg.prefix)}"></div>
+     <div class="field"><label>Amount <span>*</span></label><input class="inp" id="yAmt" type="number" step="0.01" placeholder="0.00"><div class="err-msg" id="yAmtErr">Amount required</div></div>
+     <div class="field"><label>Payment Mode</label><select class="inp" id="yMode">${PAYMODES.filter(m=>m!=='Credit').map(m=>`<option>${m}</option>`).join('')}</select></div>
+     <div class="field"><label>Reference / Note</label><input class="inp" id="yDesc" placeholder="Cheque no., txn id..."></div>
+   </div><div class="form-actions"><button class="btn green"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+     <button class="btn ghost" type="button" onclick="renderPage()">Cancel</button></div></form></div>
+  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-list" style="color:${cfg.color}"></i> ${cfg.hist}</h3></div>
+   ${dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Voucher',key:'voucher'},{label:'Party',val:r=>pname(r.partyId)},
+     {label:'Amount',align:'right',val:r=>num(r.debit)+num(r.credit),fmt:r=>money(num(r.debit)+num(r.credit))},
+     {label:'Mode',key:'mode',fmt:r=>`<span class="chip b">${esc(r.mode)}</span>`},{label:'Note',key:'desc'},
+     {label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>
+        <button class="act d" onclick="delTxn('${r.id}')"><i class="fa-solid fa-trash"></i></button>`}],
+     DB.txns.filter(t=>t.type===cfg.kind).sort((a,b)=>b.date.localeCompare(a.date)),{empty:'No records yet.'})}</div>`;
+}
+function pgReceipt(v){payForm(v,{kind:'receipt',title:'Record Payment Receipt (रकम प्राप्ति)',icon:'fa-receipt',color:'#34d399',
+  party:'Customer',list:customersOnly(),prefix:'RCP-',hist:'Receipt History'});}
+function pgPaid(v){payForm(v,{kind:'payment',title:'Record Payment Paid (भुक्तानी)',icon:'fa-money-bill-wave',color:'#fb7185',
+  party:'Supplier / Vendor',list:suppliersOnly(),prefix:'PAY-',hist:'Payment History'});}
+function savePay(e,kind){
+  e.preventDefault();
+  const pid=$('yParty').value,amt=num($('yAmt').value);
+  showErr('yPartyErr',!pid);showErr('yAmtErr',amt<=0);
+  if(!pid||amt<=0)return toast('Please complete the required fields','err');
+  DB.txns.push({id:uid(),date:$('yDate').value||today(),type:kind,voucher:$('yVou').value,partyId:pid,
+    desc:$('yDesc').value.trim()||(kind==='receipt'?'Payment received':'Payment made'),
+    debit:kind==='payment'?amt:0,credit:kind==='receipt'?amt:0,mode:$('yMode').value,items:[],attachments:[]});
+  save();renderPage();toast((kind==='receipt'?'Receipt':'Payment')+' of '+money(amt)+' recorded','ok');
+}
 
-        // Initialize Authentication & Session Management
-        document.addEventListener('DOMContentLoaded', () => {
-            loadGlobalUsers();
-            checkExistingSession();
-            updateDateDisplay();
-        });
+/* ---------- RETURNS ---------- */
+function pgReturns(v){
+  v.innerHTML=`
+  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-rotate-left" style="color:#f97316"></i> Return Entry</h3></div>
+   <form onsubmit="saveReturn(event)"><div class="form-grid">
+     <div class="field"><label>Return Type</label><select class="inp" id="rType" onchange="renderPage()">
+       <option value="sales">Sales Return (from customer)</option><option value="purchase">Purchase Return (to supplier)</option></select></div>
+     <div class="field"><label>Date</label><input class="inp" id="rDate" type="date" value="${workDate()}"></div>
+     <div class="field"><label>Party <span>*</span></label><select class="inp" id="rParty"><option value="">— Select —</option>
+       ${DB.customers.map(c=>`<option value="${c.id}">${esc(c.name)} (${c.type})</option>`).join('')}</select></div>
+     <div class="field"><label>Product <span>*</span></label><select class="inp" id="rProd"><option value="">— Select —</option>
+       ${DB.products.map(p=>`<option value="${p.id}">${esc(p.name)} (stock ${p.stock})</option>`).join('')}</select></div>
+     <div class="field"><label>Quantity</label><input class="inp" id="rQty" type="number" min="1" value="1"></div>
+     <div class="field"><label>Rate</label><input class="inp" id="rRate" type="number" step="0.01" value="0"></div>
+     <div class="field"><label>Reason</label><input class="inp" id="rWhy" placeholder="Damaged, wrong item..."></div>
+   </div><div class="form-actions"><button class="btn"><i class="fa-solid fa-floppy-disk"></i> Save Return</button></div></form></div>
+  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-clock-rotate-left" style="color:#f97316"></i> Return History</h3></div>
+   ${dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Voucher',key:'voucher'},{label:'Type',key:'type',fmt:r=>`<span class="chip o">${r.type==='return-in'?'Sales Return':'Purchase Return'}</span>`},
+     {label:'Party',val:r=>pname(r.partyId)},{label:'Details',key:'desc'},
+     {label:'Amount',align:'right',val:r=>num(r.debit)+num(r.credit),fmt:r=>money(num(r.debit)+num(r.credit))},
+     {label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>
+       <button class="act d" onclick="delTxn('${r.id}')"><i class="fa-solid fa-trash"></i></button>`}],
+     DB.txns.filter(t=>t.type.startsWith('return')).sort((a,b)=>b.date.localeCompare(a.date)),{empty:'No returns recorded.'})}</div>`;
+}
+function saveReturn(e){
+  e.preventDefault();
+  const type=$('rType').value,pid=$('rParty').value,prod=DB.products.find(x=>x.id===$('rProd').value),q=num($('rQty').value),r=num($('rRate').value);
+  if(!pid||!prod||q<=0)return toast('Select party, product and valid quantity','err');
+  const amt=q*r,sales=type==='sales';
+  if(!sales&&q>num(prod.stock))return toast('Not enough stock to return','err');
+  DB.txns.push({id:uid(),date:$('rDate').value||today(),type:sales?'return-in':'return-out',voucher:nextVoucher(sales?'SRN-':'PRN-'),
+    partyId:pid,desc:(sales?'Sales return — ':'Purchase return — ')+prod.name+' x'+q+($('rWhy').value?' ('+$('rWhy').value+')':''),
+    debit:sales?0:amt,credit:sales?amt:0,mode:'Adjustment',items:[{productId:prod.id,name:prod.name,qty:q,rate:r}],attachments:[]});
+  adjustStock(prod.id,sales?q:-q);
+  save();renderPage();toast('Return saved · stock updated','ok');
+}
 
-        function loadGlobalUsers() {
-            const savedUsers = localStorage.getItem('ledger_registered_users');
-            if (savedUsers) {
-                db.users = JSON.parse(savedUsers);
-            }
-        }
+/* ---------- ADJUSTMENT ---------- */
+function pgAdjust(v){
+  v.innerHTML=`
+  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-sliders" style="color:#22d3ee"></i> Stock Adjustment</h3></div>
+   <form onsubmit="saveAdjust(event)"><div class="form-grid">
+     <div class="field"><label>Product <span>*</span></label><select class="inp" id="aProd"><option value="">— Select product —</option>
+       ${DB.products.map(p=>`<option value="${p.id}">${esc(p.name)} — current ${p.stock}</option>`).join('')}</select><div class="err-msg" id="aProdErr">Select product</div></div>
+     <div class="field"><label>Direction</label><div class="seg" id="dirSeg">
+        <button type="button" class="on" data-d="1" onclick="setDir(1,this)"><i class="fa-solid fa-plus"></i> Add Stock</button>
+        <button type="button" data-d="-1" onclick="setDir(-1,this)"><i class="fa-solid fa-minus"></i> Reduce Stock</button></div></div>
+     <div class="field"><label>Quantity (editable) <span>*</span></label><input class="inp" id="aQty" type="number" min="1" value="1"></div>
+     <div class="field"><label>Date</label><input class="inp" id="aDate" type="date" value="${workDate()}"></div>
+     <div class="field"><label>Reason / Note</label><input class="inp" id="aWhy" placeholder="Damage, physical count, gift..."></div>
+   </div><div class="form-actions"><button class="btn"><i class="fa-solid fa-check"></i> Apply Adjustment</button></div></form></div>
+  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-list-check" style="color:#22d3ee"></i> Adjustment History</h3></div>
+   ${dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Voucher',key:'voucher'},{label:'Product',val:r=>(r.items[0]||{}).name},
+     {label:'Change',align:'right',val:r=>(r.items[0]||{}).qty,fmt:r=>{const q=num((r.items[0]||{}).qty);return `<b class="chip ${q>0?'g':'r'}">${q>0?'+':''}${q}</b>`}},
+     {label:'Reason',key:'desc'},{label:'',sortable:false,fmt:r=>`<button class="act d" onclick="delTxn('${r.id}')"><i class="fa-solid fa-trash"></i></button>`}],
+     DB.txns.filter(t=>t.type==='adjust').sort((a,b)=>b.date.localeCompare(a.date)),{empty:'No adjustments yet.'})}</div>`;
+}
+let ADIR=1;
+function setDir(d,btn){ADIR=d;[...$('dirSeg').children].forEach(b=>b.classList.toggle('on',b===btn));}
+function saveAdjust(e){
+  e.preventDefault();
+  const p=DB.products.find(x=>x.id===$('aProd').value),q=num($('aQty').value);
+  showErr('aProdErr',!p);
+  if(!p||q<=0)return toast('Select a product and valid quantity','err');
+  if(ADIR<0&&q>num(p.stock))return toast('Cannot reduce more than current stock ('+p.stock+')','err');
+  const delta=ADIR*q;
+  DB.txns.push({id:uid(),date:$('aDate').value||today(),type:'adjust',voucher:nextVoucher('ADJ-'),partyId:'',
+    desc:($('aWhy').value.trim()||'Stock adjustment'),debit:0,credit:0,mode:'—',
+    items:[{productId:p.id,name:p.name,qty:delta,rate:p.purchase}],attachments:[]});
+  adjustStock(p.id,delta);save();renderPage();
+  toast(p.name+' stock '+(delta>0?'increased':'reduced')+' by '+Math.abs(delta)+' → now '+p.stock,'ok','Inventory updated');
+}
 
-        function saveGlobalUsers() {
-            localStorage.setItem('ledger_registered_users', JSON.stringify(db.users));
-        }
+/* ---------- REPORTS ---------- */
+let REP={tab:'customer',from:'',to:'',cust:''};
+function pgReports(v){
+  const tabs=[['customer','Customer Wise'],['monthly','Monthly'],['sales','Sales'],['purchase','Purchase'],['ledger','Ledger']];
+  v.innerHTML=`<div class="panel"><div class="panel-h">
+     <div class="seg">${tabs.map(t=>`<button class="${REP.tab===t[0]?'on':''}" onclick="REP.tab='${t[0]}';renderPage()">${t[1]} Report</button>`).join('')}</div>
+     <div class="spacer"></div>
+     <label class="muted" style="font-size:12px">From</label><input class="inp" style="width:150px" type="date" value="${REP.from}" onchange="REP.from=this.value;renderPage()">
+     <label class="muted" style="font-size:12px">To</label><input class="inp" style="width:150px" type="date" value="${REP.to}" onchange="REP.to=this.value;renderPage()">
+     <button class="btn sm ghost" onclick="REP.from='';REP.to='';renderPage()">Reset</button></div>
+   <div id="repBody"></div></div>`;
+  const inR=t=>(!REP.from||t.date>=REP.from)&&(!REP.to||t.date<=REP.to);
+  const b=$('repBody');
+  if(REP.tab==='customer'){
+    b.innerHTML=`<div class="field" style="max-width:420px"><label>Search customer by name or mobile</label>
+      <input class="inp" id="repSearch" placeholder="Type name or mobile..." oninput="repFind(this.value)">
+      <div id="repHits" style="margin-top:8px"></div></div><div id="repCust">${REP.cust?custReport(REP.cust):'<p class="muted">Select a customer to view their complete history.</p>'}</div>`;
+  }
+  if(REP.tab==='monthly'){
+    const map={};DB.txns.filter(inR).forEach(t=>{const m=t.date.slice(0,7);map[m]=map[m]||{m,sales:0,purchase:0,coll:0,paid:0};
+      if(t.type==='sale')map[m].sales+=num(t.debit);if(t.type==='purchase')map[m].purchase+=num(t.credit);
+      if(t.type==='receipt')map[m].coll+=num(t.credit);if(t.type==='payment')map[m].paid+=num(t.debit);});
+    b.innerHTML=dataTable([{label:'Month',key:'m'},{label:'Sales',key:'sales',align:'right',fmt:r=>money(r.sales)},
+      {label:'Purchase',key:'purchase',align:'right',fmt:r=>money(r.purchase)},{label:'Collection',key:'coll',align:'right',fmt:r=>money(r.coll)},
+      {label:'Payment',key:'paid',align:'right',fmt:r=>money(r.paid)},
+      {label:'Net (Sales-Purchase)',align:'right',val:r=>r.sales-r.purchase,fmt:r=>`<b style="color:${r.sales-r.purchase>=0?'var(--green)':'var(--red)'}">${money(r.sales-r.purchase)}</b>`}],
+      Object.values(map).sort((a,b)=>b.m.localeCompare(a.m)),{empty:'No data in period'});
+  }
+  if(REP.tab==='sales'||REP.tab==='purchase'){
+    const isS=REP.tab==='sales',rows=DB.txns.filter(t=>t.type===(isS?'sale':'purchase')).filter(inR);
+    b.innerHTML=`<p class="muted" style="margin-bottom:10px">Total ${isS?'sales':'purchase'}: <b style="color:var(--accent)">${money(sum(rows,isS?'debit':'credit'))}</b> from ${rows.length} vouchers</p>`+
+      dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Voucher',key:'voucher'},{label:isS?'Customer':'Supplier',val:r=>pname(r.partyId)},
+       {label:'Items',val:r=>(r.items||[]).map(i=>i.name+' x'+i.qty).join(', ')},
+       {label:'Amount',align:'right',val:r=>isS?r.debit:r.credit,fmt:r=>money(isS?r.debit:r.credit)},{label:'Mode',key:'mode'},
+       {label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>`}],rows,{empty:'No records'});
+  }
+  if(REP.tab==='ledger'){
+    const rows=DB.txns.filter(inR).sort((a,b)=>a.date.localeCompare(b.date));
+    b.innerHTML=dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Voucher',key:'voucher'},{label:'Type',key:'type'},
+      {label:'Party',val:r=>pname(r.partyId)},{label:'Description',key:'desc'},{label:'Mode',key:'mode'},
+      {label:'Debit',key:'debit',align:'right',fmt:r=>num(r.debit)?money(r.debit):'—'},
+      {label:'Credit',key:'credit',align:'right',fmt:r=>num(r.credit)?money(r.credit):'—'},
+      {label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>`}],rows,{empty:'No entries'});
+  }
+}
+function repFind(q){
+  q=q.toLowerCase().trim();
+  const hits=q?DB.customers.filter(c=>c.name.toLowerCase().includes(q)||(c.mobile||'').includes(q)).slice(0,6):[];
+  $('repHits').innerHTML=hits.map(c=>`<div class="dd-item" style="cursor:pointer;border:1px solid var(--border);margin-bottom:5px;border-radius:9px"
+     onclick="REP.cust='${c.id}';renderPage()"><i class="fa-solid fa-user" style="color:var(--accent)"></i><div><b>${esc(c.name)}</b><div class="muted" style="font-size:11.5px">${esc(c.mobile)} · ${esc(c.type)}</div></div></div>`).join('');
+}
+function custReport(id){
+  const c=party(id);if(!c)return '';
+  const tx=DB.txns.filter(t=>t.partyId===id).sort((a,b)=>a.date.localeCompare(b.date));
+  const sales=sum(tx.filter(t=>t.type==='sale'),'debit'),pay=sum(tx.filter(t=>t.type==='receipt'),'credit');
+  return `<hr style="border:0;border-top:1px solid var(--border);margin:18px 0">
+   <div class="panel-h"><h3><i class="fa-solid fa-id-card" style="color:var(--accent)"></i> ${esc(c.name)} — ${esc(c.mobile)}</h3><div class="spacer"></div>
+     <button class="btn sm green" onclick="shareStatement('${id}')"><i class="fa-solid fa-share-nodes"></i> Share</button>
+     <button class="btn sm ghost" onclick="openLedgerOf('${id}')"><i class="fa-solid fa-book"></i> Open ledger</button></div>
+   <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">
+     <div class="card" style="box-shadow:none"><div class="lbl">Total Sales</div><div class="val" style="font-size:19px">${money(sales)}</div></div>
+     <div class="card" style="box-shadow:none"><div class="lbl">Total Payment</div><div class="val" style="font-size:19px;color:var(--green)">${money(pay)}</div></div>
+     <div class="card" style="box-shadow:none"><div class="lbl">Outstanding</div><div class="val" style="font-size:19px;color:var(--red)">${money(balance(c))}</div></div>
+     <div class="card" style="box-shadow:none"><div class="lbl">Transactions</div><div class="val" style="font-size:19px">${tx.length}</div></div>
+   </div>
+   ${dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Voucher',key:'voucher'},{label:'Type',key:'type'},{label:'Description',key:'desc'},
+     {label:'Debit',key:'debit',align:'right',fmt:r=>num(r.debit)?money(r.debit):'—'},{label:'Credit',key:'credit',align:'right',fmt:r=>num(r.credit)?money(r.credit):'—'},
+     {label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>`}],tx,{empty:'No history'})}`;
+}
 
-        function checkExistingSession() {
-            const session = localStorage.getItem('ledger_session');
-            if (session) {
-                const user = JSON.parse(session);
-                const activeUser = db.users.find(u => u.email === user.email);
-                if (activeUser) {
-                    currentUser = activeUser;
-                    onAuthSuccess();
-                    return;
-                }
-            }
-            showAuthModal();
-        }
+/* ---------- SHARE / STATEMENT ---------- */
+function statementHTML(id){
+  const c=party(id);
+  const tx=DB.txns.filter(t=>t.partyId===id).sort((a,b)=>a.date.localeCompare(b.date));
+  let run=num(c.opening);
+  const rows=tx.map(t=>{run+= c.type==='Supplier'?(num(t.credit)-num(t.debit)):(num(t.debit)-num(t.credit));
+    return `<tr><td>${fmtDate(t.date)}</td><td>${esc(t.voucher)}</td><td>${esc(t.desc)}</td><td style="text-align:right">${num(t.debit)?money(t.debit):'—'}</td>
+      <td style="text-align:right">${num(t.credit)?money(t.credit):'—'}</td><td style="text-align:right"><b>${money(run)}</b></td></tr>`}).join('');
+  return `<div class="stmt" id="printArea">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #0f172a;padding-bottom:12px;margin-bottom:14px">
+      <div><h2>${esc(ME.biz)}</h2><div style="font-size:12px;color:#64748b">${esc(ME.email)} · Digital Workspace</div></div>
+      <div style="text-align:right"><div style="font-weight:700;font-size:15px">Account Statement</div><div style="font-size:12px;color:#64748b">Generated: ${fmtDate(today())}</div></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:14px">
+      <div><b>${esc(c.name)}</b><br>${esc(c.mobile||'')}<br>${esc(c.address||'')}</div>
+      <div style="text-align:right">Party type: <b>${esc(c.type)}</b><br>Opening: <b>${money(c.opening)}</b><br>
+        Closing ${c.type==='Supplier'?'Payable':'Receivable'}: <b style="color:#e11d48">${money(run)}</b></div>
+    </div>
+    <table><thead><tr><th>Date</th><th>Voucher</th><th>Description</th><th style="text-align:right">Debit</th><th style="text-align:right">Credit</th><th style="text-align:right">Balance</th></tr></thead>
+    <tbody>${rows||'<tr><td colspan="6" style="text-align:center;color:#64748b;padding:18px">No transactions</td></tr>'}</tbody></table>
+    <p style="font-size:11px;color:#64748b;margin-top:14px">This statement is system generated by ${esc(ME.biz)} · Diary Nepal Digital Workspace.</p></div>`;
+}
+function shareStatement(id){
+  const c=party(id);
+  modal('<i class="fa-solid fa-share-nodes" style="color:var(--green)"></i> Share Statement — '+esc(c.name),
+   `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+      <button class="btn sm green" onclick="shareTo('wa','${id}')"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+      <button class="btn sm" onclick="shareTo('mail','${id}')"><i class="fa-solid fa-envelope"></i> Email</button>
+      <button class="btn sm" style="background:#0084ff" onclick="shareTo('msg','${id}')"><i class="fa-brands fa-facebook-messenger"></i> Messenger</button>
+      <button class="btn sm ghost" onclick="downloadStmt()"><i class="fa-solid fa-image"></i> Save / Download Image</button>
+      <button class="btn sm ghost" onclick="window.print()"><i class="fa-solid fa-print"></i> Print</button>
+    </div>`+statementHTML(id),'860px');
+}
+function stmtText(id){
+  const c=party(id),b=balance(c);
+  return `${ME.biz}\nAccount Statement — ${c.name}\nMobile: ${c.mobile}\nClosing ${c.type==='Supplier'?'Payable':'Receivable'}: ${money(b)}\nDate: ${fmtDate(today())}\n\nTransactions: ${DB.txns.filter(t=>t.partyId===c.id).length}\n— Generated by Diary Nepal Digital Workspace`;
+}
+function shareTo(kind,id){
+  const c=party(id),txt=stmtText(id);
+  if(kind==='wa'){const ph=(c.mobile||'').replace(/\D/g,'');window.open('https://wa.me/'+(ph.length>=10?'977'+ph.slice(-10):'')+'?text='+encodeURIComponent(txt),'_blank');}
+  if(kind==='mail'){window.location.href='mailto:?subject='+encodeURIComponent('Account Statement — '+c.name)+'&body='+encodeURIComponent(txt);}
+  if(kind==='msg'){navigator.clipboard&&navigator.clipboard.writeText(txt);window.open('https://www.messenger.com/','_blank');toast('Statement text copied — paste it in Messenger','ok');}
+}
+function downloadStmt(){
+  const node=$('printArea');if(!node)return;
+  toast('Generating image...','ok','Please wait');
+  html2canvas(node,{scale:2,backgroundColor:'#ffffff'}).then(cv=>{
+    const a=document.createElement('a');a.href=cv.toDataURL('image/png');a.download='statement-'+Date.now()+'.png';a.click();
+    toast('Statement image downloaded','ok');});
+}
 
-        function showAuthModal() {
-            document.getElementById('authModal').classList.remove('hidden');
-        }
+/* ---------- SETTINGS ---------- */
+function pgSettings(v){
+  v.innerHTML=`
+  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-user-gear" style="color:#93c5fd"></i> Profile</h3></div>
+   <div class="form-grid">
+     <div class="field"><label>Full Name</label><input class="inp" id="stName" value="${esc(ME.name)}"></div>
+     <div class="field"><label>Business Name</label><input class="inp" id="stBiz" value="${esc(ME.biz)}"></div>
+     <div class="field"><label>Email (login id)</label><input class="inp" value="${esc(ME.email)}" disabled></div>
+     <div class="field"><label>Low Stock Alert Threshold</label><input class="inp" id="stLow" type="number" min="1" value="${DB.settings.lowStock}"></div>
+   </div><div class="form-actions"><button class="btn" onclick="saveSettings()"><i class="fa-solid fa-floppy-disk"></i> Save Preferences</button></div></div>
+  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-shield-halved" style="color:var(--green)"></i> Security &amp; Data</h3></div>
+   <div class="form-grid">
+     <div class="field"><label>Current Password</label><input class="inp" id="stOld" type="password"></div>
+     <div class="field"><label>New Password</label><input class="inp" id="stNew" type="password" placeholder="min 6 chars"></div>
+     <div class="field" style="display:flex;align-items:flex-end"><button class="btn ghost block" onclick="changePass()"><i class="fa-solid fa-key"></i> Update password</button></div>
+   </div>
+   <p class="muted" style="margin-top:14px"><i class="fa-solid fa-lock"></i> Your workspace data is stored under <b>${esc(ME.email)}</b> and is never visible to other accounts.</p>
+   <div class="form-actions">
+     <button class="btn ghost" onclick="exportData()"><i class="fa-solid fa-download"></i> Export data (JSON)</button>
+     <button class="btn ghost" onclick="$('impFile').click()"><i class="fa-solid fa-upload"></i> Import data</button>
+     <input type="file" id="impFile" accept="application/json" hidden onchange="importData(this.files[0])">
+     <button class="btn ghost" onclick="loadSample()"><i class="fa-solid fa-wand-magic-sparkles"></i> Load sample data</button>
+     <button class="btn danger" onclick="wipe()"><i class="fa-solid fa-trash"></i> Reset workspace</button>
+   </div></div>
+  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-database" style="color:var(--accent)"></i> Workspace Stats</h3></div>
+   <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr))">
+     <div class="card" style="box-shadow:none"><div class="lbl">Parties</div><div class="val" style="font-size:20px">${DB.customers.length}</div></div>
+     <div class="card" style="box-shadow:none"><div class="lbl">Products</div><div class="val" style="font-size:20px">${DB.products.length}</div></div>
+     <div class="card" style="box-shadow:none"><div class="lbl">Transactions</div><div class="val" style="font-size:20px">${DB.txns.length}</div></div>
+     <div class="card" style="box-shadow:none"><div class="lbl">Attachments</div><div class="val" style="font-size:20px">${DB.txns.reduce((s,t)=>s+((t.attachments||[]).length),0)}</div></div>
+   </div></div>`;
+}
+function saveSettings(){
+  const us=users(),u=us.find(x=>x.email===ME.email);
+  u.name=$('stName').value.trim()||u.name;u.biz=$('stBiz').value.trim()||u.biz;saveUsers(us);ME=u;
+  DB.settings.lowStock=Math.max(1,num($('stLow').value)||5);DB.biz=u.biz;save();paintUser();paintBell();toast('Preferences saved','ok');
+}
+function changePass(){
+  const o=$('stOld').value,n=$('stNew').value;
+  if(hash(o)!==ME.pass)return toast('Current password is incorrect','err');
+  if(n.length<6)return toast('New password must be at least 6 characters','err');
+  const us=users(),u=us.find(x=>x.email===ME.email);u.pass=hash(n);saveUsers(us);ME=u;
+  $('stOld').value='';$('stNew').value='';toast('Password updated','ok');
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify({user:ME.email,data:DB},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='diary-nepal-'+ME.email+'.json';a.click();
+  toast('Data exported','ok');closeDds();
+}
+function importData(f){
+  if(!f)return;const r=new FileReader();
+  r.onload=e=>{try{const j=JSON.parse(e.target.result);DB=Object.assign(blank(ME.biz),j.data||j);save();renderPage();toast('Data imported','ok');}
+  catch(x){toast('Invalid file','err');}};r.readAsText(f);
+}
+function loadSample(){if(!confirm('Load sample data? This replaces current workspace data.'))return;seedUser(ME.email,ME.biz);DB=loadDB(ME.email);renderPage();toast('Sample data loaded','ok');}
+function wipe(){if(!confirm('Delete ALL data in this workspace? This cannot be undone.'))return;DB=blank(ME.biz);save();renderPage();toast('Workspace reset','ok');}
 
-        function hideAuthModal() {
-            document.getElementById('authModal').classList.add('hidden');
-        }
-
-        function switchAuthTab(tab) {
-            hideAuthAlert();
-            const loginForm = document.getElementById('loginForm');
-            const regForm = document.getElementById('registerForm');
-            const forgotForm = document.getElementById('forgotForm');
-            const socialSection = document.getElementById('socialAuthSection');
-            
-            const btnLogin = document.getElementById('tabBtnLogin');
-            const btnReg = document.getElementById('tabBtnRegister');
-
-            if (tab === 'login') {
-                loginForm.classList.remove('hidden');
-                regForm.classList.add('hidden');
-                forgotForm.classList.add('hidden');
-                socialSection.classList.remove('hidden');
-
-                btnLogin.className = "flex-1 py-2 rounded-lg bg-white dark:bg-slate-800 text-blue-600 dark:text-white shadow-sm transition";
-                btnReg.className = "flex-1 py-2 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white transition";
-                document.getElementById('modalTitle').innerText = "Welcome Back";
-            } else if (tab === 'register') {
-                loginForm.classList.add('hidden');
-                regForm.classList.remove('hidden');
-                forgotForm.classList.add('hidden');
-                socialSection.classList.remove('hidden');
-
-                btnReg.className = "flex-1 py-2 rounded-lg bg-white dark:bg-slate-800 text-blue-600 dark:text-white shadow-sm transition";
-                btnLogin.className = "flex-1 py-2 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white transition";
-                document.getElementById('modalTitle').innerText = "Create Account";
-            } else if (tab === 'forgot') {
-                loginForm.classList.add('hidden');
-                regForm.classList.add('hidden');
-                forgotForm.classList.remove('hidden');
-                socialSection.classList.add('hidden');
-                document.getElementById('modalTitle').innerText = "Reset Password";
-            }
-        }
-
-        function showAuthAlert(msg, isError = true) {
-            const alert = document.getElementById('authAlert');
-            alert.innerText = msg;
-            alert.classList.remove('hidden', 'bg-rose-50', 'border-rose-200', 'text-rose-600', 'bg-emerald-50', 'border-emerald-200', 'text-emerald-600');
-            if (isError) {
-                alert.classList.add('bg-rose-50', 'border-rose-200', 'text-rose-600');
-            } else {
-                alert.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-600');
-            }
-        }
-
-        function hideAuthAlert() {
-            document.getElementById('authAlert').classList.add('hidden');
-        }
-
-        // Handlers for Authentication
-        async function handleEmailLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
-            const password = document.getElementById('loginPassword').value;
-
-            const hashedPassword = await hashPassword(password);
-            const user = db.users.find(u => u.email === email && u.password === hashedPassword);
-
-            if (user) {
-                currentUser = user;
-                localStorage.setItem('ledger_session', JSON.stringify({ email: user.email, name: user.name }));
-                onAuthSuccess();
-                showToast(`Welcome back, ${user.name}!`);
-            } else {
-                showAuthAlert("Invalid email address or password.");
-            }
-        }
-
-        async function handleEmailRegister(e) {
-            e.preventDefault();
-            const name = document.getElementById('regName').value.trim();
-            const email = document.getElementById('regEmail').value.trim().toLowerCase();
-            const password = document.getElementById('regPassword').value;
-
-            if (db.users.some(u => u.email === email)) {
-                showAuthAlert("An account with this email address already exists.");
-                return;
-            }
-
-            const hashedPassword = await hashPassword(password);
-            const newUser = {
-                id: 'USR_' + Date.now(),
-                name: name,
-                email: email,
-                password: hashedPassword,
-                provider: 'email',
-                createdAt: new Date().toISOString()
-            };
-
-            db.users.push(newUser);
-            saveGlobalUsers();
-
-            currentUser = newUser;
-            localStorage.setItem('ledger_session', JSON.stringify({ email: newUser.email, name: newUser.name }));
-            onAuthSuccess();
-            showToast("Account successfully created!");
-        }
-
-        async function handleForgotPassword(e) {
-            e.preventDefault();
-            const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
-            const newPassword = document.getElementById('forgotNewPassword').value;
-
-            const userIndex = db.users.findIndex(u => u.email === email);
-            if (userIndex === -1) {
-                showAuthAlert("No account found with this email address.");
-                return;
-            }
-
-            db.users[userIndex].password = await hashPassword(newPassword);
-            saveGlobalUsers();
-            showAuthAlert("Password updated successfully! Please sign in.", false);
-            setTimeout(() => switchAuthTab('login'), 1500);
-        }
-
-        // Google Authentication Callback
-        function parseJwt(token) {
-            try {
-                const base64Url = token.split('.')[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join(''));
-                return JSON.parse(jsonPayload);
-            } catch (e) {
-                return null;
-            }
-        }
-
-        function handleGoogleSignIn(response) {
-            const payload = parseJwt(response.credential);
-            if (!payload || !payload.email) {
-                showAuthAlert("Google authentication failed.");
-                return;
-            }
-
-            let user = db.users.find(u => u.email === payload.email);
-            if (!user) {
-                user = {
-                    id: 'USR_G_' + Date.now(),
-                    name: payload.name || payload.email.split('@')[0],
-                    email: payload.email.toLowerCase(),
-                    provider: 'google',
-                    picture: payload.picture,
-                    createdAt: new Date().toISOString()
-                };
-                db.users.push(user);
-                saveGlobalUsers();
-            }
-
-            currentUser = user;
-            localStorage.setItem('ledger_session', JSON.stringify({ email: user.email, name: user.name }));
-            onAuthSuccess();
-            showToast(`Signed in with Google as ${user.name}`);
-        }
-
-        function onAuthSuccess() {
-            hideAuthModal();
-            loadUserData();
-            updateUIUser();
-            renderDashboard();
-        }
-
-        function handleLogout() {
-            localStorage.removeItem('ledger_session');
-            currentUser = null;
-            showAuthModal();
-            showToast("Signed out successfully.");
-        }
-
-        // Multi-Tenant Isolated Storage
-        function getUserStorageKey(key) {
-            return `user_${currentUser.id}_${key}`;
-        }
-
-        function loadUserData() {
-            db.customers = JSON.parse(localStorage.getItem(getUserStorageKey('customers')) || '[]');
-            db.products = JSON.parse(localStorage.getItem(getUserStorageKey('products')) || '[]');
-            db.ledger = JSON.parse(localStorage.getItem(getUserStorageKey('ledger')) || '[]');
-        }
-
-        function saveUserData() {
-            localStorage.setItem(getUserStorageKey('customers'), JSON.stringify(db.customers));
-            localStorage.setItem(getUserStorageKey('products'), JSON.stringify(db.products));
-            localStorage.setItem(getUserStorageKey('ledger'), JSON.stringify(db.ledger));
-        }
-
-        function updateUIUser() {
-            const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-            document.getElementById('userNameDisplay').innerText = currentUser.name;
-            document.getElementById('userEmailDisplay').innerText = currentUser.email;
-            document.getElementById('sidebarCompName').innerText = currentUser.name + "'s Ledger";
-            document.getElementById('userAvatar').innerText = initials || 'U';
-            document.getElementById('headerUserInitials').innerText = initials || 'U';
-        }
-
-        // Navigation
-        function switchTab(tabId) {
-            document.querySelectorAll('#workspaceContent > div').forEach(div => div.classList.add('hidden'));
-            const targetView = document.getElementById(`view-${tabId}`);
-            if (targetView) targetView.classList.remove('hidden');
-
-            document.querySelectorAll('.sidebar-item').forEach(item => {
-                item.classList.remove('sidebar-item-active');
-                item.classList.add('hover:bg-slate-800');
-            });
-            const activeNav = document.getElementById(`nav-${tabId}`);
-            if (activeNav) {
-                activeNav.classList.add('sidebar-item-active');
-                activeNav.classList.remove('hover:bg-slate-800');
-            }
-
-            document.getElementById('moduleTitle').innerText = tabId.charAt(0).toUpperCase() + tabId.slice(1);
-            if (tabId === 'dashboard') renderDashboard();
-            if (tabId === 'customers') renderCustomers();
-            if (tabId === 'creditledger') renderCustomerLedgerView();
-            if (tabId === 'products') renderProducts();
-        }
-
-        function toggleDarkMode() {
-            document.documentElement.classList.toggle('dark');
-        }
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMsg').innerText = msg;
-            toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 3000);
-        }
-
-        function updateDateDisplay() {
-            const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
-            const today = new Date().toLocaleDateString('en-US', options);
-            document.getElementById('currentDateDisplay').innerText = today;
-            document.getElementById('printDate').innerText = new Date().toLocaleString();
-        }
-
-        // Placeholder render functions for existing dashboard/modules
-        function renderDashboard() {
-            document.getElementById('dashTotalCustomers').innerText = db.customers.length;
-        }
-
-        function renderCustomers() {}
-        function renderCustomerLedgerView() {}
-        function renderProducts() {}
-        function openCustomerModal() {}
-        function openLedgerEntryModal() {}
-        function openProductModal() {}
-        function shareLedgerReport() {}
-    </script>
+/* ============ BOOT ============ */
+(function(){
+  const th=localStorage.getItem('dn_theme');
+  if(th==='dark'){document.documentElement.dataset.theme='dark';$('themeIco').className='fa-solid fa-sun';}
+  if(!users().length){saveUsers([{email:'demo@diary.np',name:'demo user',biz:'Diary Nepal',pass:hash('demo123'),created:new Date().toISOString()}]);
+    if(!localStorage.getItem(KEY('demo@diary.np')))seedUser('demo@diary.np','Diary Nepal');}
+  const s=localStorage.getItem(SESS);
+  if(s&&users().find(u=>u.email===s))login(s);
+})();
+</script>
 </body>
 </html>
