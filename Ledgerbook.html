@@ -26,38 +26,6 @@ button,input,select,textarea{font-family:inherit;font-size:14px;color:inherit}
 a{color:inherit;text-decoration:none}
 ::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:#94a3b855;border-radius:8px}
 
-/* ---------- AUTH ---------- */
-#auth{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;
- background:radial-gradient(1200px 600px at 10% 0%,#1e3a8a 0%,#0b1120 55%,#050a14 100%)}
-.auth-card{width:100%;max-width:940px;background:var(--panel);border-radius:22px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;box-shadow:0 30px 80px rgba(0,0,0,.45)}
-.auth-side{background:linear-gradient(160deg,#1d4ed8,#0f172a);color:#fff;padding:46px 38px;display:flex;flex-direction:column;justify-content:space-between}
-.auth-side h2{font-size:28px;line-height:1.25;margin-bottom:12px}
-.auth-side p{color:#c7d2fe;font-size:14px;line-height:1.7}
-.auth-feats{list-style:none;margin-top:26px;display:grid;gap:12px}
-.auth-feats li{display:flex;gap:10px;align-items:center;font-size:13.5px;color:#e0e7ff}
-.auth-feats i{width:26px;height:26px;display:grid;place-items:center;background:#ffffff22;border-radius:8px;font-size:11px}
-.auth-form{padding:42px 38px}
-.auth-tabs{display:flex;background:var(--panel2);border:1px solid var(--border);padding:5px;border-radius:12px;margin-bottom:24px}
-.auth-tabs button{flex:1;border:0;background:transparent;padding:10px;border-radius:9px;font-weight:600;color:var(--muted);cursor:pointer}
-.auth-tabs button.on{background:var(--accent);color:#fff;box-shadow:0 6px 16px rgba(37,99,235,.3)}
-.field{margin-bottom:16px}
-.field label{display:block;font-size:12.5px;font-weight:600;margin-bottom:6px;color:var(--muted)}
-.field label span{color:var(--red)}
-.inp{width:100%;padding:11px 13px;border:1px solid var(--border);background:var(--panel2);border-radius:10px;outline:none;transition:.18s}
-.inp:focus{border-color:var(--accent);background:var(--panel);box-shadow:0 0 0 4px rgba(37,99,235,.14)}
-.inp.err{border-color:var(--red);box-shadow:0 0 0 4px rgba(225,29,72,.12)}
-.err-msg{color:var(--red);font-size:11.5px;margin-top:5px;display:none}
-.err-msg.show{display:block}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 18px;border:0;border-radius:10px;background:var(--accent);color:#fff;font-weight:600;cursor:pointer;transition:.16s}
-.btn:hover{background:var(--accent2);transform:translateY(-1px)}
-.btn:active{transform:translateY(0) scale(.98)}
-.btn.block{width:100%}
-.btn.ghost{background:var(--panel2);color:var(--text);border:1px solid var(--border)}
-.btn.ghost:hover{background:var(--border)}
-.btn.danger{background:var(--red)}.btn.danger:hover{background:#be123c}
-.btn.green{background:var(--green)}.btn.green:hover{background:#15803d}
-.btn.sm{padding:7px 12px;font-size:12.5px;border-radius:8px}
-.muted{color:var(--muted);font-size:13px}
 
 /* ---------- LAYOUT ---------- */
 .app{display:none;min-height:100vh}
@@ -209,7 +177,7 @@ tbody tr:hover{background:var(--panel2)}
         <button id="tabSignup" onclick="switchAuth('signup')">Sign Up</button>
       </div>
 
-      <form id="loginForm" onsubmit="doLogin(event)">
+      <form id="loginForm" onsubmit="handleLogin(event)" class="fade-in">
         <h3 style="margin-bottom:5px">Welcome back 👋</h3>
         <p class="muted" style="margin-bottom:20px">Login to access your workspace</p>
         <div class="field"><label>Email Address <span>*</span></label>
@@ -223,7 +191,7 @@ tbody tr:hover{background:var(--panel2)}
         <p class="muted" style="text-align:center;margin-top:10px;font-size:12px">Demo: <b>demo@diary.np</b> / <b>demo123</b> <a onclick="fillDemo()" style="color:var(--accent);cursor:pointer">(fill)</a></p>
       </form>
 
-      <form id="signupForm" onsubmit="doSignup(event)" style="display:none">
+      <form id="signupForm" onsubmit="handleSignup(event)" class="hidden" style="display:none">
         <h3 style="margin-bottom:5px">Create your account</h3>
         <p class="muted" style="margin-bottom:20px">Your data stays private to this email</p>
         <div class="field"><label>Full Name <span>*</span></label>
