@@ -14,6 +14,28 @@
 
   gtag('config', 'G-YQQHMEQWT4');
 </script>
+  <script type="module">
+  import { db, auth } from "./firebase.js";
+  import { 
+    createUserWithEmailAndPassword, 
+    signInWithEmailAndPassword, 
+    signOut, 
+    onAuthStateChanged 
+  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  
+  import { 
+    collection, addDoc, onSnapshot, query, where, deleteDoc, doc 
+  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  // Auth changes
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      console.log("Logged In as:", user.email);
+    } else {
+      console.log("Logged Out State");
+    }
+  });
+</script>
 <script type="module">
   // Import the functions you need from the SDKs you need
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
