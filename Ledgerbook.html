@@ -1272,5 +1272,29 @@ function wipe(){if(!confirm('Delete ALL data in this workspace? This cannot be u
   if(s&&users().find(u=>u.email===s))login(s);
 })();
 </script>
+  <script type="module">
+
+import {
+db,
+auth,
+storage
+}
+from "./firebase.js";
+    
+    import {
+
+createUserWithEmailAndPassword,
+
+signInWithEmailAndPassword,
+
+signOut,
+
+onAuthStateChanged
+
+}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
+</script>
+  
 </body>
 </html>
