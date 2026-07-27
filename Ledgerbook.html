@@ -9,10 +9,12 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+
 <style>
 :root{
   --bg:#f1f5f9; --panel:#ffffff; --panel2:#f8fafc; --text:#0f172a; --muted:#64748b;
@@ -30,6 +32,38 @@ button,input,select,textarea{font-family:inherit;font-size:14px;color:inherit}
 a{color:inherit;text-decoration:none}
 ::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:#94a3b855;border-radius:8px}
 
+/* ---------- AUTH ---------- */
+#auth{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;
+ background:radial-gradient(1200px 600px at 10% 0%,#1e3a8a 0%,#0b1120 55%,#050a14 100%)}
+.auth-card{width:100%;max-width:940px;background:var(--panel);border-radius:22px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+.auth-side{background:linear-gradient(160deg,#1d4ed8,#0f172a);color:#fff;padding:46px 38px;display:flex;flex-direction:column;justify-content:space-between}
+.auth-side h2{font-size:28px;line-height:1.25;margin-bottom:12px}
+.auth-side p{color:#c7d2fe;font-size:14px;line-height:1.7}
+.auth-feats{list-style:none;margin-top:26px;display:grid;gap:12px}
+.auth-feats li{display:flex;gap:10px;align-items:center;font-size:13.5px;color:#e0e7ff}
+.auth-feats i{width:26px;height:26px;display:grid;place-items:center;background:#ffffff22;border-radius:8px;font-size:11px}
+.auth-form{padding:42px 38px}
+.auth-tabs{display:flex;background:var(--panel2);border:1px solid var(--border);padding:5px;border-radius:12px;margin-bottom:24px}
+.auth-tabs button{flex:1;border:0;background:transparent;padding:10px;border-radius:9px;font-weight:600;color:var(--muted);cursor:pointer}
+.auth-tabs button.on{background:var(--accent);color:#fff;box-shadow:0 6px 16px rgba(37,99,235,.3)}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12.5px;font-weight:600;margin-bottom:6px;color:var(--muted)}
+.field label span{color:var(--red)}
+.inp{width:100%;padding:11px 13px;border:1px solid var(--border);background:var(--panel2);border-radius:10px;outline:none;transition:.18s}
+.inp:focus{border-color:var(--accent);background:var(--panel);box-shadow:0 0 0 4px rgba(37,99,235,.14)}
+.inp.err{border-color:var(--red);box-shadow:0 0 0 4px rgba(225,29,72,.12)}
+.err-msg{color:var(--red);font-size:11.5px;margin-top:5px;display:none}
+.err-msg.show{display:block}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 18px;border:0;border-radius:10px;background:var(--accent);color:#fff;font-weight:600;cursor:pointer;transition:.16s}
+.btn:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn.block{width:100%}
+.btn.ghost{background:var(--panel2);color:var(--text);border:1px solid var(--border)}
+.btn.ghost:hover{background:var(--border)}
+.btn.danger{background:var(--red)}.btn.danger:hover{background:#be123c}
+.btn.green{background:var(--green)}.btn.green:hover{background:#15803d}
+.btn.sm{padding:7px 12px;font-size:12.5px;border-radius:8px}
+.muted{color:var(--muted);font-size:13px}
 
 /* ---------- LAYOUT ---------- */
 .app{display:none;min-height:100vh}
@@ -158,7 +192,113 @@ tbody tr:hover{background:var(--panel2)}
 </head>
 <body>
 
+<!-- AUTH -->
+<div id="auth">
+  <div class="auth-card">
+    <div class="auth-side">
+      <div>
+        <div class="brand-ico" style="margin-bottom:22px"><i class="fa-solid fa-chart-line"></i></div>
+        <h2>Diary Nepal<br>Digital Workspace</h2>
+        <p>Secure, email-based accounting workspace. हरेक प्रयोगकर्ताको डाटा पूर्ण रूपमा अलग र सुरक्षित।</p>
+        <ul class="auth-feats">
+          <li><i class="fa-solid fa-lock"></i> Private, isolated data per account</li>
+          <li><i class="fa-solid fa-bolt"></i> Live ledger, inventory &amp; reports</li>
+          <li><i class="fa-solid fa-share-nodes"></i> Share statements on WhatsApp &amp; Email</li>
+          <li><i class="fa-solid fa-boxes-stacked"></i> Low stock alerts &amp; adjustments</li>
+        </ul>
+      </div>
+      <p style="font-size:11.5px;color:#93c5fd">© 2026 Diary Nepal · diarynepalinfo@gmail.com</p>
+    </div>
+    <div class="auth-form">
+      <div class="auth-tabs">
+        <button id="tabLogin" class="on" onclick="switchAuth('login')">Login</button>
+        <button id="tabSignup" onclick="switchAuth('signup')">Sign Up</button>
+      </div>
 
+      <form id="loginForm" onsubmit="doLogin(event)">
+        <h3 style="margin-bottom:5px">Welcome back 👋</h3>
+        <p class="muted" style="margin-bottom:20px">Login to access your workspace</p>
+        <div class="field"><label>Email Address <span>*</span></label>
+          <input class="inp" id="lgEmail" type="email" placeholder="you@example.com" autocomplete="email">
+          <div class="err-msg" id="lgEmailErr">Valid email required</div></div>
+        <div class="field"><label>Password <span>*</span></label>
+          <input class="inp" id="lgPass" type="password" placeholder="••••••••" autocomplete="current-password">
+          <div class="err-msg" id="lgPassErr">Password required</div></div>
+        <button class="btn block" type="submit"><i class="fa-solid fa-right-to-bracket"></i> Login securely</button>
+        <p class="muted" style="text-align:center;margin-top:16px">No account? <a onclick="switchAuth('signup')" style="color:var(--accent);font-weight:600;cursor:pointer">Create one</a></p>
+        <p class="muted" style="text-align:center;margin-top:10px;font-size:12px">Demo: <b>demo@diary.np</b> / <b>demo123</b> <a onclick="fillDemo()" style="color:var(--accent);cursor:pointer">(fill)</a></p>
+      </form>
+
+      <form id="signupForm" onsubmit="doSignup(event)" style="display:none">
+        <h3 style="margin-bottom:5px">Create your account</h3>
+        <p class="muted" style="margin-bottom:20px">Your data stays private to this email</p>
+        <div class="field"><label>Full Name <span>*</span></label>
+          <input class="inp" id="suName" placeholder="Your name"><div class="err-msg" id="suNameErr">Name required</div></div>
+        <div class="field"><label>Business Name</label><input class="inp" id="suBiz" placeholder="e.g. Diary Nepal Traders"></div>
+        <div class="field"><label>Email Address <span>*</span></label>
+          <input class="inp" id="suEmail" type="email" placeholder="you@example.com"><div class="err-msg" id="suEmailErr">Valid email required</div></div>
+        <div class="field"><label>Password <span>*</span></label>
+          <input class="inp" id="suPass" type="password" placeholder="Min 6 characters"><div class="err-msg" id="suPassErr">Min 6 characters</div></div>
+        <div class="field"><label>Confirm Password <span>*</span></label>
+          <input class="inp" id="suPass2" type="password" placeholder="Repeat password"><div class="err-msg" id="suPass2Err">Passwords do not match</div></div>
+        <button class="btn block green" type="submit"><i class="fa-solid fa-user-plus"></i> Create account</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <div class="backdrop" id="backdrop" onclick="toggleSide()"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-ico"><i class="fa-solid fa-chart-line"></i></div>
+      <div><div class="brand-name" id="sbName">demo user</div><div class="brand-sub" id="sbRole">USER</div></div>
+    </div>
+    <div class="nav-label">MODULES NAVIGATION</div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot">
+      <div class="avat" id="sfAvatar">D</div>
+      <div style="flex:1;min-width:0"><div class="n" id="sfBiz">Diary Nepal</div><div class="e" id="sfEmail">—</div></div>
+      <button class="icon-btn" title="Logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex;gap:12px;align-items:center">
+        <button class="round hamb" onclick="toggleSide()"><i class="fa-solid fa-bars"></i></button>
+        <div><div class="crumb">Digital Workspace</div><h1 class="page-title" id="pageTitle">Dashboard</h1></div>
+      </div>
+      <div class="top-actions">
+        <div style="position:relative">
+          <button class="round" onclick="toggleBell(event)" title="Alerts"><i class="fa-regular fa-bell"></i><span class="badge-dot" id="bellCount" style="display:none">0</span></button>
+          <div class="dropdown" id="bellDd"></div>
+        </div>
+        <button class="round" onclick="toggleTheme()" title="Toggle theme"><i class="fa-solid fa-moon" id="themeIco"></i></button>
+        <input type="date" class="pill" id="workDate" onchange="renderPage()" style="cursor:text">
+        <div style="position:relative">
+          <div class="avatar-top" id="topAvatar" onclick="toggleUserDd(event)">D</div>
+          <div class="dropdown" id="userDd" style="width:230px">
+            <div class="dd-item" style="border-bottom:1px solid var(--border);margin-bottom:6px"><div><b id="ddName">—</b><div class="muted" id="ddEmail" style="font-size:11.5px"></div></div></div>
+            <div class="dd-item" style="cursor:pointer" onclick="go('settings');closeDds()"><i class="fa-solid fa-gear" style="color:var(--muted)"></i> Settings &amp; Preferences</div>
+            <div class="dd-item" style="cursor:pointer" onclick="exportData()"><i class="fa-solid fa-download" style="color:var(--muted)"></i> Export my data (JSON)</div>
+            <div class="dd-item" style="cursor:pointer;color:var(--red)" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="view"></div>
+  </main>
+</div>
+
+<div class="modal-bd" id="modalBd" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modalBox">
+    <div class="modal-h"><h3 id="modalTitle">Title</h3><button class="icon-btn" style="color:var(--muted)" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-b" id="modalBody"></div>
+  </div>
+</div>
+<div class="toast-wrap" id="toasts"></div>
 
 <script>
 /* ============ UTIL ============ */
@@ -234,7 +374,10 @@ function doSignup(e){
         settings: { lowStock: 5, currency: '₨' }
       });
     })
-    .then(() => toast('Account created. Welcome, '+n+'!','ok'))
+    .then(() => {
+        if(!localStorage.getItem(KEY(em))) seedUser(em, b||(n+"'s Business")); // scaffold local DB
+        toast('Account created. Welcome, '+n+'!','ok');
+    })
     .catch(err => toast(err.message, 'err'));
 }
 
@@ -254,6 +397,7 @@ function logout(){
   auth.signOut();
   $('lgPass').value='';closeDds();
 }
+  
 /* ============ DATA (isolated per user) ============ */
 const KEY=e=>'dn_data_'+e;
 function blank(biz){return {biz:biz||'My Business',customers:[],products:[],txns:[],settings:{lowStock:5,currency:'₨'}};}
@@ -1118,6 +1262,7 @@ function pgSettings(v){
      <div class="card" style="box-shadow:none"><div class="lbl">Attachments</div><div class="val" style="font-size:20px">${DB.txns.reduce((s,t)=>s+((t.attachments||[]).length),0)}</div></div>
    </div></div>`;
 }
+
 function saveSettings(){
   const newName = $('stName').value.trim() || ME.name;
   const newBiz = $('stBiz').value.trim() || ME.biz;
@@ -1160,7 +1305,7 @@ function changePass(){
     toast('Password updated successfully','ok');
   }).catch(err => toast(err.message, 'err'));
 }
-  
+
 function exportData(){
   const blob=new Blob([JSON.stringify({user:ME.email,data:DB},null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='diary-nepal-'+ME.email+'.json';a.click();
@@ -1184,7 +1329,11 @@ auth.onAuthStateChanged(async (user) => {
     const docSnap = await db.collection('users').doc(user.uid).get();
     if (docSnap.exists) {
        ME = { ...docSnap.data(), uid: user.uid };
+    } else {
+       // Fallback just in case profile hasn't finished writing
+       ME = { name: "User", biz: "My Business", email: user.email, uid: user.uid };
     }
+    
     // We will keep local DB logic temporarily until Phase 2
     DB = loadDB(user.email); 
     
