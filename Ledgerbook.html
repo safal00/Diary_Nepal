@@ -312,19 +312,24 @@ function toast(msg,type='ok',title){
 }
 function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h)+s.charCodeAt(i);return String(h>>>0);}
 
-/* ============ AUTH ============ */
-const USERS='dn_users_v1', SESS='dn_session_v1';
-const users=()=>JSON.parse(localStorage.getItem(USERS)||'[]');
-const saveUsers=u=>localStorage.setItem(USERS,JSON.stringify(u));
-let ME=null, DB=null;
+ /* ============ Firebase activation ============ */
+  const firebaseConfig = {
+  apiKey: "AIzaSyC9wzP2mnLuRscD-VHCFeflV7PyvkAJ-nQ",
+  authDomain: "diarynepal01.firebaseapp.com",
+  projectId: "diarynepal01",
+  storageBucket: "diarynepal01.firebasestorage.app",
+  messagingSenderId: "736076742017",
+  appId: "1:736076742017:web:441f4539433aaf231f7c80",
+  measurementId: "G-8JW8PH6896"
+};
 
-function switchAuth(m){
-  $('tabLogin').classList.toggle('on',m==='login');$('tabSignup').classList.toggle('on',m!=='login');
-  $('loginForm').style.display=m==='login'?'':'none';$('signupForm').style.display=m==='login'?'none':'';
-}
-function fillDemo(){$('lgEmail').value='demo@diary.np';$('lgPass').value='demo123';}
-function showErr(id,on){$(id).classList.toggle('show',on);$(id.replace('Err','')).classList.toggle('err',on);}
-function validEmail(e){return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);}
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
+
+/* ============ AUTH ============ */
 
 function doSignup(e){
   e.preventDefault();
@@ -335,44 +340,40 @@ function doSignup(e){
   showErr('suPassErr',p.length<6); ok=ok&&p.length>=6;
   showErr('suPass2Err',p!==p2||!p2); ok=ok&&p===p2&&p2;
   if(!ok)return toast('Please fix the highlighted fields','err','Validation failed');
-  const us=users();
-  if(us.find(u=>u.email===em))return toast('This email is already registered. Please login.','err');
-  us.push({email:em,name:n,biz:b||(n+"'s Business"),pass:hash(p),created:new Date().toISOString()});
-  saveUsers(us);
-  seedUser(em,b||(n+"'s Business"));
-  toast('Account created. Welcome, '+n+'!','ok');
-  login(em);
+
+  // Firebase Signup
+  auth.createUserWithEmailAndPassword(em, p)
+    .then((cred) => {
+      // Save user profile info to Firestore
+      return db.collection('users').doc(cred.user.uid).set({
+        name: n,
+        biz: b || (n + "'s Business"),
+        email: em,
+        created: firebase.firestore.FieldValue.serverTimestamp(),
+        settings: { lowStock: 5, currency: '₨' }
+      });
+    })
+    .then(() => toast('Account created. Welcome, '+n+'!','ok'))
+    .catch(err => toast(err.message, 'err'));
 }
+
 function doLogin(e){
   e.preventDefault();
   const em=$('lgEmail').value.trim().toLowerCase(),p=$('lgPass').value;
   let ok=validEmail(em); showErr('lgEmailErr',!ok); showErr('lgPassErr',!p);
   if(!ok||!p)return;
-  const u=users().find(u=>u.email===em);
-  if(!u)return toast('No account found with this email','err');
-  if(u.pass!==hash(p))return toast('Incorrect password','err');
-  login(em);
+
+  // Firebase Login
+  auth.signInWithEmailAndPassword(em, p)
+    .catch(err => toast(err.message, 'err'));
 }
-function login(email){
-  localStorage.setItem(SESS,email);
-  ME=users().find(u=>u.email===email);
-  DB=loadDB(email);
-  $('auth').style.display='none';$('app').classList.add('on');
-  $('workDate').value=today();
-  buildNav();paintUser();go('dashboard');
-  toast('Logged in as '+ME.email,'ok','Welcome');
-}
+
 function logout(){
   if(!confirm('Logout from this workspace?'))return;
-  localStorage.removeItem(SESS);ME=null;DB=null;
-  $('app').classList.remove('on');$('auth').style.display='flex';
+  auth.signOut();
   $('lgPass').value='';closeDds();
 }
-function paintUser(){
-  const ini=(ME.name||ME.email)[0].toUpperCase();
-  $('sbName').textContent=ME.name;$('sfBiz').textContent=ME.biz;$('sfEmail').textContent=ME.email;
-  $('sfAvatar').textContent=ini;$('topAvatar').textContent=ini;$('ddName').textContent=ME.name;$('ddEmail').textContent=ME.email;
-}
+  
 /* ============ DATA (isolated per user) ============ */
 const KEY=e=>'dn_data_'+e;
 function blank(biz){return {biz:biz||'My Business',customers:[],products:[],txns:[],settings:{lowStock:5,currency:'₨'}};}
@@ -1263,14 +1264,30 @@ function loadSample(){if(!confirm('Load sample data? This replaces current works
 function wipe(){if(!confirm('Delete ALL data in this workspace? This cannot be undone.'))return;DB=blank(ME.biz);save();renderPage();toast('Workspace reset','ok');}
 
 /* ============ BOOT ============ */
-(function(){
-  const th=localStorage.getItem('dn_theme');
-  if(th==='dark'){document.documentElement.dataset.theme='dark';$('themeIco').className='fa-solid fa-sun';}
-  if(!users().length){saveUsers([{email:'demo@diary.np',name:'demo user',biz:'Diary Nepal',pass:hash('demo123'),created:new Date().toISOString()}]);
-    if(!localStorage.getItem(KEY('demo@diary.np')))seedUser('demo@diary.np','Diary Nepal');}
-  const s=localStorage.getItem(SESS);
-  if(s&&users().find(u=>u.email===s))login(s);
-})();
+/* ============ BOOT & AUTH LISTENER ============ */
+const th=localStorage.getItem('dn_theme');
+if(th==='dark'){document.documentElement.dataset.theme='dark';$('themeIco').className='fa-solid fa-sun';}
+
+auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    // User just logged in
+    const docSnap = await db.collection('users').doc(user.uid).get();
+    if (docSnap.exists) {
+       ME = { ...docSnap.data(), uid: user.uid };
+    }
+    // We will keep local DB logic temporarily until Phase 2
+    DB = loadDB(user.email); 
+    
+    $('auth').style.display='none';$('app').classList.add('on');
+    $('workDate').value=today();
+    buildNav();paintUser();go('dashboard');
+    toast('Logged in as '+ME.email,'ok','Welcome');
+  } else {
+    // User logged out
+    ME = null; DB = null;
+    $('app').classList.remove('on');$('auth').style.display='flex';
+  }
+});
 </script>
 </body>
 </html>
