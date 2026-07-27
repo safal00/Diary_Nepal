@@ -161,10 +161,42 @@ tbody tr:hover{background:var(--panel2)}
 
 
 <script>
-/* ============ AUTH ============ */
-let ME = null, DB = null; // These are critical! They hold the current user and data.
+/* ============ UTIL ============ */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,10);
+const num=v=>{const n=parseFloat(v);return isNaN(n)?0:n;};
+const money=n=>'₨ '+num(n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const today=()=>new Date().toISOString().slice(0,10);
+const workDate=()=>$('workDate').value||today();
+const fmtDate=d=>d? d.split('-').reverse().join('/') : '';
+const sum=(a,k)=>a.reduce((s,x)=>s+num(x[k]),0);
+function toast(msg,type='ok',title){
+  const t=document.createElement('div');t.className='toast '+type;
+  t.innerHTML='<b>'+esc(title||(type==='err'?'Error':type==='warn'?'Warning':'Success'))+'</b>'+esc(msg);
+  $('toasts').appendChild(t);setTimeout(()=>{t.style.opacity=0;t.style.transform='translateX(20px)';t.style.transition='.3s';setTimeout(()=>t.remove(),320)},3600);
+}
 
-// --- UI Helper Functions ---
+/* ============ FIREBASE INIT ============ */
+const firebaseConfig = {
+  apiKey: "AIzaSyC9wzP2mnLuRscD-VHCFeflV7PyvkAJ-nQ",
+  authDomain: "diarynepal01.firebaseapp.com",
+  projectId: "diarynepal01",
+  storageBucket: "diarynepal01.firebasestorage.app",
+  messagingSenderId: "736076742017",
+  appId: "1:736076742017:web:441f4539433aaf231f7c80",
+  measurementId: "G-8JW8PH6896"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
+
+/* ============ AUTH ============ */
+let ME=null, DB=null;
+
 function switchAuth(m){
   $('tabLogin').classList.toggle('on',m==='login');$('tabSignup').classList.toggle('on',m!=='login');
   $('loginForm').style.display=m==='login'?'':'none';$('signupForm').style.display=m==='login'?'none':'';
@@ -180,7 +212,6 @@ function paintUser(){
   $('sfAvatar').textContent=ini;$('topAvatar').textContent=ini;$('ddName').textContent=ME.name;$('ddEmail').textContent=ME.email;
 }
 
-// --- Firebase Auth Functions ---
 function doSignup(e){
   e.preventDefault();
   const n=$('suName').value.trim(),b=$('suBiz').value.trim(),em=$('suEmail').value.trim().toLowerCase(),p=$('suPass').value,p2=$('suPass2').value;
@@ -222,7 +253,7 @@ function logout(){
   if(!confirm('Logout from this workspace?'))return;
   auth.signOut();
   $('lgPass').value='';closeDds();
-}  
+}
 /* ============ DATA (isolated per user) ============ */
 const KEY=e=>'dn_data_'+e;
 function blank(biz){return {biz:biz||'My Business',customers:[],products:[],txns:[],settings:{lowStock:5,currency:'₨'}};}
