@@ -2,3109 +2,1163 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diary Nepal - Blog Management System</title>
-    <meta name="description" content="Diary Nepal - Your complete Nepal information portal with blogs, tools, and services">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diary Nepal - Complete Guide & Information Hub</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/org/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              red: '#cc1d1d',
+              darkRed: '#7a0e0e',
+              deepRed: '#540808',
+              orange: '#f59e0b',
+              sidebarBg: '#eef4ff',
+              sidebarText: '#1d4ed8',
+              bgLight: '#f8fafc'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            heading: ['Outfit', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f3f4f6;
+    }
     
-    <!-- Open Graph Tags -->
-    <meta property="og:title" content="Diary Nepal Blog">
-    <meta property="og:description" content="Latest news, articles and information from Nepal">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://diarynepal.com/blog">
+    .hero-banner {
+      background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 50%, #450a0a 100%);
+      position: relative;
+      overflow: hidden;
+    }
     
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    
-    <!-- Quill Rich Text Editor -->
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
-    
-    <!-- Firebase -->
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, getDoc, query, where, orderBy, limit, increment, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-        import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDemo-DiaryNepal-BlogSystem",
-            authDomain: "diary-nepal.firebaseapp.com",
-            projectId: "diary-nepal",
-            storageBucket: "diary-nepal.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abcdef123456"
-        };
-
-        // Mock Firebase for demo - using localStorage
-        window.firebaseReady = true;
-        window.mockDB = {
-            blogs: JSON.parse(localStorage.getItem('dn_blogs') || '[]'),
-            categories: JSON.parse(localStorage.getItem('dn_categories') || '[]'),
-            comments: JSON.parse(localStorage.getItem('dn_comments') || '[]')
-        };
-
-        // Initialize default categories
-        if (window.mockDB.categories.length === 0) {
-            const defaultCats = [
-                'Blood Bank', 'Hospital', 'Ambulance', 'Red Cross', 'Healthcare',
-                'Government', 'Municipality', 'Police', 'School', 'Travel',
-                'Airlines', 'Real Estate', 'Broker', 'Utilities', 'VAT Calculator',
-                'Date Converter', 'Invoice Generator', 'Quotation Generator',
-                'Estimate Bill', 'Cash Receipt', 'Ledger Book'
-            ];
-            window.mockDB.categories = defaultCats.map((name, i) => ({
-                id: 'cat_' + i,
-                name,
-                slug: name.toLowerCase().replace(/\s+/g, '-'),
-                count: 0
-            }));
-            localStorage.setItem('dn_categories', JSON.stringify(window.mockDB.categories));
-        }
-
-        // Initialize sample blogs if empty
-        if (window.mockDB.blogs.length === 0) {
-            const sampleBlogs = [
-                {
-                    id: 'blog_1',
-                    title: 'Top 10 Hospitals in Kathmandu Valley',
-                    slug: 'top-10-hospitals-kathmandu-valley',
-                    content: '<p>Kathmandu Valley is home to some of Nepal\'s best healthcare facilities. Here we explore the top hospitals that provide excellent medical care...</p><h2>1. Bir Hospital</h2><p>One of the oldest and largest government hospitals in Nepal, Bir Hospital provides affordable healthcare to thousands of patients daily.</p><h2>2. Tribhuvan University Teaching Hospital</h2><p>Located in Maharajgunj, TUTH is a premier medical institution offering advanced treatment facilities.</p>',
-                    excerpt: 'Discover the best hospitals in Kathmandu Valley providing world-class healthcare services.',
-                    category: 'Hospital',
-                    tags: ['hospital', 'healthcare', 'kathmandu', 'nepal'],
-                    author: 'Diary Nepal Team',
-                    status: 'published',
-                    featured: true,
-                    featuredImage: 'https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=800',
-                    seoTitle: 'Top 10 Best Hospitals in Kathmandu Valley | Diary Nepal',
-                    metaDescription: 'Find the best hospitals in Kathmandu Valley with contact info, services, and ratings.',
-                    publishDate: new Date('2024-01-15').toISOString(),
-                    views: 1547,
-                    readTime: 5,
-                    createdAt: new Date('2024-01-15').toISOString()
-                },
-                {
-                    id: 'blog_2',
-                    title: 'Blood Bank Services in Nepal - Complete Guide',
-                    slug: 'blood-bank-services-nepal-complete-guide',
-                    content: '<p>Blood donation saves lives. Nepal has several blood banks operating across the country to ensure adequate blood supply...</p>',
-                    excerpt: 'Complete guide to blood bank services available across Nepal with contact information.',
-                    category: 'Blood Bank',
-                    tags: ['blood bank', 'donation', 'health', 'nepal'],
-                    author: 'Health Desk',
-                    status: 'published',
-                    featured: true,
-                    featuredImage: 'https://images.unsplash.com/photo-1615461066841-6116e61058f4?w=800',
-                    seoTitle: 'Blood Bank Services in Nepal - Complete Guide | Diary Nepal',
-                    metaDescription: 'Find blood banks near you in Nepal. Complete list with contact numbers and blood types available.',
-                    publishDate: new Date('2024-01-20').toISOString(),
-                    views: 2103,
-                    readTime: 7,
-                    createdAt: new Date('2024-01-20').toISOString()
-                },
-                {
-                    id: 'blog_3',
-                    title: 'Best Tourist Destinations in Nepal 2024',
-                    slug: 'best-tourist-destinations-nepal-2024',
-                    content: '<p>Nepal is a paradise for travelers with its stunning landscapes, ancient temples, and rich culture...</p>',
-                    excerpt: 'Explore the most breathtaking tourist destinations in Nepal for your 2024 travel plans.',
-                    category: 'Travel',
-                    tags: ['travel', 'tourism', 'nepal', 'adventure'],
-                    author: 'Travel Desk',
-                    status: 'published',
-                    featured: false,
-                    featuredImage: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800',
-                    seoTitle: 'Best Tourist Destinations Nepal 2024 | Diary Nepal Travel Guide',
-                    metaDescription: 'Discover Nepal\'s top tourist spots, from Everest Base Camp to Pokhara lakeside.',
-                    publishDate: new Date('2024-02-01').toISOString(),
-                    views: 3215,
-                    readTime: 8,
-                    createdAt: new Date('2024-02-01').toISOString()
-                },
-                {
-                    id: 'blog_4',
-                    title: 'How to Calculate VAT in Nepal - Step by Step',
-                    slug: 'how-to-calculate-vat-nepal',
-                    content: '<p>Value Added Tax (VAT) in Nepal is currently 13%. Understanding how to calculate VAT is essential for businesses...</p>',
-                    excerpt: 'Learn how to calculate VAT in Nepal with simple examples and our online VAT calculator.',
-                    category: 'VAT Calculator',
-                    tags: ['vat', 'tax', 'calculator', 'nepal', 'business'],
-                    author: 'Finance Desk',
-                    status: 'published',
-                    featured: false,
-                    featuredImage: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800',
-                    seoTitle: 'VAT Calculator Nepal - How to Calculate VAT | Diary Nepal',
-                    metaDescription: 'Simple guide to calculating VAT in Nepal. Use our free VAT calculator for accurate results.',
-                    publishDate: new Date('2024-02-10').toISOString(),
-                    views: 4892,
-                    readTime: 4,
-                    createdAt: new Date('2024-02-10').toISOString()
-                },
-                {
-                    id: 'blog_5',
-                    title: 'Nepal Airlines - Complete Flight Information Guide',
-                    slug: 'nepal-airlines-flight-information-guide',
-                    content: '<p>Nepal has several domestic and international airlines operating flights across the country...</p>',
-                    excerpt: 'Complete guide to airlines operating in Nepal with routes, booking info, and tips.',
-                    category: 'Airlines',
-                    tags: ['airlines', 'flights', 'nepal', 'travel', 'airport'],
-                    author: 'Travel Desk',
-                    status: 'published',
-                    featured: false,
-                    featuredImage: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800',
-                    seoTitle: 'Nepal Airlines Guide - Domestic & International Flights | Diary Nepal',
-                    metaDescription: 'Complete information about airlines in Nepal including routes, booking, and tips.',
-                    publishDate: new Date('2024-02-15').toISOString(),
-                    views: 1876,
-                    readTime: 6,
-                    createdAt: new Date('2024-02-15').toISOString()
-                }
-            ];
-            window.mockDB.blogs = sampleBlogs;
-            localStorage.setItem('dn_blogs', JSON.stringify(window.mockDB.blogs));
-        }
-
-        window.saveBlogsToStorage = () => {
-            localStorage.setItem('dn_blogs', JSON.stringify(window.mockDB.blogs));
-        };
-
-        window.saveCategoriesToStorage = () => {
-            localStorage.setItem('dn_categories', JSON.stringify(window.mockDB.categories));
-        };
-
-        window.isAdmin = localStorage.getItem('dn_admin') === 'true';
-
-        console.log('Firebase mock initialized');
-    </script>
-
-    <style>
-        :root {
-            --primary: #c0392b;
-            --primary-dark: #96281b;
-            --primary-light: #e74c3c;
-            --secondary: #2c3e50;
-            --accent: #f39c12;
-            --bg-light: #f8f9fa;
-            --text-dark: #2d3436;
-            --text-muted: #636e72;
-            --border: #dee2e6;
-            --white: #ffffff;
-            --success: #27ae60;
-            --warning: #f39c12;
-            --danger: #e74c3c;
-            --info: #3498db;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: var(--bg-light);
-            color: var(--text-dark);
-            line-height: 1.6;
-        }
-
-        /* ===== HEADER ===== */
-        .main-header {
-            background: linear-gradient(135deg, #c0392b 0%, #96281b 100%);
-            color: white;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.2);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .header-top {
-            background: rgba(0,0,0,0.2);
-            padding: 6px 0;
-            font-size: 12px;
-        }
-
-        .header-main {
-            padding: 12px 0;
-        }
-
-        .logo {
-            font-size: 28px;
-            font-weight: 800;
-            text-decoration: none;
-            color: white;
-            letter-spacing: -1px;
-        }
-
-        .logo span {
-            color: #f39c12;
-        }
-
-        .nav-menu {
-            display: flex;
-            gap: 4px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .nav-link {
-            color: rgba(255,255,255,0.9);
-            text-decoration: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .nav-link:hover, .nav-link.active {
-            background: rgba(255,255,255,0.2);
-            color: white;
-        }
-
-        .btn-admin {
-            background: var(--accent);
-            color: #2c3e50 !important;
-            font-weight: 700 !important;
-        }
-
-        /* ===== PAGES ===== */
-        .page {
-            display: none;
-            min-height: calc(100vh - 120px);
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        /* ===== HERO ===== */
-        .hero-section {
-            background: linear-gradient(135deg, #c0392b 0%, #2c3e50 100%);
-            color: white;
-            padding: 60px 0 40px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="80" cy="20" r="30" fill="rgba(255,255,255,0.03)"/><circle cx="20" cy="80" r="40" fill="rgba(255,255,255,0.03)"/></svg>');
-        }
-
-        .hero-badge {
-            display: inline-block;
-            background: var(--accent);
-            color: #2c3e50;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 12px;
-        }
-
-        /* ===== CARDS ===== */
-        .blog-card {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-            transition: all 0.3s;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .blog-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-        }
-
-        .blog-card-img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-        }
-
-        .blog-card-body {
-            padding: 20px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .blog-category-badge {
-            display: inline-block;
-            background: var(--primary);
-            color: white;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 10px;
-        }
-
-        .blog-title {
-            font-size: 17px;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 8px;
-            line-height: 1.4;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-
-        .blog-title:hover {
-            color: var(--primary);
-        }
-
-        .blog-excerpt {
-            color: var(--text-muted);
-            font-size: 13px;
-            margin-bottom: 15px;
-            flex: 1;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .blog-meta {
-            display: flex;
-            gap: 12px;
-            font-size: 12px;
-            color: var(--text-muted);
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .blog-meta-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        /* ===== FEATURED CARD ===== */
-        .featured-card {
-            position: relative;
-            border-radius: 16px;
-            overflow: hidden;
-            min-height: 400px;
-            cursor: pointer;
-        }
-
-        .featured-card img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            position: absolute;
-            inset: 0;
-        }
-
-        .featured-card-overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
-            display: flex;
-            align-items: flex-end;
-            padding: 30px;
-        }
-
-        .featured-card-content {
-            color: white;
-        }
-
-        /* ===== SINGLE BLOG ===== */
-        .blog-header {
-            background: linear-gradient(135deg, #2c3e50, #c0392b);
-            color: white;
-            padding: 40px 0 20px;
-        }
-
-        .blog-content-area {
-            background: white;
-            border-radius: 16px;
-            padding: 40px;
-            box-shadow: 0 5px 30px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-
-        .blog-content-area h1, .blog-content-area h2, .blog-content-area h3 {
-            margin: 20px 0 10px;
-            color: var(--text-dark);
-        }
-
-        .blog-content-area p {
-            margin-bottom: 15px;
-            color: var(--text-dark);
-            font-size: 16px;
-            line-height: 1.8;
-        }
-
-        .blog-content-area img {
-            max-width: 100%;
-            border-radius: 8px;
-            margin: 15px 0;
-        }
-
-        /* ===== ADMIN ===== */
-        .admin-sidebar {
-            background: var(--secondary);
-            color: white;
-            min-height: calc(100vh - 120px);
-            padding: 20px 0;
-        }
-
-        .admin-nav-item {
-            padding: 12px 20px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 14px;
-            border-left: 3px solid transparent;
-        }
-
-        .admin-nav-item:hover, .admin-nav-item.active {
-            background: rgba(255,255,255,0.1);
-            border-left-color: var(--accent);
-        }
-
-        .admin-content {
-            padding: 30px;
-            min-height: calc(100vh - 120px);
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-            border-left: 4px solid var(--primary);
-        }
-
-        .stat-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            color: white;
-        }
-
-        .stat-value {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--text-dark);
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* ===== FORMS ===== */
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-dark);
-            margin-bottom: 6px;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 10px 14px;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.2s;
-            background: white;
-            color: var(--text-dark);
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.1);
-        }
-
-        .form-select {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23636e72' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            padding-right: 36px;
-        }
-
-        /* ===== BUTTONS ===== */
-        .btn {
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-1px);
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
-        .btn-warning {
-            background: var(--warning);
-            color: white;
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-        }
-
-        .btn-outline:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 12px;
-        }
-
-        /* ===== TABLE ===== */
-        .table-responsive {
-            overflow-x: auto;
-            border-radius: 12px;
-        }
-
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-        }
-
-        .data-table th {
-            background: var(--secondary);
-            color: white;
-            padding: 12px 16px;
-            text-align: left;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 700;
-        }
-
-        .data-table td {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border);
-            font-size: 14px;
-            vertical-align: middle;
-        }
-
-        .data-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .data-table tr:hover td {
-            background: var(--bg-light);
-        }
-
-        /* ===== STATUS BADGES ===== */
-        .status-badge {
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .status-published {
-            background: #d5f5e3;
-            color: #1e8449;
-        }
-
-        .status-draft {
-            background: #fdebd0;
-            color: #d68910;
-        }
-
-        /* ===== SEARCH ===== */
-        .search-bar {
-            position: relative;
-        }
-
-        .search-bar input {
-            padding-left: 44px;
-        }
-
-        .search-bar .search-icon {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-        }
-
-        /* ===== SIDEBAR WIDGETS ===== */
-        .widget {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-        }
-
-        .widget-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .category-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--border);
-            cursor: pointer;
-            transition: color 0.2s;
-            font-size: 14px;
-        }
-
-        .category-item:hover {
-            color: var(--primary);
-        }
-
-        .category-count {
-            background: var(--bg-light);
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        /* ===== PAGINATION ===== */
-        .pagination {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            margin-top: 30px;
-            flex-wrap: wrap;
-        }
-
-        .page-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            border: 2px solid var(--border);
-            background: white;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .page-btn:hover, .page-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        /* ===== MODAL ===== */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal {
-            background: white;
-            border-radius: 16px;
-            width: 100%;
-            max-width: 800px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
-        }
-
-        .modal-header {
-            padding: 20px 25px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            background: white;
-            z-index: 1;
-        }
-
-        .modal-body {
-            padding: 25px;
-        }
-
-        .modal-footer {
-            padding: 15px 25px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
-        /* ===== TAGS INPUT ===== */
-        .tags-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            padding: 8px;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            min-height: 44px;
-            cursor: text;
-        }
-
-        .tag-chip {
-            background: var(--primary);
-            color: white;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .tag-chip button {
-            background: none;
-            border: none;
-            color: rgba(255,255,255,0.8);
-            cursor: pointer;
-            font-size: 14px;
-            line-height: 1;
-            padding: 0;
-        }
-
-        .tags-input-field {
-            border: none;
-            outline: none;
-            flex: 1;
-            min-width: 100px;
-            font-size: 14px;
-        }
-
-        /* ===== SHARE BUTTONS ===== */
-        .share-btn {
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            color: white;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: opacity 0.2s;
-        }
-
-        .share-btn:hover { opacity: 0.85; }
-        .share-fb { background: #1877f2; }
-        .share-tw { background: #1da1f2; }
-        .share-wa { background: #25d366; }
-        .share-li { background: #0a66c2; }
-        .share-copy { background: var(--secondary); }
-
-        /* ===== FAQ ===== */
-        .faq-item {
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            margin-bottom: 10px;
-            overflow: hidden;
-        }
-
-        .faq-question {
-            padding: 15px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 600;
-            background: var(--bg-light);
-            transition: background 0.2s;
-        }
-
-        .faq-question:hover {
-            background: #e8e8e8;
-        }
-
-        .faq-answer {
-            padding: 0 15px;
-            max-height: 0;
-            overflow: hidden;
-            transition: all 0.3s;
-        }
-
-        .faq-answer.open {
-            padding: 15px;
-            max-height: 200px;
-        }
-
-        /* ===== FOOTER ===== */
-        .main-footer {
-            background: var(--secondary);
-            color: rgba(255,255,255,0.8);
-            padding: 40px 0 20px;
-        }
-
-        .footer-brand {
-            font-size: 22px;
-            font-weight: 800;
-            color: white;
-            margin-bottom: 10px;
-        }
-
-        .footer-link {
-            color: rgba(255,255,255,0.7);
-            text-decoration: none;
-            font-size: 13px;
-            line-height: 2;
-            display: block;
-            transition: color 0.2s;
-        }
-
-        .footer-link:hover {
-            color: var(--accent);
-        }
-
-        .footer-heading {
-            color: white;
-            font-weight: 700;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 15px;
-        }
-
-        /* ===== LOADING ===== */
-        .loading-spinner {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            border: 3px solid var(--border);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* ===== QUILL CUSTOMIZATION ===== */
-        .ql-container {
-            min-height: 300px;
-            font-size: 15px;
-        }
-
-        .ql-toolbar {
-            border-radius: 8px 8px 0 0 !important;
-            border: 2px solid var(--border) !important;
-            border-bottom: 1px solid var(--border) !important;
-        }
-
-        .ql-container {
-            border-radius: 0 0 8px 8px !important;
-            border: 2px solid var(--border) !important;
-            border-top: none !important;
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .hero-section { padding: 30px 0 20px; }
-            .blog-content-area { padding: 20px; }
-            .admin-content { padding: 15px; }
-            .featured-card { min-height: 250px; }
-            .featured-card-overlay { padding: 15px; }
-            .modal { max-height: 95vh; }
-            .nav-menu { display: none; }
-            .nav-menu.mobile-open { display: flex; flex-direction: column; width: 100%; padding: 10px 0; }
-            .hamburger { display: block !important; }
-        }
-
-        .hamburger {
-            display: none;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 22px;
-            cursor: pointer;
-        }
-
-        /* ===== IMAGE UPLOAD ===== */
-        .image-upload-area {
-            border: 2px dashed var(--border);
-            border-radius: 12px;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .image-upload-area:hover {
-            border-color: var(--primary);
-            background: rgba(192, 57, 43, 0.02);
-        }
-
-        .image-preview {
-            width: 100%;
-            max-height: 200px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-top: 10px;
-        }
-
-        /* ===== BREADCRUMB ===== */
-        .breadcrumb {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            flex-wrap: wrap;
-        }
-
-        .breadcrumb a {
-            color: rgba(255,255,255,0.8);
-            text-decoration: none;
-        }
-
-        .breadcrumb a:hover { color: white; }
-        .breadcrumb span { color: rgba(255,255,255,0.6); }
-
-        /* ===== ALERT ===== */
-        .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 14px;
-        }
-
-        .alert-success { background: #d5f5e3; color: #1e8449; border-left: 4px solid #27ae60; }
-        .alert-error { background: #fde8e8; color: #c0392b; border-left: 4px solid #e74c3c; }
-        .alert-info { background: #d6eaf8; color: #1a5276; border-left: 4px solid #3498db; }
-
-        /* ===== TAG FILTER ===== */
-        .tag-filter {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin: 15px 0;
-        }
-
-        .tag-filter-item {
-            padding: 4px 14px;
-            border-radius: 20px;
-            border: 2px solid var(--border);
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: white;
-        }
-
-        .tag-filter-item:hover, .tag-filter-item.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        /* ===== READING PROGRESS ===== */
-        .reading-progress {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 3px;
-            background: var(--primary);
-            z-index: 9999;
-            transition: width 0.1s;
-        }
-
-        /* ===== TOOLS SECTION ===== */
-        .tool-card {
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-            cursor: pointer;
-            transition: all 0.2s;
-            border-left: 3px solid var(--primary);
-        }
-
-        .tool-card:hover {
-            transform: translateX(5px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.12);
-        }
-
-        .smooth-scroll {
-            scroll-behavior: smooth;
-        }
-
-        .line-clamp-2 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .line-clamp-3 {
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        /* ===== TOAST ===== */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 99999;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .toast {
-            background: white;
-            border-radius: 10px;
-            padding: 14px 18px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            min-width: 280px;
-            animation: slideIn 0.3s ease;
-            border-left: 4px solid var(--success);
-        }
-
-        .toast.error { border-left-color: var(--danger); }
-        .toast.warning { border-left-color: var(--warning); }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
-    </style>
+    .hero-banner::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -20%;
+      width: 140%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.08) 10%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .hero-banner::after {
+      content: "";
+      position: absolute;
+      right: -5%;
+      bottom: -30%;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      background: rgba(239, 68, 68, 0.15);
+      filter: blur(50px);
+      pointer-events: none;
+    }
+
+    .sidebar-btn {
+      transition: all 0.2s ease-in-out;
+      background-color: #f0f6ff;
+      color: #1e40af;
+      border: 1px solid #dbeabe;
+    }
+
+    .sidebar-btn:hover {
+      background-color: #dbeafe;
+      color: #1d4ed8;
+      transform: translateX(4px);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .sidebar-btn.active {
+      background-color: #2563eb;
+      color: #ffffff;
+      border-color: #2563eb;
+    }
+
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Modal Animation */
+    .modal-backdrop {
+      background-color: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(4px);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
 </head>
-<body>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
-<!-- Reading Progress -->
-<div class="reading-progress" id="readingProgress"></div>
-
-<!-- Toast Container -->
-<div class="toast-container" id="toastContainer"></div>
-
-<!-- ===== HEADER ===== -->
-<header class="main-header">
-    <div class="header-top">
-        <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center text-xs opacity-80">
-                <span><i class="fas fa-map-marker-alt mr-1"></i> Kathmandu, Nepal</span>
-                <span id="nepaliDateTime"></span>
-            </div>
-        </div>
+  <!-- TOP INFORMATION BAR -->
+  <header class="bg-slate-900 text-slate-300 text-xs py-1.5 px-4 sm:px-8 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i class="fa-solid fa-location-dot text-red-500"></i>
+        <span>Kathmandu, Nepal</span>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span id="live-time" class="font-mono text-slate-400">Tue, Jul 23, 2024, 08:35 PM</span>
+      </div>
     </div>
-    <div class="header-main">
-        <div class="container mx-auto px-4">
-            <div class="flex items-center justify-between">
-                <a href="#" class="logo" onclick="showPage('home')">
-                    Diary<span>Nepal</span>
-                </a>
-                <nav class="nav-menu" id="mainNav">
-                    <a class="nav-link active" onclick="showPage('home')" href="#">Home</a>
-                    <a class="nav-link" onclick="showPage('blog')" href="#">Blog</a>
-                    <a class="nav-link" href="#">Tools</a>
-                    <a class="nav-link" href="#">About</a>
-                    <a class="nav-link" href="#">Contact</a>
-                    <a class="nav-link btn-admin" onclick="showPage('admin')" href="#" id="adminNavLink" style="display:none;">
-                        <i class="fas fa-cog"></i> Admin
-                    </a>
-                    <button class="btn btn-sm btn-outline ml-2" onclick="toggleAdminLogin()" id="loginBtn" style="color:white;border-color:rgba(255,255,255,0.5)">
-                        <i class="fas fa-lock"></i> Admin
-                    </button>
-                    <button class="btn btn-sm btn-danger ml-2" onclick="adminLogout()" id="logoutBtn" style="display:none;">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </button>
-                </nav>
-                <button class="hamburger" onclick="toggleMobileMenu()">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-</header>
+  </header>
 
-<!-- Admin Login Modal -->
-<div class="modal-overlay" id="loginModal">
-    <div class="modal" style="max-width:400px;">
-        <div class="modal-header">
-            <h3 class="text-lg font-bold">Admin Login</h3>
-            <button onclick="closeLoginModal()" class="text-gray-500 hover:text-red-600">
-                <i class="fas fa-times text-xl"></i>
-            </button>
+  <!-- MAIN NAVIGATION BAR -->
+  <nav class="bg-slate-900 text-white sticky top-0 z-40 border-b border-slate-800 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+      
+      <!-- Brand Logo -->
+      <a href="#" onclick="filterByCategory('ALL')" class="flex items-center space-x-2 group">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-red-600 to-amber-500 flex items-center justify-center font-heading font-extrabold text-white text-xl shadow-md group-hover:scale-105 transition-transform">
+          D
         </div>
-        <div class="modal-body">
-            <div class="form-group">
-                <label class="form-label">Email</label>
-                <input type="email" class="form-control" id="loginEmail" placeholder="admin@diarynepal.com" value="admin@diarynepal.com">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Password</label>
-                <input type="password" class="form-control" id="loginPassword" placeholder="••••••••" value="admin123">
-            </div>
-            <div id="loginError" class="alert alert-error" style="display:none;"></div>
+        <div class="flex flex-col">
+          <span class="font-heading font-extrabold text-xl tracking-tight leading-none text-white">Diary<span class="text-red-500">Nepal</span></span>
         </div>
-        <div class="modal-footer">
-            <button class="btn btn-primary w-full" onclick="adminLogin()">
-                <i class="fas fa-sign-in-alt"></i> Login
-            </button>
-        </div>
-        <div class="px-6 pb-4 text-center text-sm text-gray-500">
-            Demo: admin@diarynepal.com / admin123
-        </div>
-    </div>
-</div>
+      </a>
 
-<!-- ===== HOME PAGE ===== -->
-<div id="page-home" class="page active">
-    <!-- Hero -->
-    <section class="hero-section">
-        <div class="container mx-auto px-4 relative z-10">
-            <div class="text-center max-w-3xl mx-auto">
-                <div class="hero-badge"><i class="fas fa-newspaper mr-1"></i> Nepal's Information Hub</div>
-                <h1 class="text-4xl md:text-5xl font-black mb-4">Your Complete Guide to Nepal</h1>
-                <p class="text-lg opacity-90 mb-8">Latest news, articles, tools, and information all in one place</p>
-                <div class="flex gap-4 justify-center flex-wrap">
-                    <button class="btn btn-primary text-white" onclick="showPage('blog')">
-                        <i class="fas fa-book-open"></i> Read Blog
-                    </button>
-                    <button class="btn" style="background:rgba(255,255,255,0.2);color:white;" onclick="showPage('blog')">
-                        <i class="fas fa-tools"></i> Use Tools
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
+      <!-- Desktop Nav Links -->
+      <div class="hidden md:flex items-center space-x-6 text-sm font-medium">
+        <a href="#" onclick="filterByCategory('ALL')" class="text-slate-200 hover:text-white transition">Home</a>
+        <a href="#articles-section" class="text-slate-300 hover:text-white transition">Blog</a>
+        <a href="#" onclick="openToolsModal()" class="text-slate-300 hover:text-white transition">Tools</a>
+        <a href="#" onclick="openInfoModal('About Diary Nepal', 'Diary Nepal is the premier digital gateway to essential public directory, healthcare contacts, government updates, travel guidelines, and local blogs across Nepal.')" class="text-slate-300 hover:text-white transition">About</a>
+        <a href="#" onclick="openInfoModal('Contact Us', 'For press, blog submissions, or public directory updates: Email: info@diarynepal.com | Phone: +977-1-4200000')" class="text-slate-300 hover:text-white transition">Contact</a>
+      </div>
 
-    <!-- Stats Bar -->
-    <div class="bg-white border-b shadow-sm py-3">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-4 divide-x text-center">
-                <div class="px-4">
-                    <div class="text-2xl font-black text-red-600" id="homeStatBlogs">-</div>
-                    <div class="text-xs text-gray-500">Total Articles</div>
-                </div>
-                <div class="px-4">
-                    <div class="text-2xl font-black text-blue-600">21</div>
-                    <div class="text-xs text-gray-500">Categories</div>
-                </div>
-                <div class="px-4">
-                    <div class="text-2xl font-black text-green-600" id="homeStatViews">-</div>
-                    <div class="text-xs text-gray-500">Total Views</div>
-                </div>
-                <div class="px-4">
-                    <div class="text-2xl font-black text-orange-600">24/7</div>
-                    <div class="text-xs text-gray-500">Available</div>
-                </div>
-            </div>
-        </div>
+      <!-- User Role Toggle (Admin vs Visitor) & Actions -->
+      <div class="flex items-center space-x-3">
+        <!-- Role Status Indicator -->
+        <span id="role-badge" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1.5">
+          <i class="fa-solid fa-user-shield text-amber-400"></i>
+          <span id="role-text">Admin</span>
+        </span>
+
+        <!-- Toggle Mode Button -->
+        <button id="toggle-admin-btn" onclick="toggleAdminRole()" class="px-3 py-1.5 rounded-md text-xs font-semibold bg-red-600 hover:bg-red-700 text-white transition flex items-center gap-1.5 shadow">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span id="toggle-btn-text">Logout Admin</span>
+        </button>
+
+        <!-- Mobile Menu Trigger -->
+        <button onclick="toggleMobileMenu()" class="md:hidden text-slate-300 hover:text-white p-2">
+          <i class="fa-solid fa-bars text-lg"></i>
+        </button>
+      </div>
     </div>
 
-    <div class="container mx-auto px-4 py-10">
-        <!-- Featured Blogs -->
-        <section class="mb-10">
-            <div class="flex justify-between items-center mb-6">
-                <div>
-                    <span class="text-xs font-bold text-red-600 uppercase tracking-widest">Featured</span>
-                    <h2 class="text-2xl font-black text-gray-800">Featured Articles</h2>
-                </div>
-                <button class="btn btn-outline btn-sm" onclick="showPage('blog')">View All <i class="fas fa-arrow-right"></i></button>
-            </div>
-            <div id="homeFeaturedBlogs" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="text-center py-10 col-span-3">
-                    <div class="loading-spinner mx-auto"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Latest + Popular -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2">
-                <div class="flex justify-between items-center mb-6">
-                    <div>
-                        <span class="text-xs font-bold text-red-600 uppercase tracking-widest">Fresh</span>
-                        <h2 class="text-2xl font-black text-gray-800">Latest Articles</h2>
-                    </div>
-                </div>
-                <div id="homeLatestBlogs" class="space-y-4">
-                    <div class="text-center py-10"><div class="loading-spinner mx-auto"></div></div>
-                </div>
-            </div>
-            <div>
-                <h2 class="text-2xl font-black text-gray-800 mb-6">Popular</h2>
-                <div id="homePopularBlogs" class="space-y-3">
-                    <div class="text-center py-10"><div class="loading-spinner mx-auto"></div></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Categories Grid -->
-        <section class="mt-12">
-            <div class="text-center mb-8">
-                <span class="text-xs font-bold text-red-600 uppercase tracking-widest">Browse By</span>
-                <h2 class="text-3xl font-black text-gray-800">Categories</h2>
-            </div>
-            <div id="homeCategoriesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
-            </div>
-        </section>
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-menu" class="hidden md:hidden bg-slate-800 border-t border-slate-700 px-4 pt-2 pb-4 space-y-2 text-sm">
+      <a href="#" onclick="filterByCategory('ALL'); toggleMobileMenu();" class="block py-2 text-slate-200 hover:text-white">Home</a>
+      <a href="#articles-section" onclick="toggleMobileMenu();" class="block py-2 text-slate-200 hover:text-white">Blog</a>
+      <a href="#" onclick="openToolsModal(); toggleMobileMenu();" class="block py-2 text-slate-200 hover:text-white">Tools</a>
+      <a href="#" onclick="openInfoModal('About', 'Diary Nepal Portal'); toggleMobileMenu();" class="block py-2 text-slate-200 hover:text-white">About</a>
+      <a href="#" onclick="openInfoModal('Contact', 'info@diarynepal.com'); toggleMobileMenu();" class="block py-2 text-slate-200 hover:text-white">Contact</a>
     </div>
-</div>
+  </nav>
 
-<!-- ===== BLOG LISTING PAGE ===== -->
-<div id="page-blog" class="page">
-    <!-- Hero -->
-    <div class="hero-section py-10">
-        <div class="container mx-auto px-4 relative z-10">
-            <div class="breadcrumb mb-4">
-                <a href="#" onclick="showPage('home')">Home</a>
-                <span>/</span>
-                <span>Blog</span>
-            </div>
-            <h1 class="text-3xl font-black mb-3">Nepal Blog & Articles</h1>
-            <p class="opacity-80">Explore articles, guides, and information about Nepal</p>
-            
-            <!-- Search -->
-            <div class="mt-5 max-w-xl search-bar">
-                <i class="fas fa-search search-icon text-gray-400"></i>
-                <input type="text" class="form-control pl-10" id="blogSearch" placeholder="Search articles..." oninput="filterBlogs()" style="background:white;color:#333;">
-            </div>
-        </div>
+  <!-- HERO BANNER SECTION -->
+  <section class="hero-banner text-white py-12 px-4 sm:px-6 lg:px-8 text-center shadow-inner">
+    <div class="max-w-4xl mx-auto relative z-10 flex flex-col items-center">
+      
+      <!-- Hub Badge -->
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 text-xs font-semibold tracking-wide uppercase mb-4 shadow-sm backdrop-blur-sm">
+        <i class="fa-solid fa-bullhorn text-amber-400"></i>
+        NEPAL'S INFORMATION HUB
+      </div>
+
+      <!-- Main Headline -->
+      <h1 class="font-heading text-3xl sm:text-5xl font-extrabold tracking-tight mb-3 text-white drop-shadow-md">
+        Your Complete Guide to Nepal
+      </h1>
+
+      <!-- Subtitle -->
+      <p class="text-slate-200 text-sm sm:text-base max-w-2xl mb-8 font-light leading-relaxed">
+        Latest news, articles, tools, and information all in one place. Access vital public services and essential directories instantly.
+      </p>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap justify-center gap-3">
+        <a href="#articles-section" class="px-6 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium text-sm transition shadow-lg hover:shadow-red-900/40 flex items-center gap-2">
+          <i class="fa-solid fa-book-open text-xs"></i>
+          Read Blog
+        </a>
+        <button onclick="openToolsModal()" class="px-6 py-2.5 rounded-lg bg-slate-900/60 hover:bg-slate-900/90 text-slate-100 border border-slate-600/60 font-medium text-sm backdrop-blur-sm transition flex items-center gap-2">
+          <i class="fa-solid fa-calculator text-xs"></i>
+          Use Tools
+        </button>
+      </div>
     </div>
+  </section>
 
-    <div class="container mx-auto px-4 py-8">
-        <!-- Category Filter -->
-        <div class="tag-filter mb-6" id="blogCategoryFilter">
-            <button class="tag-filter-item active" onclick="filterByCategory('all', this)">All</button>
+  <!-- MAIN LAYOUT GRID CONTENT -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+
+    <!-- Admin Status Header Bar (Visible when Admin Mode is Active) -->
+    <div id="admin-control-panel" class="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 flex flex-wrap items-center justify-between gap-4 shadow-sm">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-amber-500 text-white flex items-center justify-center font-bold text-lg shadow">
+          <i class="fa-solid fa-user-gear"></i>
         </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <!-- Blog Grid -->
-            <div class="lg:col-span-3">
-                <!-- Featured Blogs -->
-                <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-                    <i class="fas fa-star text-yellow-500"></i> Featured Articles
-                </h2>
-                <div id="blogFeaturedSection" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                </div>
-
-                <!-- All Blogs -->
-                <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-                    <i class="fas fa-newspaper text-red-600"></i> Latest Articles
-                </h2>
-                <div id="blogGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="col-span-2 text-center py-10">
-                        <div class="loading-spinner mx-auto"></div>
-                    </div>
-                </div>
-
-                <!-- Pagination -->
-                <div class="pagination" id="blogPagination"></div>
-            </div>
-
-            <!-- Sidebar -->
-            <div>
-                <!-- Popular -->
-                <div class="widget">
-                    <div class="widget-title">
-                        <i class="fas fa-fire text-red-600"></i> Popular Articles
-                    </div>
-                    <div id="sidebarPopular">
-                        <div class="text-center py-5"><div class="loading-spinner mx-auto"></div></div>
-                    </div>
-                </div>
-
-                <!-- Categories -->
-                <div class="widget">
-                    <div class="widget-title">
-                        <i class="fas fa-folder text-red-600"></i> Categories
-                    </div>
-                    <div id="sidebarCategories">
-                    </div>
-                </div>
-
-                <!-- Tags -->
-                <div class="widget">
-                    <div class="widget-title">
-                        <i class="fas fa-tags text-red-600"></i> Popular Tags
-                    </div>
-                    <div id="sidebarTags" class="flex flex-wrap gap-2">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ===== SINGLE BLOG PAGE ===== -->
-<div id="page-single-blog" class="page">
-    <div id="singleBlogContent">
-    </div>
-</div>
-
-<!-- ===== ADMIN PAGE ===== -->
-<div id="page-admin" class="page">
-    <div class="flex" style="min-height: calc(100vh - 120px);">
-        <!-- Sidebar -->
-        <div class="admin-sidebar w-64 flex-shrink-0 hidden md:block">
-            <div class="px-4 py-6 border-b border-gray-700">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white font-bold">A</div>
-                    <div>
-                        <div class="text-white font-semibold text-sm">Admin</div>
-                        <div class="text-gray-400 text-xs">Diary Nepal</div>
-                    </div>
-                </div>
-            </div>
-            <nav class="mt-2">
-                <div class="admin-nav-item active" onclick="showAdminSection('dashboard')" id="nav-dashboard">
-                    <i class="fas fa-tachometer-alt w-5"></i> Dashboard
-                </div>
-                <div class="admin-nav-item" onclick="showAdminSection('blogs')" id="nav-blogs">
-                    <i class="fas fa-blog w-5"></i> Manage Blogs
-                </div>
-                <div class="admin-nav-item" onclick="showAdminSection('newblog')" id="nav-newblog">
-                    <i class="fas fa-plus w-5"></i> New Blog
-                </div>
-                <div class="admin-nav-item" onclick="showAdminSection('categories')" id="nav-categories">
-                    <i class="fas fa-folder w-5"></i> Categories
-                </div>
-                <div class="admin-nav-item" onclick="showAdminSection('comments')" id="nav-comments">
-                    <i class="fas fa-comments w-5"></i> Comments
-                </div>
-                <div class="admin-nav-item" onclick="showAdminSection('seo')" id="nav-seo">
-                    <i class="fas fa-search w-5"></i> SEO & Sitemap
-                </div>
-            </nav>
-        </div>
-
-        <!-- Admin Content -->
-        <div class="admin-content flex-1">
-            <!-- Mobile Admin Nav -->
-            <div class="md:hidden mb-4">
-                <div class="flex gap-2 flex-wrap">
-                    <button class="btn btn-sm btn-primary" onclick="showAdminSection('dashboard')">Dashboard</button>
-                    <button class="btn btn-sm btn-outline" onclick="showAdminSection('blogs')">Blogs</button>
-                    <button class="btn btn-sm btn-outline" onclick="showAdminSection('newblog')">New Blog</button>
-                    <button class="btn btn-sm btn-outline" onclick="showAdminSection('categories')">Categories</button>
-                    <button class="btn btn-sm btn-outline" onclick="showAdminSection('seo')">SEO</button>
-                </div>
-            </div>
-
-            <!-- Dashboard -->
-            <div id="admin-dashboard" class="admin-section">
-                <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-2xl font-black">Dashboard</h1>
-                    <span class="text-sm text-gray-500" id="dashDateTime"></span>
-                </div>
-
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                    <div class="stat-card" style="border-color:#c0392b;">
-                        <div class="stat-icon" style="background:#c0392b;">
-                            <i class="fas fa-blog"></i>
-                        </div>
-                        <div>
-                            <div class="stat-value" id="statTotal">0</div>
-                            <div class="stat-label">Total Blogs</div>
-                        </div>
-                    </div>
-                    <div class="stat-card" style="border-color:#27ae60;">
-                        <div class="stat-icon" style="background:#27ae60;">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div>
-                            <div class="stat-value" id="statPublished">0</div>
-                            <div class="stat-label">Published</div>
-                        </div>
-                    </div>
-                    <div class="stat-card" style="border-color:#f39c12;">
-                        <div class="stat-icon" style="background:#f39c12;">
-                            <i class="fas fa-edit"></i>
-                        </div>
-                        <div>
-                            <div class="stat-value" id="statDraft">0</div>
-                            <div class="stat-label">Drafts</div>
-                        </div>
-                    </div>
-                    <div class="stat-card" style="border-color:#3498db;">
-                        <div class="stat-icon" style="background:#3498db;">
-                            <i class="fas fa-eye"></i>
-                        </div>
-                        <div>
-                            <div class="stat-value" id="statViews">0</div>
-                            <div class="stat-label">Total Views</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Recent Blogs Table -->
-                <h2 class="text-lg font-bold mb-4">Recent Blogs</h2>
-                <div class="table-responsive">
-                    <table class="data-table" id="dashRecentTable">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Category</th>
-                                <th>Status</th>
-                                <th>Views</th>
-                                <th>Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dashRecentBlogs">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Manage Blogs -->
-            <div id="admin-blogs" class="admin-section" style="display:none;">
-                <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
-                    <h1 class="text-2xl font-black">Manage Blogs</h1>
-                    <button class="btn btn-primary" onclick="showAdminSection('newblog')">
-                        <i class="fas fa-plus"></i> New Blog
-                    </button>
-                </div>
-
-                <div class="bg-white rounded-xl p-4 mb-4 shadow-sm">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div class="search-bar">
-                            <i class="fas fa-search search-icon text-gray-400"></i>
-                            <input type="text" class="form-control" id="adminBlogSearch" placeholder="Search blogs..." oninput="filterAdminBlogs()">
-                        </div>
-                        <select class="form-control form-select" id="adminCategoryFilter" onchange="filterAdminBlogs()">
-                            <option value="">All Categories</option>
-                        </select>
-                        <select class="form-control form-select" id="adminStatusFilter" onchange="filterAdminBlogs()">
-                            <option value="">All Status</option>
-                            <option value="published">Published</option>
-                            <option value="draft">Draft</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Featured Image</th>
-                                <th>Title</th>
-                                <th>Category</th>
-                                <th>Status</th>
-                                <th>Views</th>
-                                <th>Author</th>
-                                <th>Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminBlogsList">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- New/Edit Blog -->
-            <div id="admin-newblog" class="admin-section" style="display:none;">
-                <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
-                    <h1 class="text-2xl font-black" id="blogFormTitle">Create New Blog</h1>
-                    <div class="flex gap-2 flex-wrap">
-                        <button class="btn" style="background:#6c757d;color:white;" onclick="saveBlog('draft')">
-                            <i class="fas fa-save"></i> Save Draft
-                        </button>
-                        <button class="btn btn-success" onclick="saveBlog('published')">
-                            <i class="fas fa-paper-plane"></i> Publish
-                        </button>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Main Content -->
-                    <div class="lg:col-span-2 space-y-5">
-                        <div class="bg-white rounded-xl p-5 shadow-sm">
-                            <div class="form-group">
-                                <label class="form-label">Blog Title *</label>
-                                <input type="text" class="form-control text-xl font-semibold" id="blogTitle" placeholder="Enter blog title..." oninput="autoGenerateSlug()">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">URL Slug</label>
-                                <div class="flex gap-2">
-                                    <span class="form-control bg-gray-50 text-gray-500 text-sm flex items-center" style="width:auto;flex-shrink:0;padding:10px 10px;">diarynepal.com/blog/</span>
-                                    <input type="text" class="form-control" id="blogSlug" placeholder="url-slug">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Excerpt / Short Description</label>
-                                <textarea class="form-control" id="blogExcerpt" rows="3" placeholder="Brief description of the article..."></textarea>
-                            </div>
-                        </div>
-
-                        <div class="bg-white rounded-xl p-5 shadow-sm">
-                            <label class="form-label">Blog Content *</label>
-                            <div id="blogEditor" style="min-height:300px;"></div>
-                        </div>
-
-                        <!-- SEO Section -->
-                        <div class="bg-white rounded-xl p-5 shadow-sm">
-                            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                                <i class="fas fa-search text-red-600"></i> SEO Settings
-                            </h3>
-                            <div class="form-group">
-                                <label class="form-label">SEO Title</label>
-                                <input type="text" class="form-control" id="blogSeoTitle" placeholder="SEO optimized title (50-60 chars)">
-                                <div class="text-xs text-gray-400 mt-1"><span id="seoTitleCount">0</span>/60 characters</div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Meta Description</label>
-                                <textarea class="form-control" id="blogMetaDesc" rows="3" placeholder="Meta description (150-160 chars)" oninput="updateMetaCount()"></textarea>
-                                <div class="text-xs text-gray-400 mt-1"><span id="metaDescCount">0</span>/160 characters</div>
-                            </div>
-                        </div>
-
-                        <!-- FAQ Section -->
-                        <div class="bg-white rounded-xl p-5 shadow-sm">
-                            <div class="flex justify-between items-center mb-4">
-                                <h3 class="font-bold text-gray-800 flex items-center gap-2">
-                                    <i class="fas fa-question-circle text-red-600"></i> FAQ Section
-                                </h3>
-                                <button class="btn btn-sm btn-outline" onclick="addFaqItem()">
-                                    <i class="fas fa-plus"></i> Add FAQ
-                                </button>
-                            </div>
-                            <div id="faqContainer"></div>
-                        </div>
-                    </div>
-
-                    <!-- Sidebar Settings -->
-                    <div class="space-y-5">
-                        <!-- Featured Image -->
-                        <div class="bg-white rounded-xl p-5 shadow-sm">
-                            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                                <i class="fas fa-image text-red-600"></i> Featured Image
-                            </h3>
-                            <div class="image-upload-area" onclick="document.getElementById('featuredImageInput').click()" id="imageUploadArea">
-                                <input type="file" id="featuredImageInput" accept="image/*" style="display:none;" onchange="handleImageUpload(this)">
-                                <input type="hidden" id="blogFeaturedImage">
-                                <div id="imageUploadPlaceholder">
-                                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-300 mb-3"></i>
-                                    <p class="text-gray-500 text-sm">Click to upload image<br><span class="text-xs">JPG, PNG, GIF up to 5MB</span></p>
-                                </div>
-                                <img id="imagePreview" class="image-preview" style="display:none;">
-                            </div>
-                            <div class="mt-3">
-                                <label class="form-label">Or paste image URL</label>
-                                <input type="text" class="form-control" id="imageUrlInput" placeholder="https://..." oninput="setImageFromUrl(this.value)">
-                            </div>
-                        </div>
-
-                        <!-- Settings -->
-                        <div class="bg-white rounded-xl p-5 shadow-sm">
-                            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                                <i class="fas fa-cog text-red-600"></i> Settings
-                            </h3>
-                            <div class="form-group">
-                                <label class="form-label">Category *</label>
-                                <select class="form-control form-select" id="blogCategory">
-                                    <option value="">Select Category</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Author Name</label>
-                                <input type="text" class="form-control" id="blogAuthor" value="Diary Nepal Team">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Publish Date</label>
-                                <input type="date" class="form-control" id="blogPublishDate">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label flex items-center gap-2">
-                                    <input type="checkbox" id="blogFeatured"> Mark as Featured
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Tags -->
-                        <div class="bg-white rounded-xl p-5 shadow-sm">
-                            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                                <i class="fas fa-tags text-red-600"></i> Tags
-                            </h3>
-                            <div class="tags-container" id="tagsContainer" onclick="document.getElementById('tagsInput').focus()">
-                                <input type="text" class="tags-input-field" id="tagsInput" placeholder="Add tag, press Enter..." onkeydown="handleTagInput(event)">
-                            </div>
-                            <input type="hidden" id="blogTags">
-                            <p class="text-xs text-gray-400 mt-2">Press Enter or comma to add tag</p>
-                        </div>
-
-                        <!-- Related Tools -->
-                        <div class="bg-white rounded-xl p-5 shadow-sm">
-                            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                                <i class="fas fa-tools text-red-600"></i> Related Tools
-                            </h3>
-                            <div class="space-y-2" id="relatedToolsCheck">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <input type="hidden" id="editingBlogId">
-            </div>
-
-            <!-- Categories -->
-            <div id="admin-categories" class="admin-section" style="display:none;">
-                <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
-                    <h1 class="text-2xl font-black">Categories</h1>
-                    <button class="btn btn-primary" onclick="showAddCategoryModal()">
-                        <i class="fas fa-plus"></i> Add Category
-                    </button>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="categoriesGrid">
-                </div>
-            </div>
-
-            <!-- Comments -->
-            <div id="admin-comments" class="admin-section" style="display:none;">
-                <h1 class="text-2xl font-black mb-6">Comments</h1>
-                <div class="bg-white rounded-xl p-8 text-center shadow-sm">
-                    <i class="fas fa-comments text-6xl text-gray-200 mb-4"></i>
-                    <h3 class="text-lg font-bold text-gray-500">No comments yet</h3>
-                    <p class="text-gray-400">Comments will appear here when visitors comment on your blogs</p>
-                </div>
-            </div>
-
-            <!-- SEO -->
-            <div id="admin-seo" class="admin-section" style="display:none;">
-                <h1 class="text-2xl font-black mb-6">SEO & Sitemap</h1>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white rounded-xl p-5 shadow-sm">
-                        <h3 class="font-bold mb-4 flex items-center gap-2">
-                            <i class="fas fa-sitemap text-red-600"></i> XML Sitemap
-                        </h3>
-                        <p class="text-sm text-gray-500 mb-4">Generate an XML sitemap for better search engine indexing.</p>
-                        <button class="btn btn-primary" onclick="generateSitemap()">
-                            <i class="fas fa-download"></i> Generate Sitemap
-                        </button>
-                        <div id="sitemapPreview" class="mt-4" style="display:none;">
-                            <pre class="bg-gray-50 p-3 rounded text-xs overflow-auto max-h-64" id="sitemapContent"></pre>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-xl p-5 shadow-sm">
-                        <h3 class="font-bold mb-4 flex items-center gap-2">
-                            <i class="fas fa-chart-line text-red-600"></i> SEO Overview
-                        </h3>
-                        <div id="seoOverview" class="space-y-3">
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-xl p-5 shadow-sm md:col-span-2">
-                        <h3 class="font-bold mb-4 flex items-center gap-2">
-                            <i class="fas fa-code text-red-600"></i> Schema Markup Preview
-                        </h3>
-                        <div class="bg-gray-50 rounded-lg p-4 font-mono text-xs overflow-auto max-h-64" id="schemaPreview">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ===== FOOTER ===== -->
-<footer class="main-footer mt-10">
-    <div class="container mx-auto px-4">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-            <div>
-                <div class="footer-brand">Diary<span style="color:#f39c12">Nepal</span></div>
-                <p class="text-sm text-gray-400 mb-4">Your complete guide to Nepal - information, tools, and services.</p>
-                <div class="flex gap-3">
-                    <a href="#" class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="w-8 h-8 rounded-full bg-sky-500 flex items-center justify-center text-white text-sm"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white text-sm"><i class="fab fa-youtube"></i></a>
-                </div>
-            </div>
-            <div>
-                <div class="footer-heading">Quick Links</div>
-                <a class="footer-link" href="#" onclick="showPage('blog')">Blog</a>
-                <a class="footer-link" href="#">VAT Calculator</a>
-                <a class="footer-link" href="#">Date Converter</a>
-                <a class="footer-link" href="#">Invoice Generator</a>
-            </div>
-            <div>
-                <div class="footer-heading">Categories</div>
-                <a class="footer-link" href="#">Healthcare</a>
-                <a class="footer-link" href="#">Government</a>
-                <a class="footer-link" href="#">Travel</a>
-                <a class="footer-link" href="#">Education</a>
-            </div>
-            <div>
-                <div class="footer-heading">Contact</div>
-                <a class="footer-link"><i class="fas fa-envelope mr-2"></i>info@diarynepal.com</a>
-                <a class="footer-link"><i class="fas fa-phone mr-2"></i>+977-1-XXXXXXX</a>
-                <a class="footer-link"><i class="fas fa-map-marker-alt mr-2"></i>Kathmandu, Nepal</a>
-            </div>
-        </div>
-        <div class="border-t border-gray-700 pt-5 text-center text-sm text-gray-500">
-            <p>© 2024 Diary Nepal. All rights reserved. Made with <i class="fas fa-heart text-red-500"></i> in Nepal</p>
-        </div>
-    </div>
-</footer>
-
-<!-- Add Category Modal -->
-<div class="modal-overlay" id="categoryModal">
-    <div class="modal" style="max-width:400px;">
-        <div class="modal-header">
-            <h3 class="font-bold text-lg" id="categoryModalTitle">Add Category</h3>
-            <button onclick="closeCategoryModal()" class="text-gray-500 hover:text-red-600">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-        </div>
-        <div class="modal-body">
-            <div class="form-group">
-                <label class="form-label">Category Name</label>
-                <input type="text" class="form-control" id="categoryName" placeholder="Enter category name">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Slug (auto-generated)</label>
-                <input type="text" class="form-control" id="categorySlug" placeholder="category-slug">
-            </div>
-            <input type="hidden" id="editingCategoryId">
-        </div>
-        <div class="modal-footer">
-            <button class="btn" style="background:#e5e7eb;" onclick="closeCategoryModal()">Cancel</button>
-            <button class="btn btn-primary" onclick="saveCategory()">Save Category</button>
-        </div>
-    </div>
-</div>
-
-<!-- Delete Confirm Modal -->
-<div class="modal-overlay" id="deleteModal">
-    <div class="modal" style="max-width:400px;">
-        <div class="modal-header">
-            <h3 class="font-bold text-lg text-red-600"><i class="fas fa-exclamation-triangle mr-2"></i>Confirm Delete</h3>
-            <button onclick="closeDeleteModal()" class="text-gray-500"><i class="fas fa-times text-xl"></i></button>
-        </div>
-        <div class="modal-body">
-            <p class="text-gray-600">Are you sure you want to delete this blog? This action cannot be undone.</p>
-        </div>
-        <div class="modal-footer">
-            <button class="btn" style="background:#e5e7eb;" onclick="closeDeleteModal()">Cancel</button>
-            <button class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
-        </div>
-    </div>
-</div>
-
-<script>
-// ===== STATE =====
-let currentPage = 'home';
-let currentAdminSection = 'dashboard';
-let quillEditor = null;
-let currentTags = [];
-let currentFaqs = [];
-let currentEditBlogId = null;
-let blogCurrentPage = 1;
-let blogPageSize = 6;
-let currentCategoryFilter = 'all';
-let currentSearchQuery = '';
-let adminBlogSearchQuery = '';
-let adminCategoryFilter = '';
-let adminStatusFilter = '';
-
-const relatedTools = [
-    'VAT Calculator', 'Date Converter', 'Invoice Generator',
-    'Quotation Generator', 'Estimate Bill', 'Cash Receipt', 'Ledger Book'
-];
-
-// ===== UTILS =====
-function showToast(msg, type = 'success') {
-    const container = document.getElementById('toastContainer');
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    const icons = { success: 'check-circle', error: 'times-circle', warning: 'exclamation-circle' };
-    const colors = { success: '#27ae60', error: '#e74c3c', warning: '#f39c12' };
-    toast.innerHTML = `
-        <i class="fas fa-${icons[type] || 'info-circle'}" style="color:${colors[type] || '#3498db'};font-size:18px;"></i>
         <div>
-            <div class="font-semibold text-gray-800 text-sm">${type.charAt(0).toUpperCase() + type.slice(1)}</div>
-            <div class="text-gray-600 text-xs">${msg}</div>
+          <h3 class="font-heading font-bold text-slate-900 text-sm sm:text-base">Admin Dashboard Activated</h3>
+          <p class="text-xs text-slate-600">You have full permission to create, edit, update, or remove blog posts.</p>
         </div>
-        <button onclick="this.parentElement.remove()" class="ml-auto text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
-    `;
-    container.appendChild(toast);
-    setTimeout(() => {
-        toast.style.animation = 'slideOut 0.3s ease forwards';
-        setTimeout(() => toast.remove(), 300);
-    }, 3500);
-}
+      </div>
+      <button onclick="openCreateArticleModal()" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold text-xs sm:text-sm flex items-center gap-2 transition shadow">
+        <i class="fa-solid fa-plus"></i>
+        Create New Article
+      </button>
+    </div>
 
-function generateSlug(title) {
-    return title.toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .trim();
-}
+    <!-- Active Filter Banner (When sidebar directory is clicked) -->
+    <div id="filter-indicator" class="hidden mb-6 p-3 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-between">
+      <div class="flex items-center gap-2 text-sm text-blue-900 font-medium">
+        <i class="fa-solid fa-filter text-blue-600"></i>
+        <span>Showing results filtered by: <strong id="filter-category-name" class="text-blue-700 underline">Category</strong></span>
+      </div>
+      <button onclick="filterByCategory('ALL')" class="text-xs font-semibold text-blue-600 hover:text-blue-800 underline">Clear Filter</button>
+    </div>
 
-function autoGenerateSlug() {
-    const title = document.getElementById('blogTitle').value;
-    document.getElementById('blogSlug').value = generateSlug(title);
-    // Update SEO title if empty
-    const seoTitleEl = document.getElementById('blogSeoTitle');
-    if (!seoTitleEl.value) {
-        seoTitleEl.value = title + ' | Diary Nepal';
-        updateSeoTitleCount();
-    }
-}
-
-function updateSeoTitleCount() {
-    const count = document.getElementById('blogSeoTitle').value.length;
-    document.getElementById('seoTitleCount').textContent = count;
-    document.getElementById('seoTitleCount').style.color = count > 60 ? '#e74c3c' : '#636e72';
-}
-
-function updateMetaCount() {
-    const count = document.getElementById('blogMetaDesc').value.length;
-    document.getElementById('metaDescCount').textContent = count;
-    document.getElementById('metaDescCount').style.color = count > 160 ? '#e74c3c' : '#636e72';
-}
-
-function formatDate(dateStr) {
-    if (!dateStr) return 'N/A';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-}
-
-function formatNumber(n) {
-    if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
-    return n;
-}
-
-function calculateReadTime(content) {
-    const text = content.replace(/<[^>]*>/g, '');
-    const words = text.split(/\s+/).length;
-    return Math.max(1, Math.ceil(words / 200));
-}
-
-function generateId() {
-    return 'blog_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-}
-
-// ===== PAGE NAVIGATION =====
-function showPage(page) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById('page-' + page).classList.add('active');
-    currentPage = page;
-    window.scrollTo(0, 0);
-
-    // Update nav
-    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-
-    if (page === 'home') {
-        loadHomePage();
-    } else if (page === 'blog') {
-        loadBlogPage();
-    } else if (page === 'admin') {
-        if (!window.isAdmin) {
-            showPage('home');
-            toggleAdminLogin();
-            return;
-        }
-        loadAdminDashboard();
-    }
-}
-
-function toggleMobileMenu() {
-    const nav = document.getElementById('mainNav');
-    nav.classList.toggle('mobile-open');
-}
-
-// ===== AUTH =====
-function toggleAdminLogin() {
-    if (window.isAdmin) {
-        showPage('admin');
-        return;
-    }
-    document.getElementById('loginModal').classList.add('active');
-}
-
-function closeLoginModal() {
-    document.getElementById('loginModal').classList.remove('active');
-}
-
-function adminLogin() {
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    const errEl = document.getElementById('loginError');
-    
-    if (email === 'admin@diarynepal.com' && password === 'admin123') {
-        window.isAdmin = true;
-        localStorage.setItem('dn_admin', 'true');
-        closeLoginModal();
-        document.getElementById('adminNavLink').style.display = 'inline-flex';
-        document.getElementById('loginBtn').style.display = 'none';
-        document.getElementById('logoutBtn').style.display = 'inline-flex';
-        showToast('Welcome back, Admin!');
-        showPage('admin');
-    } else {
-        errEl.style.display = 'flex';
-        errEl.textContent = 'Invalid credentials. Use: admin@diarynepal.com / admin123';
-    }
-}
-
-function adminLogout() {
-    window.isAdmin = false;
-    localStorage.removeItem('dn_admin');
-    document.getElementById('adminNavLink').style.display = 'none';
-    document.getElementById('loginBtn').style.display = 'inline-flex';
-    document.getElementById('logoutBtn').style.display = 'none';
-    showToast('Logged out successfully', 'warning');
-    showPage('home');
-}
-
-// Init auth state
-if (localStorage.getItem('dn_admin') === 'true') {
-    window.isAdmin = true;
-    document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('adminNavLink').style.display = 'inline-flex';
-        document.getElementById('loginBtn').style.display = 'none';
-        document.getElementById('logoutBtn').style.display = 'inline-flex';
-    });
-}
-
-// ===== HOME PAGE =====
-function loadHomePage() {
-    const blogs = window.mockDB.blogs;
-    const publishedBlogs = blogs.filter(b => b.status === 'published');
-    
-    // Stats
-    const totalViews = publishedBlogs.reduce((sum, b) => sum + (b.views || 0), 0);
-    document.getElementById('homeStatBlogs').textContent = publishedBlogs.length;
-    document.getElementById('homeStatViews').textContent = formatNumber(totalViews);
-
-    // Featured Blogs
-    const featured = publishedBlogs.filter(b => b.featured).slice(0, 3);
-    const featuredContainer = document.getElementById('homeFeaturedBlogs');
-    if (featured.length === 0) {
-        featuredContainer.innerHTML = '<div class="col-span-3 text-center py-10 text-gray-400"><i class="fas fa-star text-4xl mb-3"></i><p>No featured articles yet</p></div>';
-    } else {
-        featuredContainer.innerHTML = featured.map(b => createBlogCard(b)).join('');
-    }
-
-    // Latest Blogs (horizontal cards)
-    const latest = publishedBlogs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
-    const latestContainer = document.getElementById('homeLatestBlogs');
-    latestContainer.innerHTML = latest.map(b => `
-        <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer flex gap-4 p-3" onclick="openBlog('${b.id}')">
-            <img src="${b.featuredImage || 'https://images.unsplash.com/photo-1585079542156-2755d9c8a094?w=200'}" 
-                 class="w-24 h-20 object-cover rounded-lg flex-shrink-0" 
-                 alt="${b.title}" onerror="this.src='https://images.unsplash.com/photo-1585079542156-2755d9c8a094?w=200'">
-            <div class="flex-1 min-w-0">
-                <span class="blog-category-badge" style="font-size:10px;">${b.category}</span>
-                <h3 class="font-bold text-sm text-gray-800 line-clamp-2 hover:text-red-600 transition-colors">${b.title}</h3>
-                <div class="blog-meta mt-2">
-                    <span class="blog-meta-item"><i class="fas fa-eye"></i> ${formatNumber(b.views || 0)}</span>
-                    <span class="blog-meta-item"><i class="fas fa-calendar"></i> ${formatDate(b.publishDate)}</span>
-                </div>
-            </div>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      
+      <!-- LEFT SIDEBAR: ESSENTIAL DIRECTORY / CATEGORIES (3 cols) -->
+      <aside class="lg:col-span-3 space-y-2">
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+          <h2 class="font-heading font-bold text-slate-800 text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-address-book text-red-600"></i>
+            Directory & Categories
+          </h2>
+          <p class="text-xs text-slate-500 mb-4">Click any service for direct emergency helplines & filtered articles:</p>
+          
+          <div class="space-y-2" id="directory-menu">
+            <!-- Dynamic Sidebar Buttons -->
+          </div>
         </div>
-    `).join('');
+      </aside>
 
-    // Popular
-    const popular = [...publishedBlogs].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 5);
-    const popularContainer = document.getElementById('homePopularBlogs');
-    popularContainer.innerHTML = popular.map((b, i) => `
-        <div class="flex gap-3 items-center p-3 bg-white rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer" onclick="openBlog('${b.id}')">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center font-black text-white flex-shrink-0 text-sm" 
-                 style="background: ${i === 0 ? '#f39c12' : i === 1 ? '#95a5a6' : i === 2 ? '#cd7f32' : '#3498db'}">${i + 1}</div>
-            <div class="flex-1 min-w-0">
-                <p class="font-semibold text-sm text-gray-800 line-clamp-2">${b.title}</p>
-                <p class="text-xs text-gray-400"><i class="fas fa-eye mr-1"></i>${formatNumber(b.views || 0)} views</p>
-            </div>
+      <!-- MIDDLE COLUMN: ARTICLES (6 cols) -->
+      <section id="articles-section" class="lg:col-span-6 space-y-10">
+
+        <!-- Search Bar -->
+        <div class="relative">
+          <input type="text" id="search-input" onkeyup="handleSearch()" placeholder="Search articles, topics, services..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 shadow-sm transition">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
         </div>
-    `).join('');
-
-    // Categories Grid
-    const cats = window.mockDB.categories.slice(0, 21);
-    const catIcons = {
-        'Blood Bank': 'tint', 'Hospital': 'hospital', 'Ambulance': 'ambulance',
-        'Red Cross': 'cross', 'Healthcare': 'heartbeat', 'Government': 'landmark',
-        'Municipality': 'city', 'Police': 'shield-alt', 'School': 'school',
-        'Travel': 'plane', 'Airlines': 'plane-departure', 'Real Estate': 'home',
-        'Broker': 'handshake', 'Utilities': 'tools', 'VAT Calculator': 'calculator',
-        'Date Converter': 'calendar', 'Invoice Generator': 'file-invoice',
-        'Quotation Generator': 'file-alt', 'Estimate Bill': 'receipt',
-        'Cash Receipt': 'money-bill', 'Ledger Book': 'book'
-    };
-    const catColors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c', '#e67e22'];
-    document.getElementById('homeCategoriesGrid').innerHTML = cats.map((cat, i) => `
-        <div class="bg-white rounded-xl p-3 text-center shadow-sm hover:shadow-md transition-all cursor-pointer group" onclick="filterByCategoryAndGo('${cat.name}')">
-            <div class="w-10 h-10 rounded-xl mx-auto mb-2 flex items-center justify-center text-white text-lg group-hover:scale-110 transition-transform" 
-                 style="background: ${catColors[i % catColors.length]}">
-                <i class="fas fa-${catIcons[cat.name] || 'folder'}"></i>
-            </div>
-            <p class="text-xs font-semibold text-gray-700 leading-tight">${cat.name}</p>
-        </div>
-    `).join('');
-}
-
-function filterByCategoryAndGo(catName) {
-    currentCategoryFilter = catName;
-    showPage('blog');
-}
-
-function createBlogCard(blog) {
-    return `
-        <div class="blog-card" onclick="openBlog('${blog.id}')" style="cursor:pointer;">
-            <div class="relative">
-                <img src="${blog.featuredImage || 'https://images.unsplash.com/photo-1585079542156-2755d9c8a094?w=600'}" 
-                     class="blog-card-img" alt="${blog.title}"
-                     onerror="this.src='https://images.unsplash.com/photo-1585079542156-2755d9c8a094?w=600'">
-                ${blog.featured ? '<div style="position:absolute;top:10px;right:10px;background:#f39c12;color:white;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;"><i class="fas fa-star mr-1"></i>Featured</div>' : ''}
-            </div>
-            <div class="blog-card-body">
-                <span class="blog-category-badge">${blog.category || 'General'}</span>
-                <h3 class="blog-title">${blog.title}</h3>
-                <p class="blog-excerpt">${blog.excerpt || 'Read this interesting article on Diary Nepal...'}</p>
-                <div class="blog-meta">
-                    <span class="blog-meta-item"><i class="fas fa-user"></i>${blog.author || 'Admin'}</span>
-                    <span class="blog-meta-item"><i class="fas fa-clock"></i>${blog.readTime || 3} min</span>
-                    <span class="blog-meta-item"><i class="fas fa-eye"></i>${formatNumber(blog.views || 0)}</span>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// ===== BLOG PAGE =====
-function loadBlogPage() {
-    // Category filter buttons
-    const filterContainer = document.getElementById('blogCategoryFilter');
-    const cats = window.mockDB.categories;
-    filterContainer.innerHTML = `<button class="tag-filter-item ${currentCategoryFilter === 'all' ? 'active' : ''}" onclick="filterByCategory('all', this)">All</button>` +
-        cats.map(cat => `<button class="tag-filter-item ${currentCategoryFilter === cat.name ? 'active' : ''}" onclick="filterByCategory('${cat.name}', this)">${cat.name}</button>`).join('');
-
-    renderBlogGrid();
-    loadSidebar();
-
-    // Populate admin category filter
-    const adminCatFilter = document.getElementById('adminCategoryFilter');
-    if (adminCatFilter) {
-        adminCatFilter.innerHTML = '<option value="">All Categories</option>' +
-            cats.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
-    }
-}
-
-function renderBlogGrid() {
-    const blogs = window.mockDB.blogs.filter(b => b.status === 'published');
-    
-    let filtered = blogs;
-    if (currentCategoryFilter !== 'all') {
-        filtered = filtered.filter(b => b.category === currentCategoryFilter);
-    }
-    if (currentSearchQuery) {
-        const q = currentSearchQuery.toLowerCase();
-        filtered = filtered.filter(b => 
-            b.title.toLowerCase().includes(q) || 
-            (b.excerpt || '').toLowerCase().includes(q) ||
-            (b.tags || []).some(t => t.toLowerCase().includes(q))
-        );
-    }
-
-    const featured = filtered.filter(b => b.featured);
-    const latest = filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-    // Featured section
-    const featuredSection = document.getElementById('blogFeaturedSection');
-    if (featured.length > 0) {
-        featuredSection.innerHTML = featured.map(b => createBlogCard(b)).join('');
-    } else {
-        featuredSection.innerHTML = '';
-    }
-
-    // Pagination
-    const totalPages = Math.ceil(latest.length / blogPageSize);
-    const start = (blogCurrentPage - 1) * blogPageSize;
-    const pageBlogs = latest.slice(start, start + blogPageSize);
-
-    const gridContainer = document.getElementById('blogGrid');
-    if (pageBlogs.length === 0) {
-        gridContainer.innerHTML = `
-            <div class="col-span-2 text-center py-16">
-                <i class="fas fa-search text-6xl text-gray-200 mb-4"></i>
-                <h3 class="text-xl font-bold text-gray-500">No articles found</h3>
-                <p class="text-gray-400">Try a different search or category</p>
-            </div>`;
-    } else {
-        gridContainer.innerHTML = pageBlogs.map(b => createBlogCard(b)).join('');
-    }
-
-    // Pagination buttons
-    const paginationEl = document.getElementById('blogPagination');
-    paginationEl.innerHTML = '';
-    if (totalPages > 1) {
-        if (blogCurrentPage > 1) {
-            const prev = document.createElement('button');
-            prev.className = 'page-btn';
-            prev.innerHTML = '<i class="fas fa-chevron-left"></i>';
-            prev.onclick = () => changeBlogPage(blogCurrentPage - 1);
-            paginationEl.appendChild(prev);
-        }
-        for (let i = 1; i <= totalPages; i++) {
-            const btn = document.createElement('button');
-            btn.className = `page-btn ${i === blogCurrentPage ? 'active' : ''}`;
-            btn.textContent = i;
-            btn.onclick = () => changeBlogPage(i);
-            paginationEl.appendChild(btn);
-        }
-        if (blogCurrentPage < totalPages) {
-            const next = document.createElement('button');
-            next.className = 'page-btn';
-            next.innerHTML = '<i class="fas fa-chevron-right"></i>';
-            next.onclick = () => changeBlogPage(blogCurrentPage + 1);
-            paginationEl.appendChild(next);
-        }
-    }
-}
-
-function changeBlogPage(page) {
-    blogCurrentPage = page;
-    renderBlogGrid();
-    document.getElementById('page-blog').scrollIntoView({ behavior: 'smooth' });
-}
-
-function filterByCategory(cat, el) {
-    currentCategoryFilter = cat;
-    blogCurrentPage = 1;
-    document.querySelectorAll('.tag-filter-item').forEach(b => b.classList.remove('active'));
-    if (el) el.classList.add('active');
-    renderBlogGrid();
-}
-
-function filterBlogs() {
-    currentSearchQuery = document.getElementById('blogSearch').value;
-    blogCurrentPage = 1;
-    renderBlogGrid();
-}
-
-function loadSidebar() {
-    const blogs = window.mockDB.blogs.filter(b => b.status === 'published');
-    
-    // Popular
-    const popular = [...blogs].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 5);
-    document.getElementById('sidebarPopular').innerHTML = popular.map((b, i) => `
-        <div class="flex gap-3 items-start py-3 border-b last:border-0 cursor-pointer hover:bg-gray-50 -mx-2 px-2 rounded-lg transition-colors" onclick="openBlog('${b.id}')">
-            <span class="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs font-black flex-shrink-0 mt-1">${i + 1}</span>
+        
+        <!-- FEATURED ARTICLES SECTION -->
+        <div id="featured-wrapper">
+          <div class="flex items-center justify-between mb-4">
             <div>
-                <p class="text-sm font-semibold text-gray-800 hover:text-red-600 line-clamp-2">${b.title}</p>
-                <p class="text-xs text-gray-400 mt-1"><i class="fas fa-eye mr-1"></i>${formatNumber(b.views || 0)}</p>
+              <span class="text-[11px] font-bold text-red-600 tracking-widest uppercase">FEATURED</span>
+              <h2 class="font-heading text-xl font-bold text-slate-900 leading-tight">Featured Articles</h2>
             </div>
+            <button onclick="filterByCategory('ALL')" class="text-xs font-semibold text-slate-500 hover:text-red-600 flex items-center gap-1 transition">
+              View All <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
+          </div>
+
+          <!-- Featured Grid (2 Columns) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="featured-grid">
+            <!-- Populated via JS -->
+          </div>
         </div>
-    `).join('');
 
-    // Categories with counts
-    const catCounts = {};
-    blogs.forEach(b => { catCounts[b.category] = (catCounts[b.category] || 0) + 1; });
-    
-    document.getElementById('sidebarCategories').innerHTML = window.mockDB.categories
-        .filter(c => catCounts[c.name])
-        .map(c => `
-            <div class="category-item" onclick="filterByCategory('${c.name}', null);document.querySelector('.tag-filter-item[onclick*=\\'${c.name}\\']')?.click()">
-                <span>${c.name}</span>
-                <span class="category-count">${catCounts[c.name] || 0}</span>
+        <!-- LATEST ARTICLES SECTION -->
+        <div>
+          <div class="flex items-center justify-between mb-4 border-b border-slate-200 pb-3">
+            <div>
+              <span class="text-[11px] font-bold text-red-600 tracking-widest uppercase">FRESH</span>
+              <h2 class="font-heading text-xl font-bold text-slate-900 leading-tight">Latest Articles</h2>
             </div>
-        `).join('');
+          </div>
 
-    // Tags
-    const allTags = [];
-    blogs.forEach(b => (b.tags || []).forEach(t => { if (!allTags.includes(t)) allTags.push(t); }));
-    document.getElementById('sidebarTags').innerHTML = allTags.slice(0, 20).map(t => `
-        <span class="tag-chip cursor-pointer" style="cursor:pointer;" onclick="searchByTag('${t}')">${t}</span>
-    `).join('');
-}
+          <!-- Latest Articles Stack -->
+          <div class="space-y-4" id="latest-list">
+            <!-- Populated via JS -->
+          </div>
+        </div>
 
-function searchByTag(tag) {
-    document.getElementById('blogSearch').value = tag;
-    filterBlogs();
-}
+      </section>
 
-// ===== SINGLE BLOG =====
-function openBlog(blogId) {
-    const blog = window.mockDB.blogs.find(b => b.id === blogId);
-    if (!blog) return;
+      <!-- RIGHT SIDEBAR: POPULAR / TRENDING (3 cols) -->
+      <aside class="lg:col-span-3 space-y-6">
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+          <div class="flex items-center space-x-2 mb-4 border-b border-slate-100 pb-3">
+            <i class="fa-solid fa-fire text-amber-500 text-lg"></i>
+            <h2 class="font-heading font-bold text-slate-900 text-lg">Popular</h2>
+          </div>
 
-    // Increment views
-    blog.views = (blog.views || 0) + 1;
-    window.saveBlogsToStorage();
+          <div class="space-y-4" id="popular-list">
+            <!-- Populated via JS -->
+          </div>
+        </div>
 
-    const related = window.mockDB.blogs.filter(b => b.status === 'published' && b.id !== blogId && b.category === blog.category).slice(0, 3);
-    const faqs = blog.faqs || [
-        { q: `What is ${blog.category}?`, a: `${blog.category} is an important topic in Nepal that provides essential services to citizens.` },
-        { q: `How to access ${blog.category} services in Nepal?`, a: 'You can access these services through government portals, local offices, or online platforms.' }
+        <!-- Emergency Quick Hotline Card -->
+        <div class="bg-gradient-to-br from-red-600 to-red-800 text-white p-5 rounded-xl shadow-md space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-heading font-bold text-base">Emergency Contacts</h3>
+            <i class="fa-solid fa-phone-volume text-red-200 animate-pulse"></i>
+          </div>
+          <p class="text-xs text-red-100">National Emergency Helplines available 24/7 in Nepal:</p>
+          <ul class="text-xs space-y-1.5 pt-1 border-t border-red-500/50 font-mono">
+            <li class="flex justify-between"><span>Nepal Police:</span> <strong class="text-white font-bold">100</strong></li>
+            <li class="flex justify-between"><span>Fire Brigade:</span> <strong class="text-white font-bold">101</strong></li>
+            <li class="flex justify-between"><span>Ambulance (Red Cross):</span> <strong class="text-white font-bold">102</strong></li>
+            <li class="flex justify-between"><span>Traffic Police:</span> <strong class="text-white font-bold">103</strong></li>
+            <li class="flex justify-between"><span>Blood Bank Central:</span> <strong class="text-white font-bold">01-4225344</strong></li>
+          </ul>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-900 text-slate-400 text-xs py-8 border-t border-slate-800 mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-3">
+      <div class="flex justify-center items-center space-x-2">
+        <div class="w-6 h-6 rounded bg-red-600 flex items-center justify-center font-bold text-white text-xs">D</div>
+        <span class="font-heading font-bold text-base text-white">Diary Nepal</span>
+      </div>
+      <p class="max-w-md mx-auto text-slate-400">
+        Providing seamless access to essential directories, local news, utility tools, and verified informative articles across Nepal.
+      </p>
+      <div class="pt-2 text-slate-500">
+        &copy; 2024 DiaryNepal. All rights reserved. Managed by Authorized Editors.
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- ARTICLE VIEW READER MODAL -->
+  <div id="article-modal" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-fade-in my-8">
+      <!-- Modal Header -->
+      <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+        <span id="modal-category-badge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-red-600 text-white uppercase tracking-wider">
+          Category
+        </span>
+        <button onclick="closeModal('article-modal')" class="w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-600 flex items-center justify-center transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 overflow-y-auto space-y-4">
+        <h2 id="modal-title" class="font-heading text-2xl font-extrabold text-slate-900 leading-snug">
+          Article Title
+        </h2>
+
+        <!-- Meta Line -->
+        <div class="flex items-center space-x-4 text-xs text-slate-500 border-b border-slate-100 pb-3">
+          <span class="flex items-center gap-1"><i class="fa-solid fa-user text-slate-400"></i> <span id="modal-author">Author</span></span>
+          <span class="flex items-center gap-1"><i class="fa-regular fa-clock text-slate-400"></i> <span id="modal-readtime">5 min read</span></span>
+          <span class="flex items-center gap-1"><i class="fa-regular fa-eye text-slate-400"></i> <span id="modal-views">1.2k views</span></span>
+          <span class="flex items-center gap-1"><i class="fa-regular fa-calendar text-slate-400"></i> <span id="modal-date">Date</span></span>
+        </div>
+
+        <!-- Cover Image -->
+        <img id="modal-image" src="" alt="Article cover" class="w-full h-64 object-cover rounded-xl shadow-sm">
+
+        <!-- Full Text Content -->
+        <div id="modal-content" class="text-slate-700 text-sm leading-relaxed space-y-3 font-normal pt-2">
+          <!-- Text inserted here -->
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
+        <div class="flex items-center space-x-2 text-xs text-slate-500">
+          <span>Share:</span>
+          <button class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center hover:opacity-90"><i class="fa-brands fa-facebook-f text-xs"></i></button>
+          <button class="w-7 h-7 rounded-full bg-sky-500 text-white flex items-center justify-center hover:opacity-90"><i class="fa-brands fa-twitter text-xs"></i></button>
+          <button class="w-7 h-7 rounded-full bg-green-600 text-white flex items-center justify-center hover:opacity-90"><i class="fa-brands fa-whatsapp text-xs"></i></button>
+        </div>
+        <button onclick="closeModal('article-modal')" class="px-4 py-2 bg-slate-800 text-white text-xs font-semibold rounded-lg hover:bg-slate-900 transition">
+          Close Article
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN: CREATE / EDIT ARTICLE MODAL -->
+  <div id="editor-modal" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 space-y-4 my-8">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 id="editor-modal-title" class="font-heading text-lg font-bold text-slate-900">Create New Article</h3>
+        <button onclick="closeModal('editor-modal')" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="article-form" onsubmit="saveArticle(event)" class="space-y-4 text-xs">
+        <input type="hidden" id="edit-article-id" value="">
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Article Title *</label>
+          <input type="text" id="form-title" required placeholder="e.g. How to Renew Driving License in Nepal" class="w-full p-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Category *</label>
+            <select id="form-category" required class="w-full p-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+              <option value="HOSPITAL">Hospital</option>
+              <option value="BLOOD BANK">Blood Bank</option>
+              <option value="AIRLINES">Airlines</option>
+              <option value="VAT CALCULATOR">VAT Calculator</option>
+              <option value="TRAVEL">Travel</option>
+              <option value="AMBULANCE">Ambulance</option>
+              <option value="POLICE">Police</option>
+              <option value="GOVERNMENT">Government Institution</option>
+              <option value="FINANCIAL">Financial Institution</option>
+              <option value="SCHOOLS">Schools</option>
+              <option value="UTILITIES">Utilities</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Read Time *</label>
+            <input type="text" id="form-readtime" required placeholder="e.g. 5 min" class="w-full p-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Image URL</label>
+          <input type="url" id="form-image" placeholder="https://images.unsplash.com/..." class="w-full p-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+        </div>
+
+        <div class="flex items-center space-x-2 pt-1">
+          <input type="checkbox" id="form-featured" class="w-4 h-4 text-red-600 rounded border-slate-300 focus:ring-red-500">
+          <label for="form-featured" class="font-semibold text-slate-700">Mark as Featured Article</label>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Article Content *</label>
+          <textarea id="form-content" rows="5" required placeholder="Write article content here..." class="w-full p-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></textarea>
+        </div>
+
+        <div class="flex justify-end space-x-3 pt-3 border-t">
+          <button type="button" onclick="closeModal('editor-modal')" class="px-4 py-2 rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300 font-medium">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold shadow">Save Article</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- DIRECTORY DETAILS MODAL (When Left Sidebar items are clicked) -->
+  <div id="directory-modal" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4 my-8">
+      <div class="flex justify-between items-center border-b pb-3">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
+            <i class="fa-solid fa-phone"></i>
+          </div>
+          <h3 id="directory-modal-title" class="font-heading text-lg font-bold text-slate-900">Directory Information</h3>
+        </div>
+        <button onclick="closeModal('directory-modal')" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div id="directory-modal-body" class="space-y-3 text-xs text-slate-700">
+        <!-- Dynamic contact details list -->
+      </div>
+
+      <div class="flex justify-between items-center pt-3 border-t">
+        <button id="directory-filter-btn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg">
+          Filter Articles for this Service
+        </button>
+        <button onclick="closeModal('directory-modal')" class="px-4 py-2 bg-slate-200 text-slate-800 text-xs font-semibold rounded-lg hover:bg-slate-300">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOLS MODAL (VAT Calculator & Tools) -->
+  <div id="tools-modal" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 space-y-5 my-8">
+      <div class="flex justify-between items-center border-b pb-3">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-calculator text-red-600 text-xl"></i>
+          <h3 class="font-heading text-lg font-bold text-slate-900">Nepal Utility Tools</h3>
+        </div>
+        <button onclick="closeModal('tools-modal')" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Calculator Section -->
+      <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+        <h4 class="font-heading font-bold text-slate-900 text-sm">Nepal VAT Calculator (13%)</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-slate-600 font-semibold mb-1">Base Amount (NPR)</label>
+            <input type="number" id="vat-amount" placeholder="e.g. 10000" oninput="calculateVAT()" class="w-full p-2 border border-slate-300 rounded text-sm">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-600 font-semibold mb-1">VAT Rate</label>
+            <input type="text" value="13% (Standard)" disabled class="w-full p-2 border border-slate-200 bg-slate-100 rounded text-sm text-slate-500">
+          </div>
+        </div>
+
+        <div class="p-3 bg-white rounded-lg border border-slate-200 text-xs space-y-1 font-mono">
+          <div class="flex justify-between"><span>VAT Amount (13%):</span> <strong id="vat-tax-result" class="text-red-600">NPR 0.00</strong></div>
+          <div class="flex justify-between border-t pt-1 font-bold"><span>Total Payable Amount:</span> <strong id="vat-total-result" class="text-green-700">NPR 0.00</strong></div>
+        </div>
+      </div>
+
+      <!-- Quick BS to AD Date Converter Preview -->
+      <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 text-xs">
+        <h4 class="font-heading font-bold text-slate-900 text-sm">Nepal Calendar Quick Ref</h4>
+        <p class="text-slate-600">Current Nepal Sambat / Bikram Sambat (BS) Year: <strong class="text-red-600">2081 BS</strong></p>
+        <p class="text-slate-500">To convert AD to BS, add approximately 56 Years 8 Months 17 Days.</p>
+      </div>
+
+      <div class="flex justify-end">
+        <button onclick="closeModal('tools-modal')" class="px-5 py-2 bg-slate-800 text-white text-xs font-semibold rounded-lg hover:bg-slate-900">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GENERAL INFO / NOTIFICATION MODAL -->
+  <div id="info-modal" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4 text-center my-8">
+      <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-xl">
+        <i class="fa-solid fa-circle-info"></i>
+      </div>
+      <h3 id="info-modal-title" class="font-heading font-bold text-lg text-slate-900">Notice</h3>
+      <p id="info-modal-msg" class="text-xs text-slate-600 leading-relaxed"></p>
+      <button onclick="closeModal('info-modal')" class="w-full py-2 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800">
+        Understand & Close
+      </button>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // State Variables
+    let isAdmin = true; // Default to Admin as per prompt control, can be toggled
+    let currentFilter = 'ALL';
+
+    // Directory Categories (Matches Screenshot Sidebar)
+    const directoryCategories = [
+      { id: 'BLOOD BANK', label: 'Blood Bank', icon: 'fa-droplet' },
+      { id: 'AMBULANCE', label: 'Ambulance', icon: 'fa-truck-medical' },
+      { id: 'RED CROSS', label: 'Red Cross', icon: 'fa-square-plus' },
+      { id: 'HOSPITAL', label: 'Hospital', icon: 'fa-hospital' },
+      { id: 'MUNICIPALITY', label: 'Municipality Offices', icon: 'fa-building-columns' },
+      { id: 'GOVERNMENT', label: 'Government Institution', icon: 'fa-landmark' },
+      { id: 'FINANCIAL', label: 'Financial Institution', icon: 'fa-building-columns' },
+      { id: 'POLICE', label: 'Police', icon: 'fa-shield-halved' },
+      { id: 'HEALTHCARE', label: 'Health Care', icon: 'fa-heart-pulse' },
+      { id: 'TRAVEL', label: 'Travel Agency', icon: 'fa-plane-departure' },
+      { id: 'AIRLINES', label: 'Airlines', icon: 'fa-plane' },
+      { id: 'SCHOOLS', label: 'Schools', icon: 'fa-graduation-cap' },
+      { id: 'BROKER', label: 'Broker Office', icon: 'fa-chart-line' },
+      { id: 'UTILITIES', label: 'Utilities', icon: 'fa-bolt' }
     ];
 
-    const singleContent = document.getElementById('singleBlogContent');
-    singleContent.innerHTML = `
-        <div class="blog-header">
-            <div class="container mx-auto px-4">
-                <div class="breadcrumb mb-4">
-                    <a href="#" onclick="showPage('home')">Home</a>
-                    <span>/</span>
-                    <a href="#" onclick="showPage('blog')">Blog</a>
-                    <span>/</span>
-                    <a href="#" onclick="filterByCategoryAndGo('${blog.category}');showPage('blog')">${blog.category}</a>
-                    <span>/</span>
-                    <span>${blog.title.substring(0, 40)}...</span>
-                </div>
-                <span class="blog-category-badge">${blog.category}</span>
-                <h1 class="text-3xl font-black mt-3 mb-4 leading-tight">${blog.title}</h1>
-                <div class="blog-meta text-white opacity-80 flex-wrap">
-                    <span class="blog-meta-item"><i class="fas fa-user"></i> ${blog.author || 'Diary Nepal'}</span>
-                    <span class="blog-meta-item"><i class="fas fa-calendar"></i> ${formatDate(blog.publishDate)}</span>
-                    <span class="blog-meta-item"><i class="fas fa-clock"></i> ${blog.readTime || calculateReadTime(blog.content)} min read</span>
-                    <span class="blog-meta-item"><i class="fas fa-eye"></i> ${formatNumber(blog.views)} views</span>
-                </div>
+    // Directory Emergency Helplines Data
+    const directoryContacts = {
+      'BLOOD BANK': [
+        { name: 'Central Blood Transfusion Service (Red Cross - Balkhu)', phone: '01-4225344', location: 'Kathmandu' },
+        { name: 'Bhaktapur Blood Bank', phone: '01-6612266', location: 'Bhaktapur' },
+        { name: 'Lalitpur Blood Bank', phone: '01-5522152', location: 'Pulchowk, Lalitpur' }
+      ],
+      'AMBULANCE': [
+        { name: 'Nepal Red Cross Central Hotline', phone: '102', location: 'Nationwide' },
+        { name: 'Bishal Bazar Ambulance', phone: '01-4244121', location: 'Kathmandu' },
+        { name: 'Lalitpur Ambulance Service', phone: '01-5522222', location: 'Lalitpur' }
+      ],
+      'RED CROSS': [
+        { name: 'Nepal Red Cross Society HQ', phone: '01-4270650', location: 'Kalimati, Kathmandu' },
+        { name: 'Red Cross Emergency Hotline', phone: '102', location: 'Nepal' }
+      ],
+      'HOSPITAL': [
+        { name: 'Bir Hospital Emergency', phone: '01-4221988', location: 'Kanti Path, Kathmandu' },
+        { name: 'Tribhuvan University Teaching Hospital (TUTH)', phone: '01-4412303', location: 'Maharajgunj' },
+        { name: 'Patan Hospital', phone: '01-5522295', location: 'Lagankhel, Lalitpur' },
+        { name: 'Grandee International Hospital', phone: '01-5184000', location: 'Dhapasi' }
+      ],
+      'MUNICIPALITY': [
+        { name: 'Kathmandu Metropolitan City HQ', phone: '01-4268305', location: 'Bagbazar, Kathmandu' },
+        { name: 'Lalitpur Metropolitan City', phone: '01-5522078', location: 'Pulchowk' }
+      ],
+      'GOVERNMENT': [
+        { name: 'Department of Passports', phone: '01-4416012', location: 'Tripureshwor' },
+        { name: 'Department of Transport Management', phone: '01-4474922', location: 'Minbhawan' }
+      ],
+      'FINANCIAL': [
+        { name: 'Nepal Rastra Bank (Central Bank)', phone: '01-4419804', location: 'Baluwatar' },
+        { name: 'Nepal Stock Exchange (NEPSE)', phone: '01-4250734', location: 'Singha Durbar' }
+      ],
+      'POLICE': [
+        { name: 'Nepal Police Central Emergency', phone: '100', location: 'Nationwide' },
+        { name: 'Kathmandu Valley Traffic Police', phone: '103', location: 'Ramshah Path' },
+        { name: 'Crime Information Hotline', phone: '01-4228435', location: 'Kathmandu' }
+      ],
+      'HEALTHCARE': [
+        { name: 'National Public Health Laboratory', phone: '01-4252421', location: 'Teku, Kathmandu' },
+        { name: 'Kanti Childrens Hospital', phone: '01-4411140', location: 'Maharajgunj' }
+      ],
+      'TRAVEL': [
+        { name: 'Nepal Tourism Board (NTB)', phone: '01-4256909', location: 'Bhrikutimandip, Kathmandu' },
+        { name: 'Tourist Police Hotline', phone: '01-4247041', location: 'Bhrikutimandap' }
+      ],
+      'AIRLINES': [
+        { name: 'Nepal Airlines Corporation (NAC)', phone: '01-4220757', location: 'New Road, Kathmandu' },
+        { name: 'Tribhuvan International Airport Flight Info', phone: '01-4113033', location: 'Kathmandu TIA' }
+      ],
+      'SCHOOLS': [
+        { name: 'Ministry of Education Helpline', phone: '01-4200372', location: 'Singhadurbar' },
+        { name: 'National Examination Board (NEB)', phone: '01-6630848', location: 'Sanothimi, Bhaktapur' }
+      ],
+      'BROKER': [
+        { name: 'SEBON (Securities Board of Nepal)', phone: '01-5541057', location: 'Jawalakhel' },
+        { name: 'Stock Brokers Association of Nepal', phone: '01-4243888', location: 'Kathmandu' }
+      ],
+      'UTILITIES': [
+        { name: 'Nepal Electricity Authority (NEA) Complaints', phone: '1150', location: 'Kathmandu' },
+        { name: 'Nepal Telecom Emergency Helpline', phone: '198', location: 'Nationwide' },
+        { name: 'Kathmandu Upatyaka Khanepati (KUKL)', phone: '01-4268223', location: 'Tripureshwor' }
+      ]
+    };
+
+    // Initial Blog Articles Data (Matches Visual Screenshot Content)
+    let articles = [
+      {
+        id: 1,
+        title: "Top 10 Hospitals in Kathmandu Valley",
+        category: "HOSPITAL",
+        featured: true,
+        author: "Diary Nepal Team",
+        readTime: "5 min",
+        views: "1.5k",
+        date: "Feb 18, 2024",
+        image: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=80",
+        excerpt: "Discover the best hospitals in Kathmandu Valley providing world-class healthcare services, emergency trauma care, and specialist consultations.",
+        content: `Finding reliable medical care is crucial. Kathmandu Valley houses several premier healthcare institutions offering 24/7 emergency care, advanced surgical units, and international quality diagnostics.<br><br><strong>1. Bir Hospital:</strong> The oldest government hospital in Nepal, known for affordable specialist consultations and central location.<br><br><strong>2. TU Teaching Hospital (TUTH):</strong> Premier public medical institution with top specialists across every field.<br><br><strong>3. Grandee International Hospital:</strong> Leading private facility with state-of-the-art ICU and trauma care facilities.<br><br><strong>4. Patan Hospital:</strong> Renowned community hospital in Lalitpur with specialized pediatric and maternity care.`
+      },
+      {
+        id: 2,
+        title: "Blood Bank Services in Nepal - Complete Guide",
+        category: "BLOOD BANK",
+        featured: true,
+        author: "Health Desk",
+        readTime: "7 min",
+        views: "2.1k",
+        date: "Feb 12, 2024",
+        image: "https://images.unsplash.com/photo-1615461066841-6116e61058f4?auto=format&fit=crop&w=800&q=80",
+        excerpt: "Complete guide to blood bank services available across Nepal with emergency hotline contact numbers and donor registration process.",
+        content: `Blood requirement can arise unexpectedly during surgeries or severe accidents. Nepal Red Cross Society operates the primary Central Blood Transfusion Service in Kathmandu.<br><br><strong>How to Request Blood:</strong><br>1. Obtain a valid requisition form signed by attending hospital doctor.<br>2. Visit Central Blood Transfusion Service at Balkhu or nearby branch.<br>3. Replacement blood donation is encouraged to maintain central reserves.<br><br><strong>Emergency Contact:</strong> Call 01-4225344 for immediate stock availability in Kathmandu Valley.`
+      },
+      {
+        id: 3,
+        title: "Nepal Airlines - Complete Flight Information Guide",
+        category: "AIRLINES",
+        featured: false,
+        author: "Aviation Reporter",
+        readTime: "4 min",
+        views: "1.9k",
+        date: "Feb 15, 2024",
+        image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80",
+        excerpt: "Schedule, baggage policies, online booking, and contact details for Nepal Airlines domestic and international routes.",
+        content: `Nepal Airlines Corporation (NAC) is the national flag carrier connecting Kathmandu with major domestic sectors like Pokhara, Biratnagar, Lukla, and international destinations including Tokyo, Dubai, and Delhi.<br><br><strong>Baggage Allowance:</strong> Standard international economy allows 2 pieces up to 30kg total. Domestic flights allow 15kg to 20kg depending on aircraft size.`
+      },
+      {
+        id: 4,
+        title: "How to Calculate VAT in Nepal - Step by Step",
+        category: "VAT CALCULATOR",
+        featured: false,
+        author: "Tax Advisory",
+        readTime: "6 min",
+        views: "4.9k",
+        date: "Feb 10, 2024",
+        image: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+        excerpt: "Understand Value Added Tax (VAT) rate of 13% in Nepal, invoice filing, and calculation rules for businesses and consumers.",
+        content: `In Nepal, Value Added Tax (VAT) is governed by Inland Revenue Department (IRD) at a flat standard rate of 13%.<br><br><strong>Formula:</strong> VAT Amount = Base Price x 0.13.<br>Total Price = Base Price + VAT Amount.<br>You can also use our interactive tool built right into Diary Nepal hero section!`
+      },
+      {
+        id: 5,
+        title: "Best Tourist Destinations in Nepal 2024",
+        category: "TRAVEL",
+        featured: false,
+        author: "Travel Nepal",
+        readTime: "8 min",
+        views: "3.2k",
+        date: "Feb 01, 2024",
+        image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=800&q=80",
+        excerpt: "Top bucket-list destinations to visit in Nepal this year: Annapurna Circuit, Pokhara Lakeside, Mustang, Chitwan National Park.",
+        content: `Nepal offers breathtaking landscapes from towering Himalayan peaks to dense tropical jungles rich with wildlife.<br><br><strong>Pokhara:</strong> The serene lake city offering paragliding, mountain reflections, and cave exploration.<br><br><strong>Mardi Himal & Annapurna Base Camp:</strong> World-renowned trekking trails.`
+      }
+    ];
+
+    // INITIALIZATION ON LOAD
+    window.addEventListener('DOMContentLoaded', () => {
+      startLiveClock();
+      renderSidebarMenu();
+      renderArticles();
+      updateAdminStateUI();
+    });
+
+    // Live Clock Function
+    function startLiveClock() {
+      const clockEl = document.getElementById('live-time');
+      function update() {
+        const now = new Date();
+        const options = { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+        clockEl.innerText = now.toLocaleString('en-US', options);
+      }
+      update();
+      setInterval(update, 1000);
+    }
+
+    // TOGGLE ROLE: ADMIN VS VISITOR
+    function toggleAdminRole() {
+      isAdmin = !isAdmin;
+      updateAdminStateUI();
+      renderArticles(); // Re-render to show/hide edit buttons
+
+      const msg = isAdmin 
+        ? "Switched to ADMIN MODE. You can now create, edit, and delete blogs." 
+        : "Switched to VISITOR MODE. Blog management controls are now hidden.";
+      showToast(msg);
+    }
+
+    function updateAdminStateUI() {
+      const roleBadge = document.getElementById('role-badge');
+      const roleText = document.getElementById('role-text');
+      const toggleBtnText = document.getElementById('toggle-btn-text');
+      const adminPanel = document.getElementById('admin-control-panel');
+
+      if (isAdmin) {
+        roleBadge.className = "px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1.5";
+        roleText.innerText = "Admin";
+        toggleBtnText.innerText = "Logout Admin";
+        adminPanel.classList.remove('hidden');
+      } else {
+        roleBadge.className = "px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-700 text-slate-300 border border-slate-600 flex items-center gap-1.5";
+        roleText.innerText = "Visitor";
+        toggleBtnText.innerText = "Switch to Admin";
+        adminPanel.classList.add('hidden');
+      }
+    }
+
+    // RENDER LEFT SIDEBAR DIRECTORY BUTTONS
+    function renderSidebarMenu() {
+      const container = document.getElementById('directory-menu');
+      container.innerHTML = directoryCategories.map(cat => `
+        <button onclick="handleSidebarClick('${cat.id}', '${cat.label}')" class="sidebar-btn w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between transition group ${currentFilter === cat.id ? 'active' : ''}">
+          <span class="flex items-center gap-2.5">
+            <i class="fa-solid ${cat.icon} text-sm opacity-80 group-hover:scale-110 transition-transform"></i>
+            ${cat.label}
+          </span>
+          <i class="fa-solid fa-chevron-right text-[10px] opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all"></i>
+        </button>
+      `).join('');
+    }
+
+    // SIDEBAR BUTTON CLICK HANDLER
+    function handleSidebarClick(catId, catLabel) {
+      // 1. Show Directory Helpline Modal
+      openDirectoryModal(catId, catLabel);
+    }
+
+    function openDirectoryModal(catId, catLabel) {
+      const modalTitle = document.getElementById('directory-modal-title');
+      const modalBody = document.getElementById('directory-modal-body');
+      const filterBtn = document.getElementById('directory-filter-btn');
+
+      modalTitle.innerText = `${catLabel} Directory & Contacts`;
+
+      const contacts = directoryContacts[catId] || [
+        { name: `${catLabel} General Information Desk`, phone: '01-4200000', location: 'Kathmandu' }
+      ];
+
+      modalBody.innerHTML = `
+        <p class="text-slate-500 text-xs mb-2">Emergency hotlines and public contact numbers in Nepal:</p>
+        <div class="space-y-2">
+          ${contacts.map(c => `
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 flex justify-between items-center">
+              <div>
+                <strong class="text-slate-900 block font-semibold text-xs">${c.name}</strong>
+                <span class="text-[11px] text-slate-500"><i class="fa-solid fa-location-dot text-red-500 text-[10px]"></i> ${c.location}</span>
+              </div>
+              <a href="tel:${c.phone}" class="px-2.5 py-1 rounded bg-green-600 hover:bg-green-700 text-white font-mono font-bold text-xs flex items-center gap-1 shadow-sm">
+                <i class="fa-solid fa-phone text-[10px]"></i> ${c.phone}
+              </a>
             </div>
+          `).join('')}
         </div>
-        
-        <div class="container mx-auto px-4 py-8">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2">
-                    ${blog.featuredImage ? `
-                        <div class="mb-6 rounded-2xl overflow-hidden shadow-lg">
-                            <img src="${blog.featuredImage}" alt="${blog.title}" class="w-full max-h-96 object-cover"
-                                 onerror="this.style.display='none'">
-                        </div>
-                    ` : ''}
-                    
-                    <div class="blog-content-area">
-                        <div class="blog-content">${blog.content || '<p>Content not available.</p>'}</div>
-                        
-                        ${blog.tags && blog.tags.length > 0 ? `
-                            <div class="mt-6 pt-6 border-t">
-                                <div class="flex flex-wrap gap-2">
-                                    ${blog.tags.map(t => `<span class="tag-chip cursor-pointer" onclick="searchByTag('${t}');showPage('blog')">${t}</span>`).join('')}
-                                </div>
-                            </div>
-                        ` : ''}
-                        
-                        <!-- Share -->
-                        <div class="mt-6 pt-6 border-t">
-                            <h3 class="font-bold text-gray-800 mb-3">Share this article</h3>
-                            <div class="flex flex-wrap gap-2">
-                                <button class="share-btn share-fb" onclick="shareOn('facebook','${blog.title}')"><i class="fab fa-facebook-f"></i> Facebook</button>
-                                <button class="share-btn share-tw" onclick="shareOn('twitter','${blog.title}')"><i class="fab fa-twitter"></i> Twitter</button>
-                                <button class="share-btn share-wa" onclick="shareOn('whatsapp','${blog.title}')"><i class="fab fa-whatsapp"></i> WhatsApp</button>
-                                <button class="share-btn share-li" onclick="shareOn('linkedin','${blog.title}')"><i class="fab fa-linkedin-in"></i> LinkedIn</button>
-                                <button class="share-btn share-copy" onclick="copyLink()"><i class="fas fa-link"></i> Copy Link</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- FAQ -->
-                    <div class="blog-content-area mt-6">
-                        <h2 class="text-xl font-black mb-5 flex items-center gap-2">
-                            <i class="fas fa-question-circle text-red-600"></i> Frequently Asked Questions
-                        </h2>
-                        <div class="space-y-3">
-                            ${faqs.map((faq, i) => `
-                                <div class="faq-item">
-                                    <div class="faq-question" onclick="toggleFaq(${i})">
-                                        <span>${faq.q}</span>
-                                        <i class="fas fa-chevron-down text-gray-400" id="faqIcon${i}"></i>
-                                    </div>
-                                    <div class="faq-answer" id="faqAns${i}">
-                                        <p class="text-gray-600 text-sm">${faq.a}</p>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                    
-                    <!-- Related Blogs -->
-                    ${related.length > 0 ? `
-                        <div class="mt-6">
-                            <h2 class="text-xl font-black mb-4 flex items-center gap-2">
-                                <i class="fas fa-newspaper text-red-600"></i> Related Articles
-                            </h2>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                ${related.map(b => createBlogCard(b)).join('')}
-                            </div>
-                        </div>
-                    ` : ''}
-                </div>
+      `;
+
+      filterBtn.onclick = () => {
+        closeModal('directory-modal');
+        filterByCategory(catId);
+      };
+
+      openModal('directory-modal');
+    }
+
+    // FILTER BY CATEGORY
+    function filterByCategory(catId) {
+      currentFilter = catId;
+      renderSidebarMenu();
+
+      const filterIndicator = document.getElementById('filter-indicator');
+      const filterName = document.getElementById('filter-category-name');
+
+      if (catId === 'ALL') {
+        filterIndicator.classList.add('hidden');
+      } else {
+        filterIndicator.classList.remove('hidden');
+        filterName.innerText = catId;
+      }
+
+      renderArticles();
+    }
+
+    // RENDER ALL ARTICLES (Featured, Latest, Popular)
+    function renderArticles(searchQuery = '') {
+      let filtered = articles;
+
+      // Filter by category
+      if (currentFilter !== 'ALL') {
+        filtered = filtered.filter(a => a.category.toUpperCase().includes(currentFilter.toUpperCase()) || currentFilter.toUpperCase().includes(a.category.toUpperCase()));
+      }
+
+      // Filter by search query
+      if (searchQuery.trim() !== '') {
+        const q = searchQuery.toLowerCase();
+        filtered = filtered.filter(a => a.title.toLowerCase().includes(q) || a.excerpt.toLowerCase().includes(q) || a.category.toLowerCase().includes(q));
+      }
+
+      const featuredGrid = document.getElementById('featured-grid');
+      const latestList = document.getElementById('latest-list');
+      const popularList = document.getElementById('popular-list');
+      const featuredWrapper = document.getElementById('featured-wrapper');
+
+      // Separate featured & latest
+      const featuredArticles = filtered.filter(a => a.featured);
+      const latestArticles = filtered;
+
+      // Hide Featured Header if search or specific category produces no featured items
+      if (featuredArticles.length === 0) {
+        featuredWrapper.classList.add('hidden');
+      } else {
+        featuredWrapper.classList.remove('hidden');
+      }
+
+      // 1. RENDER FEATURED CARDS
+      featuredGrid.innerHTML = featuredArticles.map(article => `
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col group hover:shadow-md transition">
+          <div class="relative h-44 overflow-hidden bg-slate-100">
+            <img src="${article.image}" alt="${article.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+            <span class="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-white shadow-sm flex items-center gap-1">
+              <i class="fa-solid fa-star text-[9px]"></i> Featured
+            </span>
+          </div>
+          
+          <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-600 text-white uppercase tracking-wider">
+                  ${article.category}
+                </span>
+                ${isAdmin ? `
+                  <div class="flex items-center space-x-1">
+                    <button onclick="openEditArticleModal(${article.id})" class="p-1 text-slate-400 hover:text-blue-600" title="Edit Article"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button onclick="deleteArticle(${article.id})" class="p-1 text-slate-400 hover:text-red-600" title="Delete Article"><i class="fa-solid fa-trash"></i></button>
+                  </div>
+                ` : ''}
+              </div>
+
+              <h3 onclick="openArticleModal(${article.id})" class="font-heading font-bold text-slate-900 text-sm hover:text-red-600 cursor-pointer line-clamp-2 leading-snug">
+                ${article.title}
+              </h3>
+              
+              <p class="text-xs text-slate-500 line-clamp-2 mt-1.5 leading-relaxed">
+                ${article.excerpt}
+              </p>
+            </div>
+
+            <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+              <span class="flex items-center gap-1"><i class="fa-regular fa-user"></i> ${article.author}</span>
+              <div class="flex items-center space-x-3">
+                <span><i class="fa-regular fa-clock"></i> ${article.readTime}</span>
+                <span><i class="fa-regular fa-eye"></i> ${article.views}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // 2. RENDER LATEST ARTICLES LIST
+      if (latestArticles.length === 0) {
+        latestList.innerHTML = `<div class="p-8 text-center text-slate-400 bg-white rounded-xl border">No articles found matching your criteria.</div>`;
+      } else {
+        latestList.innerHTML = latestArticles.map(article => `
+          <div class="bg-white p-3.5 rounded-xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-4 hover:shadow-md transition items-start sm:items-center">
+            <img src="${article.image}" alt="${article.title}" class="w-full sm:w-28 h-24 object-cover rounded-lg flex-shrink-0">
+            
+            <div class="flex-1 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-600 text-white uppercase tracking-wider">
+                  ${article.category}
+                </span>
                 
-                <!-- Sidebar -->
-                <div>
-                    <div class="widget">
-                        <div class="widget-title"><i class="fas fa-tools text-red-600"></i> Related Tools</div>
-                        <div class="space-y-2">
-                            ${relatedTools.map(tool => `
-                                <div class="tool-card" onclick="showToast('${tool} tool coming soon!', 'info')">
-                                    <i class="fas fa-calculator text-red-600"></i>
-                                    <div>
-                                        <div class="font-semibold text-sm">${tool}</div>
-                                        <div class="text-xs text-gray-400">Free Tool</div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                    
-                    <div class="widget">
-                        <div class="widget-title"><i class="fas fa-fire text-red-600"></i> Popular Articles</div>
-                        ${window.mockDB.blogs.filter(b => b.status === 'published').sort((a, b) => (b.views||0)-(a.views||0)).slice(0,5).map((b, i) => `
-                            <div class="flex gap-3 items-start py-3 border-b last:border-0 cursor-pointer hover:bg-gray-50 -mx-2 px-2 rounded-lg" onclick="openBlog('${b.id}')">
-                                <span class="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs font-black flex-shrink-0 mt-1">${i+1}</span>
-                                <p class="text-sm font-semibold text-gray-800 hover:text-red-600 line-clamp-2">${b.title}</p>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
+                ${isAdmin ? `
+                  <div class="flex items-center space-x-2 text-xs">
+                    <button onclick="openEditArticleModal(${article.id})" class="text-blue-600 hover:underline font-semibold flex items-center gap-1"><i class="fa-solid fa-pen"></i> Edit</button>
+                    <button onclick="deleteArticle(${article.id})" class="text-red-600 hover:underline font-semibold flex items-center gap-1"><i class="fa-solid fa-trash"></i> Delete</button>
+                  </div>
+                ` : ''}
+              </div>
+
+              <h3 onclick="openArticleModal(${article.id})" class="font-heading font-bold text-slate-900 text-sm sm:text-base hover:text-red-600 cursor-pointer leading-snug">
+                ${article.title}
+              </h3>
+
+              <div class="flex flex-wrap items-center gap-3 text-[11px] text-slate-400 pt-1">
+                <span><i class="fa-regular fa-eye"></i> ${article.views}</span>
+                <span><i class="fa-regular fa-calendar"></i> ${article.date}</span>
+                <span><i class="fa-regular fa-clock"></i> ${article.readTime} read</span>
+              </div>
             </div>
+          </div>
+        `).join('');
+      }
+
+      // 3. RENDER POPULAR ARTICLES (Top 5 sorted by views)
+      const popularSorted = [...articles].sort((a, b) => parseFloat(b.views) - parseFloat(a.views)).slice(0, 5);
+      popularList.innerHTML = popularSorted.map((article, idx) => `
+        <div onclick="openArticleModal(${article.id})" class="flex items-start space-x-3 group cursor-pointer">
+          <div class="w-6 h-6 rounded-full bg-amber-500/10 text-amber-600 font-bold text-xs flex items-center justify-center flex-shrink-0 group-hover:bg-amber-500 group-hover:text-white transition">
+            ${idx + 1}
+          </div>
+          <div class="flex-1">
+            <h4 class="font-heading font-semibold text-xs text-slate-800 group-hover:text-red-600 line-clamp-2 leading-snug">
+              ${article.title}
+            </h4>
+            <span class="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
+              <i class="fa-regular fa-eye text-[9px]"></i> ${article.views} views
+            </span>
+          </div>
         </div>
-    `;
-
-    // Add structured data
-    const schema = {
-        "@context": "https://schema.org",
-        "@type": "Article",
-        "headline": blog.title,
-        "description": blog.metaDescription || blog.excerpt,
-        "image": blog.featuredImage,
-        "author": { "@type": "Person", "name": blog.author },
-        "publisher": { "@type": "Organization", "name": "Diary Nepal" },
-        "datePublished": blog.publishDate,
-        "dateModified": blog.updatedAt || blog.publishDate
-    };
-    let schemaEl = document.getElementById('blogSchema');
-    if (!schemaEl) {
-        schemaEl = document.createElement('script');
-        schemaEl.id = 'blogSchema';
-        schemaEl.type = 'application/ld+json';
-        document.head.appendChild(schemaEl);
+      `).join('');
     }
-    schemaEl.textContent = JSON.stringify(schema);
 
-    showPage('single-blog');
-}
+    // SEARCH INPUT HANDLER
+    function handleSearch() {
+      const q = document.getElementById('search-input').value;
+      renderArticles(q);
+    }
 
-function toggleFaq(index) {
-    const ans = document.getElementById('faqAns' + index);
-    const icon = document.getElementById('faqIcon' + index);
-    ans.classList.toggle('open');
-    icon.style.transform = ans.classList.contains('open') ? 'rotate(180deg)' : '';
-}
+    // ARTICLE READER MODAL
+    function openArticleModal(id) {
+      const article = articles.find(a => a.id === id);
+      if (!article) return;
 
-function shareOn(platform, title) {
-    const url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent(title + ' - Diary Nepal');
-    const links = {
-        facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
-        twitter: `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
-        whatsapp: `https://wa.me/?text=${text}%20${url}`,
-        linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${url}`
-    };
-    window.open(links[platform], '_blank', 'width=600,height=400');
-}
+      // Increment views count dynamically
+      article.views = (parseFloat(article.views) + 0.1).toFixed(1) + 'k';
 
-function copyLink() {
-    navigator.clipboard.writeText(window.location.href).then(() => {
-        showToast('Link copied to clipboard!');
-    }).catch(() => {
-        showToast('Could not copy link', 'error');
-    });
-}
+      document.getElementById('modal-category-badge').innerText = article.category;
+      document.getElementById('modal-title').innerText = article.title;
+      document.getElementById('modal-author').innerText = article.author;
+      document.getElementById('modal-readtime').innerText = article.readTime + ' read';
+      document.getElementById('modal-views').innerText = article.views + ' views';
+      document.getElementById('modal-date').innerText = article.date;
+      document.getElementById('modal-image').src = article.image;
+      document.getElementById('modal-content').innerHTML = article.content || article.excerpt;
 
-// Reading progress
-window.addEventListener('scroll', () => {
-    if (currentPage !== 'single-blog') return;
-    const scrollTop = window.scrollY;
-    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-    const progress = (scrollTop / docHeight) * 100;
-    document.getElementById('readingProgress').style.width = progress + '%';
-});
+      openModal('article-modal');
+      renderArticles(); // Update view counter on UI
+    }
 
-// ===== ADMIN =====
-function showAdminSection(section) {
-    if (!window.isAdmin && section !== 'dashboard') return;
-    
-    document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
-    document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.remove('active'));
-    
-    const sectionEl = document.getElementById('admin-' + section);
-    const navEl = document.getElementById('nav-' + section);
-    if (sectionEl) sectionEl.style.display = 'block';
-    if (navEl) navEl.classList.add('active');
-    currentAdminSection = section;
-
-    if (section === 'dashboard') loadAdminDashboard();
-    else if (section === 'blogs') loadAdminBlogs();
-    else if (section === 'newblog') initBlogEditor();
-    else if (section === 'categories') loadAdminCategories();
-    else if (section === 'seo') loadSeoSection();
-}
-
-function loadAdminDashboard() {
-    const blogs = window.mockDB.blogs;
-    const published = blogs.filter(b => b.status === 'published');
-    const drafts = blogs.filter(b => b.status === 'draft');
-    const totalViews = blogs.reduce((sum, b) => sum + (b.views || 0), 0);
-
-    document.getElementById('statTotal').textContent = blogs.length;
-    document.getElementById('statPublished').textContent = published.length;
-    document.getElementById('statDraft').textContent = drafts.length;
-    document.getElementById('statViews').textContent = formatNumber(totalViews);
-    
-    const now = new Date();
-    document.getElementById('dashDateTime').textContent = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-
-    const tbody = document.getElementById('dashRecentBlogs');
-    const recent = blogs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 10);
-    tbody.innerHTML = recent.map(b => `
-        <tr>
-            <td class="font-medium" style="max-width:250px">
-                <span class="line-clamp-2">${b.title}</span>
-            </td>
-            <td><span class="blog-category-badge" style="font-size:10px;">${b.category}</span></td>
-            <td><span class="status-badge status-${b.status}">${b.status}</span></td>
-            <td>${formatNumber(b.views || 0)}</td>
-            <td class="text-gray-500 text-sm">${formatDate(b.publishDate)}</td>
-            <td>
-                <div class="flex gap-2">
-                    <button class="btn btn-sm" style="background:#3498db;color:white;" onclick="openBlog('${b.id}')"><i class="fas fa-eye"></i></button>
-                    <button class="btn btn-sm" style="background:#f39c12;color:white;" onclick="editBlog('${b.id}')"><i class="fas fa-edit"></i></button>
-                    <button class="btn btn-sm btn-danger" onclick="confirmDeleteBlog('${b.id}')"><i class="fas fa-trash"></i></button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
-}
-
-function loadAdminBlogs() {
-    // Populate category filter
-    const catFilter = document.getElementById('adminCategoryFilter');
-    catFilter.innerHTML = '<option value="">All Categories</option>' +
-        window.mockDB.categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
-    
-    filterAdminBlogs();
-}
-
-function filterAdminBlogs() {
-    const search = (document.getElementById('adminBlogSearch')?.value || '').toLowerCase();
-    const cat = document.getElementById('adminCategoryFilter')?.value || '';
-    const status = document.getElementById('adminStatusFilter')?.value || '';
-    
-    let blogs = window.mockDB.blogs;
-    if (search) blogs = blogs.filter(b => b.title.toLowerCase().includes(search));
-    if (cat) blogs = blogs.filter(b => b.category === cat);
-    if (status) blogs = blogs.filter(b => b.status === status);
-
-    const tbody = document.getElementById('adminBlogsList');
-    if (blogs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-gray-400">No blogs found</td></tr>`;
+    // ADMIN: OPEN CREATE ARTICLE MODAL
+    function openCreateArticleModal() {
+      if (!isAdmin) {
+        showToast("Access Denied: Only Admin users can create articles.");
         return;
+      }
+      document.getElementById('editor-modal-title').innerText = "Create New Article";
+      document.getElementById('edit-article-id').value = "";
+      document.getElementById('article-form').reset();
+      openModal('editor-modal');
     }
-    
-    tbody.innerHTML = blogs.map(b => `
-        <tr>
-            <td>
-                <img src="${b.featuredImage || 'https://images.unsplash.com/photo-1585079542156-2755d9c8a094?w=100'}" 
-                     class="w-16 h-12 object-cover rounded-lg" alt=""
-                     onerror="this.src='https://images.unsplash.com/photo-1585079542156-2755d9c8a094?w=100'">
-            </td>
-            <td>
-                <div class="font-semibold text-sm" style="max-width:200px;">${b.title}</div>
-                <div class="text-xs text-gray-400">/blog/${b.slug}</div>
-            </td>
-            <td><span class="blog-category-badge" style="font-size:10px;">${b.category}</span></td>
-            <td><span class="status-badge status-${b.status}">${b.status}</span></td>
-            <td class="text-center">${formatNumber(b.views || 0)}</td>
-            <td class="text-sm text-gray-600">${b.author || 'Admin'}</td>
-            <td class="text-sm text-gray-500">${formatDate(b.publishDate)}</td>
-            <td>
-                <div class="flex gap-1 flex-wrap">
-                    <button class="btn btn-sm" style="background:#3498db;color:white;" onclick="openBlog('${b.id}');showPage('single-blog')" title="View"><i class="fas fa-eye"></i></button>
-                    <button class="btn btn-sm" style="background:#f39c12;color:white;" onclick="editBlog('${b.id}')" title="Edit"><i class="fas fa-edit"></i></button>
-                    <button class="btn btn-sm btn-danger" onclick="confirmDeleteBlog('${b.id}')" title="Delete"><i class="fas fa-trash"></i></button>
-                    ${b.status === 'draft' ? `<button class="btn btn-sm btn-success" onclick="publishBlog('${b.id}')" title="Publish"><i class="fas fa-paper-plane"></i></button>` : ''}
-                </div>
-            </td>
-        </tr>
-    `).join('');
-}
 
-function initBlogEditor(blogData = null) {
-    currentEditBlogId = blogData ? blogData.id : null;
-    document.getElementById('blogFormTitle').textContent = blogData ? 'Edit Blog' : 'Create New Blog';
-    
-    // Set today's date
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('blogPublishDate').value = blogData ? (blogData.publishDate || '').split('T')[0] : today;
-    
-    // Populate category dropdown
-    const catSelect = document.getElementById('blogCategory');
-    catSelect.innerHTML = '<option value="">Select Category</option>' +
-        window.mockDB.categories.map(c => `<option value="${c.name}" ${blogData && blogData.category === c.name ? 'selected' : ''}>${c.name}</option>`).join('');
-    
-    // Related tools checkboxes
-    document.getElementById('relatedToolsCheck').innerHTML = relatedTools.map(tool => `
-        <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-gray-50 p-2 rounded">
-            <input type="checkbox" class="related-tool-check" value="${tool}" ${blogData && (blogData.relatedTools || []).includes(tool) ? 'checked' : ''}>
-            ${tool}
-        </label>
-    `).join('');
-    
-    // Initialize Quill
-    if (quillEditor) {
-        quillEditor = null;
-        document.getElementById('blogEditor').innerHTML = '';
-    }
-    quillEditor = new Quill('#blogEditor', {
-        theme: 'snow',
-        placeholder: 'Write your blog content here...',
-        modules: {
-            toolbar: [
-                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                ['bold', 'italic', 'underline', 'strike'],
-                [{ 'color': [] }, { 'background': [] }],
-                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                [{ 'indent': '-1' }, { 'indent': '+1' }],
-                ['blockquote', 'code-block'],
-                ['link', 'image'],
-                ['clean']
-            ]
-        }
-    });
-    
-    // Reset tags
-    currentTags = blogData ? (blogData.tags || []) : [];
-    renderTags();
-    
-    // Reset FAQs
-    currentFaqs = blogData ? (blogData.faqs || []) : [];
-    renderFaqs();
-    
-    // Fill form
-    if (blogData) {
-        document.getElementById('blogTitle').value = blogData.title || '';
-        document.getElementById('blogSlug').value = blogData.slug || '';
-        document.getElementById('blogExcerpt').value = blogData.excerpt || '';
-        document.getElementById('blogAuthor').value = blogData.author || 'Diary Nepal Team';
-        document.getElementById('blogSeoTitle').value = blogData.seoTitle || '';
-        document.getElementById('blogMetaDesc').value = blogData.metaDescription || '';
-        document.getElementById('blogFeatured').checked = blogData.featured || false;
-        document.getElementById('blogFeaturedImage').value = blogData.featuredImage || '';
-        document.getElementById('imageUrlInput').value = blogData.featuredImage || '';
-        document.getElementById('editingBlogId').value = blogData.id;
-        
-        if (blogData.featuredImage) {
-            const preview = document.getElementById('imagePreview');
-            preview.src = blogData.featuredImage;
-            preview.style.display = 'block';
-            document.getElementById('imageUploadPlaceholder').style.display = 'none';
-        }
-        
-        if (blogData.content) {
-            quillEditor.root.innerHTML = blogData.content;
-        }
-        updateSeoTitleCount();
-        updateMetaCount();
-    } else {
-        document.getElementById('blogTitle').value = '';
-        document.getElementById('blogSlug').value = '';
-        document.getElementById('blogExcerpt').value = '';
-        document.getElementById('blogAuthor').value = 'Diary Nepal Team';
-        document.getElementById('blogSeoTitle').value = '';
-        document.getElementById('blogMetaDesc').value = '';
-        document.getElementById('blogFeatured').checked = false;
-        document.getElementById('blogFeaturedImage').value = '';
-        document.getElementById('imageUrlInput').value = '';
-        document.getElementById('imagePreview').style.display = 'none';
-        document.getElementById('imageUploadPlaceholder').style.display = 'block';
-        document.getElementById('editingBlogId').value = '';
-    }
-    
-    document.getElementById('blogSeoTitle').addEventListener('input', updateSeoTitleCount);
-}
-
-function saveBlog(status) {
-    if (!window.isAdmin) { showToast('Not authorized', 'error'); return; }
-    
-    const title = document.getElementById('blogTitle').value.trim();
-    if (!title) { showToast('Blog title is required', 'error'); return; }
-    
-    const category = document.getElementById('blogCategory').value;
-    if (!category) { showToast('Please select a category', 'error'); return; }
-    
-    const content = quillEditor ? quillEditor.root.innerHTML : '';
-    if (content === '<p><br></p>' || !content) { showToast('Blog content is required', 'error'); return; }
-    
-    const selectedTools = Array.from(document.querySelectorAll('.related-tool-check:checked')).map(c => c.value);
-    
-    const blogData = {
-        title,
-        slug: document.getElementById('blogSlug').value || generateSlug(title),
-        excerpt: document.getElementById('blogExcerpt').value,
-        content,
-        category,
-        author: document.getElementById('blogAuthor').value || 'Diary Nepal Team',
-        publishDate: document.getElementById('blogPublishDate').value || new Date().toISOString(),
-        featured: document.getElementById('blogFeatured').checked,
-        featuredImage: document.getElementById('blogFeaturedImage').value,
-        seoTitle: document.getElementById('blogSeoTitle').value,
-        metaDescription: document.getElementById('blogMetaDesc').value,
-        tags: currentTags,
-        faqs: currentFaqs,
-        relatedTools: selectedTools,
-        status,
-        readTime: calculateReadTime(content),
-        updatedAt: new Date().toISOString()
-    };
-    
-    const editId = document.getElementById('editingBlogId').value;
-    
-    if (editId) {
-        // Update existing
-        const idx = window.mockDB.blogs.findIndex(b => b.id === editId);
-        if (idx !== -1) {
-            window.mockDB.blogs[idx] = { ...window.mockDB.blogs[idx], ...blogData };
-            showToast(`Blog ${status === 'published' ? 'published' : 'saved as draft'} successfully!`);
-        }
-    } else {
-        // Create new
-        blogData.id = generateId();
-        blogData.views = 0;
-        blogData.createdAt = new Date().toISOString();
-        window.mockDB.blogs.unshift(blogData);
-        showToast(`Blog ${status === 'published' ? 'published' : 'saved as draft'} successfully!`);
-    }
-    
-    window.saveBlogsToStorage();
-    showAdminSection('blogs');
-}
-
-function editBlog(blogId) {
-    const blog = window.mockDB.blogs.find(b => b.id === blogId);
-    if (!blog) return;
-    showAdminSection('newblog');
-    setTimeout(() => initBlogEditor(blog), 100);
-}
-
-function publishBlog(blogId) {
-    const blog = window.mockDB.blogs.find(b => b.id === blogId);
-    if (blog) {
-        blog.status = 'published';
-        blog.publishDate = blog.publishDate || new Date().toISOString();
-        window.saveBlogsToStorage();
-        showToast('Blog published successfully!');
-        filterAdminBlogs();
-    }
-}
-
-function confirmDeleteBlog(blogId) {
-    const modal = document.getElementById('deleteModal');
-    modal.classList.add('active');
-    document.getElementById('confirmDeleteBtn').onclick = () => {
-        window.mockDB.blogs = window.mockDB.blogs.filter(b => b.id !== blogId);
-        window.saveBlogsToStorage();
-        closeDeleteModal();
-        showToast('Blog deleted successfully', 'warning');
-        if (currentAdminSection === 'blogs') filterAdminBlogs();
-        else if (currentAdminSection === 'dashboard') loadAdminDashboard();
-    };
-}
-
-function closeDeleteModal() {
-    document.getElementById('deleteModal').classList.remove('active');
-}
-
-// ===== TAGS =====
-function handleTagInput(e) {
-    if (e.key === 'Enter' || e.key === ',') {
-        e.preventDefault();
-        const val = document.getElementById('tagsInput').value.trim().replace(/,$/, '');
-        if (val && !currentTags.includes(val)) {
-            currentTags.push(val);
-            renderTags();
-        }
-        document.getElementById('tagsInput').value = '';
-    }
-}
-
-function removeTag(tag) {
-    currentTags = currentTags.filter(t => t !== tag);
-    renderTags();
-}
-
-function renderTags() {
-    const container = document.getElementById('tagsContainer');
-    const input = document.getElementById('tagsInput');
-    const chips = currentTags.map(t => `
-        <span class="tag-chip">
-            ${t}
-            <button onclick="removeTag('${t}')">×</button>
-        </span>
-    `).join('');
-    container.innerHTML = chips + `<input type="text" class="tags-input-field" id="tagsInput" placeholder="${currentTags.length === 0 ? 'Add tag, press Enter...' : ''}" onkeydown="handleTagInput(event)">`;
-}
-
-// ===== FAQ =====
-function addFaqItem() {
-    currentFaqs.push({ q: '', a: '' });
-    renderFaqs();
-}
-
-function removeFaq(i) {
-    currentFaqs.splice(i, 1);
-    renderFaqs();
-}
-
-function renderFaqs() {
-    document.getElementById('faqContainer').innerHTML = currentFaqs.map((faq, i) => `
-        <div class="border rounded-lg p-3 mb-3">
-            <div class="flex justify-between items-center mb-2">
-                <span class="text-sm font-bold text-gray-600">FAQ #${i + 1}</span>
-                <button onclick="removeFaq(${i})" class="text-red-500 hover:text-red-700 text-sm"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="form-group mb-2">
-                <input type="text" class="form-control" placeholder="Question" value="${faq.q}" oninput="currentFaqs[${i}].q = this.value">
-            </div>
-            <div class="form-group mb-0">
-                <textarea class="form-control" rows="2" placeholder="Answer" oninput="currentFaqs[${i}].a = this.value">${faq.a}</textarea>
-            </div>
-        </div>
-    `).join('') + (currentFaqs.length === 0 ? '<p class="text-sm text-gray-400 text-center py-4">No FAQs added yet. Click "Add FAQ" to add one.</p>' : '');
-}
-
-// ===== IMAGE UPLOAD =====
-function handleImageUpload(input) {
-    const file = input.files[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-        showToast('Image size must be less than 5MB', 'error');
+    // ADMIN: OPEN EDIT ARTICLE MODAL
+    function openEditArticleModal(id) {
+      if (!isAdmin) {
+        showToast("Access Denied: Only Admin users can edit articles.");
         return;
+      }
+      const article = articles.find(a => a.id === id);
+      if (!article) return;
+
+      document.getElementById('editor-modal-title').innerText = "Edit Article";
+      document.getElementById('edit-article-id').value = article.id;
+      document.getElementById('form-title').value = article.title;
+      document.getElementById('form-category').value = article.category;
+      document.getElementById('form-readtime').value = article.readTime;
+      document.getElementById('form-image').value = article.image;
+      document.getElementById('form-featured').checked = article.featured;
+      document.getElementById('form-content').value = article.content ? article.content.replace(/<br\s*[\/]?>/gi, "\n") : article.excerpt;
+
+      openModal('editor-modal');
     }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        const preview = document.getElementById('imagePreview');
-        preview.src = e.target.result;
-        preview.style.display = 'block';
-        document.getElementById('imageUploadPlaceholder').style.display = 'none';
-        document.getElementById('blogFeaturedImage').value = e.target.result;
-        document.getElementById('imageUrlInput').value = '';
-    };
-    reader.readAsDataURL(file);
-}
 
-function setImageFromUrl(url) {
-    if (!url) return;
-    document.getElementById('blogFeaturedImage').value = url;
-    const preview = document.getElementById('imagePreview');
-    preview.src = url;
-    preview.style.display = 'block';
-    document.getElementById('imageUploadPlaceholder').style.display = 'none';
-}
+    // ADMIN: SAVE ARTICLE (Create or Update)
+    function saveArticle(event) {
+      event.preventDefault();
+      if (!isAdmin) return;
 
-// ===== CATEGORIES =====
-function loadAdminCategories() {
-    const grid = document.getElementById('categoriesGrid');
-    const catColors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c', '#e67e22', '#e91e63', '#00bcd4', '#8bc34a'];
-    const catCounts = {};
-    window.mockDB.blogs.forEach(b => { catCounts[b.category] = (catCounts[b.category] || 0) + 1; });
-    
-    grid.innerHTML = window.mockDB.categories.map((cat, i) => `
-        <div class="bg-white rounded-xl p-5 shadow-sm">
-            <div class="flex justify-between items-start mb-3">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white" style="background:${catColors[i % catColors.length]}">
-                    <i class="fas fa-folder"></i>
-                </div>
-                <div class="flex gap-2">
-                    <button class="btn btn-sm" style="background:#f39c12;color:white;" onclick="editCategory('${cat.id}')"><i class="fas fa-edit"></i></button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteCategory('${cat.id}')"><i class="fas fa-trash"></i></button>
-                </div>
-            </div>
-            <h3 class="font-bold text-gray-800">${cat.name}</h3>
-            <p class="text-sm text-gray-400">/${cat.slug}</p>
-            <div class="mt-2 flex items-center gap-2">
-                <span class="text-2xl font-black text-gray-700">${catCounts[cat.name] || 0}</span>
-                <span class="text-xs text-gray-400">articles</span>
-            </div>
-        </div>
-    `).join('');
-}
+      const editId = document.getElementById('edit-article-id').value;
+      const title = document.getElementById('form-title').value;
+      const category = document.getElementById('form-category').value;
+      const readTime = document.getElementById('form-readtime').value;
+      const image = document.getElementById('form-image').value || "https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80";
+      const featured = document.getElementById('form-featured').checked;
+      const rawContent = document.getElementById('form-content').value;
+      const content = rawContent.replace(/\n/g, '<br>');
 
-function showAddCategoryModal() {
-    document.getElementById('categoryModalTitle').textContent = 'Add Category';
-    document.getElementById('categoryName').value = '';
-    document.getElementById('categorySlug').value = '';
-    document.getElementById('editingCategoryId').value = '';
-    document.getElementById('categoryModal').classList.add('active');
-    
-    document.getElementById('categoryName').addEventListener('input', function() {
-        document.getElementById('categorySlug').value = generateSlug(this.value);
-    });
-}
-
-function editCategory(id) {
-    const cat = window.mockDB.categories.find(c => c.id === id);
-    if (!cat) return;
-    document.getElementById('categoryModalTitle').textContent = 'Edit Category';
-    document.getElementById('categoryName').value = cat.name;
-    document.getElementById('categorySlug').value = cat.slug;
-    document.getElementById('editingCategoryId').value = id;
-    document.getElementById('categoryModal').classList.add('active');
-}
-
-function saveCategory() {
-    const name = document.getElementById('categoryName').value.trim();
-    const slug = document.getElementById('categorySlug').value.trim() || generateSlug(name);
-    const editId = document.getElementById('editingCategoryId').value;
-    
-    if (!name) { showToast('Category name is required', 'error'); return; }
-    
-    if (editId) {
-        const idx = window.mockDB.categories.findIndex(c => c.id === editId);
-        if (idx !== -1) {
-            window.mockDB.categories[idx] = { ...window.mockDB.categories[idx], name, slug };
-            showToast('Category updated!');
+      if (editId) {
+        // Edit Existing
+        const article = articles.find(a => a.id === parseInt(editId));
+        if (article) {
+          article.title = title;
+          article.category = category;
+          article.readTime = readTime;
+          article.image = image;
+          article.featured = featured;
+          article.excerpt = rawContent.substring(0, 120) + '...';
+          article.content = content;
         }
-    } else {
-        window.mockDB.categories.push({ id: 'cat_' + Date.now(), name, slug, count: 0 });
-        showToast('Category added!');
+        showToast("Article updated successfully!");
+      } else {
+        // Create New
+        const newArticle = {
+          id: Date.now(),
+          title: title,
+          category: category,
+          featured: featured,
+          author: "Admin Desk",
+          readTime: readTime,
+          views: "0.1k",
+          date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+          image: image,
+          excerpt: rawContent.substring(0, 120) + '...',
+          content: content
+        };
+        articles.unshift(newArticle);
+        showToast("New article created successfully!");
+      }
+
+      closeModal('editor-modal');
+      renderArticles();
     }
-    
-    window.saveCategoriesToStorage();
-    closeCategoryModal();
-    loadAdminCategories();
-}
 
-function deleteCategory(id) {
-    if (confirm('Delete this category?')) {
-        window.mockDB.categories = window.mockDB.categories.filter(c => c.id !== id);
-        window.saveCategoriesToStorage();
-        showToast('Category deleted', 'warning');
-        loadAdminCategories();
+    // ADMIN: DELETE ARTICLE
+    function deleteArticle(id) {
+      if (!isAdmin) return;
+      if (confirm("Are you sure you want to delete this article?")) {
+        articles = articles.filter(a => a.id !== id);
+        renderArticles();
+        showToast("Article deleted successfully.");
+      }
     }
-}
 
-function closeCategoryModal() {
-    document.getElementById('categoryModal').classList.remove('active');
-}
+    // VAT CALCULATOR LOGIC
+    function calculateVAT() {
+      const amount = parseFloat(document.getElementById('vat-amount').value) || 0;
+      const vat = amount * 0.13;
+      const total = amount + vat;
 
-// ===== SEO =====
-function loadSeoSection() {
-    const blogs = window.mockDB.blogs.filter(b => b.status === 'published');
-    
-    // SEO Overview
-    const noSeoTitle = blogs.filter(b => !b.seoTitle).length;
-    const noMetaDesc = blogs.filter(b => !b.metaDescription).length;
-    const noFeaturedImg = blogs.filter(b => !b.featuredImage).length;
-    
-    document.getElementById('seoOverview').innerHTML = `
-        <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-            <span class="text-sm font-semibold">Total Published Blogs</span>
-            <span class="font-black text-green-600">${blogs.length}</span>
-        </div>
-        <div class="flex justify-between items-center p-3 ${noSeoTitle > 0 ? 'bg-red-50' : 'bg-green-50'} rounded-lg">
-            <span class="text-sm font-semibold">Missing SEO Title</span>
-            <span class="font-black ${noSeoTitle > 0 ? 'text-red-600' : 'text-green-600'}">${noSeoTitle}</span>
-        </div>
-        <div class="flex justify-between items-center p-3 ${noMetaDesc > 0 ? 'bg-red-50' : 'bg-green-50'} rounded-lg">
-            <span class="text-sm font-semibold">Missing Meta Description</span>
-            <span class="font-black ${noMetaDesc > 0 ? 'text-red-600' : 'text-green-600'}">${noMetaDesc}</span>
-        </div>
-        <div class="flex justify-between items-center p-3 ${noFeaturedImg > 0 ? 'bg-yellow-50' : 'bg-green-50'} rounded-lg">
-            <span class="text-sm font-semibold">Missing Featured Image</span>
-            <span class="font-black ${noFeaturedImg > 0 ? 'text-yellow-600' : 'text-green-600'}">${noFeaturedImg}</span>
-        </div>
-    `;
-    
-    // Schema Preview
-    const schemaExample = {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://diarynepal.com" },
-            { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://diarynepal.com/blog" },
-            { "@type": "ListItem", "position": 3, "name": "Article Title", "item": "https://diarynepal.com/blog/article-slug" }
-        ]
-    };
-    document.getElementById('schemaPreview').textContent = JSON.stringify(schemaExample, null, 2);
-}
-
-function generateSitemap() {
-    const blogs = window.mockDB.blogs.filter(b => b.status === 'published');
-    const baseUrl = 'https://diarynepal.com';
-    const today = new Date().toISOString().split('T')[0];
-    
-    let xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>${baseUrl}/</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/blog</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>`;
-  
-    blogs.forEach(b => {
-        xml += `
-  <url>
-    <loc>${baseUrl}/blog/${b.slug}</loc>
-    <lastmod>${(b.updatedAt || b.publishDate || today).split('T')[0]}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>`;
-    });
-    
-    xml += `\n</urlset>`;
-    
-    document.getElementById('sitemapContent').textContent = xml;
-    document.getElementById('sitemapPreview').style.display = 'block';
-    showToast('Sitemap generated! Copy XML content above.');
-    
-    // Download
-    const blob = new Blob([xml], { type: 'application/xml' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'sitemap.xml';
-    a.click();
-    URL.revokeObjectURL(url);
-}
-
-// ===== DATETIME =====
-function updateDateTime() {
-    const now = new Date();
-    const nepaliDate = now.toLocaleDateString('en-US', { 
-        weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
-        hour: '2-digit', minute: '2-digit'
-    });
-    const el = document.getElementById('nepaliDateTime');
-    if (el) el.textContent = nepaliDate;
-}
-updateDateTime();
-setInterval(updateDateTime, 60000);
-
-// ===== INIT =====
-document.addEventListener('DOMContentLoaded', () => {
-    // Check admin status
-    if (localStorage.getItem('dn_admin') === 'true') {
-        window.isAdmin = true;
-        document.getElementById('adminNavLink').style.display = 'inline-flex';
-        document.getElementById('loginBtn').style.display = 'none';
-        document.getElementById('logoutBtn').style.display = 'inline-flex';
+      document.getElementById('vat-tax-result').innerText = `NPR ${vat.toFixed(2)}`;
+      document.getElementById('vat-total-result').innerText = `NPR ${total.toFixed(2)}`;
     }
-    
-    loadHomePage();
-});
 
-// Close modals on overlay click
-document.getElementById('loginModal').addEventListener('click', function(e) {
-    if (e.target === this) closeLoginModal();
-});
-document.getElementById('categoryModal').addEventListener('click', function(e) {
-    if (e.target === this) closeCategoryModal();
-});
-document.getElementById('deleteModal').addEventListener('click', function(e) {
-    if (e.target === this) closeDeleteModal();
-});
-</script>
+    // TOOLS MODAL
+    function openToolsModal() {
+      openModal('tools-modal');
+    }
 
+    // INFO / NOTIFICATION MODAL
+    function openInfoModal(title, msg) {
+      document.getElementById('info-modal-title').innerText = title;
+      document.getElementById('info-modal-msg').innerText = msg;
+      openModal('info-modal');
+    }
+
+    // MODAL UTILITIES
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      menu.classList.toggle('hidden');
+    }
+
+    // SIMPLE TOAST NOTIFICATION
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-5 right-5 z-50 bg-slate-900 text-white text-xs px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-2 transition transform translate-y-0';
+      toast.innerHTML = `<i class="fa-solid fa-circle-check text-green-400 text-sm"></i> <span>${message}</span>`;
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+  </script>
 </body>
 </html>
 ```
