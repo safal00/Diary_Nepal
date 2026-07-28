@@ -1,121 +1,852 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Blood Banks - Diary Nepal</title>
-<link href="style.css" rel="stylesheet">
-<style>
-/* ---------------- Home Button ---------------- */
-.home-button {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 15px;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Banks - DiaryNepal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1a3a8f;
+            --primary-dark: #122c6e;
+            --primary-light: #2a4da8;
+            --accent: #e91e8c;
+            --bg-light: #f0f4f8;
+            --border: #dde3ec;
+            --text-dark: #1a1a2e;
+            --text-muted: #6b7a99;
+            --white: #ffffff;
+            --row-alt: #f7f9fc;
+            --shadow: 0 4px 20px rgba(26,58,143,0.10);
+        }
 
-.home-button button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  background-color: #004aad;
-  color: white;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.3s;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-.home-button button:hover {
-  background-color: #003080;
-}
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
 
-/* ---------------- Table Styling ---------------- */
-.results-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: auto; /* dynamic column width */
-}
+        /* HERO HEADER */
+        .hero {
+            background: linear-gradient(135deg, #1a3a8f 0%, #0d2260 60%, #1a3a8f 100%);
+            padding: 48px 20px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
 
-.results-table th,
-.results-table td {
-  border: 1px solid #ccc;
-  padding: 10px 8px;
-  text-align: left;
-  vertical-align: top;
-  word-break: break-word;
-}
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -60px; left: -60px;
+            width: 220px; height: 220px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+        }
 
-.results-table th {
-  background-color: #004aad;
-  color: white;
-  font-weight: bold;
-}
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -80px; right: -40px;
+            width: 300px; height: 300px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.03);
+        }
 
-.results-table tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
+        .hero-icon {
+            font-size: 2.8rem;
+            color: rgba(255,255,255,0.85);
+            margin-bottom: 12px;
+            display: block;
+        }
 
-.contacts-section {
-  overflow-x: auto; /* horizontal scroll on small screens */
-}
+        .hero h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--white);
+            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+        }
 
-@media (max-width: 800px) {
-  .results-table th,
-  .results-table td {
-    padding: 8px 6px;
-    font-size: 0.9em;
-  }
-}
-</style>
+        .hero p {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.78);
+            margin-bottom: 22px;
+            font-weight: 400;
+        }
+
+        .hero-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(255,255,255,0.15);
+            border: 1.5px solid rgba(255,255,255,0.35);
+            color: var(--white);
+            padding: 9px 22px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 500;
+            backdrop-filter: blur(4px);
+            transition: all 0.2s;
+        }
+
+        .hero-btn:hover {
+            background: rgba(255,255,255,0.25);
+            border-color: rgba(255,255,255,0.6);
+        }
+
+        /* SEARCH & FILTER SECTION */
+        .search-section {
+            background: var(--white);
+            padding: 24px 20px 20px;
+            box-shadow: 0 2px 12px rgba(26,58,143,0.07);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .search-bar-wrap {
+            display: flex;
+            max-width: 1100px;
+            margin: 0 auto 16px;
+            gap: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(26,58,143,0.10);
+            border: 1.5px solid var(--border);
+        }
+
+        .search-bar-wrap input {
+            flex: 1;
+            padding: 13px 18px;
+            border: none;
+            outline: none;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            background: var(--white);
+        }
+
+        .search-bar-wrap input::placeholder {
+            color: #aab2c8;
+        }
+
+        .search-bar-wrap button {
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 13px 28px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: background 0.2s;
+        }
+
+        .search-bar-wrap button:hover {
+            background: var(--primary-dark);
+        }
+
+        .filter-row {
+            display: flex;
+            max-width: 1100px;
+            margin: 0 auto;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .filter-row select {
+            flex: 1;
+            min-width: 180px;
+            padding: 11px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 7px;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            background: var(--white);
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='8' viewBox='0 0 14 8'%3E%3Cpath d='M1 1l6 6 6-6' stroke='%236b7a99' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+
+        .filter-row select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26,58,143,0.08);
+        }
+
+        /* STATS BAR */
+        .stats-bar {
+            max-width: 1100px;
+            margin: 18px auto 0;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .stats-count {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+
+        .stats-count strong {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .clear-filters {
+            font-size: 0.83rem;
+            color: var(--accent);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+            background: none;
+            border: none;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            transition: opacity 0.2s;
+        }
+
+        .clear-filters:hover {
+            opacity: 0.75;
+        }
+
+        /* TABLE SECTION */
+        .table-section {
+            max-width: 1140px;
+            margin: 18px auto 40px;
+            padding: 0 16px;
+        }
+
+        .table-wrapper {
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead tr {
+            background: linear-gradient(90deg, #1a3a8f 0%, #0d2260 100%);
+        }
+
+        thead th {
+            color: var(--white);
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 15px 18px;
+            text-align: left;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        thead th i {
+            margin-right: 6px;
+            opacity: 0.8;
+            font-size: 0.78rem;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s;
+        }
+
+        tbody tr:nth-child(even) {
+            background: var(--row-alt);
+        }
+
+        tbody tr:hover {
+            background: #eef2fb;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody td {
+            padding: 13px 18px;
+            font-size: 0.88rem;
+            color: var(--text-dark);
+            vertical-align: middle;
+        }
+
+        /* Province/District badges */
+        .badge-province {
+            display: inline-block;
+            background: rgba(26,58,143,0.10);
+            color: var(--primary);
+            border-radius: 4px;
+            padding: 3px 9px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge-district {
+            display: inline-block;
+            background: rgba(26,58,143,0.06);
+            color: var(--primary-dark);
+            border-radius: 4px;
+            padding: 3px 9px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .local-level {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .office-name {
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .phone-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .phone-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+        }
+
+        .phone-link:hover {
+            opacity: 0.75;
+        }
+
+        .phone-link i {
+            font-size: 0.78rem;
+        }
+
+        /* No results */
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .no-results i {
+            font-size: 3rem;
+            color: var(--border);
+            margin-bottom: 14px;
+            display: block;
+        }
+
+        .no-results p {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        /* PAGINATION */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            padding: 20px 0 10px;
+            flex-wrap: wrap;
+        }
+
+        .page-btn {
+            background: var(--white);
+            border: 1.5px solid var(--border);
+            color: var(--primary);
+            padding: 7px 13px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.18s;
+        }
+
+        .page-btn:hover {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
+        .page-btn.active {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* FOOTER */
+        .footer {
+            background: var(--primary-dark);
+            color: rgba(255,255,255,0.6);
+            text-align: center;
+            padding: 18px 20px;
+            font-size: 0.82rem;
+        }
+
+        .footer a {
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+        }
+
+        /* MOBILE CARD VIEW */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.7rem; }
+            .filter-row select { min-width: 100%; }
+            
+            .table-wrapper { display: none; }
+            .mobile-cards { display: block; }
+
+            .stats-bar { flex-direction: column; align-items: flex-start; }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-cards { display: none; }
+        }
+
+        .mobile-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .mobile-card {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: 0 2px 10px rgba(26,58,143,0.07);
+            border: 1px solid var(--border);
+        }
+
+        .mobile-card-title {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+        }
+
+        .mobile-card-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 6px;
+            align-items: center;
+            font-size: 0.83rem;
+            color: var(--text-muted);
+        }
+
+        .mobile-card-row span:last-child {
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .mobile-card-phones {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+    </style>
 </head>
 <body>
 
-<header>
-  <h1>Blood Banks</h1>
-  <p>Browse blood banks by Province, District, or Local Level</p>
+<!-- HERO HEADER -->
+<div class="hero">
+    <i class="fas fa-tint hero-icon"></i>
+    <h1>Blood Banks</h1>
+    <p>Browse blood banks by Province, District, or Local Level</p>
+    <a href="#" class="hero-btn"><i class="fas fa-home"></i> Home</a>
+</div>
 
-  <!-- HOME BUTTON -->
-  <div class="home-button">
-    <button onclick="location.href='index.html'">Home</button>
-  </div>
-</header>
+<!-- SEARCH & FILTER -->
+<div class="search-section">
+    <div class="search-bar-wrap">
+        <input type="text" id="searchInput" placeholder="Search by name or location..." autocomplete="off">
+        <button onclick="applyFilters()"><i class="fas fa-search"></i> Search</button>
+    </div>
+    <div class="filter-row">
+        <select id="provinceFilter" onchange="updateDistrictFilter()">
+            <option value="">All Provinces</option>
+        </select>
+        <select id="districtFilter" onchange="updateLocalLevelFilter()">
+            <option value="">All Districts</option>
+        </select>
+        <select id="localFilter" onchange="applyFilters()">
+            <option value="">All Local Levels</option>
+        </select>
+    </div>
+</div>
 
-<main class="container">
+<!-- STATS BAR -->
+<div class="stats-bar">
+    <div class="stats-count">Showing <strong id="showingCount">0</strong> of <strong id="totalCount">0</strong> blood banks</div>
+    <button class="clear-filters" onclick="clearFilters()"><i class="fas fa-times-circle"></i> Clear Filters</button>
+</div>
 
-  <!-- GLOBAL SEARCH -->
-  <div class="search-box">
-    <input type="text" id="globalSearch" placeholder="Search by name or location...">
-    <button id="searchBtn">Search</button>
-  </div>
+<!-- TABLE SECTION -->
+<div class="table-section">
+    <!-- Desktop Table -->
+    <div class="table-wrapper">
+        <table id="mainTable">
+            <thead>
+                <tr>
+                    <th><i class="fas fa-map"></i>Province</th>
+                    <th><i class="fas fa-map-marker-alt"></i>District</th>
+                    <th><i class="fas fa-city"></i>Local Level</th>
+                    <th><i class="fas fa-hospital"></i>Office Name</th>
+                    <th><i class="fas fa-phone"></i>Phone</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+            </tbody>
+        </table>
+        <div id="noResults" class="no-results" style="display:none;">
+            <i class="fas fa-search"></i>
+            <p>No blood banks found matching your criteria.</p>
+        </div>
+    </div>
 
-  <!-- FILTERS -->
-  <div class="selection-box">
-    <select id="provinceFilter"><option value="">All Provinces</option></select>
-    <select id="districtFilter"><option value="">All Districts</option></select>
-    <select id="localFilter"><option value="">All Local Levels</option></select>
-  </div>
-</main>
-  <!-- RESULTS -->
-  <div id="results" class="contacts-section">
-    <table class="results-table">
-      <thead>
-        <tr>
-          <th>Province</th>
-          <th>District</th>
-          <th>Local Level</th>
-          <th>Office Name</th>
-          <th>Phone</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+    <!-- Mobile Cards -->
+    <div class="mobile-cards" id="mobileCards"></div>
+    <div id="mobileNoResults" class="no-results" style="display:none;">
+        <i class="fas fa-search"></i>
+        <p>No blood banks found matching your criteria.</p>
+    </div>
 
-<footer>
-  <p>© 2025 Diary Nepal | Data from official sources</p>
-</footer>
+    <!-- Pagination -->
+    <div class="pagination" id="pagination"></div>
+</div>
 
-<!-- Blood bank JS (uses sheet name: Blood Bank) -->
-<script src="bloodbank.js"></script>
+<!-- FOOTER -->
+<div class="footer">
+    &copy; 2024 <a href="#">DiaryNepal</a> &mdash; Blood Bank Directory
+</div>
 
+<script>
+const bloodBanks = [
+    { province: "Bagmati", district: "Kathmandu", localLevel: "Bhaktapur", name: "Bhaktapur NRCS Blood Bank", phones: ["01-6611661", "01-6612266"] },
+    { province: "Bagmati", district: "Kathmandu", localLevel: "Soaltee-Mode", name: "Central NRCS Blood Bank", phones: ["01-4288485"] },
+    { province: "Bagmati", district: "Lalitpur", localLevel: "Pulchowk", name: "Lalitpur NRCS Blood Bank", phones: ["01-5427033"] },
+    { province: "Bagmati", district: "Kathmandu", localLevel: "Old Baneshwor", name: "Frontline Hospital Blood Bank", phones: ["01-5970132"] },
+    { province: "Bagmati", district: "Kathmandu", localLevel: "Maharajgunj", name: "Teaching Hospital Blood Bank", phones: ["01-44123030", "01-4410911"] },
+    { province: "Bagmati", district: "Kathmandu", localLevel: "Bansbari", name: "Gangalal Hospital", phones: ["01-4371322"] },
+    { province: "Bagmati", district: "Kathmandu", localLevel: "Gyaneshwor", name: "Himal Hospital", phones: ["986-2737316"] },
+    { province: "Bagmati", district: "Lalitpur", localLevel: "Dhapasi", name: "Grande Hospital", phones: ["01-5159266"] },
+    { province: "Bagmati", district: "Lalitpur", localLevel: "Thapathali", name: "Prasuti Griha", phones: ["01-4260405"] },
+    { province: "Bagmati", district: "Lalitpur", localLevel: "Nakhkhu", name: "Nepal Mediciti Hospital", phones: ["01-4217766"] },
+    { province: "Bagmati", district: "Kathmandu", localLevel: "New Road Gate", name: "Bir Hospital", phones: ["01-4221119", "01-4221988"] },
+    { province: "Bagmati", district: "Kathmandu", localLevel: "Minbhawan", name: "Nepal Cancer Hospital", phones: ["01-5900000"] },
+    { province: "Bagmati", district: "Kathmandu", localLevel: "Thapathali", name: "Maternity Hospital", phones: ["01-4255288"] },
+    { province: "Bagmati", district: "Kathmandu", localLevel: "Maharajgunj", name: "TUTH Blood Bank", phones: ["01-4412404"] },
+    { province: "Bagmati", district: "Kathmandu", localLevel: "Budhanilkantha", name: "Norvic International Hospital", phones: ["01-4258554"] },
+    { province: "Bagmati", district: "Bhaktapur", localLevel: "Bhaktapur", name: "Bhaktapur Hospital Blood Bank", phones: ["01-6610798"] },
+    { province: "Bagmati", district: "Bhaktapur", localLevel: "Madhyapur Thimi", name: "Dhulikhel Hospital Blood Bank", phones: ["011-490497"] },
+    { province: "Bagmati", district: "Makwanpur", localLevel: "Hetauda", name: "Hetauda Hospital Blood Bank", phones: ["057-520644"] },
+    { province: "Gandaki", district: "Kaski", localLevel: "Pokhara", name: "Pokhara NRCS Blood Bank", phones: ["061-520215"] },
+    { province: "Gandaki", district: "Kaski", localLevel: "Pokhara", name: "Western Regional Hospital", phones: ["061-520066"] },
+    { province: "Gandaki", district: "Kaski", localLevel: "Pokhara", name: "Manipal Teaching Hospital", phones: ["061-526416"] },
+    { province: "Gandaki", district: "Syangja", localLevel: "Waling", name: "Waling Hospital Blood Bank", phones: ["063-440049"] },
+    { province: "Gandaki", district: "Gorkha", localLevel: "Gorkha", name: "Gorkha Hospital Blood Bank", phones: ["064-420016"] },
+    { province: "Lumbini", district: "Rupandehi", localLevel: "Butwal", name: "Butwal NRCS Blood Bank", phones: ["071-540252"] },
+    { province: "Lumbini", district: "Rupandehi", localLevel: "Butwal", name: "Lumbini Provincial Hospital", phones: ["071-548818"] },
+    { province: "Lumbini", district: "Dang", localLevel: "Tulsipur", name: "Rapti Provincial Hospital", phones: ["082-521088"] },
+    { province: "Lumbini", district: "Palpa", localLevel: "Tansen", name: "Tansen Mission Hospital", phones: ["075-521019"] },
+    { province: "Madhesh", district: "Dhanusha", localLevel: "Janakpur", name: "Janakpur NRCS Blood Bank", phones: ["041-520009"] },
+    { province: "Madhesh", district: "Bara", localLevel: "Kalaiya", name: "Narayani Hospital Blood Bank", phones: ["053-521500"] },
+    { province: "Madhesh", district: "Siraha", localLevel: "Siraha", name: "Siraha District Hospital", phones: ["033-520032"] },
+    { province: "Koshi", district: "Morang", localLevel: "Biratnagar", name: "Biratnagar NRCS Blood Bank", phones: ["021-522374"] },
+    { province: "Koshi", district: "Morang", localLevel: "Biratnagar", name: "BP Koirala Institute of Health Sciences", phones: ["021-204779"] },
+    { province: "Koshi", district: "Sunsari", localLevel: "Dharan", name: "Koshi Hospital Blood Bank", phones: ["025-520027"] },
+    { province: "Koshi", district: "Jhapa", localLevel: "Birtamod", name: "Mechi Zonal Hospital", phones: ["023-543086"] },
+    { province: "Karnali", district: "Surkhet", localLevel: "Birendranagar", name: "Karnali Province Hospital", phones: ["083-521088"] },
+    { province: "Karnali", district: "Jumla", localLevel: "Chandannath", name: "Jumla District Hospital", phones: ["087-520042"] },
+    { province: "Sudurpashchim", district: "Kailali", localLevel: "Dhangadhi", name: "Seti Provincial Hospital", phones: ["091-523500"] },
+    { province: "Sudurpashchim", district: "Dadeldhura", localLevel: "Amargadhi", name: "Dadeldhura Hospital Blood Bank", phones: ["096-420122"] },
+];
+
+const ITEMS_PER_PAGE = 15;
+let currentPage = 1;
+let filteredData = [...bloodBanks];
+
+// Populate Province Filter
+function populateProvinces() {
+    const provinces = [...new Set(bloodBanks.map(b => b.province))].sort();
+    const sel = document.getElementById('provinceFilter');
+    provinces.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p;
+        opt.textContent = p;
+        sel.appendChild(opt);
+    });
+}
+
+function updateDistrictFilter() {
+    const province = document.getElementById('provinceFilter').value;
+    const distSel = document.getElementById('districtFilter');
+    const localSel = document.getElementById('localFilter');
+
+    distSel.innerHTML = '<option value="">All Districts</option>';
+    localSel.innerHTML = '<option value="">All Local Levels</option>';
+
+    const districts = [...new Set(
+        bloodBanks.filter(b => !province || b.province === province).map(b => b.district)
+    )].sort();
+
+    districts.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        distSel.appendChild(opt);
+    });
+
+    applyFilters();
+}
+
+function updateLocalLevelFilter() {
+    const province = document.getElementById('provinceFilter').value;
+    const district = document.getElementById('districtFilter').value;
+    const localSel = document.getElementById('localFilter');
+
+    localSel.innerHTML = '<option value="">All Local Levels</option>';
+
+    const locals = [...new Set(
+        bloodBanks.filter(b =>
+            (!province || b.province === province) &&
+            (!district || b.district === district)
+        ).map(b => b.localLevel)
+    )].sort();
+
+    locals.forEach(l => {
+        const opt = document.createElement('option');
+        opt.value = l;
+        opt.textContent = l;
+        localSel.appendChild(opt);
+    });
+
+    applyFilters();
+}
+
+function applyFilters() {
+    const search = document.getElementById('searchInput').value.toLowerCase().trim();
+    const province = document.getElementById('provinceFilter').value;
+    const district = document.getElementById('districtFilter').value;
+    const local = document.getElementById('localFilter').value;
+
+    filteredData = bloodBanks.filter(b => {
+        const matchSearch = !search ||
+            b.name.toLowerCase().includes(search) ||
+            b.province.toLowerCase().includes(search) ||
+            b.district.toLowerCase().includes(search) ||
+            b.localLevel.toLowerCase().includes(search) ||
+            b.phones.some(p => p.includes(search));
+        const matchProvince = !province || b.province === province;
+        const matchDistrict = !district || b.district === district;
+        const matchLocal = !local || b.localLevel === local;
+        return matchSearch && matchProvince && matchDistrict && matchLocal;
+    });
+
+    currentPage = 1;
+    renderTable();
+    renderPagination();
+    updateCounts();
+}
+
+function clearFilters() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('provinceFilter').value = '';
+    document.getElementById('districtFilter').innerHTML = '<option value="">All Districts</option>';
+    document.getElementById('localFilter').innerHTML = '<option value="">All Local Levels</option>';
+
+    // Re-populate district with all
+    const districts = [...new Set(bloodBanks.map(b => b.district))].sort();
+    const distSel = document.getElementById('districtFilter');
+    districts.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        distSel.appendChild(opt);
+    });
+
+    filteredData = [...bloodBanks];
+    currentPage = 1;
+    renderTable();
+    renderPagination();
+    updateCounts();
+}
+
+function updateCounts() {
+    document.getElementById('showingCount').textContent = filteredData.length;
+    document.getElementById('totalCount').textContent = bloodBanks.length;
+}
+
+function renderTable() {
+    const tbody = document.getElementById('tableBody');
+    const mobileCards = document.getElementById('mobileCards');
+    const noResults = document.getElementById('noResults');
+    const mobileNo = document.getElementById('mobileNoResults');
+
+    tbody.innerHTML = '';
+    mobileCards.innerHTML = '';
+
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    const pageData = filteredData.slice(start, end);
+
+    if (pageData.length === 0) {
+        noResults.style.display = 'block';
+        mobileNo.style.display = 'block';
+        return;
+    }
+
+    noResults.style.display = 'none';
+    mobileNo.style.display = 'none';
+
+    pageData.forEach(bank => {
+        // Desktop row
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><span class="badge-province">${bank.province}</span></td>
+            <td><span class="badge-district">${bank.district}</span></td>
+            <td class="local-level">${bank.localLevel}</td>
+            <td class="office-name">${bank.name}</td>
+            <td>
+                <div class="phone-cell">
+                    ${bank.phones.map(p => `<a href="tel:${p}" class="phone-link"><i class="fas fa-phone-alt"></i>${p}</a>`).join('')}
+                </div>
+            </td>
+        `;
+        tbody.appendChild(tr);
+
+        // Mobile card
+        const card = document.createElement('div');
+        card.className = 'mobile-card';
+        card.innerHTML = `
+            <div class="mobile-card-title">${bank.name}</div>
+            <div class="mobile-card-row"><span><i class="fas fa-map" style="color:var(--primary);width:14px"></i></span><span>${bank.province}</span></div>
+            <div class="mobile-card-row"><span><i class="fas fa-map-marker-alt" style="color:var(--primary);width:14px"></i></span><span>${bank.district} &mdash; ${bank.localLevel}</span></div>
+            <div class="mobile-card-phones">
+                ${bank.phones.map(p => `<a href="tel:${p}" class="phone-link"><i class="fas fa-phone-alt"></i>${p}</a>`).join('')}
+            </div>
+        `;
+        mobileCards.appendChild(card);
+    });
+}
+
+function renderPagination() {
+    const container = document.getElementById('pagination');
+    container.innerHTML = '';
+    const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
+
+    if (totalPages <= 1) return;
+
+    // Prev
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'page-btn';
+    prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; renderTable(); renderPagination(); window.scrollTo({top: 0, behavior: 'smooth'}); } };
+    container.appendChild(prevBtn);
+
+    // Pages
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, startPage + 4);
+
+    for (let i = startPage; i <= endPage; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'page-btn' + (i === currentPage ? ' active' : '');
+        btn.textContent = i;
+        btn.onclick = (function(p) {
+            return function() { currentPage = p; renderTable(); renderPagination(); window.scrollTo({top: 0, behavior: 'smooth'}); };
+        })(i);
+        container.appendChild(btn);
+    }
+
+    // Next
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'page-btn';
+    nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; renderTable(); renderPagination(); window.scrollTo({top: 0, behavior: 'smooth'}); } };
+    container.appendChild(nextBtn);
+}
+
+// Search on Enter
+document.getElementById('searchInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') applyFilters();
+});
+
+// Real-time search
+document.getElementById('searchInput').addEventListener('input', function() {
+    if (this.value === '') applyFilters();
+});
+
+// Init
+populateProvinces();
+// Populate districts
+const allDistricts = [...new Set(bloodBanks.map(b => b.district))].sort();
+const distSel = document.getElementById('districtFilter');
+allDistricts.forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d;
+    opt.textContent = d;
+    distSel.appendChild(opt);
+});
+// Populate local levels
+const allLocals = [...new Set(bloodBanks.map(b => b.localLevel))].sort();
+const localSel = document.getElementById('localFilter');
+allLocals.forEach(l => {
+    const opt = document.createElement('option');
+    opt.value = l;
+    opt.textContent = l;
+    localSel.appendChild(opt);
+});
+
+filteredData = [...bloodBanks];
+renderTable();
+renderPagination();
+updateCounts();
+</script>
 </body>
 </html>
+```
