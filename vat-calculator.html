@@ -94,7 +94,13 @@ a{color:inherit;text-decoration:none}
 .page-title{font-size:26px;font-weight:700;letter-spacing:-.5px;margin-top:2px}
 .top-actions{display:flex;align-items:center;gap:10px}
 .pill{background:var(--panel);border:1px solid var(--border);border-radius:11px;padding:8px 14px;font-weight:600;font-size:13.5px;box-shadow:var(--shadow)}
-.round{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--panel);border:1px solid var(--border);box-shadow:var(--shadow);cursor:pointer}
+.round{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--panel);border:1px solid var(--border);box-shadow:var(--shadow);cursor:pointer;position:relative}
+
+/* NOTIFICATION POPUP */
+.notif-dropdown{position:absolute;top:50px;right:0;width:320px;background:var(--panel);border:1px solid var(--border);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.15);display:none;z-index:100;padding:15px}
+.notif-dropdown.show{display:block}
+.notif-item{padding:10px;border-bottom:1px solid var(--border);font-size:12.5px;display:flex;gap:10px;align-items:flex-start}
+.notif-item:last-child{border-bottom:0}
 
 /* DASHBOARD CARDS GRID */
 .dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:20px}
@@ -217,6 +223,21 @@ th{font-weight:600;color:var(--muted);background:var(--panel2)}
       <div><div class="crumb">Digital Workspace</div><h1 class="page-title" id="pageTitle">Dashboard</h1></div>
       <div class="top-actions">
         <button class="round" onclick="toggleTheme()"><i class="fa-solid fa-moon" id="themeIco"></i></button>
+        <div class="round" onclick="toggleNotifDropdown()" style="position:relative">
+          <i class="fa-solid fa-bell"></i>
+          <span id="notifBadge" style="position:absolute;top:5px;right:5px;background:var(--red);color:#fff;font-size:9px;padding:2px 5px;border-radius:10px;display:none">0</span>
+          
+          <!-- Notification Dropdown Box -->
+          <div class="notif-dropdown" id="notifDropdown" onclick="event.stopPropagation()">
+            <div style="font-weight:600;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
+              <span>Notifications</span>
+              <span style="font-size:11px;color:var(--muted);cursor:pointer" onclick="clearNotifications()">Clear</span>
+            </div>
+            <div id="notifList" style="max-height:220px;overflow-y:auto">
+              <div style="text-align:center;color:var(--muted);padding:15px 0;font-size:12.5px">No new notifications</div>
+            </div>
+          </div>
+        </div>
         <input type="date" class="pill" id="workDate">
         <div class="avat" id="topAvatar" onclick="logout()" style="cursor:pointer">P</div>
       </div>
@@ -256,18 +277,24 @@ let editingReturnId = null;
 let editingAdjId = null;
 let activeReportTab = 'customer';
 
-function blank(biz){return {biz:biz||'Neupane Print Solutions Pvt.Ltd',customers:[],products:[],txns:[],sales:[],purchases:[],receipts:[],payments:[],returns:[],adjustments:[]};}
+function blank(biz){return {biz:biz||'Neupane Print Solutions Pvt.Ltd', threshold: 5, customers:[],products:[],txns:[],sales:[],purchases:[],receipts:[],payments:[],returns:[],adjustments:[]};}
 
 function loadDB(email){
   try{
     const d=JSON.parse(localStorage.getItem(KEY(email)));
-    if(d && d.customers) return d;
+    if(d && d.customers){
+      if(d.threshold === undefined) d.threshold = 5;
+      return d;
+    }
   }catch(e){}
   const b=blank();
   localStorage.setItem(KEY(email),JSON.stringify(b));
   return b;
 }
-function save(){ localStorage.setItem(KEY(ME.email),JSON.stringify(DB)); }
+function save(){ 
+  localStorage.setItem(KEY(ME.email),JSON.stringify(DB)); 
+  checkLowStock();
+}
 
 function toast(msg,type='ok'){
   const t=document.createElement('div');t.className='toast '+type;
@@ -344,6 +371,7 @@ function login(email){
   $('app').classList.add('on');
   $('workDate').value=today();
   paintUser(); buildNav(); go('dashboard');
+  checkLowStock();
 }
 
 function logout(){
@@ -779,7 +807,7 @@ function renderPage(){
             <div class="field" style="margin-bottom:0"><label>Full Name</label><input class="inp" id="stName" value="${esc(ME.name)}" required></div>
             <div class="field" style="margin-bottom:0"><label>Business Name</label><input class="inp" id="stBiz" value="${esc(ME.biz)}" required></div>
             <div class="field" style="margin-bottom:0"><label>Email (login id)</label><input class="inp" value="${esc(ME.email)}" disabled style="opacity:0.7"></div>
-            <div class="field" style="margin-bottom:0"><label>Low Stock Alert Threshold</label><input class="inp" type="number" value="5"></div>
+            <div class="field" style="margin-bottom:0"><label>Low Stock Alert Threshold</label><input class="inp" type="number" id="stThreshold" value="${DB.threshold || 5}" required></div>
           </div>
           <button class="btn" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save Preferences</button>
         </form>
@@ -813,6 +841,52 @@ function renderPage(){
     `;
   }
 }
+
+function checkLowStock(){
+  if(!DB || !DB.products) return;
+  const th = num(DB.threshold || 5);
+  const lowItems = DB.products.filter(p => num(p.stock) <= th);
+  
+  const badge = $('notifBadge');
+  const list = $('notifList');
+  if(!badge || !list) return;
+
+  if(lowItems.length > 0){
+    badge.style.display = 'inline-block';
+    badge.textContent = lowItems.length;
+    list.innerHTML = lowItems.map(p => `
+      <div class="notif-item">
+        <i class="fa-solid fa-triangle-exclamation" style="color:var(--orange);margin-top:2px"></i>
+        <div>
+          <div><b>Low Stock Alert:</b> ${esc(p.name)} is running out.</div>
+          <div style="color:var(--muted);font-size:11px;margin-top:2px">Current stock: ${p.stock} (Threshold: ${th})</div>
+        </div>
+      </div>
+    `).join('');
+  } else {
+    badge.style.display = 'none';
+    list.innerHTML = `<div style="text-align:center;color:var(--muted);padding:15px 0;font-size:12.5px">No new notifications</div>`;
+  }
+}
+
+function toggleNotifDropdown(){
+  const dd = $('notifDropdown');
+  if(dd) dd.classList.toggle('show');
+}
+
+function clearNotifications(){
+  const list = $('notifList');
+  const badge = $('notifBadge');
+  if(list) list.innerHTML = `<div style="text-align:center;color:var(--muted);padding:15px 0;font-size:12.5px">No new notifications</div>`;
+  if(badge) badge.style.display = 'none';
+}
+
+document.addEventListener('click', (e)=>{
+  const dd = $('notifDropdown');
+  if(dd && !e.target.closest('.round') && dd.classList.contains('show')){
+    dd.classList.remove('show');
+  }
+});
 
 function setReportTab(tab){
   activeReportTab = tab;
@@ -1565,10 +1639,13 @@ function delAdj(id){
 
 function saveSettings(e){
   e.preventDefault();
-  ME.biz=$('stBiz').value.trim(); ME.name=$('stName').value.trim();
+  ME.biz=$('stBiz').value.trim(); 
+  ME.name=$('stName').value.trim();
+  DB.threshold = num($('stThreshold').value);
+
   const us=users(), idx=us.findIndex(u=>u.email===ME.email);
   if(idx!==-1){ us[idx].biz=ME.biz; us[idx].name=ME.name; saveUsers(us); }
-  save(); paintUser(); toast('Settings saved successfully!');
+  save(); paintUser(); checkLowStock(); toast('Settings & Threshold saved successfully!');
 }
 
 function toggleTheme(){
