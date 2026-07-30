@@ -218,6 +218,7 @@ tbody tr:hover{background:var(--panel2)}
         <div class="field"><label>Password <span>*</span></label>
           <input class="inp" id="lgPass" type="password" placeholder="••••••••" autocomplete="current-password">
           <div class="err-msg" id="lgPassErr">Password required</div></div>
+        <div style="text-align:right; margin-bottom:15px;"><a onclick="switchAuth('forgot')" style="color:var(--accent); font-size:12.5px; cursor:pointer;">Forgot Password?</a></div>
         <button class="btn block" type="submit"><i class="fa-solid fa-right-to-bracket"></i> Login securely</button>
         <p class="muted" style="text-align:center;margin-top:16px">No account? <a onclick="switchAuth('signup')" style="color:var(--accent);font-weight:600;cursor:pointer">Create one</a></p>
         <p class="muted" style="text-align:center;margin-top:10px;font-size:12px">Demo: <b>demo@diary.np</b> / <b>demo123</b> <a onclick="fillDemo()" style="color:var(--accent);cursor:pointer">(fill)</a></p>
