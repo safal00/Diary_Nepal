@@ -377,6 +377,15 @@ function doLogin(e){
     btn.innerText = "Send OTP"; btn.disabled = false;
   });
 }
+  
+function doResetPassword(e){
+  e.preventDefault();
+  const em=$('fgEmail').value.trim().toLowerCase(), cd=$('fgCode').value.trim(), p=$('fgPass').value;
+  if(!generatedOTP || cd !== generatedOTP) return toast('Invalid OTP Code entered!', 'err');
+  const us=users(), u=us.find(x=>x.email===em);
+  u.pass=hash(p); saveUsers(us); generatedOTP=null;
+  toast('Password updated successfully!'); switchAuth('login');
+}
 
 function login(email){
   localStorage.setItem(SESS,email);
