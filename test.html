@@ -1303,5 +1303,34 @@ function wipe(){if(!confirm('Delete ALL data in this workspace? This cannot be u
   if(s&&users().find(u=>u.email===s))login(s);
 })();
 </script>
+   <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDnUiD7l-W6L-1A5wnwo09GeZItWRSTdn8",
+  authDomain: "diarynepal02.firebaseapp.com",
+  projectId: "diarynepal02",
+  storageBucket: "diarynepal02.firebasestorage.app",
+  messagingSenderId: "479920779728",
+  appId: "1:479920779728:web:8828db1682bf54fd5689d5"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+// Authentication
+const auth = getAuth(app);
+
+// Firestore Database
+const db = getFirestore(app);
+
+// Global access
+window.auth = auth;
+window.db = db;
+
+console.log("✅ Firebase Connected Successfully");
+</script>
 </body>
 </html>
