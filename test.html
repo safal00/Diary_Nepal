@@ -201,7 +201,7 @@ tbody tr:hover{background:var(--panel2)}
     <div class="auth-side">
       <div>
         <div class="brand-ico" style="margin-bottom:22px"><i class="fa-solid fa-layer-group"></i></div>
-        <h2>Neupane Print Solutions</h2>
+        <h2>Diary Nepal</h2>
         <p>Complete Digital Ledger & Inventory System.</p>
         <ul class="auth-feats">
           <li><i class="fa-solid fa-lock"></i> Secure workspace</li>
@@ -209,7 +209,7 @@ tbody tr:hover{background:var(--panel2)}
           <li><i class="fa-solid fa-boxes-stacked"></i> Live Stock Tracking</li>
         </ul>
       </div>
-      <p style="font-size:11.5px;color:#93c5fd">© Neupane Print Solutions</p>
+      <p style="font-size:11.5px;color:#93c5fd">© DiaryNepal.com</p>
     </div>
     <div class="auth-form">
       <div class="auth-tabs">
@@ -436,28 +436,7 @@ function loadDB(email){
 function save(){ try{localStorage.setItem(KEY(ME.email),JSON.stringify(DB));}catch(e){toast('Storage full — remove some attachments','err');} }
 
 function seedUser(email,biz){
-  const d=blank(biz);
-  const C=(n,m,t,op)=>({id:uid(),name:n,mobile:m,type:t,pan:'',vat:'',address:'Kathmandu',opening:op||0,created:today()});
-  const cs=[C('Ram Bahadur Thapa','9841000111','Customer',0),C('Sita Traders','9851002233','Customer',5000),
-            C('Everest Suppliers','9801122334','Supplier',0),C('Himalayan Canvas Pvt.','9812345678','Supplier',0),
-            C('Gorkha Stationery','9861009988','Customer',0)];
-  d.customers=cs;
-  const P=(n,pr,sr,st)=>({id:uid(),name:n,purchase:pr,selling:sr,initial:st,stock:st,created:today()});
-  d.products=[P('Canvas Roll',1200,1600,8),P('Digital Print Sheet',80,140,150),P('Flex Banner (sqft)',35,65,420),P('Vinyl Sticker Roll',900,1350,24),P('Sticker Cutting Blade',450,700,4)];
-  const day=k=>{const dt=new Date();dt.setDate(dt.getDate()-k);return dt.toISOString().slice(0,10);};
-  const T=(o)=>Object.assign({id:uid(),attachments:[],items:[]},o);
-  d.txns=[
-   T({date:day(26),type:'purchase',voucher:'PUR-0001',partyId:cs[2].id,desc:'Stock purchase — Canvas Roll x10',debit:0,credit:12000,mode:'Credit',items:[{productId:d.products[0].id,name:'Canvas Roll',qty:10,rate:1200}]}),
-   T({date:day(20),type:'sale',voucher:'INV-0001',partyId:cs[0].id,desc:'Sale — Canvas Roll x2',debit:3200,credit:0,mode:'Credit',items:[{productId:d.products[0].id,name:'Canvas Roll',qty:2,rate:1600}]}),
-   T({date:day(14),type:'receipt',voucher:'RCP-0001',partyId:cs[0].id,desc:'Payment received',debit:0,credit:2000,mode:'eSewa'}),
-   T({date:day(10),type:'sale',voucher:'INV-0002',partyId:cs[1].id,desc:'Sale — Flex Banner 80 sqft',debit:5200,credit:0,mode:'QR Payment',items:[{productId:d.products[2].id,name:'Flex Banner (sqft)',qty:80,rate:65}]}),
-   T({date:day(6),type:'payment',voucher:'PAY-0001',partyId:cs[2].id,desc:'Paid to supplier',debit:6000,credit:0,mode:'Bank'}),
-   T({date:day(3),type:'sale',voucher:'INV-0003',partyId:cs[4].id,desc:'Sale — Digital Print 40 sheets',debit:5600,credit:0,mode:'Credit',items:[{productId:d.products[1].id,name:'Digital Print Sheet',qty:40,rate:140}]}),
-   T({date:day(1),type:'purchase',voucher:'PUR-0002',partyId:cs[3].id,desc:'Vinyl Sticker Roll x6',debit:0,credit:5400,mode:'Cash',items:[{productId:d.products[3].id,name:'Vinyl Sticker Roll',qty:6,rate:900}]}),
-   T({date:today(),type:'sale',voucher:'INV-0004',partyId:cs[0].id,desc:'Sale — Vinyl Sticker Roll x1',debit:1350,credit:0,mode:'Khalti',items:[{productId:d.products[3].id,name:'Vinyl Sticker Roll',qty:1,rate:1350}]}),
-   T({date:today(),type:'receipt',voucher:'RCP-0002',partyId:cs[1].id,desc:'Cash collection',debit:0,credit:3000,mode:'Cash'})
-  ];
-  localStorage.setItem(KEY(email),JSON.stringify(d));
+ 
 }
 
 /* ============ DERIVED ============ */
