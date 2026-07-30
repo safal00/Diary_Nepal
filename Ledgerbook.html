@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -334,6 +335,9 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const storage = firebase.storage();
 
+db.enablePersistence({ synchronizeTabs: true }).catch((err) => {
+    console.warn("Persistence note:", err.code);
+  });
 /* ============ AUTH ============ */
 let ME=null, DB=null;
 
@@ -362,6 +366,13 @@ function doSignup(e){
   showErr('suPass2Err',p!==p2||!p2); ok=ok&&p===p2&&p2;
   if(!ok)return toast('Please fix the highlighted fields','err','Validation failed');
 
+  // Lock the UI and show a loading spinner
+  const btn = e.target.querySelector('button[type="submit"]');
+  const oldHtml = btn.innerHTML;
+  btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Creating...';
+  btn.disabled = true;
+  btn.style.opacity = '0.7';
+
   // Firebase Signup
   auth.createUserWithEmailAndPassword(em, p)
     .then((cred) => {
@@ -377,25 +388,32 @@ function doSignup(e){
     .then(() => {
         if(!localStorage.getItem(KEY(em))) seedUser(em, b||(n+"'s Business")); // scaffold local DB
         toast('Account created. Welcome, '+n+'!','ok');
+        // Unlock the UI
+        btn.innerHTML = oldHtml; btn.disabled = false; btn.style.opacity = '1';
     })
-    .catch(err => toast(err.message, 'err'));
+    .catch(err => {
+        // Clean up the ugly "Firebase: " text from the error message
+        toast(err.message.replace('Firebase: ', ''), 'err');
+        // Unlock the UI
+        btn.innerHTML = oldHtml; btn.disabled = false; btn.style.opacity = '1';
+    });
 }
 
-function doLogin(e){
+function doLogin(e) {
   e.preventDefault();
-  const em=$('lgEmail').value.trim().toLowerCase(),p=$('lgPass').value;
-  let ok=validEmail(em); showErr('lgEmailErr',!ok); showErr('lgPassErr',!p);
-  if(!ok||!p)return;
+  const em = $('lgEmail').value.trim().toLowerCase(), p = $('lgPass').value;
+  let ok = validEmail(em); 
+  showErr('lgEmailErr', !ok); 
+  showErr('lgPassErr', !p);
+  if (!ok || !p) return;
 
-  // Firebase Login
-  auth.signInWithEmailAndPassword(em, p)
-    .catch(err => toast(err.message, 'err'));
+  auth.signInWithEmailAndPassword(em, p).catch(err => toast(err.message, 'err'));
 }
 
-function logout(){
-  if(!confirm('Logout from this workspace?'))return;
+function logout() {
+  if (!confirm('Logout from this workspace?')) return;
   auth.signOut();
-  $('lgPass').value='';closeDds();
+  closeDds();
 }
   
 /* ============ DATA (isolated per user) ============ */
@@ -1325,26 +1343,44 @@ if(th==='dark'){document.documentElement.dataset.theme='dark';$('themeIco').clas
 
 auth.onAuthStateChanged(async (user) => {
   if (user) {
-    // User just logged in
-    const docSnap = await db.collection('users').doc(user.uid).get();
-    if (docSnap.exists) {
-       ME = { ...docSnap.data(), uid: user.uid };
-    } else {
-       // Fallback just in case profile hasn't finished writing
-       ME = { name: "User", biz: "My Business", email: user.email, uid: user.uid };
+    try {
+      // 1. Fetch User Profile
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      const userData = userDoc.exists ? userDoc.data() : {};
+
+      ME = {
+        uid: user.uid,
+        email: user.email,
+        name: userData.name || user.email.split('@')[0],
+        biz: userData.biz || 'My Business'
+      };
+
+      // 2. Fetch User App Data from Firestore
+      const dataDoc = await db.collection('users').doc(user.uid).collection('workspace').doc('main').get();
+
+      if (dataDoc.exists) {
+        DB = dataDoc.data();
+      } else {
+        // First time user: Seed initial data & sync to Cloud
+        DB = loadDB(user.email);
+        save(); 
+      }
+
+      // 3. UI Update
+      paintUser();
+      $('auth').style.display = 'none';
+      $('app').classList.add('on');
+      renderPage();
+      toast('Workspace synced with Cloud', 'ok', 'Connected');
+    } catch (err) {
+      toast('Failed to load cloud data: ' + err.message, 'err');
     }
-    
-    // We will keep local DB logic temporarily until Phase 2
-    DB = loadDB(user.email); 
-    
-    $('auth').style.display='none';$('app').classList.add('on');
-    $('workDate').value=today();
-    buildNav();paintUser();go('dashboard');
-    toast('Logged in as '+ME.email,'ok','Welcome');
   } else {
-    // User logged out
-    ME = null; DB = null;
-    $('app').classList.remove('on');$('auth').style.display='flex';
+    // User Signed Out
+    ME = null;
+    DB = null;
+    $('auth').style.display = 'flex';
+    $('app').classList.remove('on');
   }
 });
 </script>
