@@ -191,52 +191,40 @@ tbody tr:hover{background:var(--panel2)}
   <div class="auth-card">
     <div class="auth-side">
       <div>
-        <div class="brand-ico" style="margin-bottom:22px"><i class="fa-solid fa-chart-line"></i></div>
-        <h2>Diary Nepal<br>Digital Workspace</h2>
-        <p>Secure, email-based accounting workspace. हरेक प्रयोगकर्ताको डाटा पूर्ण रूपमा अलग र सुरक्षित।</p>
+        <div class="brand-ico" style="margin-bottom:22px"><i class="fa-solid fa-layer-group"></i></div>
+        <h2>Neupane Print Solutions</h2>
+        <p>Complete Digital Ledger & Inventory System.</p>
         <ul class="auth-feats">
-          <li><i class="fa-solid fa-lock"></i> Private, isolated data per account</li>
-          <li><i class="fa-solid fa-bolt"></i> Live ledger, inventory &amp; reports</li>
-          <li><i class="fa-solid fa-share-nodes"></i> Share statements on WhatsApp &amp; Email</li>
-          <li><i class="fa-solid fa-boxes-stacked"></i> Low stock alerts &amp; adjustments</li>
+          <li><i class="fa-solid fa-lock"></i> Secure workspace</li>
+          <li><i class="fa-solid fa-book"></i> Automated Ledger & Sales</li>
+          <li><i class="fa-solid fa-boxes-stacked"></i> Live Stock Tracking</li>
         </ul>
       </div>
-      <p style="font-size:11.5px;color:#93c5fd">© 2026 Diary Nepal · diarynepalinfo@gmail.com</p>
+      <p style="font-size:11.5px;color:#93c5fd">© Neupane Print Solutions</p>
     </div>
     <div class="auth-form">
       <div class="auth-tabs">
-        <button id="tabLogin" class="on" onclick="switchAuth('login')">Login</button>
-        <button id="tabSignup" onclick="switchAuth('signup')">Sign Up</button>
+        <button id="tabLogin" class="on" type="button" onclick="switchAuth('login')">Login</button>
+        <button id="tabSignup" type="button" onclick="switchAuth('signup')">Sign Up</button>
       </div>
 
       <form id="loginForm" onsubmit="doLogin(event)">
         <h3 style="margin-bottom:5px">Welcome back 👋</h3>
-        <p class="muted" style="margin-bottom:20px">Login to access your workspace</p>
-        <div class="field"><label>Email Address <span>*</span></label>
-          <input class="inp" id="lgEmail" type="email" placeholder="you@example.com" autocomplete="email">
-          <div class="err-msg" id="lgEmailErr">Valid email required</div></div>
-        <div class="field"><label>Password <span>*</span></label>
-          <input class="inp" id="lgPass" type="password" placeholder="••••••••" autocomplete="current-password">
-          <div class="err-msg" id="lgPassErr">Password required</div></div>
+        <p class="muted" style="margin-bottom:20px">Login to your workspace</p>
+        <div class="field"><label>Email Address</label><input class="inp" id="lgEmail" type="email" placeholder="you@example.com" required></div>
+        <div class="field"><label>Password</label><input class="inp" id="lgPass" type="password" placeholder="••••••••" required></div>
         <div style="text-align:right; margin-bottom:15px;"><a onclick="switchAuth('forgot')" style="color:var(--accent); font-size:12.5px; cursor:pointer;">Forgot Password?</a></div>
-        <button class="btn block" type="submit"><i class="fa-solid fa-right-to-bracket"></i> Login securely</button>
-        <p class="muted" style="text-align:center;margin-top:16px">No account? <a onclick="switchAuth('signup')" style="color:var(--accent);font-weight:600;cursor:pointer">Create one</a></p>
-        <p class="muted" style="text-align:center;margin-top:10px;font-size:12px">Demo: <b>demo@diary.np</b> / <b>demo123</b> <a onclick="fillDemo()" style="color:var(--accent);cursor:pointer">(fill)</a></p>
+        <button class="btn block" type="submit"><i class="fa-solid fa-right-to-bracket"></i> Login</button>
       </form>
 
       <form id="signupForm" onsubmit="doSignup(event)" style="display:none">
-        <h3 style="margin-bottom:5px">Create your account</h3>
-        <p class="muted" style="margin-bottom:20px">Your data stays private to this email</p>
-        <div class="field"><label>Full Name <span>*</span></label>
-          <input class="inp" id="suName" placeholder="Your name"><div class="err-msg" id="suNameErr">Name required</div></div>
-        <div class="field"><label>Business Name</label><input class="inp" id="suBiz" placeholder="e.g. Diary Nepal Traders"></div>
-        <div class="field"><label>Email Address <span>*</span></label>
-          <input class="inp" id="suEmail" type="email" placeholder="you@example.com"><div class="err-msg" id="suEmailErr">Valid email required</div></div>
-        <div class="field"><label>Password <span>*</span></label>
-          <input class="inp" id="suPass" type="password" placeholder="Min 6 characters"><div class="err-msg" id="suPassErr">Min 6 characters</div></div>
-        <div class="field"><label>Confirm Password <span>*</span></label>
-          <input class="inp" id="suPass2" type="password" placeholder="Repeat password"><div class="err-msg" id="suPass2Err">Passwords do not match</div></div>
-        <button class="btn block green" type="submit"><i class="fa-solid fa-user-plus"></i> Create account</button>
+        <h3 style="margin-bottom:5px">Create account</h3>
+        <p class="muted" style="margin-bottom:20px">Start managing your business</p>
+        <div class="field"><label>Full Name</label><input class="inp" id="suName" placeholder="Your name" required></div>
+        <div class="field"><label>Business Name</label><input class="inp" id="suBiz" value="Neupane Print Solutions Pvt.Ltd"></div>
+        <div class="field"><label>Email</label><input class="inp" id="suEmail" type="email" placeholder="you@example.com" required></div>
+        <div class="field"><label>Password</label><input class="inp" id="suPass" type="password" placeholder="Min 6 chars" required></div>
+        <button class="btn block green" type="submit"><i class="fa-solid fa-user-plus"></i> Create Account</button>
       </form>
 
       <form id="forgotForm" onsubmit="doResetPassword(event)" style="display:none">
@@ -257,7 +245,7 @@ tbody tr:hover{background:var(--panel2)}
     </div>
   </div>
 </div>
-
+  
 <!-- APP -->
 <div class="app" id="app">
   <div class="backdrop" id="backdrop" onclick="toggleSide()"></div>
