@@ -237,6 +237,22 @@ tbody tr:hover{background:var(--panel2)}
           <input class="inp" id="suPass2" type="password" placeholder="Repeat password"><div class="err-msg" id="suPass2Err">Passwords do not match</div></div>
         <button class="btn block green" type="submit"><i class="fa-solid fa-user-plus"></i> Create account</button>
       </form>
+
+      <form id="forgotForm" onsubmit="doResetPassword(event)" style="display:none">
+        <h3 style="margin-bottom:5px">Reset Password</h3>
+        <p class="muted" style="margin-bottom:20px">Send OTP to email & reset password</p>
+        <div class="field">
+          <label>Registered Email</label>
+          <div class="otp-group">
+            <input class="inp" id="fgEmail" type="email" placeholder="you@example.com" required>
+            <button type="button" class="btn ghost" id="btnSendOtp" onclick="sendOTP()">Send OTP</button>
+          </div>
+        </div>
+        <div class="field"><label>OTP Received in Email</label><input class="inp" id="fgCode" placeholder="Enter 6-digit OTP" required></div>
+        <div class="field"><label>New Password</label><input class="inp" id="fgPass" type="password" placeholder="Min 6 chars" required></div>
+        <button class="btn block" type="submit">Update Password</button>
+        <p class="muted" style="text-align:center;margin-top:15px"><a onclick="switchAuth('login')" style="color:var(--accent);cursor:pointer">Back to Login</a></p>
+      </form>
     </div>
   </div>
 </div>
@@ -353,6 +369,26 @@ function doLogin(e){
   if(u.pass!==hash(p))return toast('Incorrect password','err');
   login(em);
 }
+  function sendOTP(){
+  const em = $('fgEmail').value.trim().toLowerCase();
+  if(!em) return toast('Please enter your email first', 'err');
+  const us = users();
+  const u = us.find(x => x.email === em);
+  if(!u) return toast('User not registered with this email!', 'err');
+
+  generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+  const btn = $('btnSendOtp');
+  btn.innerText = "Sending..."; btn.disabled = true;
+
+  emailjs.send("service_yz4x9cg", "template_p8buozo", {to_email: em, otp_code: generatedOTP}).then(() => {
+    toast('OTP successfully sent to your email!');
+    btn.innerText = "Resend OTP"; btn.disabled = false;
+  }).catch(() => {
+    toast('Failed to send OTP. Check template/keys!', 'err');
+    btn.innerText = "Send OTP"; btn.disabled = false;
+  });
+}
+
 function login(email){
   localStorage.setItem(SESS,email);
   ME=users().find(u=>u.email===email);
