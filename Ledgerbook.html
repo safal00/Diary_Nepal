@@ -9,13 +9,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
-
 <style>
 :root{
   --bg:#f1f5f9; --panel:#ffffff; --panel2:#f8fafc; --text:#0f172a; --muted:#64748b;
@@ -43,9 +36,9 @@ a{color:inherit;text-decoration:none}
 .auth-feats{list-style:none;margin-top:26px;display:grid;gap:12px}
 .auth-feats li{display:flex;gap:10px;align-items:center;font-size:13.5px;color:#e0e7ff}
 .auth-feats i{width:26px;height:26px;display:grid;place-items:center;background:#ffffff22;border-radius:8px;font-size:11px}
-.auth-form{padding:42px 38px}
+.auth-form{padding:42px 38px; display: flex; flex-direction: column; justify-content: center;}
 .auth-tabs{display:flex;background:var(--panel2);border:1px solid var(--border);padding:5px;border-radius:12px;margin-bottom:24px}
-.auth-tabs button{flex:1;border:0;background:transparent;padding:10px;border-radius:9px;font-weight:600;color:var(--muted);cursor:pointer}
+.auth-tabs button{flex:1;border:0;background:transparent;padding:10px;border-radius:9px;font-weight:600;color:var(--muted);cursor:pointer; transition: .2s;}
 .auth-tabs button.on{background:var(--accent);color:#fff;box-shadow:0 6px 16px rgba(37,99,235,.3)}
 .field{margin-bottom:16px}
 .field label{display:block;font-size:12.5px;font-weight:600;margin-bottom:6px;color:var(--muted)}
@@ -199,7 +192,7 @@ tbody tr:hover{background:var(--panel2)}
     <div class="auth-side">
       <div>
         <div class="brand-ico" style="margin-bottom:22px"><i class="fa-solid fa-chart-line"></i></div>
-        <h2>Diary Nepal<br>Digital Workspace</h2>
+        <h2 id="authDynamicTitle">Diary Nepal<br>Digital Workspace</h2>
         <p>Secure, email-based accounting workspace. हरेक प्रयोगकर्ताको डाटा पूर्ण रूपमा अलग र सुरक्षित।</p>
         <ul class="auth-feats">
           <li><i class="fa-solid fa-lock"></i> Private, isolated data per account</li>
@@ -210,39 +203,42 @@ tbody tr:hover{background:var(--panel2)}
       </div>
       <p style="font-size:11.5px;color:#93c5fd">© 2026 Diary Nepal · diarynepalinfo@gmail.com</p>
     </div>
+    
     <div class="auth-form">
       <div class="auth-tabs">
         <button id="tabLogin" class="on" onclick="switchAuth('login')">Login</button>
         <button id="tabSignup" onclick="switchAuth('signup')">Sign Up</button>
       </div>
 
+      <!-- LOGIN FORM -->
       <form id="loginForm" onsubmit="doLogin(event)">
-        <h3 style="margin-bottom:5px">Welcome back 👋</h3>
-        <p class="muted" style="margin-bottom:20px">Login to access your workspace</p>
-        <div class="field"><label>Email Address <span>*</span></label>
-          <input class="inp" id="lgEmail" type="email" placeholder="you@example.com" autocomplete="email">
-          <div class="err-msg" id="lgEmailErr">Valid email required</div></div>
-        <div class="field"><label>Password <span>*</span></label>
-          <input class="inp" id="lgPass" type="password" placeholder="••••••••" autocomplete="current-password">
-          <div class="err-msg" id="lgPassErr">Password required</div></div>
-        <button class="btn block" type="submit"><i class="fa-solid fa-right-to-bracket"></i> Login securely</button>
-        <p class="muted" style="text-align:center;margin-top:16px">No account? <a onclick="switchAuth('signup')" style="color:var(--accent);font-weight:600;cursor:pointer">Create one</a></p>
-        <p class="muted" style="text-align:center;margin-top:10px;font-size:12px">Demo: <b>demo@diary.np</b> / <b>demo123</b> <a onclick="fillDemo()" style="color:var(--accent);cursor:pointer">(fill)</a></p>
+        <h3 style="font-size:22px;font-weight:700;margin-bottom:4px">Welcome back 👋</h3>
+        <p class="muted" style="margin-bottom:22px">Login to your workspace</p>
+        <div class="field"><label>Email Address</label><input class="inp" id="lgEmail" type="email" required onchange="checkSavedBusinessName(this.value)"></div>
+        <div class="field" style="margin-bottom:10px"><label>Password</label><input class="inp" id="lgPass" type="password" required></div>
+        <div style="text-align:right;margin-bottom:24px"><a onclick="showForgotPassword()" style="font-size:12.5px;color:#2563eb;font-weight:600;cursor:pointer">Forgot Password?</a></div>
+        <button class="btn block" type="submit"><i class="fa-solid fa-right-to-bracket"></i> Login</button>
       </form>
 
+      <!-- SIGNUP FORM -->
       <form id="signupForm" onsubmit="doSignup(event)" style="display:none">
-        <h3 style="margin-bottom:5px">Create your account</h3>
+        <h3 style="font-size:22px;font-weight:700;margin-bottom:4px">Create your account</h3>
         <p class="muted" style="margin-bottom:20px">Your data stays private to this email</p>
-        <div class="field"><label>Full Name <span>*</span></label>
-          <input class="inp" id="suName" placeholder="Your name"><div class="err-msg" id="suNameErr">Name required</div></div>
-        <div class="field"><label>Business Name</label><input class="inp" id="suBiz" placeholder="e.g. Diary Nepal Traders"></div>
-        <div class="field"><label>Email Address <span>*</span></label>
-          <input class="inp" id="suEmail" type="email" placeholder="you@example.com"><div class="err-msg" id="suEmailErr">Valid email required</div></div>
-        <div class="field"><label>Password <span>*</span></label>
-          <input class="inp" id="suPass" type="password" placeholder="Min 6 characters"><div class="err-msg" id="suPassErr">Min 6 characters</div></div>
-        <div class="field"><label>Confirm Password <span>*</span></label>
-          <input class="inp" id="suPass2" type="password" placeholder="Repeat password"><div class="err-msg" id="suPass2Err">Passwords do not match</div></div>
-        <button class="btn block green" type="submit"><i class="fa-solid fa-user-plus"></i> Create account</button>
+        <div class="field"><label>Full Name</label><input class="inp" id="suName" required></div>
+        <div class="field"><label>Business / Company Name</label><input class="inp" id="suBiz" placeholder="e.g. Acme Traders"></div>
+        <div class="field"><label>Email Address</label><input class="inp" id="suEmail" type="email" required></div>
+        <div class="field"><label>Password</label><input class="inp" id="suPass" type="password" placeholder="Min 6 characters" required></div>
+        <div class="field"><label>Confirm Password</label><input class="inp" id="suPass2" type="password" required></div>
+        <button class="btn block green" type="submit"><i class="fa-solid fa-user-plus"></i> Create account &amp; Verify</button>
+      </form>
+
+      <!-- FORGOT PASSWORD FORM -->
+      <form id="forgotForm" onsubmit="doForgotPassword(event)" style="display:none">
+        <h3 style="font-size:22px;font-weight:700;margin-bottom:4px">Reset Password</h3>
+        <p class="muted" style="margin-bottom:20px">इमेलमा पासवर्ड रिसेट लिङ्क पठाउनेछौँ।</p>
+        <div class="field"><label>Email Address</label><input class="inp" id="fgEmail" type="email" required></div>
+        <button class="btn block" type="submit"><i class="fa-solid fa-paper-plane"></i> Send Reset Link</button>
+        <p class="muted" style="text-align:center;margin-top:18px"><a onclick="switchAuth('login')" style="color:#2563eb;font-weight:600;cursor:pointer"><i class="fa-solid fa-arrow-left"></i> Back to Login</a></p>
       </form>
     </div>
   </div>
@@ -301,8 +297,8 @@ tbody tr:hover{background:var(--panel2)}
 </div>
 <div class="toast-wrap" id="toasts"></div>
 
+<!-- GENERAL UTILS -->
 <script>
-/* ============ UTIL ============ */
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,10);
@@ -312,110 +308,188 @@ const today=()=>new Date().toISOString().slice(0,10);
 const workDate=()=>$('workDate').value||today();
 const fmtDate=d=>d? d.split('-').reverse().join('/') : '';
 const sum=(a,k)=>a.reduce((s,x)=>s+num(x[k]),0);
+
 function toast(msg,type='ok',title){
   const t=document.createElement('div');t.className='toast '+type;
-  t.innerHTML='<b>'+esc(title||(type==='err'?'Error':type==='warn'?'Warning':'Success'))+'</b>'+esc(msg);
-  $('toasts').appendChild(t);setTimeout(()=>{t.style.opacity=0;t.style.transform='translateX(20px)';t.style.transition='.3s';setTimeout(()=>t.remove(),320)},3600);
+  t.innerHTML='<b>'+esc(title||(type==='err'?'त्रुटि (Error)':'सफलता (Success'))+'</b>'+esc(msg);
+  $('toasts').appendChild(t);
+  setTimeout(()=>{ t.style.opacity=0;t.style.transform='translateX(20px)';t.style.transition='.3s';setTimeout(()=>t.remove(),320); },3600);
 }
-
-/* ============ FIREBASE INIT ============ */
-const firebaseConfig = {
-  apiKey: "AIzaSyC9wzP2mnLuRscD-VHCFeflV7PyvkAJ-nQ",
-  authDomain: "diarynepal01.firebaseapp.com",
-  projectId: "diarynepal01",
-  storageBucket: "diarynepal01.firebasestorage.app",
-  messagingSenderId: "736076742017",
-  appId: "1:736076742017:web:441f4539433aaf231f7c80",
-  measurementId: "G-8JW8PH6896"
-};
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-const storage = firebase.storage();
-
-db.enablePersistence({ synchronizeTabs: true }).catch((err) => {
-    console.warn("Persistence note:", err.code);
-  });
-/* ============ AUTH ============ */
-let ME=null, DB=null;
 
 function switchAuth(m){
-  $('tabLogin').classList.toggle('on',m==='login');$('tabSignup').classList.toggle('on',m!=='login');
-  $('loginForm').style.display=m==='login'?'':'none';$('signupForm').style.display=m==='login'?'none':'';
-}
-function fillDemo(){$('lgEmail').value='demo@diary.np';$('lgPass').value='demo123';}
-function showErr(id,on){$(id).classList.toggle('show',on);$(id.replace('Err','')).classList.toggle('err',on);}
-function validEmail(e){return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);}
-
-function paintUser(){
-  if(!ME) return;
-  const ini=(ME.name||ME.email)[0].toUpperCase();
-  $('sbName').textContent=ME.name;$('sfBiz').textContent=ME.biz;$('sfEmail').textContent=ME.email;
-  $('sfAvatar').textContent=ini;$('topAvatar').textContent=ini;$('ddName').textContent=ME.name;$('ddEmail').textContent=ME.email;
+  $('tabLogin').classList.toggle('on', m === 'login');
+  $('tabSignup').classList.toggle('on', m === 'signup');
+  $('loginForm').style.display = m === 'login' ? '' : 'none';
+  $('signupForm').style.display = m === 'signup' ? '' : 'none';
+  $('forgotForm').style.display = 'none';
 }
 
-function doSignup(e){
+function showForgotPassword() {
+  $('loginForm').style.display = 'none';
+  $('signupForm').style.display = 'none';
+  $('forgotForm').style.display = '';
+}
+
+// Firebase एरर मेसेजलाई सहज बनाउने फंक्सन
+function getFriendlyError(errorCode) {
+  switch (errorCode) {
+    case 'auth/invalid-credential':
+    case 'auth/wrong-password':
+    case 'auth/user-not-found':
+      return 'इमेल वा पासवर्ड मिलेन। कृपया सहि विवरण राख्नुहोस्।';
+    case 'auth/email-already-in-use':
+      return 'यो इमेलबाट पहिले नै खाता बनिसकेको छ।';
+    case 'auth/weak-password':
+      return 'पासवर्ड कम्तिमा ६ वटा अक्षरको हुनुपर्छ।';
+    case 'auth/invalid-email':
+      return 'अमान्य इमेल ठेगाना।';
+    default:
+      return 'केहि प्राविधिक समस्या आयो। कृपया फेरि प्रयास गर्नुहोस्।';
+  }
+}
+</script>
+
+<!-- FIREBASE AUTHENTICATION ENGINE -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import {  
+    getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
+    sendEmailVerification, sendPasswordResetEmail, signOut, onAuthStateChanged 
+  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDnUiD7l-W6L-1A5wnwo09GeZItWRSTdn8",
+    authDomain: "diarynepal02.firebaseapp.com",
+    projectId: "diarynepal02",
+    storageBucket: "diarynepal02.firebasestorage.app",
+    messagingSenderId: "479920779728",
+    appId: "1:479920779728:web:8828db1682bf54fd5689d5"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  window.fbActions = {
+    signInWithEmailAndPassword: (em, pw) => signInWithEmailAndPassword(auth, em, pw),
+    createUserWithEmailAndPassword: (em, pw) => createUserWithEmailAndPassword(auth, em, pw),
+    sendEmailVerification: (user) => sendEmailVerification(user),
+    sendPasswordResetEmail: (em) => sendPasswordResetEmail(auth, em),
+    signOut: () => signOut(auth)
+  };
+
+  window.checkSavedBusinessName = function(email) {
+    if(!email) return;
+    try {
+      const savedBiz = localStorage.getItem('biz_' + email.toLowerCase().trim());
+      if(savedBiz) document.getElementById('authDynamicTitle').innerHTML = `${esc(savedBiz)}<br>Digital Workspace`;
+    } catch(e){}
+  };
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      window.handleFirebaseLogin(user);
+    } else {
+      window.handleFirebaseLogout();
+    }
+  });
+</script>
+
+<script>
+let ME = null, DB = null;
+
+window.handleFirebaseLogin = function(user) {
+  const email = user.email.toLowerCase();
+  let bizName = 'My Business';
+  try {
+    const saved = localStorage.getItem('biz_' + email);
+    if(saved) bizName = saved;
+  } catch(e){}
+
+  ME = {
+    email: email,
+    name: user.displayName || email.split('@')[0],
+    biz: bizName
+  };
+
+  DB = loadDB(email);
+  if(!DB.customers || DB.customers.length === 0) {
+    seedUser(email, bizName);
+  }
+
+  $('auth').style.display = 'none';
+  $('app').classList.add('on');
+  $('workDate').value = today();
+  buildNav();
+  paintUser();
+  go('dashboard');
+  toast('सफलतापूर्वक लगइन भयो!', 'ok');
+};
+
+window.handleFirebaseLogout = function() {
+  ME = null;
+  DB = null;
+  $('app').classList.remove('on');
+  $('auth').style.display = 'flex';
+  $('lgPass').value = '';
+  closeDds();
+};
+
+async function doLogin(e) {
   e.preventDefault();
-  const n=$('suName').value.trim(),b=$('suBiz').value.trim(),em=$('suEmail').value.trim().toLowerCase(),p=$('suPass').value,p2=$('suPass2').value;
-  let ok=true;
-  showErr('suNameErr',!n); ok=ok&&n;
-  showErr('suEmailErr',!validEmail(em)); ok=ok&&validEmail(em);
-  showErr('suPassErr',p.length<6); ok=ok&&p.length>=6;
-  showErr('suPass2Err',p!==p2||!p2); ok=ok&&p===p2&&p2;
-  if(!ok)return toast('Please fix the highlighted fields','err','Validation failed');
-
-  // Lock the UI and show a loading spinner
-  const btn = e.target.querySelector('button[type="submit"]');
-  const oldHtml = btn.innerHTML;
-  btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Creating...';
-  btn.disabled = true;
-  btn.style.opacity = '0.7';
-
-  // Firebase Signup
-  auth.createUserWithEmailAndPassword(em, p)
-    .then((cred) => {
-      // Save user profile info to Firestore
-      return db.collection('users').doc(cred.user.uid).set({
-        name: n,
-        biz: b || (n + "'s Business"),
-        email: em,
-        created: firebase.firestore.FieldValue.serverTimestamp(),
-        settings: { lowStock: 5, currency: '₨' }
-      });
-    })
-    .then(() => {
-        if(!localStorage.getItem(KEY(em))) seedUser(em, b||(n+"'s Business")); // scaffold local DB
-        toast('Account created. Welcome, '+n+'!','ok');
-        // Unlock the UI
-        btn.innerHTML = oldHtml; btn.disabled = false; btn.style.opacity = '1';
-    })
-    .catch(err => {
-        // Clean up the ugly "Firebase: " text from the error message
-        toast(err.message.replace('Firebase: ', ''), 'err');
-        // Unlock the UI
-        btn.innerHTML = oldHtml; btn.disabled = false; btn.style.opacity = '1';
-    });
+  const em = $('lgEmail').value.trim(), p = $('lgPass').value;
+  try {
+    await window.fbActions.signInWithEmailAndPassword(em, p);
+  } catch(err) { 
+    toast(getFriendlyError(err.code), 'err', 'Login Failed'); 
+  }
 }
 
-function doLogin(e) {
+async function doSignup(e) {
   e.preventDefault();
-  const em = $('lgEmail').value.trim().toLowerCase(), p = $('lgPass').value;
-  let ok = validEmail(em); 
-  showErr('lgEmailErr', !ok); 
-  showErr('lgPassErr', !p);
-  if (!ok || !p) return;
+  const n = $('suName').value.trim(), b = $('suBiz').value.trim(), em = $('suEmail').value.trim(), p = $('suPass').value, p2 = $('suPass2').value;
+  if(!n || !em || p.length < 6 || p !== p2) return toast('कृपया विवरण सहि तरिकाले भरेर पुनः प्रयास गर्नुहोस् (पासवर्ड कम्तिमा ६ अक्षरको हुनुपर्छ)।', 'err');
 
-  auth.signInWithEmailAndPassword(em, p).catch(err => toast(err.message, 'err'));
+  try {
+    const finalBizName = b || 'Diary Nepal';
+    localStorage.setItem('biz_' + em.toLowerCase().trim(), finalBizName);
+
+    const cred = await window.fbActions.createUserWithEmailAndPassword(em, p);
+    await window.fbActions.sendEmailVerification(cred.user);
+    toast('खाता सफलतापूर्वक सिर्जना भयो! भेरिफिकेसन लिङ्क तपाईंको इमेलमा पठाइएको छ।', 'ok', 'Check Email');
+  } catch(err) { 
+    toast(getFriendlyError(err.code), 'err', 'Signup Error'); 
+  }
+}
+
+async function doForgotPassword(e) {
+  e.preventDefault();
+  const em = $('fgEmail').value.trim();
+  if(!em) return toast('कृपया इमेल ठेगाना राख्नुहोस्', 'err');
+  try {
+    await window.fbActions.sendPasswordResetEmail(em);
+    toast('पासवर्ड रिसेट गर्ने लिङ्क तपाईंको इमेलमा पठाइयो!', 'ok', 'Email Sent');
+    switchAuth('login');
+  } catch(err) { 
+    toast(getFriendlyError(err.code), 'err', 'Reset Error'); 
+  }
 }
 
 function logout() {
-  if (!confirm('Logout from this workspace?')) return;
-  auth.signOut();
-  closeDds();
+  if(!confirm('के तपाईं लगआउट गर्न चाहनुहुन्छ?')) return;
+  window.fbActions.signOut().catch(()=>{});
 }
-  
+
+function paintUser(){
+  const ini=(ME.name||ME.email)[0].toUpperCase();
+  $('sbName').textContent=ME.name;
+  $('sfBiz').textContent=ME.biz;
+  $('sfEmail').textContent=ME.email;
+  $('sfAvatar').textContent=ini;
+  $('topAvatar').textContent=ini;
+  $('ddName').textContent=ME.name;
+  $('ddEmail').textContent=ME.email;
+}
+
 /* ============ DATA (isolated per user) ============ */
 const KEY=e=>'dn_data_'+e;
 function blank(biz){return {biz:biz||'My Business',customers:[],products:[],txns:[],settings:{lowStock:5,currency:'₨'}};}
@@ -495,894 +569,765 @@ function buildNav(){
   $('nav').innerHTML=PAGES.map(p=>`<a data-p="${p.id}" onclick="go('${p.id}')"><i class="fa-solid ${p.icon}" style="color:${p.color}"></i>${p.label}</a>`).join('');
 }
 function go(id){CUR=id;document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('active',a.dataset.p===id));
-  $('pageTitle').textContent=PAGES.find(p=>p.id===id).label.replace(' & ',' & ');
-  if(window.innerWidth<981){$('sidebar').classList.remove('open');$('backdrop').classList.remove('on');}
-  renderPage();window.scrollTo({top:0,behavior:'smooth'});}
-function toggleSide(){$('sidebar').classList.toggle('open');$('backdrop').classList.toggle('on');}
+  const pg=PAGES.find(p=>p.id===id);$('pageTitle').textContent=pg?pg.label:'';
+  if(window.innerWidth<=980)toggleSide(false);
+  renderPage();
+}
+function toggleSide(force){
+  const s=$('sidebar'),b=$('backdrop');
+  const op=force!==undefined?force:!s.classList.contains('open');
+  s.classList.toggle('open',op);b.classList.toggle('on',op);
+}
 function toggleTheme(){
-  const dark=document.documentElement.dataset.theme==='dark';
-  document.documentElement.dataset.theme=dark?'light':'dark';
-  $('themeIco').className='fa-solid '+(dark?'fa-moon':'fa-sun');
-  localStorage.setItem('dn_theme',dark?'light':'dark');
-  if(CUR==='dashboard')renderPage();
+  const th=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',th);
+  $('themeIco').className=th==='dark'?'fa-solid fa-sun':'fa-solid fa-moon';
 }
-function toggleBell(e){e.stopPropagation();const dd=$('bellDd');$('userDd').classList.remove('on');dd.classList.toggle('on');}
-function toggleUserDd(e){e.stopPropagation();$('bellDd').classList.remove('on');$('userDd').classList.toggle('on');}
+function toggleBell(e){e.stopPropagation();$('bellDd').classList.toggle('on');$('userDd').classList.remove('on');updateBellContent();}
+function toggleUserDd(e){e.stopPropagation();$('userDd').classList.toggle('on');$('bellDd').classList.remove('on');}
 function closeDds(){$('bellDd').classList.remove('on');$('userDd').classList.remove('on');}
-document.addEventListener('click',closeDds);
-$('bellDd').onclick=e=>e.stopPropagation();$('userDd').onclick=e=>e.stopPropagation();
-function paintBell(){
+window.onclick=closeDds;
+
+function updateBellContent(){
   const ls=lowStock();
-  $('bellCount').style.display=ls.length?'grid':'none';$('bellCount').textContent=ls.length;
-  $('bellDd').innerHTML=`<div style="padding:8px 12px;font-weight:700;font-size:13px">Notifications</div>`+
-   (ls.length? ls.map(p=>`<div class="dd-item"><i class="fa-solid fa-triangle-exclamation" style="color:var(--orange);margin-top:2px"></i>
-     <div><b>Low Stock Alert:</b> ${esc(p.name)} is running out.<div class="muted" style="font-size:11.5px">Current stock: ${p.stock}</div></div></div>`).join('')
-   : `<div class="dd-item muted">All good — no low stock items 🎉</div>`);
+  $('bellCount').style.display=ls.length?'grid':'none';
+  $('bellCount').textContent=ls.length;
+  $('bellDd').innerHTML=`<div style="padding:8px 12px;font-weight:700;font-size:12px;border-bottom:1px solid var(--border)">Low Stock Alerts</div>`+
+    (ls.length?ls.map(p=>`<div class="dd-item"><i class="fa-solid fa-triangle-exclamation" style="color:var(--orange)"></i><div><b>${esc(p.name)}</b><div class="muted">Only ${p.stock} units left</div></div></div>`).join(''):
+    `<div style="padding:16px;text-align:center" class="muted">No alerts</div>`);
 }
 
-/* ============ TABLE ENGINE ============ */
-let TBL={},tseq=0;
-function dataTable(cols,rows,opts={}){
-  const id='t'+(++tseq);TBL[id]={cols,rows,q:'',sort:opts.sort??null,dir:opts.dir||1};
-  setTimeout(()=>paint(id),0);
-  return `<div id="${id}">
-   ${opts.search===false?'':`<div class="tbl-tools"><div class="search"><i class="fa-solid fa-magnifying-glass"></i><input placeholder="${esc(opts.ph||'Search...')}" oninput="tq('${id}',this.value)"></div>${opts.tools||''}</div>`}
-   <div class="tbl-scroll"><table><thead><tr>${cols.map((c,i)=>`<th class="${c.align||''}" onclick="ts('${id}',${i})">${esc(c.label)}${c.sortable===false?'':'<i class="fa-solid fa-sort"></i>'}</th>`).join('')}</tr></thead><tbody></tbody></table></div>
-   <div class="tbl-empty" style="display:none">${esc(opts.empty||'No records found')}</div></div>`;
-}
-function tq(id,v){TBL[id].q=v.toLowerCase();paint(id);}
-function ts(id,i){const t=TBL[id];if(t.cols[i].sortable===false)return;t.dir=t.sort===i?-t.dir:1;t.sort=i;paint(id);}
-function cellVal(c,r){return c.val?c.val(r):(r[c.key]??'');}
-function paint(id){
-  const t=TBL[id],host=$(id);if(!host)return;
-  let rows=t.rows.slice();
-  if(t.q)rows=rows.filter(r=>t.cols.some(c=>String(cellVal(c,r)).toLowerCase().includes(t.q)));
-  if(t.sort!=null){const c=t.cols[t.sort];rows.sort((a,b)=>{const x=cellVal(c,a),y=cellVal(c,b);
-    const nx=parseFloat(x),ny=parseFloat(y);
-    if(!isNaN(nx)&&!isNaN(ny)&&String(x).trim()!==''&&String(y).trim()!=='')return (nx-ny)*t.dir;
-    return String(x).localeCompare(String(y))*t.dir;});}
-  host.querySelector('tbody').innerHTML=rows.map(r=>`<tr>${t.cols.map(c=>`<td class="${c.align||''}">${c.fmt?c.fmt(r):esc(cellVal(c,r))}</td>`).join('')}</tr>`).join('');
-  host.querySelector('.tbl-empty').style.display=rows.length?'none':'block';
-}
-
-/* ============ MODAL ============ */
-function modal(title,html,wide){
-  $('modalTitle').innerHTML=title;$('modalBody').innerHTML=html;
-  $('modalBox').style.maxWidth=wide||'900px';$('modalBd').classList.add('on');document.body.style.overflow='hidden';
-}
-function closeModal(){$('modalBd').classList.remove('on');document.body.style.overflow='';}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
-
-/* ============ PAGE ROUTER ============ */
+/* ============ PAGE RENDER ROUTER ============ */
 function renderPage(){
-  paintBell();
+  if(!DB)return;
   const v=$('view');
-  ({dashboard:pgDashboard,customers:pgCustomers,ledger:pgLedger,products:pgProducts,sales:pgSales,purchases:pgPurchases,
-    receipt:pgReceipt,paid:pgPaid,returns:pgReturns,adjustment:pgAdjust,reports:pgReports,settings:pgSettings}[CUR])(v);
+  if(CUR==='dashboard') renderDashboard(v);
+  else if(CUR==='customers') renderCustomers(v);
+  else if(CUR==='ledger') renderLedger(v);
+  else if(CUR==='products') renderProducts(v);
+  else if(CUR==='sales') renderSales(v);
+  else if(CUR==='purchases') renderPurchases(v);
+  else if(CUR==='receipt') renderReceipt(v);
+  else if(CUR==='paid') renderPaid(v);
+  else if(CUR==='returns') renderReturns(v);
+  else if(CUR==='adjustment') renderAdjustment(v);
+  else if(CUR==='reports') renderReports(v);
+  else if(CUR==='settings') renderSettings(v);
 }
 
-/* ---------- DASHBOARD ---------- */
-let chartLine,chartDonut;
-function pgDashboard(v){
-  const wd=workDate(),ym=wd.slice(0,7);
-  const todayTx=DB.txns.filter(t=>t.date===wd);
-  const monthSales=sum(salesTx().filter(t=>inMonth(t.date,ym)),'debit');
-  const cards=[
-   {k:'customers',lbl:'Total Customers',val:customersOnly().length,color:'var(--text)',sub:suppliersOnly().length+' suppliers also registered'},
-   {k:'receivable',lbl:'Total Receivable (उठाउन बाँकी)',val:money(totalReceivable()),color:'var(--red)',sub:'From '+customersOnly().filter(c=>balance(c)>0).length+' customers'},
-   {k:'payable',lbl:'Total Payable (तिर्न बाँकी)',val:money(totalPayable()),color:'var(--orange)',sub:'To '+suppliersOnly().filter(c=>balance(c)>0).length+' suppliers'},
-   {k:'todays',lbl:"Today's Transactions",val:money(todayTx.reduce((s,t)=>s+num(t.debit)+num(t.credit),0)),color:'var(--green)',sub:todayTx.length+' entries on '+fmtDate(wd)},
-   {k:'month',lbl:'This Month Summary',val:money(monthSales),color:'var(--accent)',sub:'Sales in '+ym},
-   {k:'purchases',lbl:'Total Purchases',val:money(totalPurchases()),color:'var(--purple)',sub:purchaseTx().length+' purchase vouchers'},
-   {k:'sales',lbl:'Total Sales',val:money(totalSales()),color:'var(--green)',sub:salesTx().length+' invoices issued'}
-  ];
-  const recent=DB.txns.slice().sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id)).slice(0,8);
+/* --- DASHBOARD --- */
+function renderDashboard(v){
+  const ls=lowStock();
   v.innerHTML=`
-  <div class="cards">${cards.map(c=>`<div class="card">
-      <button class="eye" title="View details" onclick="cardView('${c.k}')"><i class="fa-regular fa-eye"></i></button>
-      <div class="lbl">${esc(c.lbl)}</div><div class="val" style="color:${c.color}">${c.val}</div><div class="sub">${esc(c.sub)}</div></div>`).join('')}</div>
-  <div class="grid2">
-    <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-chart-area" style="color:var(--accent)"></i> Real-time Sales &amp; Financial Trend</h3>
-      <div class="spacer"></div><span class="chip b">Live data</span></div>
-      <div class="chart-box"><canvas id="lineC"></canvas></div></div>
-    <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-chart-pie" style="color:var(--green)"></i> Receivables vs Payables</h3></div>
-      <div class="chart-box"><canvas id="donutC"></canvas></div></div>
-  </div>
-  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-clock-rotate-left" style="color:var(--accent)"></i> Recent Transactions</h3>
-    <div class="spacer"></div><button class="btn sm ghost" onclick="go('ledger')"><i class="fa-solid fa-arrow-right"></i> Full ledger</button></div>
-    ${dataTable([
-      {label:'Date',key:'date',fmt:r=>fmtDate(r.date)},
-      {label:'Voucher No.',key:'voucher'},
-      {label:'Customer / Party',val:r=>pname(r.partyId)},
-      {label:'Description',key:'desc'},
-      {label:'Debit',key:'debit',align:'right',fmt:r=>num(r.debit)?money(r.debit):'—'},
-      {label:'Credit',key:'credit',align:'right',fmt:r=>num(r.credit)?money(r.credit):'—'},
-      {label:'Payment Method',key:'mode',fmt:r=>`<span class="chip b">${esc(r.mode||'—')}</span>`},
-      {label:'Action',sortable:false,fmt:r=>`<button class="act" title="View" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>`}
-    ],recent,{ph:'Search recent transactions...',empty:'No transactions yet — create a sale or ledger entry.'})}
-  </div>`;
-  drawCharts();
-}
-function drawCharts(){
-  const dark=document.documentElement.dataset.theme==='dark';
-  const grid=dark?'#1e293b':'#eef2f7',tick=dark?'#94a3b8':'#64748b';
-  const labels=[],vals=[];
-  for(let i=6;i>=0;i--){const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-i);
-    const ym=d.toISOString().slice(0,7);labels.push(d.toLocaleString('en',{month:'short'}));
-    vals.push(sum(salesTx().filter(t=>inMonth(t.date,ym)),'debit'));}
-  if(chartLine)chartLine.destroy();
-  chartLine=new Chart($('lineC'),{type:'line',data:{labels,datasets:[{label:'Sales Trend',data:vals,borderColor:'#2563eb',
-    backgroundColor:'rgba(37,99,235,.10)',fill:true,tension:.42,pointRadius:4,pointBackgroundColor:'#fff',pointBorderWidth:2,borderWidth:3}]},
-    options:{maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{color:tick,usePointStyle:true,boxWidth:8}},
-      tooltip:{callbacks:{label:c=>' Sales: '+money(c.raw)}}},
-      scales:{y:{beginAtZero:true,grid:{color:grid},ticks:{color:tick,callback:v=>v.toLocaleString()}},x:{grid:{color:grid},ticks:{color:tick}}}}});
-  const r=totalReceivable(),p=totalPayable();
-  if(chartDonut)chartDonut.destroy();
-  chartDonut=new Chart($('donutC'),{type:'doughnut',data:{labels:['Receivables','Payables'],
-    datasets:[{data:[r||0.0001,p||0.0001],backgroundColor:['#e11d48','#d97706'],borderWidth:0,cutout:'58%'}]},
-    options:{maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{color:tick,usePointStyle:true,boxWidth:9}},
-      tooltip:{callbacks:{label:c=>' '+c.label+': '+money(c.raw)}}}}});
-}
-function cardView(k){
-  if(k==='customers'){
-    modal('<i class="fa-solid fa-users" style="color:var(--accent)"></i> All Customers',
-      dataTable([{label:'Customer Name',key:'name'},{label:'Mobile',key:'mobile'},{label:'Type',key:'type',fmt:r=>`<span class="chip ${r.type==='Supplier'?'o':'b'}">${esc(r.type)}</span>`},
-        {label:'Address',key:'address'},{label:'Balance',align:'right',val:r=>balance(r),fmt:r=>{const b=balance(r);return `<b style="color:${b>0?'var(--red)':'var(--green)'}">${money(Math.abs(b))}</b>`;}},
-        {label:'Action',sortable:false,fmt:r=>`<button class="act" title="Ledger" onclick="closeModal();openLedgerOf('${r.id}')"><i class="fa-solid fa-book"></i></button>`}],
-        DB.customers,{ph:'Quick search by name, mobile, address...'}));
-  }
-  if(k==='receivable'){
-    const rows=customersOnly().filter(c=>balance(c)>0).map(c=>{
-      const last=DB.txns.filter(t=>t.partyId===c.id).sort((a,b)=>b.date.localeCompare(a.date))[0];
-      const due=last?new Date(new Date(last.date).getTime()+30*864e5).toISOString().slice(0,10):'';
-      return {...c,out:balance(c),due};});
-    modal('<i class="fa-solid fa-hand-holding-dollar" style="color:var(--red)"></i> Receivables — कसले कति तिर्न बाँकी',
-      `<p class="muted" style="margin-bottom:12px">Total outstanding: <b style="color:var(--red)">${money(totalReceivable())}</b></p>`+
-      dataTable([{label:'Customer Name',key:'name'},{label:'Mobile',key:'mobile'},
-        {label:'Outstanding',key:'out',align:'right',fmt:r=>`<b style="color:var(--red)">${money(r.out)}</b>`},
-        {label:'Due Date',key:'due',fmt:r=>r.due?fmtDate(r.due):'—'},
-        {label:'Action',sortable:false,fmt:r=>`<button class="act g" title="Collect" onclick="closeModal();go('receipt')"><i class="fa-solid fa-money-bill"></i></button>
-          <button class="act" title="Ledger" onclick="closeModal();openLedgerOf('${r.id}')"><i class="fa-solid fa-book"></i></button>`}],rows,{empty:'No receivables 🎉'}));
-  }
-  if(k==='payable'){
-    const rows=suppliersOnly().filter(c=>balance(c)>0).map(c=>({...c,out:balance(c)}));
-    modal('<i class="fa-solid fa-file-invoice-dollar" style="color:var(--orange)"></i> Payables — कुन Vendor लाई कति तिर्न बाँकी',
-      `<p class="muted" style="margin-bottom:12px">Total payable: <b style="color:var(--orange)">${money(totalPayable())}</b></p>`+
-      dataTable([{label:'Vendor / Supplier',key:'name'},{label:'Mobile',key:'mobile'},{label:'Address',key:'address'},
-        {label:'Payable Amount',key:'out',align:'right',fmt:r=>`<b style="color:var(--orange)">${money(r.out)}</b>`},
-        {label:'Action',sortable:false,fmt:r=>`<button class="act" title="Pay" onclick="closeModal();go('paid')"><i class="fa-solid fa-money-bill-wave"></i></button>`}],rows,{empty:'No payables 🎉'}));
-  }
-  if(k==='todays'){
-    const wd=workDate(),rows=DB.txns.filter(t=>t.date===wd);
-    modal('<i class="fa-solid fa-calendar-day" style="color:var(--green)"></i> Transactions on '+fmtDate(wd),
-      dataTable([{label:'Voucher',key:'voucher'},{label:'Type',key:'type',fmt:r=>`<span class="chip">${esc(r.type)}</span>`},
-        {label:'Customer',val:r=>pname(r.partyId)},{label:'Amount',align:'right',val:r=>num(r.debit)+num(r.credit),fmt:r=>money(num(r.debit)+num(r.credit))},
-        {label:'Payment Mode',key:'mode'},{label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>`}],
-        rows,{empty:'No transactions recorded for this date'}));
-  }
-  if(k==='month'){
-    const ym=workDate().slice(0,7),ms=salesTx().filter(t=>inMonth(t.date,ym)),mp=purchaseTx().filter(t=>inMonth(t.date,ym));
-    const coll=sum(DB.txns.filter(t=>t.type==='receipt'&&inMonth(t.date,ym)),'credit');
-    const paid=sum(DB.txns.filter(t=>t.type==='payment'&&inMonth(t.date,ym)),'debit');
-    let cogs=0;ms.forEach(t=>(t.items||[]).forEach(i=>{const p=DB.products.find(x=>x.id===i.productId);cogs+=num(p?p.purchase:0)*num(i.qty);}));
-    const s=sum(ms,'debit'),pu=sum(mp,'credit'),profit=s-cogs;
-    const box=(l,v,c)=>`<div class="card" style="box-shadow:none"><div class="lbl">${l}</div><div class="val" style="color:${c};font-size:21px">${money(v)}</div></div>`;
-    modal('<i class="fa-solid fa-calendar" style="color:var(--accent)"></i> Monthly Summary — '+ym,
-      `<div class="cards" style="margin-bottom:18px">${box('Sales',s,'var(--green)')}${box('Purchase',pu,'var(--purple)')}${box('Collection',coll,'var(--accent)')}${box('Payment',paid,'var(--orange)')}${box('Gross Profit',profit,profit>=0?'var(--green)':'var(--red)')}</div>
-      <h4 style="margin-bottom:10px">Month transactions</h4>`+
-      dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Voucher',key:'voucher'},{label:'Type',key:'type'},
-        {label:'Party',val:r=>pname(r.partyId)},{label:'Debit',key:'debit',align:'right',fmt:r=>num(r.debit)?money(r.debit):'—'},
-        {label:'Credit',key:'credit',align:'right',fmt:r=>num(r.credit)?money(r.credit):'—'}],
-        DB.txns.filter(t=>inMonth(t.date,ym)),{empty:'No transactions this month'}));
-  }
-  if(k==='purchases'){
-    modal('<i class="fa-solid fa-briefcase" style="color:var(--purple)"></i> All Purchases',
-      dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Voucher',key:'voucher'},{label:'Supplier',val:r=>pname(r.partyId)},
-        {label:'Items',val:r=>(r.items||[]).map(i=>i.name+' x'+i.qty).join(', ')||'—'},
-        {label:'Amount',key:'credit',align:'right',fmt:r=>money(r.credit)},{label:'Mode',key:'mode'},
-        {label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>`}],
-        purchaseTx(),{empty:'No purchases recorded'}));
-  }
-  if(k==='sales'){
-    modal('<i class="fa-solid fa-cart-shopping" style="color:var(--green)"></i> All Sales',
-      dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Invoice No.',key:'voucher'},{label:'Customer',val:r=>pname(r.partyId)},
-        {label:'Items',val:r=>(r.items||[]).map(i=>i.name+' x'+i.qty).join(', ')||'—'},
-        {label:'Amount',key:'debit',align:'right',fmt:r=>money(r.debit)},{label:'Mode',key:'mode'},
-        {label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>`}],
-        salesTx(),{empty:'No sales recorded'}));
-  }
+    <div class="cards">
+      <div class="card"><div class="lbl">Total Sales</div><div class="val" style="color:var(--accent)">${money(totalSales())}</div><div class="sub">${salesTx().length} transactions</div></div>
+      <div class="card"><div class="lbl">Total Purchases</div><div class="val" style="color:var(--purple)">${money(totalPurchases())}</div><div class="sub">${purchaseTx().length} transactions</div></div>
+      <div class="card"><div class="lbl">Receivable (To Collect)</div><div class="val" style="color:var(--green)">${money(totalReceivable())}</div><div class="sub">From customers</div></div>
+      <div class="card"><div class="lbl">Payable (To Pay)</div><div class="val" style="color:var(--red)">${money(totalPayable())}</div><div class="sub">To suppliers</div></div>
+    </div>
+    <div class="grid2">
+      <div>
+        <div class="panel">
+          <div class="panel-h"><h3><i class="fa-solid fa-chart-line" style="color:var(--accent)"></i> Monthly Sales &amp; Purchases</h3></div>
+          <div class="chart-box"><canvas id="dashChart"></canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><h3><i class="fa-solid fa-clock-rotate-left" style="color:var(--purple)"></i> Recent Transactions</h3><div class="spacer"></div><button class="btn ghost sm" onclick="go('ledger')">View All</button></div>
+          <div class="tbl-scroll"><table><thead><tr><th>Date</th><th>Voucher</th><th>Party</th><th>Type</th><th class="right">Amount</th></tr></thead>
+          <tbody>${DB.txns.slice(-6).reverse().map(t=>`<tr><td>${fmtDate(t.date)}</td><td><b>${esc(t.voucher)}</b></td><td>${esc(pname(t.partyId))}</td><td><span class="chip ${t.type==='sale'?'b':t.type==='purchase'?'o':t.type==='receipt'?'g':'r'}">${t.type}</span></td><td class="right" style="font-weight:700">${money(t.debit||t.credit)}</td></tr>`).join('')}</tbody></table></div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="panel-h"><h3><i class="fa-solid fa-triangle-exclamation" style="color:var(--orange)"></i> Low Stock Alerts</h3><span class="chip r">${ls.length}</span></div>
+          <div style="display:grid;gap:10px;max-height:300px;overflow-y:auto">
+            ${ls.length?ls.map(p=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--panel2);border-radius:10px"><div><b>${esc(p.name)}</b><div class="muted">Stock: ${p.stock}</div></div><button class="btn sm" onclick="go('products')">Manage</button></div>`).join(''):'<div class="muted" style="text-align:center;padding:20px">All inventory levels are healthy!</div>'}
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><h3><i class="fa-solid fa-bolt" style="color:var(--green)"></i> Quick Shortcuts</h3></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <button class="btn ghost" onclick="go('sales')"><i class="fa-solid fa-cart-shopping" style="color:var(--accent)"></i> New Sale</button>
+            <button class="btn ghost" onclick="go('receipt')"><i class="fa-solid fa-receipt" style="color:var(--green)"></i> Receive Cash</button>
+            <button class="btn ghost" onclick="go('purchases')"><i class="fa-solid fa-briefcase" style="color:var(--purple)"></i> Purchase</button>
+            <button class="btn ghost" onclick="go('customers')"><i class="fa-solid fa-user-plus" style="color:#38bdf8)"></i> Add Party</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  setTimeout(()=>{
+    const ctx=$('dashChart'); if(!ctx)return;
+    const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const sMap={}, pMap={};
+    DB.txns.forEach(t=>{const ym=t.date?t.date.slice(0,7):''; if(!ym)return;
+      if(t.type==='sale') sMap[ym]=(sMap[ym]||0)+num(t.debit);
+      if(t.type==='purchase') pMap[ym]=(pMap[ym]||0)+num(t.credit);
+    });
+    const keys=Object.keys(Object.assign({},sMap,pMap)).sort().slice(-6);
+    const labs=keys.map(k=>{const [y,m]=k.split('-');return months[parseInt(m,10)-1]+' '+y;});
+    new Chart(ctx,{type:'bar',data:{labels:labs.length?labs:['Current'],datasets:[
+      {label:'Sales',data:keys.map(k=>sMap[k]||0),backgroundColor:'#2563eb',borderRadius:6},
+      {label:'Purchases',data:keys.map(k=>pMap[k]||0),backgroundColor:'#7c3aed',borderRadius:6}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{grid:{color:'rgba(150,150,150,.1)'}},x:{grid:{display:false}}}}});
+  },50);
 }
 
-/* ---------- TRANSACTION VIEW + ATTACHMENTS ---------- */
+/* --- CUSTOMERS / PARTIES --- */
+function renderCustomers(v){
+  v.innerHTML=`
+    <div class="panel">
+      <div class="panel-h">
+        <h3><i class="fa-solid fa-users" style="color:#38bdf8"></i> Customers &amp; Suppliers Directory</h3>
+        <div class="spacer"></div>
+        <button class="btn" onclick="openPartyModal()"><i class="fa-solid fa-user-plus"></i> Add New Party</button>
+      </div>
+      <div class="tbl-tools">
+        <div class="search"><i class="fa-solid fa-magnifying-glass"></i><input id="partySearch" placeholder="Search party name or mobile..." oninput="filterParties()"></div>
+        <div class="seg" id="partyFilterSeg">
+          <button class="on" onclick="setPartyFilter('all',this)">All</button>
+          <button onclick="setPartyFilter('Customer',this)">Customers</button>
+          <button onclick="setPartyFilter('Supplier',this)">Suppliers</button>
+        </div>
+      </div>
+      <div class="tbl-scroll"><table>
+        <thead><tr><th>Name</th><th>Type</th><th>Mobile</th><th>PAN / VAT</th><th>Address</th><th class="right">Opening</th><th class="right">Balance</th><th class="right">Actions</th></tr></thead>
+        <tbody id="partyTbody"></tbody>
+      </table></div>
+    </div>`;
+  window._partyFilter='all';
+  paintParties();
+}
+let _partyFilter='all';
+function setPartyFilter(f,btn){_partyFilter=f;btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');paintParties();}
+function paintParties(){
+  const q=($('partySearch')?.value||'').toLowerCase();
+  const tb=$('partyTbody');if(!tb)return;
+  const list=DB.customers.filter(c=>{
+    const matchF=_partyFilter==='all'||c.type===_partyFilter;
+    const matchQ=!q||c.name.toLowerCase().includes(q)||(c.mobile||'').includes(q);
+    return matchF&&matchQ;
+  });
+  if(!list.length){tb.innerHTML=`<tr><td colspan="8" class="tbl-empty">No parties found</td></tr>`;return;}
+  tb.innerHTML=list.map(c=>{
+    const bal=balance(c);
+    return `<tr>
+      <td><b>${esc(c.name)}</b></td>
+      <td><span class="chip ${c.type==='Supplier'?'o':'b'}">${esc(c.type)}</span></td>
+      <td>${esc(c.mobile||'—')}</td><td>${esc(c.pan||c.vat||'—')}</td><td>${esc(c.address||'—')}</td>
+      <td class="right">${money(c.opening)}</td>
+      <td class="right" style="font-weight:700;color:${bal>0?'var(--green)':bal<0?'var(--red)':'inherit'}">${money(bal)}</td>
+      <td class="right">
+        <button class="act" title="Ledger Statement" onclick="openLedgerStatement('${c.id}')"><i class="fa-solid fa-file-invoice"></i></button>
+        <button class="act" title="Edit" onclick="openPartyModal('${c.id}')"><i class="fa-solid fa-pen"></i></button>
+        <button class="act d" title="Delete" onclick="deleteParty('${c.id}')"><i class="fa-solid fa-trash"></i></button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+function filterParties(){paintParties();}
+
+function openPartyModal(id){
+  const p=id?DB.customers.find(c=>c.id===id):null;
+  openModal(p?'Edit Party':'Add New Party',`
+    <form onsubmit="saveParty(event,'${id||''}')">
+      <div class="form-grid">
+        <div class="field"><label>Party Name <span>*</span></label><input class="inp" id="mPartyName" value="${esc(p?p.name:'')}" required></div>
+        <div class="field"><label>Type</label><select class="inp" id="mPartyType"><option value="Customer" ${p&&p.type==='Customer'?'selected':''}>Customer</option><option value="Supplier" ${p&&p.type==='Supplier'?'selected':''}>Supplier</option></select></div>
+        <div class="field"><label>Mobile Number</label><input class="inp" id="mPartyMobile" value="${esc(p?p.mobile:'')}" placeholder="98XXXXXXXX"></div>
+        <div class="field"><label>PAN / VAT No.</label><input class="inp" id="mPartyPan" value="${esc(p?p.pan:'')}"></div>
+        <div class="field"><label>Address</label><input class="inp" id="mPartyAddr" value="${esc(p?p.address:'')}" placeholder="City / Location"></div>
+        <div class="field"><label>Opening Balance</label><input class="inp" id="mPartyOp" type="number" step="any" value="${p?p.opening:0}"></div>
+      </div>
+      <div class="form-actions"><button class="btn" type="submit">Save Party</button><button class="btn ghost" type="button" onclick="closeModal()">Cancel</button></div>
+    </form>
+  `);
+}
+function saveParty(e,id){
+  e.preventDefault();
+  const name=$('mPartyName').value.trim();if(!name)return;
+  const type=$('mPartyType').value, mobile=$('mPartyMobile').value.trim(), pan=$('mPartyPan').value.trim(), address=$('mPartyAddr').value.trim(), opening=num($('mPartyOp').value);
+  if(id){
+    const p=DB.customers.find(c=>c.id===id);
+    if(p){Object.assign(p,{name,type,mobile,pan,address,opening});}
+    toast('Party updated successfully','ok');
+  } else {
+    DB.customers.push({id:uid(),name,type,mobile,pan,address,opening,created:today()});
+    toast('Party added successfully','ok');
+  }
+  save();closeModal();renderPage();
+}
+function deleteParty(id){
+  if(!confirm('Delete this party? All related ledger entries will remain.'))return;
+  DB.customers=DB.customers.filter(c=>c.id!==id);
+  save();renderPage();toast('Party removed','ok');
+}
+
+/* --- LEDGER --- */
+function renderLedger(v){
+  v.innerHTML=`
+    <div class="panel">
+      <div class="panel-h">
+        <h3><i class="fa-solid fa-book" style="color:#818cf8"></i> Complete Ledger &amp; Journal Entries</h3>
+        <div class="spacer"></div>
+        <button class="btn ghost sm" onclick="printLedger()"><i class="fa-solid fa-print"></i> Print</button>
+      </div>
+      <div class="tbl-tools">
+        <div class="search"><i class="fa-solid fa-magnifying-glass"></i><input id="ledgerSearch" placeholder="Search voucher, description..." oninput="filterLedger()"></div>
+        <select class="pill" id="ledgerPartyFilter" onchange="filterLedger()"><option value="">All Parties</option>${DB.customers.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select>
+        <select class="pill" id="ledgerTypeFilter" onchange="filterLedger()"><option value="">All Types</option><option value="sale">Sale</option><option value="purchase">Purchase</option><option value="receipt">Receipt</option><option value="payment">Payment</option><option value="return">Return</option><option value="adjustment">Adjustment</option></select>
+      </div>
+      <div class="tbl-scroll"><table id="ledgerTable">
+        <thead><tr><th>Date</th><th>Voucher</th><th>Party Name</th><th>Type</th><th>Description</th><th class="right">Debit (Dr)</th><th class="right">Credit (Cr)</th><th class="right">Actions</th></tr></thead>
+        <tbody id="ledgerTbody"></tbody>
+      </table></div>
+    </div>`;
+  paintLedger();
+}
+function paintLedger(){
+  const q=($('ledgerSearch')?.value||'').toLowerCase();
+  const pid=$('ledgerPartyFilter')?.value||'';
+  const typ=$('ledgerTypeFilter')?.value||'';
+  const tb=$('ledgerTbody');if(!tb)return;
+  const list=DB.txns.filter(t=>{
+    const matchQ=!q||t.voucher.toLowerCase().includes(q)||(t.desc||'').toLowerCase().includes(q);
+    const matchP=!pid||t.partyId===pid;
+    const matchT=!typ||t.type===typ;
+    return matchQ&&matchP&&matchT;
+  }).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  if(!list.length){tb.innerHTML=`<tr><td colspan="8" class="tbl-empty">No transactions found</td></tr>`;return;}
+  tb.innerHTML=list.map(t=>`<tr>
+    <td>${fmtDate(t.date)}</td>
+    <td><b>${esc(t.voucher)}</b></td>
+    <td>${esc(pname(t.partyId))}</td>
+    <td><span class="chip ${t.type==='sale'?'b':t.type==='purchase'?'o':t.type==='receipt'?'g':'r'}">${t.type}</span></td>
+    <td>${esc(t.desc||'—')}</td>
+    <td class="right" style="font-weight:600">${t.debit?money(t.debit):'—'}</td>
+    <td class="right" style="font-weight:600">${t.credit?money(t.credit):'—'}</td>
+    <td class="right">
+      <button class="act" title="View Details" onclick="viewTxn('${t.id}')"><i class="fa-solid fa-eye"></i></button>
+      <button class="act d" title="Delete Entry" onclick="deleteTxn('${t.id}')"><i class="fa-solid fa-trash"></i></button>
+    </td>
+  </tr>`).join('');
+}
+function filterLedger(){paintLedger();}
+
+function deleteTxn(id){
+  if(!confirm('Delete this transaction? Stock and ledger balances will be reverted.'))return;
+  const t=DB.txns.find(x=>x.id===id);
+  if(t){
+    // Revert stock if items exist
+    if(t.items&&t.items.length){
+      t.items.forEach(it=>{
+        if(t.type==='sale') adjustStock(it.productId, it.qty);
+        else if(t.type==='purchase') adjustStock(it.productId, -it.qty);
+      });
+    }
+    DB.txns=DB.txns.filter(x=>x.id!==id);
+    save();renderPage();toast('Transaction deleted','ok');
+  }
+}
 function viewTxn(id){
   const t=DB.txns.find(x=>x.id===id);if(!t)return;
-  modal('<i class="fa-solid fa-file-invoice" style="color:var(--accent)"></i> Transaction — '+esc(t.voucher),`
-   <div class="kv">
-     <div>Date</div><div>${fmtDate(t.date)}</div>
-     <div>Voucher No.</div><div><b>${esc(t.voucher)}</b></div>
-     <div>Type</div><div><span class="chip">${esc(t.type)}</span></div>
-     <div>Party</div><div>${esc(pname(t.partyId))}</div>
-     <div>Description</div><div>${esc(t.desc||'—')}</div>
-     <div>Payment Mode</div><div><span class="chip b">${esc(t.mode||'—')}</span></div>
-     <div>Debit</div><div style="color:var(--red)"><b>${money(t.debit)}</b></div>
-     <div>Credit</div><div style="color:var(--green)"><b>${money(t.credit)}</b></div>
-   </div>
-   ${(t.items&&t.items.length)?`<h4 style="margin:18px 0 8px">Items</h4><div class="tbl-scroll"><table><thead><tr><th>Product</th><th class="right">Qty</th><th class="right">Rate</th><th class="right">Amount</th></tr></thead><tbody>
-     ${t.items.map(i=>`<tr><td>${esc(i.name)}</td><td class="right">${i.qty}</td><td class="right">${money(i.rate)}</td><td class="right">${money(num(i.qty)*num(i.rate))}</td></tr>`).join('')}</tbody></table></div>`:''}
-   <h4 style="margin:20px 0 8px">Attachments <span class="muted" style="font-weight:400;font-size:12px">— QR screenshot, bank slip, cheque, receipt photo</span></h4>
-   <div class="dropzone" onclick="$('attInp').click()"><i class="fa-solid fa-cloud-arrow-up"></i> Click to upload image / screenshot (JPG, PNG)</div>
-   <input id="attInp" type="file" accept="image/*" multiple hidden onchange="uploadAtt('${t.id}',this.files)">
-   <div class="thumbs" id="thumbs">${attHTML(t)}</div>`);
-}
-function attHTML(t){
-  if(!t.attachments||!t.attachments.length)return '<p class="muted" style="font-size:12.5px">No attachments yet.</p>';
-  return t.attachments.map((a,i)=>`<div class="thumb"><img src="${a.data}" onclick="previewImg('${t.id}',${i})"><div class="nm">${esc(a.name)}</div>
-    <button class="x" title="Remove" onclick="delAtt('${t.id}',${i})"><i class="fa-solid fa-xmark"></i></button></div>`).join('');
-}
-function uploadAtt(id,files){
-  const t=DB.txns.find(x=>x.id===id);if(!t)return;t.attachments=t.attachments||[];
-  let left=files.length;if(!left)return;
-  [...files].forEach(f=>{
-    if(f.size>1.6*1024*1024){toast(f.name+' is too large (max 1.5MB)','err');left--;return;}
-    const r=new FileReader();r.onload=e=>{t.attachments.push({name:f.name,data:e.target.result});
-      if(--left<=0){save();$('thumbs').innerHTML=attHTML(t);toast('Attachment(s) uploaded','ok');}};
-    r.readAsDataURL(f);});
-}
-function delAtt(id,i){const t=DB.txns.find(x=>x.id===id);t.attachments.splice(i,1);save();$('thumbs').innerHTML=attHTML(t);toast('Attachment removed','ok');}
-function previewImg(id,i){const a=DB.txns.find(x=>x.id===id).attachments[i];
-  modal('<i class="fa-regular fa-image"></i> '+esc(a.name),`<img src="${a.data}" style="max-width:100%;border-radius:12px">`,'780px');}
-
-/* ---------- CUSTOMERS ---------- */
-let editCust=null;
-function pgCustomers(v){
-  v.innerHTML=`
-  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-user-plus" style="color:var(--accent)"></i> <span id="cFormTitle">Add New Customer</span></h3></div>
-   <form onsubmit="saveCustomer(event)">
-    <div class="form-grid">
-      <div class="field"><label>Customer Full Name <span>*</span></label><input class="inp" id="cName"><div class="err-msg" id="cNameErr">Name is required</div></div>
-      <div class="field"><label>Mobile Number <span>*</span></label><input class="inp" id="cMobile" placeholder="98XXXXXXXX"><div class="err-msg" id="cMobileErr">Valid mobile required</div></div>
-      <div class="field"><label>Party Type</label><select class="inp" id="cType"><option>Customer</option><option>Supplier</option></select></div>
-      <div class="field"><label>PAN Number</label><input class="inp" id="cPan"></div>
-      <div class="field"><label>VAT Number</label><input class="inp" id="cVat"></div>
-      <div class="field"><label>Address</label><input class="inp" id="cAddr"></div>
-      <div class="field"><label>Opening Balance (editable)</label><input class="inp" id="cOpen" type="number" step="0.01" value="0"></div>
+  openModal('Transaction Voucher: '+t.voucher,`
+    <div class="kv">
+      <div>Date</div><div>${fmtDate(t.date)}</div>
+      <div>Voucher</div><div><b>${esc(t.voucher)}</b></div>
+      <div>Type</div><div><span class="chip">${t.type}</span></div>
+      <div>Party</div><div>${esc(pname(t.partyId))}</div>
+      <div>Description</div><div>${esc(t.desc||'—')}</div>
+      <div>Mode</div><div>${esc(t.mode||'Cash')}</div>
+      <div>Debit</div><div>${money(t.debit)}</div>
+      <div>Credit</div><div>${money(t.credit)}</div>
     </div>
-    <div class="form-actions"><button class="btn" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save</button>
-      <button class="btn ghost" type="button" onclick="resetCustomer()"><i class="fa-solid fa-xmark"></i> Cancel</button></div>
-   </form></div>
-  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-users" style="color:#38bdf8"></i> Customer &amp; Supplier List</h3><div class="spacer"></div>
-    <span class="chip b">${DB.customers.length} parties</span></div>
-   ${dataTable([
-     {label:'Name',key:'name'},{label:'Mobile',key:'mobile'},{label:'Type',key:'type',fmt:r=>`<span class="chip ${r.type==='Supplier'?'o':'b'}">${esc(r.type)}</span>`},
-     {label:'PAN',key:'pan',fmt:r=>esc(r.pan||'—')},{label:'VAT',key:'vat',fmt:r=>esc(r.vat||'—')},{label:'Address',key:'address'},
-     {label:'Opening',key:'opening',align:'right',fmt:r=>money(r.opening)},
-     {label:'Balance',align:'right',val:r=>balance(r),fmt:r=>{const b=balance(r);return `<b style="color:${b>0?(r.type==='Supplier'?'var(--orange)':'var(--red)'):'var(--green)'}">${money(Math.abs(b))}</b>`}},
-     {label:'Actions',sortable:false,fmt:r=>`
-       <button class="act" title="Ledger" onclick="openLedgerOf('${r.id}')"><i class="fa-solid fa-book"></i></button>
-       <button class="act g" title="Share statement" onclick="shareStatement('${r.id}')"><i class="fa-solid fa-share-nodes"></i></button>
-       <button class="act" title="Edit" onclick="editCustomer('${r.id}')"><i class="fa-solid fa-pen"></i></button>
-       <button class="act d" title="Delete" onclick="delCustomer('${r.id}')"><i class="fa-solid fa-trash"></i></button>`}
-   ],DB.customers,{ph:'Search name, mobile, PAN, address...',empty:'No customers yet — add your first one above.'})}
-  </div>`;
+    ${t.items&&t.items.length?`<h4 style="margin:16px 0 8px">Items Involved</h4><table style="font-size:13px"><thead><tr><th>Item</th><th>Qty</th><th>Rate</th><th class="right">Total</th></tr></thead><tbody>${t.items.map(i=>`<tr><td>${esc(i.name)}</td><td>${i.qty}</td><td>${money(i.rate)}</td><td class="right">${money(i.qty*i.rate)}</td></tr>`).join('')}</tbody></table>`:''}
+    <div style="margin-top:20px;text-align:right"><button class="btn" onclick="closeModal()">Close</button></div>
+  `);
 }
-function saveCustomer(e){
+function printLedger(){
+  window.print();
+}
+
+/* --- PRODUCTS / INVENTORY --- */
+function renderProducts(v){
+  const th=num(DB.settings.lowStock)||5;
+  v.innerHTML=`
+    <div class="panel">
+      <div class="panel-h">
+        <h3><i class="fa-solid fa-tags" style="color:#f472b6"></i> Inventory &amp; Products</h3>
+        <div class="spacer"></div>
+        <button class="btn" onclick="openProductModal()"><i class="fa-solid fa-plus"></i> Add Product</button>
+      </div>
+      <div class="tbl-tools">
+        <div class="search"><i class="fa-solid fa-magnifying-glass"></i><input id="prodSearch" placeholder="Search product..." oninput="filterProducts()"></div>
+        <div class="muted">Low stock threshold: <b>${th}</b> units</div>
+      </div>
+      <div class="tbl-scroll"><table id="prodTable">
+        <thead><tr><th>Product Name</th><th class="right">Purchase Price</th><th class="right">Selling Price</th><th class="right">Stock Qty</th><th class="right">Stock Value</th><th class="right">Actions</th></tr></thead>
+        <tbody id="prodTbody"></tbody>
+      </table></div>
+    </div>`;
+  paintProducts();
+}
+function paintProducts(){
+  const q=($('prodSearch')?.value||'').toLowerCase();
+  const tb=$('prodTbody');if(!tb)return;
+  const list=DB.products.filter(p=>!q||p.name.toLowerCase().includes(q));
+  if(!list.length){tb.innerHTML=`<tr><td colspan="6" class="tbl-empty">No products found</td></tr>`;return;}
+  tb.innerHTML=list.map(p=>`<tr>
+    <td><b>${esc(p.name)}</b></td>
+    <td class="right">${money(p.purchase)}</td>
+    <td class="right">${money(p.selling)}</td>
+    <td class="right"><span class="chip ${num(p.stock)<=num(DB.settings.lowStock||5)?'r':'g'}">${p.stock}</span></td>
+    <td class="right" style="font-weight:600">${money(num(p.stock)*num(p.purchase))}</td>
+    <td class="right">
+      <button class="act" title="Edit" onclick="openProductModal('${p.id}')"><i class="fa-solid fa-pen"></i></button>
+      <button class="act d" title="Delete" onclick="deleteProduct('${p.id}')"><i class="fa-solid fa-trash"></i></button>
+    </td>
+  </tr>`).join('');
+}
+function filterProducts(){paintProducts();}
+
+function openProductModal(id){
+  const p=id?DB.products.find(x=>x.id===id):null;
+  openModal(p?'Edit Product':'Add New Product',`
+    <form onsubmit="saveProduct(event,'${id||''}')">
+      <div class="form-grid">
+        <div class="field"><label>Product Name <span>*</span></label><input class="inp" id="mProdName" value="${esc(p?p.name:'')}" required></div>
+        <div class="field"><label>Purchase Price (₨)</label><input class="inp" id="mProdPur" type="number" step="any" value="${p?p.purchase:0}"></div>
+        <div class="field"><label>Selling Price (₨)</label><input class="inp" id="mProdSell" type="number" step="any" value="${p?p.selling:0}"></div>
+        <div class="field"><label>Initial Stock Qty</label><input class="inp" id="mProdStock" type="number" step="any" value="${p?p.stock:0}"></div>
+      </div>
+      <div class="form-actions"><button class="btn" type="submit">Save Product</button><button class="btn ghost" type="button" onclick="closeModal()">Cancel</button></div>
+    </form>
+  `);
+}
+function saveProduct(e,id){
   e.preventDefault();
-  const n=$('cName').value.trim(),m=$('cMobile').value.trim();
-  showErr('cNameErr',!n);showErr('cMobileErr',!/^[0-9+\-\s]{7,15}$/.test(m));
-  if(!n||!/^[0-9+\-\s]{7,15}$/.test(m))return toast('Please fill required fields correctly','err');
-  const obj={name:n,mobile:m,type:$('cType').value,pan:$('cPan').value.trim(),vat:$('cVat').value.trim(),
-    address:$('cAddr').value.trim(),opening:num($('cOpen').value)};
-  if(editCust){Object.assign(DB.customers.find(c=>c.id===editCust),obj);toast('Customer updated successfully','ok');}
-  else{DB.customers.push({id:uid(),created:today(),...obj});toast('Customer saved successfully','ok');}
-  save();editCust=null;renderPage();
-}
-function editCustomer(id){
-  const c=party(id);editCust=id;
-  $('cFormTitle').textContent='Edit Customer — '+c.name;
-  $('cName').value=c.name;$('cMobile').value=c.mobile;$('cType').value=c.type;$('cPan').value=c.pan||'';
-  $('cVat').value=c.vat||'';$('cAddr').value=c.address||'';$('cOpen').value=c.opening||0;
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-function resetCustomer(){editCust=null;renderPage();}
-function delCustomer(id){
-  if(DB.txns.some(t=>t.partyId===id))return toast('Cannot delete — this party has transactions. Ledger history must be preserved.','err');
-  if(!confirm('Delete this party?'))return;
-  DB.customers=DB.customers.filter(c=>c.id!==id);save();renderPage();toast('Party deleted','ok');
-}
-
-/* ---------- LEDGER ---------- */
-let LEDG={party:'',from:'',to:''};
-function openLedgerOf(id){LEDG.party=id;go('ledger');}
-function pgLedger(v){
-  const opts=DB.customers.map(c=>`<option value="${c.id}" ${LEDG.party===c.id?'selected':''}>${esc(c.name)} (${c.type})</option>`).join('');
-  const MODES=['Cash','Bank','Cheque','eSewa','Khalti','ConnectIPS','QR Payment','Fonepay','IME Pay','Bank Transfer','Credit Sale'];
-  v.innerHTML=`
-  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-pen-to-square" style="color:#818cf8"></i> New Ledger Entry</h3></div>
-   <form onsubmit="saveLedger(event)">
-   <div class="form-grid">
-     <div class="field"><label>Customer / Party <span>*</span></label><select class="inp" id="lParty"><option value="">— Select party —</option>${opts}</select><div class="err-msg" id="lPartyErr">Select a party</div></div>
-     <div class="field"><label>Date <span>*</span></label><input class="inp" id="lDate" type="date" value="${workDate()}"></div>
-     <div class="field"><label>Voucher No.</label><input class="inp" id="lVoucher" value="${nextVoucher('JRN-')}"></div>
-     <div class="field"><label>Payment Mode</label><select class="inp" id="lMode">${MODES.map(m=>`<option>${m}</option>`).join('')}</select></div>
-     <div class="field"><label>Description</label><input class="inp" id="lDesc" placeholder="Narration"></div>
-     <div class="field"><label>Debit (उठाउन बाँकी +)</label><input class="inp" id="lDebit" type="number" step="0.01" value="0"></div>
-     <div class="field"><label>Credit (भुक्तानी /तिर्न +)</label><input class="inp" id="lCredit" type="number" step="0.01" value="0"></div>
-   </div>
-   <div class="form-actions"><button class="btn"><i class="fa-solid fa-floppy-disk"></i> Save Entry</button>
-     <button class="btn ghost" type="button" onclick="renderPage()">Cancel</button></div></form></div>
-  ${LEDG.party?ledgerViewHTML(LEDG.party):`<div class="panel"><p class="muted"><i class="fa-solid fa-circle-info"></i> Select a party above (or from Customer Information) to view the complete chronological ledger history.</p></div>`}`;
-  $('lParty').onchange=e=>{LEDG.party=e.target.value;renderPage();};
-}
-function ledgerViewHTML(pid){
-  const p=party(pid);if(!p)return '';
-  let rows=DB.txns.filter(t=>t.partyId===pid).sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id));
-  if(LEDG.from)rows=rows.filter(t=>t.date>=LEDG.from);
-  if(LEDG.to)rows=rows.filter(t=>t.date<=LEDG.to);
-  let run=num(p.opening);
-  const data=rows.map(t=>{run+= p.type==='Supplier'?(num(t.credit)-num(t.debit)):(num(t.debit)-num(t.credit));return {...t,run};});
-  return `<div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-book" style="color:#818cf8"></i> Ledger — ${esc(p.name)}</h3>
-    <div class="spacer"></div>
-    <label class="muted" style="font-size:12px">From</label><input class="inp" style="width:150px" type="date" value="${LEDG.from}" onchange="LEDG.from=this.value;renderPage()">
-    <label class="muted" style="font-size:12px">To</label><input class="inp" style="width:150px" type="date" value="${LEDG.to}" onchange="LEDG.to=this.value;renderPage()">
-    <button class="btn sm ghost" onclick="LEDG.from='';LEDG.to='';renderPage()">Clear</button>
-    <button class="btn sm green" onclick="shareStatement('${pid}')"><i class="fa-solid fa-share-nodes"></i> Share</button></div>
-   <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
-     <div class="card" style="box-shadow:none"><div class="lbl">Opening Balance</div><div class="val" style="font-size:20px">${money(p.opening)}</div></div>
-     <div class="card" style="box-shadow:none"><div class="lbl">Total Debit</div><div class="val" style="font-size:20px;color:var(--red)">${money(sum(rows,'debit'))}</div></div>
-     <div class="card" style="box-shadow:none"><div class="lbl">Total Credit</div><div class="val" style="font-size:20px;color:var(--green)">${money(sum(rows,'credit'))}</div></div>
-     <div class="card" style="box-shadow:none"><div class="lbl">Closing ${p.type==='Supplier'?'Payable':'Receivable'}</div><div class="val" style="font-size:20px;color:var(--accent)">${money(run)}</div></div>
-   </div>
-   ${dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Voucher',key:'voucher'},{label:'Type',key:'type',fmt:r=>`<span class="chip">${esc(r.type)}</span>`},
-     {label:'Description',key:'desc'},{label:'Mode',key:'mode'},
-     {label:'Debit',key:'debit',align:'right',fmt:r=>num(r.debit)?money(r.debit):'—'},
-     {label:'Credit',key:'credit',align:'right',fmt:r=>num(r.credit)?money(r.credit):'—'},
-     {label:'Balance',key:'run',align:'right',fmt:r=>`<b>${money(r.run)}</b>`},
-     {label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>
-        <button class="act d" onclick="delTxn('${r.id}')"><i class="fa-solid fa-trash"></i></button>`}],
-     data,{ph:'Search this ledger...',empty:'No entries in the selected period'})}</div>`;
-}
-function saveLedger(e){
-  e.preventDefault();
-  const pid=$('lParty').value;showErr('lPartyErr',!pid);
-  const d=num($('lDebit').value),c=num($('lCredit').value);
-  if(!pid)return toast('Please select a party','err');
-  if(!d&&!c)return toast('Enter a debit or credit amount','err');
-  DB.txns.push({id:uid(),date:$('lDate').value||today(),type:'journal',voucher:$('lVoucher').value||nextVoucher('JRN-'),
-    partyId:pid,desc:$('lDesc').value.trim()||'Ledger entry',debit:d,credit:c,mode:$('lMode').value,items:[],attachments:[]});
-  save();LEDG.party=pid;renderPage();toast('Ledger entry saved to '+pname(pid),'ok');
-}
-function delTxn(id){
-  if(!confirm('Delete this transaction? Stock effects will be reversed.'))return;
-  const t=DB.txns.find(x=>x.id===id);
-  (t.items||[]).forEach(i=>{ if(t.type==='sale'||t.type==='return-out')adjustStock(i.productId,num(i.qty));
-    if(t.type==='purchase'||t.type==='return-in')adjustStock(i.productId,-num(i.qty)); });
-  if(t.type==='adjust'&&t.items)t.items.forEach(i=>adjustStock(i.productId,-num(i.qty)));
-  DB.txns=DB.txns.filter(x=>x.id!==id);save();renderPage();toast('Transaction deleted','ok');
-}
-
-/* ---------- PRODUCTS ---------- */
-let editProd=null;
-function pgProducts(v){
-  const ls=lowStock();
-  v.innerHTML=`
-  ${ls.length?`<div class="panel" style="border-left:4px solid var(--orange)"><b><i class="fa-solid fa-triangle-exclamation" style="color:var(--orange)"></i> Low Stock Alert</b>
-    <p class="muted" style="margin-top:6px">${ls.map(p=>esc(p.name)+' is running out ('+p.stock+' left)').join(' · ')}</p></div>`:''}
-  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-box" style="color:#f472b6"></i> <span id="pFormTitle">Add Product</span></h3></div>
-   <form onsubmit="saveProduct(event)"><div class="form-grid">
-     <div class="field"><label>Product Name <span>*</span></label><input class="inp" id="pName"><div class="err-msg" id="pNameErr">Product name required</div></div>
-     <div class="field"><label>Purchase Rate <span>*</span></label><input class="inp" id="pPur" type="number" step="0.01" value="0"></div>
-     <div class="field"><label>Selling Rate <span>*</span></label><input class="inp" id="pSell" type="number" step="0.01" value="0"></div>
-     <div class="field"><label>Initial Stock <span>*</span></label><input class="inp" id="pStock" type="number" step="1" value="0"></div>
-   </div><div class="form-actions"><button class="btn"><i class="fa-solid fa-floppy-disk"></i> Save</button>
-     <button class="btn ghost" type="button" onclick="editProd=null;renderPage()">Cancel</button></div></form></div>
-  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-warehouse" style="color:#f472b6"></i> Inventory — Live Stock</h3><div class="spacer"></div>
-    <span class="chip b">${DB.products.length} products</span><span class="chip o">${ls.length} low</span></div>
-   ${dataTable([
-     {label:'Product Name',key:'name'},
-     {label:'Purchase Rate',key:'purchase',align:'right',fmt:r=>money(r.purchase)},
-     {label:'Selling Rate',key:'selling',align:'right',fmt:r=>money(r.selling)},
-     {label:'Initial Stock',key:'initial',align:'right'},
-     {label:'Current Stock',key:'stock',align:'right',fmt:r=>{const th=num(DB.settings.lowStock)||5;return `<b class="chip ${num(r.stock)<=th?'r':'g'}">${r.stock}</b>`}},
-     {label:'Stock Value',align:'right',val:r=>num(r.stock)*num(r.purchase),fmt:r=>money(num(r.stock)*num(r.purchase))},
-     {label:'Actions',sortable:false,fmt:r=>`<button class="act" title="Edit" onclick="editProduct('${r.id}')"><i class="fa-solid fa-pen"></i></button>
-       <button class="act d" title="Delete" onclick="delProduct('${r.id}')"><i class="fa-solid fa-trash"></i></button>
-       <button class="act g" title="Adjust stock" onclick="go('adjustment')"><i class="fa-solid fa-sliders"></i></button>`}],
-     DB.products,{ph:'Search products...',empty:'No products yet.'})}</div>`;
-}
-function saveProduct(e){
-  e.preventDefault();const n=$('pName').value.trim();showErr('pNameErr',!n);
-  if(!n)return toast('Product name is required','err');
-  const o={name:n,purchase:num($('pPur').value),selling:num($('pSell').value)};
-  if(editProd){const p=DB.products.find(x=>x.id===editProd);const diff=num($('pStock').value)-num(p.initial);
-    Object.assign(p,o,{initial:num($('pStock').value),stock:num(p.stock)+diff});toast('Product updated','ok');}
-  else DB.products.push({id:uid(),...o,initial:num($('pStock').value),stock:num($('pStock').value),created:today()}),toast('Product added to inventory','ok');
-  editProd=null;save();renderPage();
-}
-function editProduct(id){const p=DB.products.find(x=>x.id===id);editProd=id;$('pFormTitle').textContent='Edit Product — '+p.name;
-  $('pName').value=p.name;$('pPur').value=p.purchase;$('pSell').value=p.selling;$('pStock').value=p.initial;window.scrollTo({top:0,behavior:'smooth'});}
-function delProduct(id){if(!confirm('Delete this product?'))return;DB.products=DB.products.filter(p=>p.id!==id);save();renderPage();toast('Product deleted','ok');}
-
-/* ---------- SALES ---------- */
-const PAYMODES=['Cash','Bank','QR Payment','eSewa','Khalti','ConnectIPS','Cheque','Credit'];
-let cart=[];
-function pgSales(v){
-  v.innerHTML=`
-  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-cart-plus" style="color:#fbbf24"></i> New Sales Invoice</h3></div>
-   <div class="form-grid">
-     <div class="field"><label>Invoice Date <span>*</span></label><input class="inp" id="sDate" type="date" value="${workDate()}"></div>
-     <div class="field"><label>Invoice Number</label><input class="inp" id="sInv" value="${nextVoucher('INV-')}"></div>
-     <div class="field"><label>Customer <span>*</span></label><select class="inp" id="sCust"><option value="">— Select customer —</option>
-       ${customersOnly().map(c=>`<option value="${c.id}">${esc(c.name)} — ${esc(c.mobile)}</option>`).join('')}</select>
-       <div class="err-msg" id="sCustErr">Select a customer</div></div>
-     <div class="field"><label>Payment Mode</label><select class="inp" id="sMode">${PAYMODES.map(m=>`<option>${m}</option>`).join('')}</select></div>
-   </div>
-   <hr style="border:0;border-top:1px solid var(--border);margin:16px 0">
-   <div class="form-grid">
-     <div class="field"><label>Product</label><select class="inp" id="sProd" onchange="prodPick()">
-       <option value="">— Select product —</option>${DB.products.map(p=>`<option value="${p.id}">${esc(p.name)} (stock ${p.stock})</option>`).join('')}</select></div>
-     <div class="field"><label>Quantity</label><input class="inp" id="sQty" type="number" min="1" value="1"></div>
-     <div class="field"><label>Selling Price</label><input class="inp" id="sRate" type="number" step="0.01" value="0"></div>
-     <div class="field" style="display:flex;align-items:flex-end"><button class="btn ghost block" onclick="addCart()"><i class="fa-solid fa-plus"></i> Add item</button></div>
-   </div>
-   <div id="cartBox">${cartHTML()}</div>
-   <div class="form-actions"><button class="btn green" onclick="saveSale()"><i class="fa-solid fa-check"></i> Save Invoice</button>
-     <button class="btn ghost" onclick="cart=[];renderPage()">Clear</button></div></div>
-  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-file-invoice" style="color:#fbbf24"></i> Sales History</h3></div>
-   ${dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Invoice No.',key:'voucher'},{label:'Customer',val:r=>pname(r.partyId)},
-     {label:'Items',val:r=>(r.items||[]).map(i=>i.name+' x'+i.qty).join(', ')},{label:'Amount',key:'debit',align:'right',fmt:r=>money(r.debit)},
-     {label:'Mode',key:'mode',fmt:r=>`<span class="chip b">${esc(r.mode)}</span>`},
-     {label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>
-       <button class="act d" onclick="delTxn('${r.id}')"><i class="fa-solid fa-trash"></i></button>`}],
-     salesTx().sort((a,b)=>b.date.localeCompare(a.date)),{ph:'Search invoices...',empty:'No sales yet.'})}</div>`;
-}
-function prodPick(){const p=DB.products.find(x=>x.id===$('sProd').value);if(p)$('sRate').value=p.selling;}
-function cartHTML(){
-  if(!cart.length)return '<p class="muted" style="font-size:13px">No items added yet.</p>';
-  const tot=cart.reduce((s,i)=>s+i.qty*i.rate,0);
-  return `<div class="tbl-scroll"><table><thead><tr><th>Product</th><th class="right">Qty</th><th class="right">Rate</th><th class="right">Amount</th><th></th></tr></thead><tbody>
-   ${cart.map((i,x)=>`<tr><td>${esc(i.name)}</td><td class="right">${i.qty}</td><td class="right">${money(i.rate)}</td><td class="right">${money(i.qty*i.rate)}</td>
-     <td><button class="act d" onclick="cart.splice(${x},1);$('cartBox').innerHTML=cartHTML()"><i class="fa-solid fa-xmark"></i></button></td></tr>`).join('')}
-   <tr><td colspan="3" class="right"><b>Total</b></td><td class="right"><b style="color:var(--accent)">${money(tot)}</b></td><td></td></tr></tbody></table></div>`;
-}
-function addCart(){
-  const p=DB.products.find(x=>x.id===$('sProd').value);const q=num($('sQty').value),r=num($('sRate').value);
-  if(!p)return toast('Select a product','err');
-  if(q<=0)return toast('Quantity must be greater than 0','err');
-  if(q>num(p.stock))return toast('Only '+p.stock+' units of '+p.name+' in stock','err','Insufficient stock');
-  cart.push({productId:p.id,name:p.name,qty:q,rate:r});$('cartBox').innerHTML=cartHTML();toast(p.name+' added to invoice','ok');
-}
-function saveSale(){
-  const cid=$('sCust').value;showErr('sCustErr',!cid);
-  if(!cid)return toast('Please select a customer','err');
-  if(!cart.length)return toast('Add at least one item','err');
-  const total=cart.reduce((s,i)=>s+i.qty*i.rate,0),mode=$('sMode').value;
-  const t={id:uid(),date:$('sDate').value||today(),type:'sale',voucher:$('sInv').value||nextVoucher('INV-'),partyId:cid,
-    desc:'Sale — '+cart.map(i=>i.name+' x'+i.qty).join(', '),debit:total,credit:0,mode,items:cart.slice(),attachments:[]};
-  DB.txns.push(t);
-  cart.forEach(i=>adjustStock(i.productId,-num(i.qty)));
-  if(mode!=='Credit')DB.txns.push({id:uid(),date:t.date,type:'receipt',voucher:nextVoucher('RCP-'),partyId:cid,
-    desc:'Payment against '+t.voucher,debit:0,credit:total,mode,items:[],attachments:[]});
-  cart=[];save();renderPage();toast('Invoice '+t.voucher+' saved · '+money(total),'ok');
-}
-
-/* ---------- PURCHASES ---------- */
-let pcart=[];
-function pgPurchases(v){
-  v.innerHTML=`
-  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-truck-ramp-box" style="color:#a78bfa"></i> New Purchase Entry</h3></div>
-   <div class="form-grid">
-     <div class="field"><label>Purchase Date</label><input class="inp" id="uDate" type="date" value="${workDate()}"></div>
-     <div class="field"><label>Voucher No.</label><input class="inp" id="uVou" value="${nextVoucher('PUR-')}"></div>
-     <div class="field"><label>Supplier <span>*</span></label><select class="inp" id="uSup"><option value="">— Select supplier —</option>
-       ${suppliersOnly().map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div>
-     <div class="field"><label>Payment Mode</label><select class="inp" id="uMode">${PAYMODES.map(m=>`<option>${m}</option>`).join('')}</select></div>
-     <div class="field"><label>Product</label><select class="inp" id="uProd" onchange="uPick()"><option value="">— Select —</option>
-       ${DB.products.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select></div>
-     <div class="field"><label>Quantity</label><input class="inp" id="uQty" type="number" min="1" value="1"></div>
-     <div class="field"><label>Purchase Rate</label><input class="inp" id="uRate" type="number" step="0.01" value="0"></div>
-     <div class="field" style="display:flex;align-items:flex-end"><button class="btn ghost block" onclick="addP()"><i class="fa-solid fa-plus"></i> Add item</button></div>
-   </div>
-   <div id="pcartBox">${pcartHTML()}</div>
-   <div class="form-actions"><button class="btn green" onclick="savePurchase()"><i class="fa-solid fa-check"></i> Save Purchase</button>
-     <button class="btn ghost" onclick="pcart=[];renderPage()">Clear</button></div></div>
-  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-briefcase" style="color:#a78bfa"></i> Purchase History</h3></div>
-   ${dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Voucher',key:'voucher'},{label:'Supplier',val:r=>pname(r.partyId)},
-     {label:'Items',val:r=>(r.items||[]).map(i=>i.name+' x'+i.qty).join(', ')},{label:'Amount',key:'credit',align:'right',fmt:r=>money(r.credit)},
-     {label:'Mode',key:'mode'},{label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>
-       <button class="act d" onclick="delTxn('${r.id}')"><i class="fa-solid fa-trash"></i></button>`}],
-     purchaseTx().sort((a,b)=>b.date.localeCompare(a.date)),{empty:'No purchases yet.'})}</div>`;
-}
-function uPick(){const p=DB.products.find(x=>x.id===$('uProd').value);if(p)$('uRate').value=p.purchase;}
-function pcartHTML(){
-  if(!pcart.length)return '<p class="muted" style="font-size:13px">No items added yet.</p>';
-  const tot=pcart.reduce((s,i)=>s+i.qty*i.rate,0);
-  return `<div class="tbl-scroll"><table><thead><tr><th>Product</th><th class="right">Qty</th><th class="right">Rate</th><th class="right">Amount</th><th></th></tr></thead><tbody>
-   ${pcart.map((i,x)=>`<tr><td>${esc(i.name)}</td><td class="right">${i.qty}</td><td class="right">${money(i.rate)}</td><td class="right">${money(i.qty*i.rate)}</td>
-    <td><button class="act d" onclick="pcart.splice(${x},1);$('pcartBox').innerHTML=pcartHTML()"><i class="fa-solid fa-xmark"></i></button></td></tr>`).join('')}
-   <tr><td colspan="3" class="right"><b>Total</b></td><td class="right"><b style="color:var(--accent)">${money(tot)}</b></td><td></td></tr></tbody></table></div>`;
-}
-function addP(){const p=DB.products.find(x=>x.id===$('uProd').value);const q=num($('uQty').value);
-  if(!p)return toast('Select a product','err');if(q<=0)return toast('Invalid quantity','err');
-  pcart.push({productId:p.id,name:p.name,qty:q,rate:num($('uRate').value)});$('pcartBox').innerHTML=pcartHTML();}
-function savePurchase(){
-  const sid=$('uSup').value;if(!sid)return toast('Select a supplier (add one in Customer Information as type Supplier)','err');
-  if(!pcart.length)return toast('Add at least one item','err');
-  const total=pcart.reduce((s,i)=>s+i.qty*i.rate,0),mode=$('uMode').value;
-  DB.txns.push({id:uid(),date:$('uDate').value||today(),type:'purchase',voucher:$('uVou').value||nextVoucher('PUR-'),partyId:sid,
-    desc:'Purchase — '+pcart.map(i=>i.name+' x'+i.qty).join(', '),debit:0,credit:total,mode,items:pcart.slice(),attachments:[]});
-  pcart.forEach(i=>{adjustStock(i.productId,num(i.qty));const p=DB.products.find(x=>x.id===i.productId);if(p)p.purchase=num(i.rate);});
-  if(mode!=='Credit')DB.txns.push({id:uid(),date:$('uDate').value||today(),type:'payment',voucher:nextVoucher('PAY-'),partyId:sid,
-    desc:'Payment for purchase',debit:total,credit:0,mode,items:[],attachments:[]});
-  pcart=[];save();renderPage();toast('Purchase saved · inventory updated','ok');
-}
-
-/* ---------- RECEIPT / PAID ---------- */
-function payForm(v,cfg){
-  v.innerHTML=`
-  <div class="panel"><div class="panel-h"><h3><i class="fa-solid ${cfg.icon}" style="color:${cfg.color}"></i> ${cfg.title}</h3></div>
-   <form onsubmit="savePay(event,'${cfg.kind}')"><div class="form-grid">
-     <div class="field"><label>${cfg.party} <span>*</span></label><select class="inp" id="yParty"><option value="">— Select —</option>
-       ${cfg.list.map(c=>`<option value="${c.id}">${esc(c.name)} — ${cfg.kind==='receipt'?'Due':'Payable'} ${money(Math.max(0,balance(c)))}</option>`).join('')}</select>
-       <div class="err-msg" id="yPartyErr">Selection required</div></div>
-     <div class="field"><label>Date</label><input class="inp" id="yDate" type="date" value="${workDate()}"></div>
-     <div class="field"><label>Voucher No.</label><input class="inp" id="yVou" value="${nextVoucher(cfg.prefix)}"></div>
-     <div class="field"><label>Amount <span>*</span></label><input class="inp" id="yAmt" type="number" step="0.01" placeholder="0.00"><div class="err-msg" id="yAmtErr">Amount required</div></div>
-     <div class="field"><label>Payment Mode</label><select class="inp" id="yMode">${PAYMODES.filter(m=>m!=='Credit').map(m=>`<option>${m}</option>`).join('')}</select></div>
-     <div class="field"><label>Reference / Note</label><input class="inp" id="yDesc" placeholder="Cheque no., txn id..."></div>
-   </div><div class="form-actions"><button class="btn green"><i class="fa-solid fa-floppy-disk"></i> Save</button>
-     <button class="btn ghost" type="button" onclick="renderPage()">Cancel</button></div></form></div>
-  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-list" style="color:${cfg.color}"></i> ${cfg.hist}</h3></div>
-   ${dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Voucher',key:'voucher'},{label:'Party',val:r=>pname(r.partyId)},
-     {label:'Amount',align:'right',val:r=>num(r.debit)+num(r.credit),fmt:r=>money(num(r.debit)+num(r.credit))},
-     {label:'Mode',key:'mode',fmt:r=>`<span class="chip b">${esc(r.mode)}</span>`},{label:'Note',key:'desc'},
-     {label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>
-        <button class="act d" onclick="delTxn('${r.id}')"><i class="fa-solid fa-trash"></i></button>`}],
-     DB.txns.filter(t=>t.type===cfg.kind).sort((a,b)=>b.date.localeCompare(a.date)),{empty:'No records yet.'})}</div>`;
-}
-function pgReceipt(v){payForm(v,{kind:'receipt',title:'Record Payment Receipt (रकम प्राप्ति)',icon:'fa-receipt',color:'#34d399',
-  party:'Customer',list:customersOnly(),prefix:'RCP-',hist:'Receipt History'});}
-function pgPaid(v){payForm(v,{kind:'payment',title:'Record Payment Paid (भुक्तानी)',icon:'fa-money-bill-wave',color:'#fb7185',
-  party:'Supplier / Vendor',list:suppliersOnly(),prefix:'PAY-',hist:'Payment History'});}
-function savePay(e,kind){
-  e.preventDefault();
-  const pid=$('yParty').value,amt=num($('yAmt').value);
-  showErr('yPartyErr',!pid);showErr('yAmtErr',amt<=0);
-  if(!pid||amt<=0)return toast('Please complete the required fields','err');
-  DB.txns.push({id:uid(),date:$('yDate').value||today(),type:kind,voucher:$('yVou').value,partyId:pid,
-    desc:$('yDesc').value.trim()||(kind==='receipt'?'Payment received':'Payment made'),
-    debit:kind==='payment'?amt:0,credit:kind==='receipt'?amt:0,mode:$('yMode').value,items:[],attachments:[]});
-  save();renderPage();toast((kind==='receipt'?'Receipt':'Payment')+' of '+money(amt)+' recorded','ok');
-}
-
-/* ---------- RETURNS ---------- */
-function pgReturns(v){
-  v.innerHTML=`
-  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-rotate-left" style="color:#f97316"></i> Return Entry</h3></div>
-   <form onsubmit="saveReturn(event)"><div class="form-grid">
-     <div class="field"><label>Return Type</label><select class="inp" id="rType" onchange="renderPage()">
-       <option value="sales">Sales Return (from customer)</option><option value="purchase">Purchase Return (to supplier)</option></select></div>
-     <div class="field"><label>Date</label><input class="inp" id="rDate" type="date" value="${workDate()}"></div>
-     <div class="field"><label>Party <span>*</span></label><select class="inp" id="rParty"><option value="">— Select —</option>
-       ${DB.customers.map(c=>`<option value="${c.id}">${esc(c.name)} (${c.type})</option>`).join('')}</select></div>
-     <div class="field"><label>Product <span>*</span></label><select class="inp" id="rProd"><option value="">— Select —</option>
-       ${DB.products.map(p=>`<option value="${p.id}">${esc(p.name)} (stock ${p.stock})</option>`).join('')}</select></div>
-     <div class="field"><label>Quantity</label><input class="inp" id="rQty" type="number" min="1" value="1"></div>
-     <div class="field"><label>Rate</label><input class="inp" id="rRate" type="number" step="0.01" value="0"></div>
-     <div class="field"><label>Reason</label><input class="inp" id="rWhy" placeholder="Damaged, wrong item..."></div>
-   </div><div class="form-actions"><button class="btn"><i class="fa-solid fa-floppy-disk"></i> Save Return</button></div></form></div>
-  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-clock-rotate-left" style="color:#f97316"></i> Return History</h3></div>
-   ${dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Voucher',key:'voucher'},{label:'Type',key:'type',fmt:r=>`<span class="chip o">${r.type==='return-in'?'Sales Return':'Purchase Return'}</span>`},
-     {label:'Party',val:r=>pname(r.partyId)},{label:'Details',key:'desc'},
-     {label:'Amount',align:'right',val:r=>num(r.debit)+num(r.credit),fmt:r=>money(num(r.debit)+num(r.credit))},
-     {label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>
-       <button class="act d" onclick="delTxn('${r.id}')"><i class="fa-solid fa-trash"></i></button>`}],
-     DB.txns.filter(t=>t.type.startsWith('return')).sort((a,b)=>b.date.localeCompare(a.date)),{empty:'No returns recorded.'})}</div>`;
-}
-function saveReturn(e){
-  e.preventDefault();
-  const type=$('rType').value,pid=$('rParty').value,prod=DB.products.find(x=>x.id===$('rProd').value),q=num($('rQty').value),r=num($('rRate').value);
-  if(!pid||!prod||q<=0)return toast('Select party, product and valid quantity','err');
-  const amt=q*r,sales=type==='sales';
-  if(!sales&&q>num(prod.stock))return toast('Not enough stock to return','err');
-  DB.txns.push({id:uid(),date:$('rDate').value||today(),type:sales?'return-in':'return-out',voucher:nextVoucher(sales?'SRN-':'PRN-'),
-    partyId:pid,desc:(sales?'Sales return — ':'Purchase return — ')+prod.name+' x'+q+($('rWhy').value?' ('+$('rWhy').value+')':''),
-    debit:sales?0:amt,credit:sales?amt:0,mode:'Adjustment',items:[{productId:prod.id,name:prod.name,qty:q,rate:r}],attachments:[]});
-  adjustStock(prod.id,sales?q:-q);
-  save();renderPage();toast('Return saved · stock updated','ok');
-}
-
-/* ---------- ADJUSTMENT ---------- */
-function pgAdjust(v){
-  v.innerHTML=`
-  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-sliders" style="color:#22d3ee"></i> Stock Adjustment</h3></div>
-   <form onsubmit="saveAdjust(event)"><div class="form-grid">
-     <div class="field"><label>Product <span>*</span></label><select class="inp" id="aProd"><option value="">— Select product —</option>
-       ${DB.products.map(p=>`<option value="${p.id}">${esc(p.name)} — current ${p.stock}</option>`).join('')}</select><div class="err-msg" id="aProdErr">Select product</div></div>
-     <div class="field"><label>Direction</label><div class="seg" id="dirSeg">
-        <button type="button" class="on" data-d="1" onclick="setDir(1,this)"><i class="fa-solid fa-plus"></i> Add Stock</button>
-        <button type="button" data-d="-1" onclick="setDir(-1,this)"><i class="fa-solid fa-minus"></i> Reduce Stock</button></div></div>
-     <div class="field"><label>Quantity (editable) <span>*</span></label><input class="inp" id="aQty" type="number" min="1" value="1"></div>
-     <div class="field"><label>Date</label><input class="inp" id="aDate" type="date" value="${workDate()}"></div>
-     <div class="field"><label>Reason / Note</label><input class="inp" id="aWhy" placeholder="Damage, physical count, gift..."></div>
-   </div><div class="form-actions"><button class="btn"><i class="fa-solid fa-check"></i> Apply Adjustment</button></div></form></div>
-  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-list-check" style="color:#22d3ee"></i> Adjustment History</h3></div>
-   ${dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Voucher',key:'voucher'},{label:'Product',val:r=>(r.items[0]||{}).name},
-     {label:'Change',align:'right',val:r=>(r.items[0]||{}).qty,fmt:r=>{const q=num((r.items[0]||{}).qty);return `<b class="chip ${q>0?'g':'r'}">${q>0?'+':''}${q}</b>`}},
-     {label:'Reason',key:'desc'},{label:'',sortable:false,fmt:r=>`<button class="act d" onclick="delTxn('${r.id}')"><i class="fa-solid fa-trash"></i></button>`}],
-     DB.txns.filter(t=>t.type==='adjust').sort((a,b)=>b.date.localeCompare(a.date)),{empty:'No adjustments yet.'})}</div>`;
-}
-let ADIR=1;
-function setDir(d,btn){ADIR=d;[...$('dirSeg').children].forEach(b=>b.classList.toggle('on',b===btn));}
-function saveAdjust(e){
-  e.preventDefault();
-  const p=DB.products.find(x=>x.id===$('aProd').value),q=num($('aQty').value);
-  showErr('aProdErr',!p);
-  if(!p||q<=0)return toast('Select a product and valid quantity','err');
-  if(ADIR<0&&q>num(p.stock))return toast('Cannot reduce more than current stock ('+p.stock+')','err');
-  const delta=ADIR*q;
-  DB.txns.push({id:uid(),date:$('aDate').value||today(),type:'adjust',voucher:nextVoucher('ADJ-'),partyId:'',
-    desc:($('aWhy').value.trim()||'Stock adjustment'),debit:0,credit:0,mode:'—',
-    items:[{productId:p.id,name:p.name,qty:delta,rate:p.purchase}],attachments:[]});
-  adjustStock(p.id,delta);save();renderPage();
-  toast(p.name+' stock '+(delta>0?'increased':'reduced')+' by '+Math.abs(delta)+' → now '+p.stock,'ok','Inventory updated');
-}
-
-/* ---------- REPORTS ---------- */
-let REP={tab:'customer',from:'',to:'',cust:''};
-function pgReports(v){
-  const tabs=[['customer','Customer Wise'],['monthly','Monthly'],['sales','Sales'],['purchase','Purchase'],['ledger','Ledger']];
-  v.innerHTML=`<div class="panel"><div class="panel-h">
-     <div class="seg">${tabs.map(t=>`<button class="${REP.tab===t[0]?'on':''}" onclick="REP.tab='${t[0]}';renderPage()">${t[1]} Report</button>`).join('')}</div>
-     <div class="spacer"></div>
-     <label class="muted" style="font-size:12px">From</label><input class="inp" style="width:150px" type="date" value="${REP.from}" onchange="REP.from=this.value;renderPage()">
-     <label class="muted" style="font-size:12px">To</label><input class="inp" style="width:150px" type="date" value="${REP.to}" onchange="REP.to=this.value;renderPage()">
-     <button class="btn sm ghost" onclick="REP.from='';REP.to='';renderPage()">Reset</button></div>
-   <div id="repBody"></div></div>`;
-  const inR=t=>(!REP.from||t.date>=REP.from)&&(!REP.to||t.date<=REP.to);
-  const b=$('repBody');
-  if(REP.tab==='customer'){
-    b.innerHTML=`<div class="field" style="max-width:420px"><label>Search customer by name or mobile</label>
-      <input class="inp" id="repSearch" placeholder="Type name or mobile..." oninput="repFind(this.value)">
-      <div id="repHits" style="margin-top:8px"></div></div><div id="repCust">${REP.cust?custReport(REP.cust):'<p class="muted">Select a customer to view their complete history.</p>'}</div>`;
-  }
-  if(REP.tab==='monthly'){
-    const map={};DB.txns.filter(inR).forEach(t=>{const m=t.date.slice(0,7);map[m]=map[m]||{m,sales:0,purchase:0,coll:0,paid:0};
-      if(t.type==='sale')map[m].sales+=num(t.debit);if(t.type==='purchase')map[m].purchase+=num(t.credit);
-      if(t.type==='receipt')map[m].coll+=num(t.credit);if(t.type==='payment')map[m].paid+=num(t.debit);});
-    b.innerHTML=dataTable([{label:'Month',key:'m'},{label:'Sales',key:'sales',align:'right',fmt:r=>money(r.sales)},
-      {label:'Purchase',key:'purchase',align:'right',fmt:r=>money(r.purchase)},{label:'Collection',key:'coll',align:'right',fmt:r=>money(r.coll)},
-      {label:'Payment',key:'paid',align:'right',fmt:r=>money(r.paid)},
-      {label:'Net (Sales-Purchase)',align:'right',val:r=>r.sales-r.purchase,fmt:r=>`<b style="color:${r.sales-r.purchase>=0?'var(--green)':'var(--red)'}">${money(r.sales-r.purchase)}</b>`}],
-      Object.values(map).sort((a,b)=>b.m.localeCompare(a.m)),{empty:'No data in period'});
-  }
-  if(REP.tab==='sales'||REP.tab==='purchase'){
-    const isS=REP.tab==='sales',rows=DB.txns.filter(t=>t.type===(isS?'sale':'purchase')).filter(inR);
-    b.innerHTML=`<p class="muted" style="margin-bottom:10px">Total ${isS?'sales':'purchase'}: <b style="color:var(--accent)">${money(sum(rows,isS?'debit':'credit'))}</b> from ${rows.length} vouchers</p>`+
-      dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Voucher',key:'voucher'},{label:isS?'Customer':'Supplier',val:r=>pname(r.partyId)},
-       {label:'Items',val:r=>(r.items||[]).map(i=>i.name+' x'+i.qty).join(', ')},
-       {label:'Amount',align:'right',val:r=>isS?r.debit:r.credit,fmt:r=>money(isS?r.debit:r.credit)},{label:'Mode',key:'mode'},
-       {label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>`}],rows,{empty:'No records'});
-  }
-  if(REP.tab==='ledger'){
-    const rows=DB.txns.filter(inR).sort((a,b)=>a.date.localeCompare(b.date));
-    b.innerHTML=dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Voucher',key:'voucher'},{label:'Type',key:'type'},
-      {label:'Party',val:r=>pname(r.partyId)},{label:'Description',key:'desc'},{label:'Mode',key:'mode'},
-      {label:'Debit',key:'debit',align:'right',fmt:r=>num(r.debit)?money(r.debit):'—'},
-      {label:'Credit',key:'credit',align:'right',fmt:r=>num(r.credit)?money(r.credit):'—'},
-      {label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>`}],rows,{empty:'No entries'});
-  }
-}
-function repFind(q){
-  q=q.toLowerCase().trim();
-  const hits=q?DB.customers.filter(c=>c.name.toLowerCase().includes(q)||(c.mobile||'').includes(q)).slice(0,6):[];
-  $('repHits').innerHTML=hits.map(c=>`<div class="dd-item" style="cursor:pointer;border:1px solid var(--border);margin-bottom:5px;border-radius:9px"
-     onclick="REP.cust='${c.id}';renderPage()"><i class="fa-solid fa-user" style="color:var(--accent)"></i><div><b>${esc(c.name)}</b><div class="muted" style="font-size:11.5px">${esc(c.mobile)} · ${esc(c.type)}</div></div></div>`).join('');
-}
-function custReport(id){
-  const c=party(id);if(!c)return '';
-  const tx=DB.txns.filter(t=>t.partyId===id).sort((a,b)=>a.date.localeCompare(b.date));
-  const sales=sum(tx.filter(t=>t.type==='sale'),'debit'),pay=sum(tx.filter(t=>t.type==='receipt'),'credit');
-  return `<hr style="border:0;border-top:1px solid var(--border);margin:18px 0">
-   <div class="panel-h"><h3><i class="fa-solid fa-id-card" style="color:var(--accent)"></i> ${esc(c.name)} — ${esc(c.mobile)}</h3><div class="spacer"></div>
-     <button class="btn sm green" onclick="shareStatement('${id}')"><i class="fa-solid fa-share-nodes"></i> Share</button>
-     <button class="btn sm ghost" onclick="openLedgerOf('${id}')"><i class="fa-solid fa-book"></i> Open ledger</button></div>
-   <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">
-     <div class="card" style="box-shadow:none"><div class="lbl">Total Sales</div><div class="val" style="font-size:19px">${money(sales)}</div></div>
-     <div class="card" style="box-shadow:none"><div class="lbl">Total Payment</div><div class="val" style="font-size:19px;color:var(--green)">${money(pay)}</div></div>
-     <div class="card" style="box-shadow:none"><div class="lbl">Outstanding</div><div class="val" style="font-size:19px;color:var(--red)">${money(balance(c))}</div></div>
-     <div class="card" style="box-shadow:none"><div class="lbl">Transactions</div><div class="val" style="font-size:19px">${tx.length}</div></div>
-   </div>
-   ${dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Voucher',key:'voucher'},{label:'Type',key:'type'},{label:'Description',key:'desc'},
-     {label:'Debit',key:'debit',align:'right',fmt:r=>num(r.debit)?money(r.debit):'—'},{label:'Credit',key:'credit',align:'right',fmt:r=>num(r.credit)?money(r.credit):'—'},
-     {label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>`}],tx,{empty:'No history'})}`;
-}
-
-/* ---------- SHARE / STATEMENT ---------- */
-function statementHTML(id){
-  const c=party(id);
-  const tx=DB.txns.filter(t=>t.partyId===id).sort((a,b)=>a.date.localeCompare(b.date));
-  let run=num(c.opening);
-  const rows=tx.map(t=>{run+= c.type==='Supplier'?(num(t.credit)-num(t.debit)):(num(t.debit)-num(t.credit));
-    return `<tr><td>${fmtDate(t.date)}</td><td>${esc(t.voucher)}</td><td>${esc(t.desc)}</td><td style="text-align:right">${num(t.debit)?money(t.debit):'—'}</td>
-      <td style="text-align:right">${num(t.credit)?money(t.credit):'—'}</td><td style="text-align:right"><b>${money(run)}</b></td></tr>`}).join('');
-  return `<div class="stmt" id="printArea">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #0f172a;padding-bottom:12px;margin-bottom:14px">
-      <div><h2>${esc(ME.biz)}</h2><div style="font-size:12px;color:#64748b">${esc(ME.email)} · Digital Workspace</div></div>
-      <div style="text-align:right"><div style="font-weight:700;font-size:15px">Account Statement</div><div style="font-size:12px;color:#64748b">Generated: ${fmtDate(today())}</div></div>
-    </div>
-    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:14px">
-      <div><b>${esc(c.name)}</b><br>${esc(c.mobile||'')}<br>${esc(c.address||'')}</div>
-      <div style="text-align:right">Party type: <b>${esc(c.type)}</b><br>Opening: <b>${money(c.opening)}</b><br>
-        Closing ${c.type==='Supplier'?'Payable':'Receivable'}: <b style="color:#e11d48">${money(run)}</b></div>
-    </div>
-    <table><thead><tr><th>Date</th><th>Voucher</th><th>Description</th><th style="text-align:right">Debit</th><th style="text-align:right">Credit</th><th style="text-align:right">Balance</th></tr></thead>
-    <tbody>${rows||'<tr><td colspan="6" style="text-align:center;color:#64748b;padding:18px">No transactions</td></tr>'}</tbody></table>
-    <p style="font-size:11px;color:#64748b;margin-top:14px">This statement is system generated by ${esc(ME.biz)} · Diary Nepal Digital Workspace.</p></div>`;
-}
-function shareStatement(id){
-  const c=party(id);
-  modal('<i class="fa-solid fa-share-nodes" style="color:var(--green)"></i> Share Statement — '+esc(c.name),
-   `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
-      <button class="btn sm green" onclick="shareTo('wa','${id}')"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
-      <button class="btn sm" onclick="shareTo('mail','${id}')"><i class="fa-solid fa-envelope"></i> Email</button>
-      <button class="btn sm" style="background:#0084ff" onclick="shareTo('msg','${id}')"><i class="fa-brands fa-facebook-messenger"></i> Messenger</button>
-      <button class="btn sm ghost" onclick="downloadStmt()"><i class="fa-solid fa-image"></i> Save / Download Image</button>
-      <button class="btn sm ghost" onclick="window.print()"><i class="fa-solid fa-print"></i> Print</button>
-    </div>`+statementHTML(id),'860px');
-}
-function stmtText(id){
-  const c=party(id),b=balance(c);
-  return `${ME.biz}\nAccount Statement — ${c.name}\nMobile: ${c.mobile}\nClosing ${c.type==='Supplier'?'Payable':'Receivable'}: ${money(b)}\nDate: ${fmtDate(today())}\n\nTransactions: ${DB.txns.filter(t=>t.partyId===c.id).length}\n— Generated by Diary Nepal Digital Workspace`;
-}
-function shareTo(kind,id){
-  const c=party(id),txt=stmtText(id);
-  if(kind==='wa'){const ph=(c.mobile||'').replace(/\D/g,'');window.open('https://wa.me/'+(ph.length>=10?'977'+ph.slice(-10):'')+'?text='+encodeURIComponent(txt),'_blank');}
-  if(kind==='mail'){window.location.href='mailto:?subject='+encodeURIComponent('Account Statement — '+c.name)+'&body='+encodeURIComponent(txt);}
-  if(kind==='msg'){navigator.clipboard&&navigator.clipboard.writeText(txt);window.open('https://www.messenger.com/','_blank');toast('Statement text copied — paste it in Messenger','ok');}
-}
-function downloadStmt(){
-  const node=$('printArea');if(!node)return;
-  toast('Generating image...','ok','Please wait');
-  html2canvas(node,{scale:2,backgroundColor:'#ffffff'}).then(cv=>{
-    const a=document.createElement('a');a.href=cv.toDataURL('image/png');a.download='statement-'+Date.now()+'.png';a.click();
-    toast('Statement image downloaded','ok');});
-}
-
-/* ---------- SETTINGS ---------- */
-function pgSettings(v){
-  v.innerHTML=`
-  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-user-gear" style="color:#93c5fd"></i> Profile</h3></div>
-   <div class="form-grid">
-     <div class="field"><label>Full Name</label><input class="inp" id="stName" value="${esc(ME.name)}"></div>
-     <div class="field"><label>Business Name</label><input class="inp" id="stBiz" value="${esc(ME.biz)}"></div>
-     <div class="field"><label>Email (login id)</label><input class="inp" value="${esc(ME.email)}" disabled></div>
-     <div class="field"><label>Low Stock Alert Threshold</label><input class="inp" id="stLow" type="number" min="1" value="${DB.settings.lowStock}"></div>
-   </div><div class="form-actions"><button class="btn" onclick="saveSettings()"><i class="fa-solid fa-floppy-disk"></i> Save Preferences</button></div></div>
-  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-shield-halved" style="color:var(--green)"></i> Security &amp; Data</h3></div>
-   <div class="form-grid">
-     <div class="field"><label>Current Password</label><input class="inp" id="stOld" type="password"></div>
-     <div class="field"><label>New Password</label><input class="inp" id="stNew" type="password" placeholder="min 6 chars"></div>
-     <div class="field" style="display:flex;align-items:flex-end"><button class="btn ghost block" onclick="changePass()"><i class="fa-solid fa-key"></i> Update password</button></div>
-   </div>
-   <p class="muted" style="margin-top:14px"><i class="fa-solid fa-lock"></i> Your workspace data is stored under <b>${esc(ME.email)}</b> and is never visible to other accounts.</p>
-   <div class="form-actions">
-     <button class="btn ghost" onclick="exportData()"><i class="fa-solid fa-download"></i> Export data (JSON)</button>
-     <button class="btn ghost" onclick="$('impFile').click()"><i class="fa-solid fa-upload"></i> Import data</button>
-     <input type="file" id="impFile" accept="application/json" hidden onchange="importData(this.files[0])">
-     <button class="btn ghost" onclick="loadSample()"><i class="fa-solid fa-wand-magic-sparkles"></i> Load sample data</button>
-     <button class="btn danger" onclick="wipe()"><i class="fa-solid fa-trash"></i> Reset workspace</button>
-   </div></div>
-  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-database" style="color:var(--accent)"></i> Workspace Stats</h3></div>
-   <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr))">
-     <div class="card" style="box-shadow:none"><div class="lbl">Parties</div><div class="val" style="font-size:20px">${DB.customers.length}</div></div>
-     <div class="card" style="box-shadow:none"><div class="lbl">Products</div><div class="val" style="font-size:20px">${DB.products.length}</div></div>
-     <div class="card" style="box-shadow:none"><div class="lbl">Transactions</div><div class="val" style="font-size:20px">${DB.txns.length}</div></div>
-     <div class="card" style="box-shadow:none"><div class="lbl">Attachments</div><div class="val" style="font-size:20px">${DB.txns.reduce((s,t)=>s+((t.attachments||[]).length),0)}</div></div>
-   </div></div>`;
-}
-
-function saveSettings(){
-  const newName = $('stName').value.trim() || ME.name;
-  const newBiz = $('stBiz').value.trim() || ME.biz;
-  
-  // Update local ME object
-  ME.name = newName;
-  ME.biz = newBiz;
-  DB.settings.lowStock = Math.max(1, num($('stLow').value) || 5);
-  DB.biz = newBiz;
-  save(); 
-  paintUser();
-  paintBell();
-  
-  // Update Firestore Profile
-  if (ME.uid) {
-    db.collection('users').doc(ME.uid).update({
-      name: newName,
-      biz: newBiz,
-      'settings.lowStock': DB.settings.lowStock
-    }).then(() => toast('Preferences saved', 'ok'))
-      .catch(err => toast(err.message, 'err'));
-  }
-}
-
-function changePass(){
-  const o=$('stOld').value, n=$('stNew').value;
-  if(!o || !n) return toast('Please fill in both password fields','err');
-  if(n.length<6) return toast('New password must be at least 6 characters','err');
-  
-  const user = auth.currentUser;
-  if (!user) return;
-
-  // Firebase requires re-authentication to change a password
-  const cred = firebase.auth.EmailAuthProvider.credential(user.email, o);
-  
-  user.reauthenticateWithCredential(cred).then(() => {
-    return user.updatePassword(n);
-  }).then(() => {
-    $('stOld').value='';$('stNew').value='';
-    toast('Password updated successfully','ok');
-  }).catch(err => toast(err.message, 'err'));
-}
-
-function exportData(){
-  const blob=new Blob([JSON.stringify({user:ME.email,data:DB},null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='diary-nepal-'+ME.email+'.json';a.click();
-  toast('Data exported','ok');closeDds();
-}
-function importData(f){
-  if(!f)return;const r=new FileReader();
-  r.onload=e=>{try{const j=JSON.parse(e.target.result);DB=Object.assign(blank(ME.biz),j.data||j);save();renderPage();toast('Data imported','ok');}
-  catch(x){toast('Invalid file','err');}};r.readAsText(f);
-}
-function loadSample(){if(!confirm('Load sample data? This replaces current workspace data.'))return;seedUser(ME.email,ME.biz);DB=loadDB(ME.email);renderPage();toast('Sample data loaded','ok');}
-function wipe(){if(!confirm('Delete ALL data in this workspace? This cannot be undone.'))return;DB=blank(ME.biz);save();renderPage();toast('Workspace reset','ok');}
-
-/* ============ BOOT & AUTH LISTENER ============ */
-const th=localStorage.getItem('dn_theme');
-if(th==='dark'){document.documentElement.dataset.theme='dark';$('themeIco').className='fa-solid fa-sun';}
-
-auth.onAuthStateChanged(async (user) => {
-  if (user) {
-    try {
-      // 1. Fetch User Profile
-      const userDoc = await db.collection('users').doc(user.uid).get();
-      const userData = userDoc.exists ? userDoc.data() : {};
-
-      ME = {
-        uid: user.uid,
-        email: user.email,
-        name: userData.name || user.email.split('@')[0],
-        biz: userData.biz || 'My Business'
-      };
-
-      // 2. Fetch User App Data from Firestore
-      const dataDoc = await db.collection('users').doc(user.uid).collection('workspace').doc('main').get();
-
-      if (dataDoc.exists) {
-        DB = dataDoc.data();
-      } else {
-        // First time user: Seed initial data & sync to Cloud
-        DB = loadDB(user.email);
-        save(); 
-      }
-
-      // 3. UI Update
-      paintUser();
-      $('auth').style.display = 'none';
-      $('app').classList.add('on');
-      renderPage();
-      toast('Workspace synced with Cloud', 'ok', 'Connected');
-    } catch (err) {
-      toast('Failed to load cloud data: ' + err.message, 'err');
-    }
+  const name=$('mProdName').value.trim();if(!name)return;
+  const purchase=num($('mProdPur').value), selling=num($('mProdSell').value), stock=num($('mProdStock').value);
+  if(id){
+    const p=DB.products.find(x=>x.id===id);
+    if(p){p.name=name;p.purchase=purchase;p.selling=selling;p.stock=stock;}
+    toast('Product updated','ok');
   } else {
-    // User Signed Out
-    ME = null;
-    DB = null;
-    $('auth').style.display = 'flex';
-    $('app').classList.remove('on');
+    DB.products.push({id:uid(),name,purchase,selling,initial:stock,stock,created:today()});
+    toast('Product added','ok');
   }
-});
+  save();closeModal();renderPage();
+}
+function deleteProduct(id){
+  if(!confirm('Delete this product?'))return;
+  DB.products=DB.products.filter(p=>p.id!==id);
+  save();renderPage();toast('Product deleted','ok');
+}
+
+/* --- SALES SYSTEM --- */
+function renderSales(v){
+  const vnum=nextVoucher('INV-');
+  v.innerHTML=`
+    <div class="panel">
+      <div class="panel-h"><h3><i class="fa-solid fa-cart-shopping" style="color:#fbbf24"></i> Sales Invoice / Bill</h3><div class="spacer"></div><div class="muted">Voucher: <b>${vnum}</b></div></div>
+      <form onsubmit="submitSale(event,'${vnum}')">
+        <div class="form-grid">
+          <div class="field"><label>Customer <span>*</span></label><select class="inp" id="saleParty" required><option value="">Select Customer...</option>${customersOnly().map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div>
+          <div class="field"><label>Invoice Date</label><input class="inp" type="date" id="saleDate" value="${today()}"></div>
+          <div class="field"><label>Payment Mode</label><select class="inp" id="saleMode"><option value="Credit">Credit (Due)</option><option value="Cash">Cash</option><option value="eSewa">eSewa</option><option value="Khalti">Khalti</option><option value="Bank">Bank Transfer</option><option value="QR Payment">QR Payment</option></select></div>
+        </div>
+        <h4 style="margin:16px 0 8px">Items</h4>
+        <div class="tbl-scroll"><table id="saleItemsTbl">
+          <thead><tr><th>Product</th><th>Qty</th><th>Rate (₨)</th><th class="right">Total</th><th class="right">Action</th></tr></thead>
+          <tbody id="saleItemsBody"></tbody>
+        </table></div>
+        <button class="btn ghost sm" type="button" onclick="addSaleItemRow()" style="margin-top:10px"><i class="fa-solid fa-plus"></i> Add Item Row</button>
+        <div style="margin-top:20px;display:flex;justify-content:space-between;align-items:center">
+          <div class="field" style="flex:1;max-width:400px;margin-bottom:0"><label>Notes / Description</label><input class="inp" id="saleDesc" placeholder="Optional remarks"></div>
+          <div style="text-align:right"><div class="muted">Grand Total</div><div style="font-size:24px;font-weight:700;color:var(--accent)" id="saleGrandTotal">₨ 0.00</div></div>
+        </div>
+        <div class="form-actions" style="margin-top:22px"><button class="btn green" type="submit"><i class="fa-solid fa-check"></i> Save &amp; Issue Invoice</button></div>
+      </form>
+    </div>`;
+  addSaleItemRow();
+}
+function addSaleItemRow(pid='',qty=1,rate=0){
+  const tb=$('saleItemsBody');if(!tb)return;
+  const rowId=uid();
+  const tr=document.createElement('tr');
+  tr.id='row_'+rowId;
+  tr.innerHTML=`
+    <td><select class="inp" onchange="onSaleProductChange(this)" required><option value="">Select product...</option>${DB.products.map(p=>`<option value="${p.id}" ${p.id===pid?'selected':''}>${esc(p.name)} (Stock: ${p.stock})</option>`).join('')}</select></td>
+    <td><input class="inp" type="number" step="any" value="${qty}" min="0.01" oninput="calcSaleTotals()" style="width:90px"></td>
+    <td><input class="inp" type="number" step="any" value="${rate}" oninput="calcSaleTotals()" style="width:110px"></td>
+    <td class="right row-tot" style="font-weight:600">₨ 0.00</td>
+    <td class="right"><button class="act d" type="button" onclick="$('row_${rowId}').remove();calcSaleTotals()"><i class="fa-solid fa-xmark"></i></button></td>
+  `;
+  tb.appendChild(tr);
+  if(pid&&!rate){const pr=DB.products.find(x=>x.id===pid);if(pr)tr.querySelectorAll('input')[1].value=pr.selling;}
+  calcSaleTotals();
+}
+function onSaleProductChange(sel){
+  const tr=sel.closest('tr');
+  const p=DB.products.find(x=>x.id===sel.value);
+  if(p){tr.querySelectorAll('input')[1].value=1;tr.querySelectorAll('input')[2].value=p.selling;}
+  calcSaleTotals();
+}
+function calcSaleTotals(){
+  let sumTot=0;
+  document.querySelectorAll('#saleItemsBody tr').forEach(tr=>{
+    const sel=tr.querySelector('select');
+    const q=num(tr.querySelectorAll('input')[0].value);
+    const r=num(tr.querySelectorAll('input')[1].value);
+    const tot=q*r;
+    sumTot+=tot;
+    tr.querySelector('.row-tot').textContent=money(tot);
+  });
+  const gt=$('saleGrandTotal');if(gt)gt.textContent=money(sumTot);
+}
+function submitSale(e,vnum){
+  e.preventDefault();
+  const partyId=$('saleParty').value, date=$('saleDate').value, mode=$('saleMode').value, desc=$('saleDesc').value.trim();
+  const rows=document.querySelectorAll('#saleItemsBody tr');
+  if(!rows.length)return toast('Add at least one item','err');
+  const items=[]; let tot=0;
+  for(let r of rows){
+    const pid=r.querySelector('select').value;
+    const q=num(r.querySelectorAll('input')[0].value);
+    const rate=num(r.querySelectorAll('input')[1].value);
+    if(!pid||q<=0)return toast('Select product and valid quantity','err');
+    const prod=DB.products.find(x=>x.id===pid);
+    items.push({productId:pid,name:prod?prod.name:'Item',qty:q,rate});
+    tot+=q*rate;
+  }
+  // Deduct stock
+  items.forEach(i=>adjustStock(i.productId,-i.qty));
+  DB.txns.push({id:uid(),date,type:'sale',voucher:vnum,partyId,desc:desc||('Sale invoice — '+vnum),debit:tot,credit:0,mode,items,attachments:[]});
+  save();renderPage();toast('Sales invoice saved &amp; stock updated!','ok');
+}
+
+/* --- PURCHASE SYSTEM --- */
+function renderPurchases(v){
+  const vnum=nextVoucher('PUR-');
+  v.innerHTML=`
+    <div class="panel">
+      <div class="panel-h"><h3><i class="fa-solid fa-briefcase" style="color:#a78bfa"></i> Purchase Entry</h3><div class="spacer"></div><div class="muted">Voucher: <b>${vnum}</b></div></div>
+      <form onsubmit="submitPurchase(event,'${vnum}')">
+        <div class="form-grid">
+          <div class="field"><label>Supplier <span>*</span></label><select class="inp" id="purParty" required><option value="">Select Supplier...</option>${suppliersOnly().map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div>
+          <div class="field"><label>Purchase Date</label><input class="inp" type="date" id="purDate" value="${today()}"></div>
+          <div class="field"><label>Payment Mode</label><select class="inp" id="purMode"><option value="Credit">Credit (Due)</option><option value="Cash">Cash</option><option value="Bank">Bank Transfer</option></select></div>
+        </div>
+        <h4 style="margin:16px 0 8px">Items Purchased</h4>
+        <div class="tbl-scroll"><table id="purItemsTbl">
+          <thead><tr><th>Product</th><th>Qty</th><th>Purchase Rate (₨)</th><th class="right">Total</th><th class="right">Action</th></tr></thead>
+          <tbody id="purItemsBody"></tbody>
+        </table></div>
+        <button class="btn ghost sm" type="button" onclick="addPurItemRow()" style="margin-top:10px"><i class="fa-solid fa-plus"></i> Add Item Row</button>
+        <div style="margin-top:20px;display:flex;justify-content:space-between;align-items:center">
+          <div class="field" style="flex:1;max-width:400px;margin-bottom:0"><label>Notes / Description</label><input class="inp" id="purDesc" placeholder="Optional remarks"></div>
+          <div style="text-align:right"><div class="muted">Grand Total</div><div style="font-size:24px;font-weight:700;color:var(--purple)" id="purGrandTotal">₨ 0.00</div></div>
+        </div>
+        <div class="form-actions" style="margin-top:22px"><button class="btn green" type="submit"><i class="fa-solid fa-check"></i> Save Purchase &amp; Add Stock</button></div>
+      </form>
+    </div>`;
+  addPurItemRow();
+}
+function addPurItemRow(pid='',qty=1,rate=0){
+  const tb=$('purItemsBody');if(!tb)return;
+  const rowId=uid();
+  const tr=document.createElement('tr');
+  tr.id='prow_'+rowId;
+  tr.innerHTML=`
+    <td><select class="inp" onchange="onPurProductChange(this)" required><option value="">Select product...</option>${DB.products.map(p=>`<option value="${p.id}" ${p.id===pid?'selected':''}>${esc(p.name)}</option>`).join('')}</select></td>
+    <td><input class="inp" type="number" step="any" value="${qty}" min="0.01" oninput="calcPurTotals()" style="width:90px"></td>
+    <td><input class="inp" type="number" step="any" value="${rate}" oninput="calcPurTotals()" style="width:110px"></td>
+    <td class="right prow-tot" style="font-weight:600">₨ 0.00</td>
+    <td class="right"><button class="act d" type="button" onclick="$('prow_${rowId}').remove();calcPurTotals()"><i class="fa-solid fa-xmark"></i></button></td>
+  `;
+  tb.appendChild(tr);
+  if(pid&&!rate){const pr=DB.products.find(x=>x.id===pid);if(pr)tr.querySelectorAll('input')[1].value=pr.purchase;}
+  calcPurTotals();
+}
+function onPurProductChange(sel){
+  const tr=sel.closest('tr');
+  const p=DB.products.find(x=>x.id===sel.value);
+  if(p){tr.querySelectorAll('input')[1].value=1;tr.querySelectorAll('input')[2].value=p.purchase;}
+  calcPurTotals();
+}
+function calcPurTotals(){
+  let sumTot=0;
+  document.querySelectorAll('#purItemsBody tr').forEach(tr=>{
+    const q=num(tr.querySelectorAll('input')[0].value);
+    const r=num(tr.querySelectorAll('input')[1].value);
+    const tot=q*r;
+    sumTot+=tot;
+    tr.querySelector('.prow-tot').textContent=money(tot);
+  });
+  const gt=$('purGrandTotal');if(gt)gt.textContent=money(sumTot);
+}
+function submitPurchase(e,vnum){
+  e.preventDefault();
+  const partyId=$('purParty').value, date=$('purDate').value, mode=$('purMode').value, desc=$('purDesc').value.trim();
+  const rows=document.querySelectorAll('#purItemsBody tr');
+  if(!rows.length)return toast('Add at least one item','err');
+  const items=[]; let tot=0;
+  for(let r of rows){
+    const pid=r.querySelector('select').value;
+    const q=num(r.querySelectorAll('input')[0].value);
+    const rate=num(r.querySelectorAll('input')[1].value);
+    if(!pid||q<=0)return toast('Select product and valid quantity','err');
+    const prod=DB.products.find(x=>x.id===pid);
+    items.push({productId:pid,name:prod?prod.name:'Item',qty:q,rate});
+    tot+=q*rate;
+  }
+  // Add stock
+  items.forEach(i=>adjustStock(i.productId,i.qty));
+  DB.txns.push({id:uid(),date,type:'purchase',voucher:vnum,partyId,desc:desc||('Purchase — '+vnum),debit:0,credit:tot,mode,items,attachments:[]});
+  save();renderPage();toast('Purchase saved &amp; inventory updated!','ok');
+}
+
+/* --- PAYMENT RECEIPT --- */
+function renderReceipt(v){
+  const vnum=nextVoucher('RCP-');
+  v.innerHTML=`
+    <div class="panel" style="max-width:720px;margin:0 auto">
+      <div class="panel-h"><h3><i class="fa-solid fa-receipt" style="color:#34d399"></i> Payment Receipt (Money In)</h3><div class="spacer"></div><div class="muted">Voucher: <b>${vnum}</b></div></div>
+      <form onsubmit="submitReceipt(event,'${vnum}')">
+        <div class="form-grid">
+          <div class="field"><label>Customer / Party <span>*</span></label><select class="inp" id="rcpParty" required><option value="">Select party...</option>${DB.customers.map(c=>`<option value="${c.id}">${esc(c.name)} (${c.type})</option>`).join('')}</select></div>
+          <div class="field"><label>Date</label><input class="inp" type="date" id="rcpDate" value="${today()}"></div>
+          <div class="field"><label>Amount Received (₨) <span>*</span></label><input class="inp" id="rcpAmount" type="number" step="any" required placeholder="0.00"></div>
+          <div class="field"><label>Received Mode</label><select class="inp" id="rcpMode"><option value="Cash">Cash</option><option value="eSewa">eSewa</option><option value="Khalti">Khalti</option><option value="Bank">Bank Transfer</option><option value="QR Payment">QR Payment</option></select></div>
+        </div>
+        <div class="field"><label>Description / Remarks</label><input class="inp" id="rcpDesc" placeholder="e.g. Payment received against invoice"></div>
+        <div class="form-actions" style="margin-top:20px"><button class="btn green" type="submit"><i class="fa-solid fa-check"></i> Save Receipt</button></div>
+      </form>
+    </div>`;
+}
+function submitReceipt(e,vnum){
+  e.preventDefault();
+  const partyId=$('rcpParty').value, date=$('rcpDate').value, amount=num($('rcpAmount').value), mode=$('rcpMode').value, desc=$('rcpDesc').value.trim();
+  if(amount<=0)return toast('Enter valid amount','err');
+  DB.txns.push({id:uid(),date,type:'receipt',voucher:vnum,partyId,desc:desc||('Receipt — '+vnum),debit:0,credit:amount,mode,items:[],attachments:[]});
+  save();renderPage();toast('Payment receipt saved successfully!','ok');
+}
+
+/* --- PAYMENT PAID --- */
+function renderPaid(v){
+  const vnum=nextVoucher('PAY-');
+  v.innerHTML=`
+    <div class="panel" style="max-width:720px;margin:0 auto">
+      <div class="panel-h"><h3><i class="fa-solid fa-money-bill-wave" style="color:#fb7185"></i> Payment Paid (Money Out)</h3><div class="spacer"></div><div class="muted">Voucher: <b>${vnum}</b></div></div>
+      <form onsubmit="submitPaid(event,'${vnum}')">
+        <div class="form-grid">
+          <div class="field"><label>Supplier / Party <span>*</span></label><select class="inp" id="payParty" required><option value="">Select party...</option>${DB.customers.map(c=>`<option value="${c.id}">${esc(c.name)} (${c.type})</option>`).join('')}</select></div>
+          <div class="field"><label>Date</label><input class="inp" type="date" id="payDate" value="${today()}"></div>
+          <div class="field"><label>Amount Paid (₨) <span>*</span></label><input class="inp" id="payAmount" type="number" step="any" required placeholder="0.00"></div>
+          <div class="field"><label>Payment Mode</label><select class="inp" id="payMode"><option value="Cash">Cash</option><option value="Bank">Bank Transfer</option><option value="eSewa">eSewa</option></select></div>
+        </div>
+        <div class="field"><label>Description / Remarks</label><input class="inp" id="payDesc" placeholder="e.g. Paid to supplier bill"></div>
+        <div class="form-actions" style="margin-top:20px"><button class="btn green" type="submit"><i class="fa-solid fa-check"></i> Save Payment</button></div>
+      </form>
+    </div>`;
+}
+function submitPaid(e,vnum){
+  e.preventDefault();
+  const partyId=$('payParty').value, date=$('payDate').value, amount=num($('payAmount').value), mode=$('payMode').value, desc=$('payDesc').value.trim();
+  if(amount<=0)return toast('Enter valid amount','err');
+  DB.txns.push({id:uid(),date,type:'payment',voucher:vnum,partyId,desc:desc||('Payment — '+vnum),debit:amount,credit:0,mode,items:[],attachments:[]});
+  save();renderPage();toast('Payment saved successfully!','ok');
+}
+
+/* --- RETURNS --- */
+function renderReturns(v){
+  const vnum=nextVoucher('RET-');
+  v.innerHTML=`
+    <div class="panel" style="max-width:720px;margin:0 auto">
+      <div class="panel-h"><h3><i class="fa-solid fa-rotate-left" style="color:#f97316"></i> Sales / Purchase Return</h3><div class="spacer"></div><div class="muted">Voucher: <b>${vnum}</b></div></div>
+      <form onsubmit="submitReturn(event,'${vnum}')">
+        <div class="form-grid">
+          <div class="field"><label>Party <span>*</span></label><select class="inp" id="retParty" required><option value="">Select party...</option>${DB.customers.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div>
+          <div class="field"><label>Return Type</label><select class="inp" id="retType"><option value="sales_return">Sales Return (Inward)</option><option value="purchase_return">Purchase Return (Outward)</option></select></div>
+          <div class="field"><label>Date</label><input class="inp" type="date" id="retDate" value="${today()}"></div>
+          <div class="field"><label>Product <span>*</span></label><select class="inp" id="retProd" required><option value="">Select product...</option>${DB.products.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select></div>
+          <div class="field"><label>Quantity <span>*</span></label><input class="inp" id="retQty" type="number" step="any" min="0.01" required value="1"></div>
+          <div class="field"><label>Amount / Value (₨) <span>*</span></label><input class="inp" id="retAmt" type="number" step="any" required placeholder="0.00"></div>
+        </div>
+        <div class="field"><label>Reason / Remarks</label><input class="inp" id="retDesc" placeholder="Reason for return"></div>
+        <div class="form-actions" style="margin-top:20px"><button class="btn green" type="submit"><i class="fa-solid fa-check"></i> Process Return</button></div>
+      </form>
+    </div>`;
+}
+function submitReturn(e,vnum){
+  e.preventDefault();
+  const partyId=$('retParty').value, rtype=$('retType').value, date=$('retDate').value, pid=$('retProd').value, qty=num($('retQty').value), amt=num($('retAmt').value), desc=$('retDesc').value.trim();
+  if(amt<=0)return toast('Enter valid amount','err');
+  if(rtype==='sales_return'){
+    adjustStock(pid, qty);
+    DB.txns.push({id:uid(),date,type:'return',voucher:vnum,partyId,desc:desc||('Sales Return — '+vnum),debit:0,credit:amt,mode:'Return',items:[{productId:pid,qty,rate:amt/qty}]});
+  } else {
+    adjustStock(pid, -qty);
+    DB.txns.push({id:uid(),date,type:'return',voucher:vnum,partyId,desc:desc||('Purchase Return — '+vnum),debit:amt,credit:0,mode:'Return',items:[{productId:pid,qty,rate:amt/qty}]});
+  }
+  save();renderPage();toast('Return processed successfully!','ok');
+}
+
+/* --- ADJUSTMENT --- */
+function renderAdjustment(v){
+  const vnum=nextVoucher('ADJ-');
+  v.innerHTML=`
+    <div class="panel" style="max-width:720px;margin:0 auto">
+      <div class="panel-h"><h3><i class="fa-solid fa-sliders" style="color:#22d3ee"></i> Stock / Balance Adjustment</h3><div class="spacer"></div><div class="muted">Voucher: <b>${vnum}</b></div></div>
+      <form onsubmit="submitAdjustment(event,'${vnum}')">
+        <div class="form-grid">
+          <div class="field"><label>Product <span>*</span></label><select class="inp" id="adjProd" required><option value="">Select product...</option>${DB.products.map(p=>`<option value="${p.id}">${esc(p.name)} (Stock: ${p.stock})</option>`).join('')}</select></div>
+          <div class="field"><label>Adjustment Type</label><select class="inp" id="adjType"><option value="add">Add Stock (Surplus)</option><option value="sub">Reduce Stock (Damage / Loss)</option></select></div>
+          <div class="field"><label>Quantity <span>*</span></label><input class="inp" id="adjQty" type="number" step="any" min="0.01" required value="1"></div>
+          <div class="field"><label>Date</label><input class="inp" type="date" id="adjDate" value="${today()}"></div>
+        </div>
+        <div class="field"><label>Reason / Notes <span>*</span></label><input class="inp" id="adjDesc" required placeholder="e.g. Physical count mismatch / Damage"></div>
+        <div class="form-actions" style="margin-top:20px"><button class="btn green" type="submit"><i class="fa-solid fa-check"></i> Apply Adjustment</button></div>
+      </form>
+    </div>`;
+}
+function submitAdjustment(e,vnum){
+  e.preventDefault();
+  const pid=$('adjProd').value, atype=$('adjType').value, qty=num($('adjQty').value), date=$('adjDate').value, desc=$('adjDesc').value.trim();
+  if(qty<=0)return toast('Enter valid quantity','err');
+  const delta=atype==='add'?qty:-qty;
+  adjustStock(pid,delta);
+  DB.txns.push({id:uid(),date,type:'adjustment',voucher:vnum,partyId:DB.customers[0]?DB.customers[0].id:'',desc,debit:0,credit:0,mode:'Adjustment',items:[{productId:pid,qty:delta,rate:0}]});
+  save();renderPage();toast('Stock adjustment applied successfully!','ok');
+}
+
+/* --- REPORTS --- */
+function renderReports(v){
+  v.innerHTML=`
+    <div class="panel">
+      <div class="panel-h"><h3><i class="fa-solid fa-chart-pie" style="color:#4ade80"></i> Financial Reports &amp; Statements</h3></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px">
+        <div style="background:var(--panel2);border:1px solid var(--border);border-radius:14px;padding:20px">
+          <h4><i class="fa-solid fa-file-lines" style="color:var(--accent)"></i> Profit &amp; Loss Statement</h4>
+          <p class="muted" style="margin:8px 0 16px">Summary of total revenues vs expenses.</p>
+          <button class="btn sm" onclick="openPnLReport()">View Report</button>
+        </div>
+        <div style="background:var(--panel2);border:1px solid var(--border);border-radius:14px;padding:20px">
+          <h4><i class="fa-solid fa-boxes-stacked" style="color:var(--purple)"></i> Stock Valuation Report</h4>
+          <p class="muted" style="margin:8px 0 16px">Current inventory valuation at purchase cost.</p>
+          <button class="btn sm" onclick="openStockReport()">View Report</button>
+        </div>
+        <div style="background:var(--panel2);border:1px solid var(--border);border-radius:14px;padding:20px">
+          <h4><i class="fa-solid fa-address-book" style="color:var(--green)"></i> Party Statement (Ledger)</h4>
+          <p class="muted" style="margin:8px 0 16px">Individual customer or supplier statement.</p>
+          <select class="inp" id="repPartySelect" style="margin-bottom:10px"><option value="">Select Party...</option>${DB.customers.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select>
+          <button class="btn sm" onclick="openPartyStmtFromRep()">View Statement</button>
+        </div>
+      </div>
+    </div>`;
+}
+function openPnLReport(){
+  const sTot=totalSales(), pTot=totalPurchases();
+  const net=sTot-pTot;
+  openModal('Profit & Loss Statement',`
+    <div class="stmt">
+      <h2>${esc(ME.biz)}</h2>
+      <div class="muted" style="margin-bottom:16px">Profit &amp; Loss Summary</div>
+      <table>
+        <tr><td><b>Total Sales Revenue</b></td><td class="right" style="color:var(--accent);font-weight:700">${money(sTot)}</td></tr>
+        <tr><td><b>Total Purchases / Expenses</b></td><td class="right" style="color:var(--purple);font-weight:700">${money(pTot)}</td></tr>
+        <tr style="border-top:2px solid #0f172a"><td><b>Net Profit / Surplus</b></td><td class="right" style="font-size:18px;color:${net>=0?'var(--green)':'var(--red)'};font-weight:700">${money(net)}</td></tr>
+      </table>
+      <div style="margin-top:24px;text-align:right"><button class="btn" onclick="window.print()">Print P&amp;L</button></div>
+    </div>
+  `);
+}
+function openStockReport(){
+  const totVal=DB.products.reduce((s,p)=>s+num(p.stock)*num(p.purchase),0);
+  openModal('Stock Valuation Report',`
+    <div class="stmt">
+      <h2>${esc(ME.biz)}</h2>
+      <div class="muted" style="margin-bottom:16px">Inventory Valuation Statement</div>
+      <table>
+        <thead><tr><th>Product Name</th><th>Stock Qty</th><th>Purchase Rate</th><th class="right">Total Value</th></tr></thead>
+        <tbody>${DB.products.map(p=>`<tr><td><b>${esc(p.name)}</b></td><td>${p.stock}</td><td>${money(p.purchase)}</td><td class="right" style="font-weight:700">${money(num(p.stock)*num(p.purchase))}</td></tr>`).join('')}</tbody>
+      </table>
+      <div style="margin-top:16px;text-align:right;font-size:16px"><b>Total Inventory Valuation: <span style="color:var(--accent)">${money(totVal)}</span></b></div>
+      <div style="margin-top:20px;text-align:right"><button class="btn" onclick="window.print()">Print Report</button></div>
+    </div>
+  `);
+}
+function openPartyStmtFromRep(){
+  const pid=$('repPartySelect').value;
+  if(!pid)return toast('Please select a party','err');
+  openLedgerStatement(pid);
+}
+function openLedgerStatement(pid){
+  const c=party(pid);if(!c)return;
+  const txs=DB.txns.filter(t=>t.partyId===pid).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  let run=num(c.opening);
+  openModal('Party Statement: '+c.name,`
+    <div class="stmt" id="printArea">
+      <h2>${esc(ME.biz)}</h2>
+      <div style="display:flex;justify-content:space-between;margin:10px 0 20px">
+        <div><b>Party:</b> ${esc(c.name)} (${c.type})<br><b>Mobile:</b> ${esc(c.mobile||'—')}</div>
+        <div style="text-align:right"><b>PAN/VAT:</b> ${esc(c.pan||c.vat||'—')}<br><b>Opening Balance:</b> ${money(c.opening)}</div>
+      </div>
+      <table>
+        <thead><tr><th>Date</th><th>Voucher</th><th>Description</th><th class="right">Debit</th><th class="right">Credit</th><th class="right">Balance</th></tr></thead>
+        <tbody>
+          <tr><td>—</td><td><b>OPENING</b></td><td>Opening Balance</td><td class="right">—</td><td class="right">—</td><td class="right" style="font-weight:700">${money(run)}</td></tr>
+          ${txs.map(t=>{
+            const d=num(t.debit), cr=num(t.credit);
+            run = c.type==='Supplier' ? run + cr - d : run + d - cr;
+            return `<tr><td>${fmtDate(t.date)}</td><td><b>${esc(t.voucher)}</b></td><td>${esc(t.desc||t.type)}</td><td class="right">${d?money(d):'—'}</td><td class="right">${cr?money(cr):'—'}</td><td class="right" style="font-weight:700;color:${run>0?'green':run<0?'red':'inherit'}">${money(run)}</td></tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+      <div style="margin-top:24px;display:flex;justify-content:space-between;align-items:center">
+        <div class="muted">Generated via Diary Nepal Workspace</div>
+        <div><button class="btn" onclick="window.print()"><i class="fa-solid fa-print"></i> Print Statement</button></div>
+      </div>
+    </div>
+  `);
+}
+
+/* --- SETTINGS --- */
+function renderSettings(v){
+  v.innerHTML=`
+    <div class="panel" style="max-width:720px;margin:0 auto">
+      <div class="panel-h"><h3><i class="fa-solid fa-gear" style="color:#93c5fd"></i> Workspace Settings &amp; Preferences</h3></div>
+      <form onsubmit="saveSettings(event)">
+        <div class="form-grid">
+          <div class="field"><label>Business / Company Name</label><input class="inp" id="settBiz" value="${esc(ME.biz)}"></div>
+          <div class="field"><label>Low Stock Threshold Alert</label><input class="inp" id="settLow" type="number" value="${DB.settings.lowStock||5}"></div>
+        </div>
+        <div class="form-actions" style="margin-top:20px"><button class="btn" type="submit">Save Settings</button></div>
+      </form>
+    </div>`;
+}
+function saveSettings(e){
+  e.preventDefault();
+  const b=$('settBiz').value.trim();if(!b)return;
+  ME.biz=b; DB.biz=b;
+  DB.settings.lowStock=num($('settLow').value);
+  save();paintUser();renderPage();toast('Settings saved successfully!','ok');
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='diary_nepal_'+ME.email.split('@')[0]+'.json';a.click();
+  toast('Data exported successfully','ok');
+}
+
+/* --- MODAL UTILS --- */
+function openModal(title,html){
+  $('modalTitle').textContent=title;
+  $('modalBody').innerHTML=html;
+  $('modalBd').classList.add('on');
+}
+function closeModal(){
+  $('modalBd').classList.remove('on');
+}
 </script>
+
 </body>
 </html>
