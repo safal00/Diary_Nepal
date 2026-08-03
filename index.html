@@ -1,224 +1,1336 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2100209484301741"
-     crossorigin="anonymous"></script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Diary Nepal - Home</title>
-
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-YQQHMEQWT4"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-YQQHMEQWT4');
-</script>
-  <script type="module">
-  import { db, auth } from "./firebase.js";
-  import { 
-    createUserWithEmailAndPassword, 
-    signInWithEmailAndPassword, 
-    signOut, 
-    onAuthStateChanged 
-  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-  
-  import { 
-    collection, addDoc, onSnapshot, query, where, deleteDoc, doc 
-  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-  // Auth changes
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      console.log("Logged In as:", user.email);
-    } else {
-      console.log("Logged Out State");
-    }
-  });
-</script>
-<script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyC9wzP2mnLuRscD-VHCFeflV7PyvkAJ-nQ",
-    authDomain: "diarynepal01.firebaseapp.com",
-    projectId: "diarynepal01",
-    storageBucket: "diarynepal01.firebasestorage.app",
-    messagingSenderId: "736076742017",
-    appId: "1:736076742017:web:441f4539433aaf231f7c80",
-    measurementId: "G-8JW8PH6896"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Diary Nepal – National Information Directory</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-  body {
-    margin: 0;
-    font-family: "Segoe UI", Arial, sans-serif;
-    background: #f4f6f9;
-    color: #333;
+  :root{
+    --dn-blue:#003893;
+    --dn-blue-dark:#00246b;
+    --dn-blue-light:#e8eefb;
+    --dn-red:#DC143C;
+    --dn-red-dark:#a80f2e;
+    --dn-gray:#f4f6f9;
+    --dn-border:#e3e7ee;
+    --dn-text:#1f2937;
+    --dn-muted:#64748b;
+    --success:#16a34a;
+    --warning:#f59e0b;
+  }
+  *{box-sizing:border-box}
+  html,body{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    color:var(--dn-text);
+    background:#f8fafc;
+    font-size:15px;
+  }
+  h1,h2,h3,h4,h5,h6{font-family:'Poppins','Inter',sans-serif;font-weight:600;letter-spacing:-.01em}
+
+  /* TOP INFO BAR */
+  .top-bar{background:var(--dn-blue-dark);color:#e0e7ff;font-size:13px;padding:8px 0}
+  .top-bar a{color:#e0e7ff;text-decoration:none;margin-right:14px}
+  .top-bar a:hover{color:#fff}
+  .top-bar .lang-btn{background:rgba(255,255,255,.12);border:0;color:#fff;padding:2px 10px;border-radius:4px;font-size:12px}
+
+  /* HEADER */
+  .site-header{background:#fff;border-bottom:1px solid var(--dn-border);box-shadow:0 2px 10px rgba(0,0,0,.03)}
+  .brand-logo{
+    width:48px;height:48px;border-radius:10px;
+    background:linear-gradient(135deg,var(--dn-blue),var(--dn-red));
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-weight:700;font-size:22px;font-family:'Poppins';
+  }
+  .brand-name{font-weight:800;font-size:22px;color:var(--dn-blue);line-height:1;font-family:'Poppins'}
+  .brand-tag{font-size:12px;color:var(--dn-muted);letter-spacing:.3px}
+
+  /* SEARCH */
+  .search-hero{position:relative}
+  .search-hero .form-control{
+    height:48px;border-radius:8px 0 0 8px;border:1.5px solid var(--dn-border);
+    font-size:15px;padding-left:16px;
+  }
+  .search-hero .form-control:focus{border-color:var(--dn-blue);box-shadow:0 0 0 .2rem rgba(0,56,147,.12)}
+  .btn-search{
+    background:var(--dn-blue);color:#fff;border-radius:0 8px 8px 0;
+    padding:0 22px;font-weight:600;border:0;
+  }
+  .btn-search:hover{background:var(--dn-blue-dark);color:#fff}
+
+  /* MAIN NAV */
+  .main-nav{background:var(--dn-blue);color:#fff}
+  .main-nav .nav-link{
+    color:#e0e7ff !important;font-weight:500;padding:14px 16px !important;
+    font-size:14.5px;position:relative;transition:.2s;
+  }
+  .main-nav .nav-link:hover,.main-nav .nav-link.active{color:#fff !important;background:rgba(255,255,255,.08)}
+  .main-nav .nav-link.emergency{background:var(--dn-red);border-radius:6px;margin:8px 0 8px 8px;padding:8px 16px !important}
+  .main-nav .nav-link.emergency:hover{background:var(--dn-red-dark)}
+
+  /* PUBLIC NOTICE BAR */
+  .notice-bar{
+    background:linear-gradient(90deg,#fff9db,#fffbeb);
+    border-bottom:1px solid #fde68a;
+    padding:10px 0;overflow:hidden;
+  }
+  .notice-label{
+    background:var(--dn-red);color:#fff;font-weight:600;font-size:12px;
+    padding:4px 12px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px;
+    display:inline-flex;align-items:center;gap:6px;flex-shrink:0;
+  }
+  .notice-content{
+    display:inline-block;white-space:nowrap;animation:ticker 40s linear infinite;
+    color:#78350f;font-weight:500;font-size:14px;
+  }
+  @keyframes ticker{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+
+  /* SIDEBAR CATEGORIES */
+  .sidebar{position:sticky;top:16px}
+  .side-title{
+    font-size:12px;text-transform:uppercase;letter-spacing:1px;
+    color:var(--dn-muted);font-weight:700;margin-bottom:12px;padding-left:4px;
+  }
+  .cat-card{
+    background:#fff;border:1px solid var(--dn-border);border-radius:10px;
+    padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;
+    cursor:pointer;transition:.25s;text-decoration:none;color:var(--dn-text);
+    box-shadow:0 1px 2px rgba(0,0,0,.02);
+  }
+  .cat-card:hover{
+    border-color:var(--dn-blue);transform:translateX(4px);
+    box-shadow:0 6px 16px rgba(0,56,147,.10);color:var(--dn-blue);
+  }
+  .cat-icon{
+    width:38px;height:38px;border-radius:8px;background:var(--dn-blue-light);
+    color:var(--dn-blue);display:flex;align-items:center;justify-content:center;
+    font-size:18px;flex-shrink:0;transition:.25s;
+  }
+  .cat-card:hover .cat-icon{background:var(--dn-blue);color:#fff}
+  .cat-name{font-weight:600;font-size:13.5px;line-height:1.25}
+  .cat-count{font-size:11px;color:var(--dn-muted)}
+
+  /* HERO BANNER */
+  .hero-banner{
+    background:linear-gradient(135deg,var(--dn-blue) 0%,#0052cc 60%,var(--dn-red) 130%);
+    border-radius:14px;color:#fff;padding:38px 34px;overflow:hidden;position:relative;
+    box-shadow:0 12px 32px rgba(0,56,147,.18);
+  }
+  .hero-banner::before,.hero-banner::after{
+    content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.06);
+  }
+  .hero-banner::before{width:280px;height:280px;top:-90px;right:-70px}
+  .hero-banner::after{width:180px;height:180px;bottom:-80px;left:-40px}
+  .hero-banner h1{font-size:32px;font-weight:700;margin-bottom:12px;position:relative}
+  .hero-banner p{font-size:15px;opacity:.92;max-width:560px;position:relative}
+  .hero-actions{position:relative;margin-top:20px;display:flex;gap:10px;flex-wrap:wrap}
+  .btn-hero-white{background:#fff;color:var(--dn-blue);font-weight:600;padding:10px 22px;border-radius:8px;border:0}
+  .btn-hero-white:hover{background:#f1f5f9;color:var(--dn-blue-dark)}
+  .btn-hero-outline{border:1.5px solid rgba(255,255,255,.6);color:#fff;background:transparent;font-weight:500;padding:10px 22px;border-radius:8px}
+  .btn-hero-outline:hover{background:rgba(255,255,255,.15);color:#fff}
+
+  /* STATS */
+  .stat-card{
+    background:#fff;border-radius:12px;padding:20px;border:1px solid var(--dn-border);
+    display:flex;align-items:center;gap:14px;transition:.25s;height:100%;
+  }
+  .stat-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.06);transform:translateY(-2px)}
+  .stat-icon{
+    width:52px;height:52px;border-radius:12px;display:flex;align-items:center;
+    justify-content:center;font-size:22px;flex-shrink:0;
+  }
+  .si-blue{background:var(--dn-blue-light);color:var(--dn-blue)}
+  .si-red{background:#fdecef;color:var(--dn-red)}
+  .si-green{background:#dcfce7;color:#16a34a}
+  .si-yellow{background:#fef3c7;color:#d97706}
+  .stat-num{font-size:22px;font-weight:700;color:var(--dn-blue);line-height:1;font-family:'Poppins'}
+  .stat-label{font-size:12.5px;color:var(--dn-muted);margin-top:4px}
+
+  /* SECTIONS */
+  .section-head{
+    display:flex;justify-content:space-between;align-items:center;
+    margin:28px 0 16px;padding-bottom:10px;border-bottom:2px solid var(--dn-border);
+  }
+  .section-title{
+    font-size:19px;font-weight:700;color:var(--dn-blue);margin:0;
+    position:relative;padding-left:14px;
+  }
+  .section-title::before{
+    content:"";position:absolute;left:0;top:4px;bottom:4px;width:4px;
+    background:linear-gradient(var(--dn-blue),var(--dn-red));border-radius:2px;
+  }
+  .see-all{color:var(--dn-blue);text-decoration:none;font-weight:600;font-size:13px}
+  .see-all:hover{color:var(--dn-red)}
+
+  /* ARTICLE CARDS */
+  .article-card{
+    background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--dn-border);
+    transition:.25s;height:100%;display:flex;flex-direction:column;
+  }
+  .article-card:hover{box-shadow:0 10px 28px rgba(0,0,0,.08);transform:translateY(-3px)}
+  .article-thumb{
+    height:170px;background:linear-gradient(135deg,var(--dn-blue),#4361ee);
+    position:relative;display:flex;align-items:center;justify-content:center;color:#fff;font-size:38px;
+  }
+  .article-thumb.t2{background:linear-gradient(135deg,#dc2626,#f59e0b)}
+  .article-thumb.t3{background:linear-gradient(135deg,#16a34a,#059669)}
+  .article-thumb.t4{background:linear-gradient(135deg,#7c3aed,#3b82f6)}
+  .article-thumb.t5{background:linear-gradient(135deg,#ea580c,#dc2626)}
+  .article-thumb.t6{background:linear-gradient(135deg,#0891b2,#0d9488)}
+  .article-cat{
+    position:absolute;top:12px;left:12px;background:rgba(255,255,255,.95);
+    color:var(--dn-blue);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;
+  }
+  .article-body{padding:16px;flex-grow:1;display:flex;flex-direction:column}
+  .article-title{font-size:15.5px;font-weight:600;line-height:1.4;margin-bottom:8px;color:var(--dn-text)}
+  .article-title:hover{color:var(--dn-blue)}
+  .article-excerpt{font-size:13px;color:var(--dn-muted);line-height:1.5;flex-grow:1}
+  .article-meta{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--dn-border);font-size:12px;color:var(--dn-muted)}
+  .author-avatar{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--dn-blue),var(--dn-red));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:11px}
+
+  /* Compact popular list */
+  .popular-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--dn-border)}
+  .popular-item:last-child{border-bottom:0}
+  .popular-num{font-size:28px;font-weight:800;color:var(--dn-red);opacity:.7;line-height:1;font-family:'Poppins'}
+  .popular-title{font-size:13.5px;font-weight:600;line-height:1.4;color:var(--dn-text)}
+  .popular-title:hover{color:var(--dn-blue);cursor:pointer}
+  .popular-meta{font-size:11px;color:var(--dn-muted);margin-top:3px}
+
+  /* Emergency panel */
+  .emerg-panel{
+    background:linear-gradient(135deg,#fef2f2,#fff);border:1px solid #fecaca;
+    border-radius:12px;padding:18px;
+  }
+  .emerg-title{color:var(--dn-red);font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px;margin-bottom:14px}
+  .emerg-item{
+    display:flex;justify-content:space-between;align-items:center;padding:8px 0;
+    border-bottom:1px dashed #fecaca;
+  }
+  .emerg-item:last-child{border-bottom:0}
+  .emerg-name{font-size:13.5px;font-weight:500}
+  .emerg-num{
+    background:var(--dn-red);color:#fff;font-weight:700;padding:3px 10px;
+    border-radius:5px;font-size:13px;font-family:'Poppins';
   }
 
-  header {
-    background: #004aad;
-    color: white;
-    padding: 30px 20px;
-    text-align: center;
+  /* FOOTER */
+  .site-footer{background:var(--dn-blue-dark);color:#cbd5e1;padding:48px 0 0;margin-top:40px}
+  .site-footer h5{color:#fff;font-size:15px;font-weight:600;margin-bottom:16px}
+  .site-footer a{color:#cbd5e1;text-decoration:none;display:block;padding:4px 0;font-size:13.5px;transition:.2s}
+  .site-footer a:hover{color:#fff;padding-left:4px}
+  .footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding:16px 0;margin-top:32px;font-size:13px;text-align:center}
+  .social-btn{
+    width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,.08);
+    display:inline-flex;align-items:center;justify-content:center;margin-right:8px;color:#fff;
   }
+  .social-btn:hover{background:var(--dn-red);color:#fff !important}
 
-  header h1 {
-    margin: 0;
-    font-size: 2.3em;
+  /* BREADCRUMB */
+  .breadcrumb-wrap{background:#fff;border-bottom:1px solid var(--dn-border);padding:14px 0}
+  .breadcrumb{margin:0;font-size:13px}
+  .breadcrumb-item a{color:var(--dn-blue);text-decoration:none}
+  .breadcrumb-item.active{color:var(--dn-muted)}
+
+  /* PAGE HEADER */
+  .page-hero{
+    background:linear-gradient(135deg,var(--dn-blue),#0052cc);color:#fff;
+    border-radius:12px;padding:28px;margin-bottom:24px;position:relative;overflow:hidden;
   }
+  .page-hero h1{font-size:26px;font-weight:700;margin-bottom:6px}
+  .page-hero p{opacity:.9;margin:0}
 
-  header p {
-    margin-top: 8px;
-    opacity: 0.95;
+  /* TABLES */
+  .table-card{background:#fff;border-radius:12px;padding:0;border:1px solid var(--dn-border);overflow:hidden}
+  .table thead{background:var(--dn-blue-light)}
+  .table thead th{color:var(--dn-blue);font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.5px;border:0;padding:14px 16px}
+  .table tbody td{padding:14px 16px;vertical-align:middle;font-size:14px;border-bottom:1px solid var(--dn-border)}
+  .table tbody tr:hover{background:#f8fafc}
+  .badge-verified{background:#dcfce7;color:#16a34a;font-weight:600;font-size:11px;padding:4px 8px}
+  .badge-pending{background:#fef3c7;color:#d97706;font-weight:600;font-size:11px;padding:4px 8px}
+
+  /* FILTER SECTION */
+  .filter-card{
+    background:#fff;border:1px solid var(--dn-border);border-radius:12px;
+    padding:18px;margin-bottom:20px;
   }
+  .filter-card .form-label{font-size:12px;font-weight:600;color:var(--dn-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+  .form-select,.form-control{border-color:var(--dn-border);font-size:14px}
+  .form-select:focus,.form-control:focus{border-color:var(--dn-blue);box-shadow:0 0 0 .15rem rgba(0,56,147,.1)}
 
-  /* Layout */
-  .layout {
-    display: flex;
-    max-width: 1300px;
-    margin: auto;
-    padding: 30px 20px;
-    gap: 30px;
+  /* BUTTONS */
+  .btn-primary{background:var(--dn-blue);border-color:var(--dn-blue);font-weight:500}
+  .btn-primary:hover{background:var(--dn-blue-dark);border-color:var(--dn-blue-dark)}
+  .btn-danger{background:var(--dn-red);border-color:var(--dn-red);font-weight:500}
+  .btn-danger:hover{background:var(--dn-red-dark);border-color:var(--dn-red-dark)}
+  .btn-outline-primary{color:var(--dn-blue);border-color:var(--dn-blue)}
+  .btn-outline-primary:hover{background:var(--dn-blue);border-color:var(--dn-blue)}
+
+  /* TOOLS GRID */
+  .tool-card{
+    background:#fff;border:1px solid var(--dn-border);border-radius:12px;
+    padding:20px;text-align:center;cursor:pointer;transition:.25s;height:100%;
+    text-decoration:none;color:var(--dn-text);display:block;
   }
-
-  /* Sidebar */
-  .sidebar {
-    width: 300px;
-    min-width: 260px;
+  .tool-card:hover{
+    transform:translateY(-4px);box-shadow:0 12px 28px rgba(0,56,147,.12);
+    border-color:var(--dn-blue);color:var(--dn-text);
   }
-
-  .directory-card {
-    background: white;
-    border-radius: 10px;
-    padding: 18px 20px;
-    margin-bottom: 15px;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
-    font-weight: 600;
-    color: #004aad;
+  .tool-icon{
+    width:56px;height:56px;border-radius:14px;margin:0 auto 12px;
+    background:linear-gradient(135deg,var(--dn-blue-light),#fff);
+    color:var(--dn-blue);display:flex;align-items:center;justify-content:center;
+    font-size:24px;transition:.25s;
   }
+  .tool-card:hover .tool-icon{background:linear-gradient(135deg,var(--dn-blue),var(--dn-red));color:#fff}
+  .tool-name{font-weight:600;font-size:14px;margin-bottom:2px}
+  .tool-desc{font-size:11.5px;color:var(--dn-muted)}
 
-  .directory-card:hover {
-    background: #f0f5ff;
-    transform: translateX(5px);
-    box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+  /* ADMIN DASHBOARD */
+  .admin-sidebar{
+    background:var(--dn-blue-dark);border-radius:12px;padding:16px;color:#e0e7ff;position:sticky;top:16px;
   }
-
-  /* Main content */
-  .content {
-    flex: 1;
-    background: white;
-    border-radius: 12px;
-    padding: 30px;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+  .admin-sidebar h6{color:#94a3b8;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:14px 0 6px;padding-left:8px}
+  .admin-nav a{
+    display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:6px;
+    color:#cbd5e1;text-decoration:none;font-size:13.5px;transition:.2s;margin-bottom:2px;
   }
-
-  .content h2 {
-    color: #004aad;
-    margin-top: 0;
+  .admin-nav a:hover,.admin-nav a.active{background:rgba(255,255,255,.1);color:#fff}
+  .admin-nav a.active{background:var(--dn-red)}
+  .kpi-card{
+    background:#fff;border-radius:12px;padding:18px;border:1px solid var(--dn-border);
+    position:relative;overflow:hidden;
   }
-
-  /* Footer */
-  footer {
-    background: #1e1e1e;
-    color: #ccc;
-    text-align: center;
-    padding: 20px;
-    font-size: 0.9em;
+  .kpi-card .kpi-icon{
+    position:absolute;top:14px;right:14px;font-size:26px;color:var(--dn-blue);opacity:.25;
   }
+  .kpi-label{font-size:12px;color:var(--dn-muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+  .kpi-value{font-size:28px;font-weight:700;color:var(--dn-blue);margin-top:4px;font-family:'Poppins'}
+  .kpi-trend{font-size:12px;color:#16a34a;margin-top:4px}
 
-  footer a {
-    color: #004aad;
-    text-decoration: underline;
-    font-weight: bold;
-    margin-left: 5px;
-  }
+  /* PAGE SECTIONS */
+  .page-section{display:none;animation:fadeIn .3s ease}
+  .page-section.active{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-  /* Responsive */
-  @media (max-width: 900px) {
-    .layout {
-      flex-direction: column;
-    }
+  /* Utility */
+  .divider-thin{height:1px;background:var(--dn-border);margin:24px 0}
+  .chip{display:inline-block;background:var(--dn-blue-light);color:var(--dn-blue);padding:4px 10px;border-radius:20px;font-size:11.5px;font-weight:600;margin:2px}
 
-    .sidebar {
-      width: 100%;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-    }
-
-    .directory-card {
-      margin-bottom: 0;
-      text-align: center;
-    }
+  @media (max-width: 991.98px){
+    .sidebar{position:static;margin-bottom:20px}
+    .hero-banner h1{font-size:24px}
   }
 </style>
 </head>
-
 <body>
 
-<header>
-  <h1>Diary Nepal</h1>
-  <p>Select a directory from the left</p>
-</header>
-
-<div class="layout">
-
-  <!-- Left Directory -->
-  <aside class="sidebar">
-    <div class="directory-card" onclick="location.href='Bloodbank.html'">Blood Bank</div>
-    <div class="directory-card" onclick="location.href='Ambulance.html'">Ambulance</div>
-    <div class="directory-card" onclick="location.href='Red Cross.html'">Red Cross</div>
-    <div class="directory-card" onclick="location.href='Hospital.html'">Hospital</div>
-    <div class="directory-card" onclick="location.href='municipality_offices.html'">Municipality Offices</div>
-    <div class="directory-card" onclick="location.href='Government Institution.html'">Government Institution</div>
-    <div class="directory-card" onclick="location.href='Financial Institution.html'">Financial Institution</div>
-    <div class="directory-card" onclick="location.href='police.html'">Police</div>
-    <div class="directory-card" onclick="location.href='Health Care.html'">Health Care</div>
-    <div class="directory-card" onclick="location.href='Travel Agency.html'">Travel Agency</div>
-    <div class="directory-card" onclick="location.href='Airlines.html'">Airlines</div>
-    <div class="directory-card" onclick="location.href='School.html'">Schools</div>
-    <div class="directory-card" onclick="location.href='Broker Office.html'">Broker Office</div>
-    <div class="directory-card" onclick="location.href='utilities.html'">Utilities</div>
-  </aside>
-
-  <!-- Main Content -->
-  <main class="content">
-    <h2>About Diary Nepal</h2>
-    <p>
-      Diary Nepal is a centralized directory providing quick access to essential
-      services and institutions across Nepal.
-    </p>
-    <p>
-      Use the directory on the left to browse services such as healthcare,
-      emergency services, government institutions, and more.
-    </p>
-  </main>
-
+<!-- TOP INFO BAR -->
+<div class="top-bar">
+  <div class="container d-flex justify-content-between align-items-center flex-wrap">
+    <div>
+      <a href="#"><i class="bi bi-telephone-fill"></i> +977-1-4123456</a>
+      <a href="#"><i class="bi bi-envelope-fill"></i> info@diarynepal.gov.np</a>
+      <a href="#" class="d-none d-md-inline-block"><i class="bi bi-geo-alt-fill"></i> Kathmandu, Nepal</a>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+      <span class="d-none d-md-inline"><i class="bi bi-calendar3"></i> <span id="dateNow">Loading...</span></span>
+      <button class="lang-btn">नेपाली</button>
+      <a href="#" onclick="showPage('login')"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+    </div>
+  </div>
 </div>
 
-<footer>
-  © 2025 Diary Nepal | Data from official sources
-  <p>
-    Have a question or notice incorrect data? 
-    <a href="feedback.html" target="_blank">Submit Feedback</a>
-  </p>
+<!-- HEADER -->
+<header class="site-header py-3">
+  <div class="container">
+    <div class="row align-items-center g-3">
+      <div class="col-lg-4 col-md-5">
+        <a href="#" onclick="showPage('home')" class="d-flex align-items-center gap-2 text-decoration-none">
+          <div class="brand-logo">D</div>
+          <div>
+            <div class="brand-name">Diary Nepal</div>
+            <div class="brand-tag">National Information Directory</div>
+          </div>
+        </a>
+      </div>
+      <div class="col-lg-6 col-md-7">
+        <div class="search-hero d-flex">
+          <input type="text" class="form-control" placeholder="Search hospitals, blood banks, schools, tools...">
+          <button class="btn-search"><i class="bi bi-search"></i> Search</button>
+        </div>
+      </div>
+      <div class="col-lg-2 d-none d-lg-block text-end">
+        <button class="btn btn-danger" onclick="showPage('emergency')">
+          <i class="bi bi-telephone-fill"></i> Emergency
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN NAVIGATION -->
+<nav class="main-nav">
+  <div class="container">
+    <div class="d-flex align-items-center justify-content-between">
+      <button class="btn btn-sm text-white d-lg-none" data-bs-toggle="collapse" data-bs-target="#mainMenu">
+        <i class="bi bi-list fs-5"></i> Menu
+      </button>
+      <div class="collapse navbar-collapse d-lg-block" id="mainMenu">
+        <ul class="nav">
+          <li class="nav-item"><a class="nav-link active" href="#" onclick="showPage('home')"><i class="bi bi-house-fill"></i> Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('directory-hospital')">Directory</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('tools')">Tools</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('articles')">Articles</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('community')">Community</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('donor')">Blood Donor</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('about')">About</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('admin')"><i class="bi bi-shield-lock"></i> Admin</a></li>
+          <li class="nav-item"><a class="nav-link emergency" href="#" onclick="showPage('emergency')"><i class="bi bi-telephone-fill"></i> Emergency</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- PUBLIC NOTICE BAR -->
+<div class="notice-bar">
+  <div class="container d-flex align-items-center gap-3">
+    <span class="notice-label"><i class="bi bi-megaphone-fill"></i> Public Notice</span>
+    <div class="flex-grow-1 overflow-hidden">
+      <span class="notice-content">
+        ⚠️ Weather Alert: Heavy rainfall expected in Kathmandu Valley from Nov 20 to Nov 22 — 
+        🚧 Road Update: Prithvi Highway partially closed near Mugling due to landslide — 
+        🏛️ Government Notice: National ID registration deadline extended to Dec 15, 2024 — 
+        🩸 Urgent Blood Request: O-negative blood required at TU Teaching Hospital
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTAINER -->
+<div class="container my-4">
+  <div class="row g-4">
+    <!-- SIDEBAR -->
+    <aside class="col-lg-3">
+      <div class="sidebar">
+        <div class="side-title"><i class="bi bi-grid-fill"></i> Categories</div>
+        <a class="cat-card" onclick="showPage('directory-bloodbank')"><div class="cat-icon" style="background:#fdecef;color:#dc143c"><i class="bi bi-droplet-fill"></i></div><div><div class="cat-name">Blood Bank</div><div class="cat-count">142 listings</div></div></a>
+        <a class="cat-card" onclick="showPage('directory-ambulance')"><div class="cat-icon" style="background:#fef3c7;color:#d97706"><i class="bi bi-truck"></i></div><div><div class="cat-name">Ambulance</div><div class="cat-count">86 services</div></div></a>
+        <a class="cat-card" onclick="showPage('directory-redcross')"><div class="cat-icon" style="background:#fdecef;color:#dc143c"><i class="bi bi-plus-lg"></i></div><div><div class="cat-name">Red Cross</div><div class="cat-count">54 branches</div></div></a>
+        <a class="cat-card" onclick="showPage('directory-hospital')"><div class="cat-icon"><i class="bi bi-hospital-fill"></i></div><div><div class="cat-name">Hospital</div><div class="cat-count">312 listings</div></div></a>
+        <a class="cat-card" onclick="showPage('directory-municipality')"><div class="cat-icon"><i class="bi bi-building-fill"></i></div><div><div class="cat-name">Municipality Offices</div><div class="cat-count">753 offices</div></div></a>
+        <a class="cat-card" onclick="showPage('directory-government')"><div class="cat-icon"><i class="bi bi-bank2"></i></div><div><div class="cat-name">Government Institution</div><div class="cat-count">210 listings</div></div></a>
+        <a class="cat-card" onclick="showPage('directory-financial')"><div class="cat-icon" style="background:#dcfce7;color:#16a34a"><i class="bi bi-cash-coin"></i></div><div><div class="cat-name">Financial Institution</div><div class="cat-count">185 listings</div></div></a>
+        <a class="cat-card" onclick="showPage('directory-police')"><div class="cat-icon"><i class="bi bi-shield-fill"></i></div><div><div class="cat-name">Police</div><div class="cat-count">98 stations</div></div></a>
+        <a class="cat-card" onclick="showPage('directory-healthcare')"><div class="cat-icon" style="background:#dcfce7;color:#16a34a"><i class="bi bi-heart-pulse-fill"></i></div><div><div class="cat-name">Health Care</div><div class="cat-count">421 listings</div></div></a>
+        <a class="cat-card" onclick="showPage('directory-travel')"><div class="cat-icon"><i class="bi bi-map-fill"></i></div><div><div class="cat-name">Travel Agency</div><div class="cat-count">176 agencies</div></div></a>
+        <a class="cat-card" onclick="showPage('directory-airlines')"><div class="cat-icon"><i class="bi bi-airplane-fill"></i></div><div><div class="cat-name">Airlines</div><div class="cat-count">28 airlines</div></div></a>
+        <a class="cat-card" onclick="showPage('directory-schools')"><div class="cat-icon"><i class="bi bi-mortarboard-fill"></i></div><div><div class="cat-name">Schools</div><div class="cat-count">589 schools</div></div></a>
+        <a class="cat-card" onclick="showPage('directory-broker')"><div class="cat-icon"><i class="bi bi-briefcase-fill"></i></div><div><div class="cat-name">Broker Office</div><div class="cat-count">64 offices</div></div></a>
+        <a class="cat-card" onclick="showPage('donor')"><div class="cat-icon" style="background:#fdecef;color:#dc143c"><i class="bi bi-person-heart"></i></div><div><div class="cat-name">Blood Donor Management</div><div class="cat-count">Register/View</div></div></a>
+        <a class="cat-card" onclick="showPage('blood-request')"><div class="cat-icon" style="background:#fdecef;color:#dc143c"><i class="bi bi-clipboard-heart-fill"></i></div><div><div class="cat-name">Blood Request Management</div><div class="cat-count">Post / Search</div></div></a>
+        <a class="cat-card" onclick="showPage('tools')"><div class="cat-icon"><i class="bi bi-tools"></i></div><div><div class="cat-name">Tools</div><div class="cat-count">14+ utilities</div></div></a>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="col-lg-9">
+
+      <!-- ================== HOME PAGE ================== -->
+      <section class="page-section active" id="page-home">
+        <!-- HERO -->
+        <div class="hero-banner">
+          <h1>Nepal's Trusted National Information Directory</h1>
+          <p>Find verified information about hospitals, blood banks, government offices, schools, financial institutions, and more — all in one professional national platform.</p>
+          <div class="hero-actions">
+            <button class="btn-hero-white" onclick="showPage('directory-hospital')"><i class="bi bi-search"></i> Explore Directory</button>
+            <button class="btn-hero-outline" onclick="showPage('tools')"><i class="bi bi-tools"></i> Try Tools</button>
+          </div>
+        </div>
+
+        <!-- STATS -->
+        <div class="row g-3 mt-3">
+          <div class="col-md-3 col-6"><div class="stat-card"><div class="stat-icon si-blue"><i class="bi bi-collection-fill"></i></div><div><div class="stat-num">3,458</div><div class="stat-label">Total Listings</div></div></div></div>
+          <div class="col-md-3 col-6"><div class="stat-card"><div class="stat-icon si-red"><i class="bi bi-droplet-fill"></i></div><div><div class="stat-num">12,845</div><div class="stat-label">Blood Donors</div></div></div></div>
+          <div class="col-md-3 col-6"><div class="stat-card"><div class="stat-icon si-green"><i class="bi bi-file-earmark-text-fill"></i></div><div><div class="stat-num">1,290</div><div class="stat-label">Articles Published</div></div></div></div>
+          <div class="col-md-3 col-6"><div class="stat-card"><div class="stat-icon si-yellow"><i class="bi bi-people-fill"></i></div><div><div class="stat-num">45.2k</div><div class="stat-label">Active Users</div></div></div></div>
+        </div>
+
+        <!-- FEATURED ARTICLES -->
+        <div class="section-head">
+          <h3 class="section-title">Featured Articles</h3>
+          <a class="see-all" onclick="showPage('articles')">View All <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="article-card" onclick="showPage('article-view')">
+              <div class="article-thumb"><i class="bi bi-hospital"></i><span class="article-cat">Health</span></div>
+              <div class="article-body">
+                <div class="article-title">Complete Guide to Nepal's Public Hospitals & Services</div>
+                <div class="article-excerpt">Everything you need to know about public healthcare facilities across all provinces of Nepal.</div>
+                <div class="article-meta"><div class="author-avatar">RS</div><span>Ram Sharma</span><span>•</span><span>5 min read</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="article-card" onclick="showPage('article-view')">
+              <div class="article-thumb t2"><i class="bi bi-droplet-fill"></i><span class="article-cat">Emergency</span></div>
+              <div class="article-body">
+                <div class="article-title">How to Become a Registered Blood Donor in Nepal</div>
+                <div class="article-excerpt">Step-by-step process to register and become an active blood donor with verified national records.</div>
+                <div class="article-meta"><div class="author-avatar">SK</div><span>Sita KC</span><span>•</span><span>4 min read</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="article-card" onclick="showPage('article-view')">
+              <div class="article-thumb t3"><i class="bi bi-mortarboard-fill"></i><span class="article-cat">Education</span></div>
+              <div class="article-body">
+                <div class="article-title">Top 20 Schools & Colleges Ranked in 2024</div>
+                <div class="article-excerpt">Comprehensive ranking based on academic performance, infrastructure, and student satisfaction.</div>
+                <div class="article-meta"><div class="author-avatar">BT</div><span>Bikash Thapa</span><span>•</span><span>7 min read</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4 mt-1">
+          <!-- LATEST ARTICLES -->
+          <div class="col-lg-8">
+            <div class="section-head"><h3 class="section-title">Latest Articles</h3><a class="see-all" onclick="showPage('articles')">More</a></div>
+            <div class="row g-3">
+              <div class="col-md-6"><div class="article-card" onclick="showPage('article-view')"><div class="article-thumb t4"><i class="bi bi-airplane-fill"></i><span class="article-cat">Travel</span></div><div class="article-body"><div class="article-title">Domestic Flight Schedule Updates — Winter 2024</div><div class="article-meta"><div class="author-avatar">AP</div><span>Anish Poudel</span><span>•</span><span>Nov 15</span></div></div></div></div>
+              <div class="col-md-6"><div class="article-card" onclick="showPage('article-view')"><div class="article-thumb t5"><i class="bi bi-bank"></i><span class="article-cat">Finance</span></div><div class="article-body"><div class="article-title">Understanding Nepal's New Banking Interest Rates</div><div class="article-meta"><div class="author-avatar">MG</div><span>Manju Gurung</span><span>•</span><span>Nov 14</span></div></div></div></div>
+              <div class="col-md-6"><div class="article-card" onclick="showPage('article-view')"><div class="article-thumb t6"><i class="bi bi-shield-fill"></i><span class="article-cat">Public Safety</span></div><div class="article-body"><div class="article-title">Police Emergency Contact Numbers by Province</div><div class="article-meta"><div class="author-avatar">DR</div><span>Deepak Rai</span><span>•</span><span>Nov 13</span></div></div></div></div>
+              <div class="col-md-6"><div class="article-card" onclick="showPage('article-view')"><div class="article-thumb t2"><i class="bi bi-truck"></i><span class="article-cat">Emergency</span></div><div class="article-body"><div class="article-title">24-Hour Ambulance Services in Kathmandu Valley</div><div class="article-meta"><div class="author-avatar">PS</div><span>Priya Shrestha</span><span>•</span><span>Nov 12</span></div></div></div></div>
+            </div>
+          </div>
+
+          <!-- POPULAR + EMERGENCY -->
+          <div class="col-lg-4">
+            <div class="section-head"><h3 class="section-title">Popular</h3></div>
+            <div class="bg-white p-3 rounded-3 border">
+              <div class="popular-item"><div class="popular-num">01</div><div><div class="popular-title" onclick="showPage('article-view')">Nepal Government Holiday Calendar 2081</div><div class="popular-meta">12,458 views</div></div></div>
+              <div class="popular-item"><div class="popular-num">02</div><div><div class="popular-title" onclick="showPage('article-view')">How to Apply for National ID Card</div><div class="popular-meta">9,872 views</div></div></div>
+              <div class="popular-item"><div class="popular-num">03</div><div><div class="popular-title" onclick="showPage('article-view')">List of Cardiac Hospitals in Nepal</div><div class="popular-meta">7,214 views</div></div></div>
+              <div class="popular-item"><div class="popular-num">04</div><div><div class="popular-title" onclick="showPage('article-view')">Passport Application Complete Guide</div><div class="popular-meta">6,540 views</div></div></div>
+              <div class="popular-item"><div class="popular-num">05</div><div><div class="popular-title" onclick="showPage('article-view')">EMI Calculator Explained — Full Tutorial</div><div class="popular-meta">5,128 views</div></div></div>
+            </div>
+
+            <div class="emerg-panel mt-4">
+              <div class="emerg-title"><i class="bi bi-telephone-fill"></i> Emergency Numbers</div>
+              <div class="emerg-item"><span class="emerg-name">Police</span><span class="emerg-num">100</span></div>
+              <div class="emerg-item"><span class="emerg-name">Ambulance</span><span class="emerg-num">102</span></div>
+              <div class="emerg-item"><span class="emerg-name">Fire Brigade</span><span class="emerg-num">101</span></div>
+              <div class="emerg-item"><span class="emerg-name">Red Cross</span><span class="emerg-num">4270650</span></div>
+              <div class="emerg-item"><span class="emerg-name">Tourist Police</span><span class="emerg-num">1144</span></div>
+              <button class="btn btn-danger w-100 mt-3" onclick="showPage('emergency')">View All Emergency Contacts</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================== DIRECTORY TEMPLATE PAGES ================== -->
+      <!-- We reuse the same template via JS for consistency -->
+      <section class="page-section" id="page-directory">
+        <div class="page-hero">
+          <h1 id="dirTitle">Hospital Directory</h1>
+          <p id="dirSub">Browse and search verified hospital listings across Nepal</p>
+        </div>
+        <nav aria-label="breadcrumb" class="mb-3">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#" onclick="showPage('home')">Home</a></li>
+            <li class="breadcrumb-item"><a href="#">Directory</a></li>
+            <li class="breadcrumb-item active" id="dirCrumb">Hospital</li>
+          </ol>
+        </nav>
+
+        <div class="filter-card">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+              <label class="form-label">Search</label>
+              <input type="text" class="form-control" placeholder="Search by name...">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Province</label>
+              <select class="form-select"><option>All Provinces</option><option>Bagmati</option><option>Gandaki</option><option>Lumbini</option><option>Karnali</option><option>Sudurpaschim</option><option>Madhesh</option><option>Koshi</option></select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">District</label>
+              <select class="form-select"><option>All Districts</option><option>Kathmandu</option><option>Lalitpur</option><option>Bhaktapur</option><option>Chitwan</option></select>
+            </div>
+            <div class="col-md-2">
+              <button class="btn btn-primary w-100"><i class="bi bi-funnel-fill"></i> Filter</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick cards -->
+        <div class="row g-3 mb-3" id="dirCards">
+          <div class="col-md-4"><div class="stat-card"><div class="stat-icon si-blue"><i class="bi bi-check-circle-fill"></i></div><div><div class="stat-num">312</div><div class="stat-label">Total Verified</div></div></div></div>
+          <div class="col-md-4"><div class="stat-card"><div class="stat-icon si-green"><i class="bi bi-geo-alt-fill"></i></div><div><div class="stat-num">77</div><div class="stat-label">Districts Covered</div></div></div></div>
+          <div class="col-md-4"><div class="stat-card"><div class="stat-icon si-yellow"><i class="bi bi-clock-fill"></i></div><div><div class="stat-num">24/7</div><div class="stat-label">Emergency Support</div></div></div></div>
+        </div>
+
+        <div class="table-card">
+          <div class="table-responsive">
+            <table class="table mb-0">
+              <thead>
+                <tr>
+                  <th>#</th><th id="thName">Name</th><th>Address</th><th>Phone</th><th>Status</th><th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="dirTable">
+                <!-- filled by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <nav class="mt-3">
+          <ul class="pagination justify-content-center">
+            <li class="page-item disabled"><a class="page-link">&laquo;</a></li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item"><a class="page-link" href="#">4</a></li>
+            <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
+          </ul>
+        </nav>
+      </section>
+
+      <!-- ================== TOOLS ================== -->
+      <section class="page-section" id="page-tools">
+        <div class="page-hero" style="background:linear-gradient(135deg,var(--dn-blue),var(--dn-red))">
+          <h1><i class="bi bi-tools"></i> Tools & Utilities Center</h1>
+          <p>Free professional online tools designed for the people of Nepal — calculators, converters, and generators.</p>
+        </div>
+        <nav class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="#" onclick="showPage('home')">Home</a></li><li class="breadcrumb-item active">Tools</li></ol></nav>
+
+        <div class="filter-card">
+          <div class="row g-3">
+            <div class="col-md-8"><input type="text" class="form-control" placeholder="Search tools..."></div>
+            <div class="col-md-4">
+              <select class="form-select"><option>All Categories</option><option>Calculators</option><option>Converters</option><option>Generators</option></select>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-3 col-6"><a class="tool-card" onclick="showPage('tool-vat')"><div class="tool-icon"><i class="bi bi-percent"></i></div><div class="tool-name">VAT Calculator</div><div class="tool-desc">Calculate VAT easily</div></a></div>
+          <div class="col-md-3 col-6"><a class="tool-card" onclick="showPage('tool-age')"><div class="tool-icon"><i class="bi bi-calendar-heart"></i></div><div class="tool-name">Age Calculator</div><div class="tool-desc">Precise age in years/days</div></a></div>
+          <div class="col-md-3 col-6"><a class="tool-card"><div class="tool-icon"><i class="bi bi-house-check"></i></div><div class="tool-name">EMI Calculator</div><div class="tool-desc">Monthly loan payment</div></a></div>
+          <div class="col-md-3 col-6"><a class="tool-card"><div class="tool-icon"><i class="bi bi-cash-stack"></i></div><div class="tool-name">Loan Calculator</div><div class="tool-desc">Total interest payable</div></a></div>
+          <div class="col-md-3 col-6"><a class="tool-card"><div class="tool-icon"><i class="bi bi-graph-up-arrow"></i></div><div class="tool-name">Interest Calculator</div><div class="tool-desc">Simple & compound</div></a></div>
+          <div class="col-md-3 col-6"><a class="tool-card"><div class="tool-icon"><i class="bi bi-receipt"></i></div><div class="tool-name">Tax Calculator</div><div class="tool-desc">Nepal income tax</div></a></div>
+          <div class="col-md-3 col-6"><a class="tool-card"><div class="tool-icon"><i class="bi bi-tag-fill"></i></div><div class="tool-name">Discount Calculator</div><div class="tool-desc">Sale price calculator</div></a></div>
+          <div class="col-md-3 col-6"><a class="tool-card"><div class="tool-icon"><i class="bi bi-piggy-bank"></i></div><div class="tool-name">Profit Calculator</div><div class="tool-desc">Profit margin & ratio</div></a></div>
+          <div class="col-md-3 col-6"><a class="tool-card"><div class="tool-icon"><i class="bi bi-arrow-left-right"></i></div><div class="tool-name">Unit Converter</div><div class="tool-desc">Length, weight, area</div></a></div>
+          <div class="col-md-3 col-6"><a class="tool-card"><div class="tool-icon"><i class="bi bi-currency-exchange"></i></div><div class="tool-name">Currency Converter</div><div class="tool-desc">Live NPR rates</div></a></div>
+          <div class="col-md-3 col-6"><a class="tool-card"><div class="tool-icon"><i class="bi bi-qr-code"></i></div><div class="tool-name">QR Code Generator</div><div class="tool-desc">Custom QR creation</div></a></div>
+          <div class="col-md-3 col-6"><a class="tool-card"><div class="tool-icon"><i class="bi bi-key-fill"></i></div><div class="tool-name">Password Generator</div><div class="tool-desc">Secure passwords</div></a></div>
+          <div class="col-md-3 col-6"><a class="tool-card"><div class="tool-icon"><i class="bi bi-calculator"></i></div><div class="tool-name">Percentage Calculator</div><div class="tool-desc">% of any number</div></a></div>
+          <div class="col-md-3 col-6"><a class="tool-card"><div class="tool-icon"><i class="bi bi-book-half"></i></div><div class="tool-name">GPA Calculator</div><div class="tool-desc">Student GPA</div></a></div>
+        </div>
+      </section>
+
+      <!-- VAT CALCULATOR (sample individual tool) -->
+      <section class="page-section" id="page-tool-vat">
+        <nav class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="#" onclick="showPage('home')">Home</a></li><li class="breadcrumb-item"><a href="#" onclick="showPage('tools')">Tools</a></li><li class="breadcrumb-item active">VAT Calculator</li></ol></nav>
+        <div class="page-hero"><h1><i class="bi bi-percent"></i> VAT Calculator</h1><p>Calculate 13% Value Added Tax quickly and accurately.</p></div>
+        <div class="row g-3">
+          <div class="col-md-7">
+            <div class="bg-white p-4 rounded-3 border">
+              <div class="mb-3"><label class="form-label">Amount (NPR)</label><input type="number" id="vatAmt" class="form-control" value="1000"></div>
+              <div class="mb-3"><label class="form-label">VAT Rate (%)</label><input type="number" id="vatRate" class="form-control" value="13"></div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-primary" onclick="calcVat()"><i class="bi bi-calculator"></i> Calculate</button>
+                <button class="btn btn-outline-primary" onclick="document.getElementById('vatAmt').value='';document.getElementById('vatOut').innerHTML=''">Reset</button>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-5">
+            <div class="bg-white p-4 rounded-3 border h-100">
+              <h6 class="text-uppercase text-muted small">Result</h6>
+              <div id="vatOut" class="mt-2 text-muted">Enter amount and click calculate.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- AGE CALCULATOR -->
+      <section class="page-section" id="page-tool-age">
+        <nav class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="#" onclick="showPage('home')">Home</a></li><li class="breadcrumb-item"><a href="#" onclick="showPage('tools')">Tools</a></li><li class="breadcrumb-item active">Age Calculator</li></ol></nav>
+        <div class="page-hero"><h1><i class="bi bi-calendar-heart"></i> Age Calculator</h1><p>Calculate your exact age from your date of birth.</p></div>
+        <div class="row g-3">
+          <div class="col-md-7">
+            <div class="bg-white p-4 rounded-3 border">
+              <label class="form-label">Date of Birth</label>
+              <input type="date" id="dobInp" class="form-control mb-3">
+              <button class="btn btn-primary" onclick="calcAge()">Calculate Age</button>
+            </div>
+          </div>
+          <div class="col-md-5">
+            <div class="bg-white p-4 rounded-3 border h-100">
+              <h6 class="text-uppercase text-muted small">Your Age</h6>
+              <div id="ageOut" class="mt-2 text-muted">Select date to calculate.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================== ARTICLES LISTING ================== -->
+      <section class="page-section" id="page-articles">
+        <div class="page-hero"><h1>All Articles</h1><p>Browse verified informative articles by our community and admins.</p></div>
+        <div class="filter-card">
+          <div class="row g-3">
+            <div class="col-md-6"><input class="form-control" placeholder="Search articles..."></div>
+            <div class="col-md-3"><select class="form-select"><option>All Categories</option><option>Health</option><option>Education</option><option>Finance</option><option>Emergency</option></select></div>
+            <div class="col-md-3"><select class="form-select"><option>Newest First</option><option>Most Popular</option></select></div>
+          </div>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-4"><div class="article-card" onclick="showPage('article-view')"><div class="article-thumb"><i class="bi bi-hospital"></i><span class="article-cat">Health</span></div><div class="article-body"><div class="article-title">Understanding Nepal's Healthcare System in 2024</div><div class="article-meta"><div class="author-avatar">RS</div><span>Ram Sharma</span><span>•</span><span>5 min</span></div></div></div></div>
+          <div class="col-md-4"><div class="article-card" onclick="showPage('article-view')"><div class="article-thumb t2"><i class="bi bi-droplet-fill"></i><span class="article-cat">Emergency</span></div><div class="article-body"><div class="article-title">Blood Donation: A Complete Guide</div><div class="article-meta"><div class="author-avatar">SK</div><span>Sita KC</span><span>•</span><span>4 min</span></div></div></div></div>
+          <div class="col-md-4"><div class="article-card" onclick="showPage('article-view')"><div class="article-thumb t3"><i class="bi bi-mortarboard-fill"></i><span class="article-cat">Education</span></div><div class="article-body"><div class="article-title">Top 20 Schools & Colleges Ranked</div><div class="article-meta"><div class="author-avatar">BT</div><span>Bikash Thapa</span><span>•</span><span>7 min</span></div></div></div></div>
+          <div class="col-md-4"><div class="article-card" onclick="showPage('article-view')"><div class="article-thumb t4"><i class="bi bi-airplane-fill"></i><span class="article-cat">Travel</span></div><div class="article-body"><div class="article-title">Winter Flight Schedule 2024</div><div class="article-meta"><div class="author-avatar">AP</div><span>Anish Poudel</span><span>•</span><span>3 min</span></div></div></div></div>
+          <div class="col-md-4"><div class="article-card" onclick="showPage('article-view')"><div class="article-thumb t5"><i class="bi bi-bank"></i><span class="article-cat">Finance</span></div><div class="article-body"><div class="article-title">New Banking Interest Rates</div><div class="article-meta"><div class="author-avatar">MG</div><span>Manju Gurung</span><span>•</span><span>6 min</span></div></div></div></div>
+          <div class="col-md-4"><div class="article-card" onclick="showPage('article-view')"><div class="article-thumb t6"><i class="bi bi-shield-fill"></i><span class="article-cat">Safety</span></div><div class="article-body"><div class="article-title">Police Emergency Numbers</div><div class="article-meta"><div class="author-avatar">DR</div><span>Deepak Rai</span><span>•</span><span>2 min</span></div></div></div></div>
+        </div>
+        <nav class="mt-3"><ul class="pagination justify-content-center"><li class="page-item disabled"><a class="page-link">&laquo;</a></li><li class="page-item active"><a class="page-link">1</a></li><li class="page-item"><a class="page-link">2</a></li><li class="page-item"><a class="page-link">3</a></li><li class="page-item"><a class="page-link">&raquo;</a></li></ul></nav>
+      </section>
+
+      <!-- ARTICLE VIEW -->
+      <section class="page-section" id="page-article-view">
+        <nav class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="#" onclick="showPage('home')">Home</a></li><li class="breadcrumb-item"><a href="#" onclick="showPage('articles')">Articles</a></li><li class="breadcrumb-item active">Article</li></ol></nav>
+        <div class="bg-white rounded-3 border p-4">
+          <span class="chip">Health</span>
+          <h1 class="mt-3 mb-2">Complete Guide to Nepal's Public Hospitals & Services</h1>
+          <div class="d-flex align-items-center gap-3 text-muted small mb-3">
+            <div class="d-flex align-items-center gap-2"><div class="author-avatar">RS</div> <span>Ram Sharma</span></div>
+            <span>•</span> <span><i class="bi bi-calendar3"></i> Nov 15, 2024</span>
+            <span>•</span> <span><i class="bi bi-clock"></i> 5 min read</span>
+          </div>
+          <div style="height:280px;background:linear-gradient(135deg,var(--dn-blue),#4361ee);border-radius:10px;margin-bottom:20px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:64px"><i class="bi bi-hospital"></i></div>
+          <p class="lead">Nepal's public healthcare system serves millions of citizens through a network of national, provincial, and local level hospitals and health facilities.</p>
+          <p>This comprehensive guide provides verified information about public hospitals across all seven provinces, their specializations, contact details, and services offered. Whether you're seeking emergency care, specialty treatments, or routine check-ups, this directory helps you find the right facility quickly.</p>
+          <h4 class="mt-4">Major Public Hospitals</h4>
+          <p>The country hosts several tertiary-level government hospitals including TU Teaching Hospital, Bir Hospital, Patan Hospital, and Kanti Children's Hospital in the Kathmandu Valley alone.</p>
+          <h4 class="mt-4">How to Access Services</h4>
+          <p>Most public hospitals operate on a first-come-first-served basis with dedicated emergency, outpatient, and inpatient departments. Registration typically requires citizenship documentation.</p>
+          <div class="mt-4 d-flex gap-2">
+            <button class="btn btn-outline-primary"><i class="bi bi-bookmark"></i> Save</button>
+            <button class="btn btn-outline-primary"><i class="bi bi-share"></i> Share</button>
+            <button class="btn btn-outline-primary"><i class="bi bi-hand-thumbs-up"></i> Like (48)</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================== COMMUNITY ================== -->
+      <section class="page-section" id="page-community">
+        <div class="page-hero"><h1>Community Portal</h1><p>Join our community — submit articles, save favorites, and share knowledge.</p></div>
+        <div class="row g-3">
+          <div class="col-md-4"><div class="tool-card" onclick="showPage('login')"><div class="tool-icon"><i class="bi bi-box-arrow-in-right"></i></div><div class="tool-name">Login</div><div class="tool-desc">Access your account</div></div></div>
+          <div class="col-md-4"><div class="tool-card" onclick="showPage('register')"><div class="tool-icon"><i class="bi bi-person-plus-fill"></i></div><div class="tool-name">Register</div><div class="tool-desc">Create new account</div></div></div>
+          <div class="col-md-4"><div class="tool-card" onclick="showPage('profile')"><div class="tool-icon"><i class="bi bi-person-circle"></i></div><div class="tool-name">My Profile</div><div class="tool-desc">Manage account</div></div></div>
+          <div class="col-md-4"><div class="tool-card" onclick="showPage('submit-article')"><div class="tool-icon"><i class="bi bi-pencil-square"></i></div><div class="tool-name">Submit Article</div><div class="tool-desc">Write & submit</div></div></div>
+          <div class="col-md-4"><div class="tool-card" onclick="showPage('saved')"><div class="tool-icon"><i class="bi bi-bookmark-heart"></i></div><div class="tool-name">Saved Articles</div><div class="tool-desc">Your bookmarks</div></div></div>
+          <div class="col-md-4"><div class="tool-card" onclick="showPage('my-articles')"><div class="tool-icon"><i class="bi bi-file-earmark-text"></i></div><div class="tool-name">My Articles</div><div class="tool-desc">Your submissions</div></div></div>
+        </div>
+      </section>
+
+      <!-- LOGIN -->
+      <section class="page-section" id="page-login">
+        <div class="row justify-content-center">
+          <div class="col-md-6 col-lg-5">
+            <div class="bg-white p-4 rounded-3 border">
+              <div class="text-center mb-3">
+                <div class="brand-logo mx-auto mb-2">D</div>
+                <h3 class="mb-1">Welcome Back</h3>
+                <p class="text-muted small">Login to your Diary Nepal account</p>
+              </div>
+              <div class="mb-3"><label class="form-label">Email</label><input type="email" class="form-control" placeholder="you@example.com"></div>
+              <div class="mb-3"><label class="form-label">Password</label><input type="password" class="form-control" placeholder="••••••••"></div>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Remember me</label></div>
+                <a href="#" class="small text-decoration-none">Forgot Password?</a>
+              </div>
+              <button class="btn btn-primary w-100">Login</button>
+              <div class="text-center mt-3 small">Don't have an account? <a onclick="showPage('register')" href="#" class="text-decoration-none">Register</a></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- REGISTER -->
+      <section class="page-section" id="page-register">
+        <div class="row justify-content-center">
+          <div class="col-md-7">
+            <div class="bg-white p-4 rounded-3 border">
+              <h3 class="mb-3">Create Account</h3>
+              <div class="row g-3">
+                <div class="col-md-6"><label class="form-label">Full Name</label><input class="form-control"></div>
+                <div class="col-md-6"><label class="form-label">Email</label><input type="email" class="form-control"></div>
+                <div class="col-md-6"><label class="form-label">Phone</label><input class="form-control"></div>
+                <div class="col-md-6"><label class="form-label">District</label><input class="form-control"></div>
+                <div class="col-md-6"><label class="form-label">Password</label><input type="password" class="form-control"></div>
+                <div class="col-md-6"><label class="form-label">Confirm Password</label><input type="password" class="form-control"></div>
+                <div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">I agree to the Terms & Privacy Policy</label></div></div>
+                <div class="col-12"><button class="btn btn-primary w-100">Create Account</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SUBMIT ARTICLE -->
+      <section class="page-section" id="page-submit-article">
+        <div class="page-hero"><h1>Submit an Article</h1><p>Share knowledge with the Diary Nepal community. Articles are reviewed by admins.</p></div>
+        <div class="bg-white p-4 rounded-3 border">
+          <div class="row g-3">
+            <div class="col-md-8"><label class="form-label">Article Title</label><input class="form-control" placeholder="Enter title"></div>
+            <div class="col-md-4"><label class="form-label">Category</label><select class="form-select"><option>Health</option><option>Education</option><option>Finance</option><option>Travel</option><option>Emergency</option></select></div>
+            <div class="col-12"><label class="form-label">Short Summary</label><textarea class="form-control" rows="2"></textarea></div>
+            <div class="col-12"><label class="form-label">Article Content</label><textarea class="form-control" rows="10"></textarea></div>
+            <div class="col-md-6"><label class="form-label">Cover Image</label><input type="file" class="form-control"></div>
+            <div class="col-md-6"><label class="form-label">Tags (comma separated)</label><input class="form-control" placeholder="nepal, health, guide"></div>
+            <div class="col-12"><button class="btn btn-primary"><i class="bi bi-send-fill"></i> Submit for Review</button> <button class="btn btn-outline-primary">Save Draft</button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROFILE -->
+      <section class="page-section" id="page-profile">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="bg-white p-4 rounded-3 border text-center">
+              <div class="author-avatar mx-auto" style="width:100px;height:100px;font-size:32px">RS</div>
+              <h4 class="mt-3 mb-0">Ram Sharma</h4>
+              <div class="text-muted small">Member since Jan 2024</div>
+              <div class="d-flex justify-content-around mt-3 border-top pt-3">
+                <div><div class="fw-bold text-primary">14</div><div class="small text-muted">Articles</div></div>
+                <div><div class="fw-bold text-primary">32</div><div class="small text-muted">Saved</div></div>
+                <div><div class="fw-bold text-primary">1.2k</div><div class="small text-muted">Views</div></div>
+              </div>
+              <button class="btn btn-primary w-100 mt-3">Edit Profile</button>
+            </div>
+          </div>
+          <div class="col-md-8">
+            <div class="bg-white p-4 rounded-3 border">
+              <h5>Profile Information</h5>
+              <div class="row g-3 mt-1">
+                <div class="col-md-6"><label class="form-label">Full Name</label><input class="form-control" value="Ram Sharma"></div>
+                <div class="col-md-6"><label class="form-label">Email</label><input class="form-control" value="ram@example.com"></div>
+                <div class="col-md-6"><label class="form-label">Phone</label><input class="form-control" value="+977 9812345678"></div>
+                <div class="col-md-6"><label class="form-label">District</label><input class="form-control" value="Kathmandu"></div>
+                <div class="col-12"><label class="form-label">Bio</label><textarea class="form-control" rows="3">Passionate contributor writing about healthcare and public services.</textarea></div>
+                <div class="col-12"><button class="btn btn-primary">Save Changes</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================== EMERGENCY ================== -->
+      <section class="page-section" id="page-emergency">
+        <div class="page-hero" style="background:linear-gradient(135deg,var(--dn-red),#7f1d1d)"><h1><i class="bi bi-telephone-fill"></i> Emergency Contacts</h1><p>Nationwide emergency service numbers — save these to your phone.</p></div>
+        <div class="row g-3">
+          <div class="col-md-4"><div class="stat-card"><div class="stat-icon si-red"><i class="bi bi-shield-fill"></i></div><div><div class="stat-label">Police</div><div class="stat-num">100</div></div></div></div>
+          <div class="col-md-4"><div class="stat-card"><div class="stat-icon si-red"><i class="bi bi-truck"></i></div><div><div class="stat-label">Ambulance</div><div class="stat-num">102</div></div></div></div>
+          <div class="col-md-4"><div class="stat-card"><div class="stat-icon si-red"><i class="bi bi-fire"></i></div><div><div class="stat-label">Fire Brigade</div><div class="stat-num">101</div></div></div></div>
+          <div class="col-md-4"><div class="stat-card"><div class="stat-icon si-red"><i class="bi bi-plus-lg"></i></div><div><div class="stat-label">Red Cross</div><div class="stat-num">4270650</div></div></div></div>
+          <div class="col-md-4"><div class="stat-card"><div class="stat-icon si-blue"><i class="bi bi-airplane"></i></div><div><div class="stat-label">Tourist Police</div><div class="stat-num">1144</div></div></div></div>
+          <div class="col-md-4"><div class="stat-card"><div class="stat-icon si-blue"><i class="bi bi-water"></i></div><div><div class="stat-label">Disaster Mgmt</div><div class="stat-num">1149</div></div></div></div>
+          <div class="col-md-4"><div class="stat-card"><div class="stat-icon si-yellow"><i class="bi bi-hospital"></i></div><div><div class="stat-label">Nepal Ambulance Service</div><div class="stat-num">102</div></div></div></div>
+          <div class="col-md-4"><div class="stat-card"><div class="stat-icon si-green"><i class="bi bi-telephone"></i></div><div><div class="stat-label">Child Helpline</div><div class="stat-num">1098</div></div></div></div>
+          <div class="col-md-4"><div class="stat-card"><div class="stat-icon si-red"><i class="bi bi-heart-pulse"></i></div><div><div class="stat-label">Blood Bank Hotline</div><div class="stat-num">4225344</div></div></div></div>
+        </div>
+      </section>
+
+      <!-- BLOOD DONOR -->
+      <section class="page-section" id="page-donor">
+        <div class="page-hero" style="background:linear-gradient(135deg,var(--dn-red),#7f1d1d)"><h1><i class="bi bi-droplet-fill"></i> Blood Donor Management</h1><p>Register as a donor, view active donors, and save lives across Nepal.</p></div>
+        <div class="row g-3 mb-3">
+          <div class="col-md-3 col-6"><div class="stat-card"><div class="stat-icon si-red"><i class="bi bi-people-fill"></i></div><div><div class="stat-num">12,845</div><div class="stat-label">Total Donors</div></div></div></div>
+          <div class="col-md-3 col-6"><div class="stat-card"><div class="stat-icon si-green"><i class="bi bi-check-circle"></i></div><div><div class="stat-num">8,932</div><div class="stat-label">Active Donors</div></div></div></div>
+          <div class="col-md-3 col-6"><div class="stat-card"><div class="stat-icon si-blue"><i class="bi bi-geo"></i></div><div><div class="stat-num">77</div><div class="stat-label">Districts</div></div></div></div>
+          <div class="col-md-3 col-6"><div class="stat-card"><div class="stat-icon si-yellow"><i class="bi bi-clock"></i></div><div><div class="stat-num">3,124</div><div class="stat-label">Lives Saved</div></div></div></div>
+        </div>
+        <div class="filter-card">
+          <div class="row g-3">
+            <div class="col-md-3"><label class="form-label">Blood Group</label><select class="form-select"><option>All</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div>
+            <div class="col-md-3"><label class="form-label">Province</label><select class="form-select"><option>All</option></select></div>
+            <div class="col-md-3"><label class="form-label">District</label><select class="form-select"><option>All</option></select></div>
+            <div class="col-md-3 d-flex align-items-end"><button class="btn btn-danger w-100"><i class="bi bi-person-plus-fill"></i> Register as Donor</button></div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-responsive">
+            <table class="table mb-0">
+              <thead><tr><th>#</th><th>Donor</th><th>Group</th><th>Location</th><th>Last Donated</th><th>Contact</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Ram Sharma</td><td><span class="badge bg-danger">O+</span></td><td>Kathmandu</td><td>3 months ago</td><td><button class="btn btn-sm btn-outline-primary"><i class="bi bi-telephone"></i></button></td></tr>
+                <tr><td>2</td><td>Sita KC</td><td><span class="badge bg-danger">A-</span></td><td>Lalitpur</td><td>1 month ago</td><td><button class="btn btn-sm btn-outline-primary"><i class="bi bi-telephone"></i></button></td></tr>
+                <tr><td>3</td><td>Bikash Thapa</td><td><span class="badge bg-danger">B+</span></td><td>Bhaktapur</td><td>6 months ago</td><td><button class="btn btn-sm btn-outline-primary"><i class="bi bi-telephone"></i></button></td></tr>
+                <tr><td>4</td><td>Manju Gurung</td><td><span class="badge bg-danger">AB+</span></td><td>Pokhara</td><td>2 months ago</td><td><button class="btn btn-sm btn-outline-primary"><i class="bi bi-telephone"></i></button></td></tr>
+                <tr><td>5</td><td>Anish Poudel</td><td><span class="badge bg-danger">O-</span></td><td>Chitwan</td><td>4 months ago</td><td><button class="btn btn-sm btn-outline-primary"><i class="bi bi-telephone"></i></button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- BLOOD REQUEST -->
+      <section class="page-section" id="page-blood-request">
+        <div class="page-hero" style="background:linear-gradient(135deg,var(--dn-red),#7f1d1d)"><h1><i class="bi bi-clipboard-heart-fill"></i> Blood Request Management</h1><p>Post urgent blood requests and connect with willing donors.</p></div>
+        <div class="row g-3">
+          <div class="col-md-8">
+            <div class="filter-card mb-3"><div class="row g-3"><div class="col-md-8"><input class="form-control" placeholder="Search requests..."></div><div class="col-md-4"><button class="btn btn-danger w-100"><i class="bi bi-plus-lg"></i> New Request</button></div></div></div>
+            <div class="table-card"><div class="table-responsive"><table class="table mb-0">
+              <thead><tr><th>Patient</th><th>Group</th><th>Hospital</th><th>Units</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody>
+                <tr><td>Anonymous</td><td><span class="badge bg-danger">O-</span></td><td>TU Teaching</td><td>2</td><td><span class="badge badge-pending">Urgent</span></td><td><button class="btn btn-sm btn-outline-danger">Help</button></td></tr>
+                <tr><td>Anonymous</td><td><span class="badge bg-danger">A+</span></td><td>Bir Hospital</td><td>1</td><td><span class="badge badge-verified">Fulfilled</span></td><td><button class="btn btn-sm btn-outline-secondary" disabled>Done</button></td></tr>
+                <tr><td>Anonymous</td><td><span class="badge bg-danger">B-</span></td><td>Patan Hospital</td><td>3</td><td><span class="badge badge-pending">Urgent</span></td><td><button class="btn btn-sm btn-outline-danger">Help</button></td></tr>
+              </tbody>
+            </table></div></div>
+          </div>
+          <div class="col-md-4">
+            <div class="bg-white p-3 rounded-3 border">
+              <h6 class="fw-bold mb-3">Post New Request</h6>
+              <div class="mb-2"><label class="form-label small">Blood Group</label><select class="form-select form-select-sm"><option>Select</option><option>O+</option><option>O-</option></select></div>
+              <div class="mb-2"><label class="form-label small">Hospital</label><input class="form-control form-control-sm"></div>
+              <div class="mb-2"><label class="form-label small">Units Needed</label><input type="number" class="form-control form-control-sm"></div>
+              <div class="mb-2"><label class="form-label small">Contact</label><input class="form-control form-control-sm"></div>
+              <button class="btn btn-danger w-100 btn-sm mt-2">Submit Request</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ABOUT -->
+      <section class="page-section" id="page-about">
+        <div class="page-hero"><h1>About Diary Nepal</h1><p>Nepal's premier national information directory platform.</p></div>
+        <div class="row g-4">
+          <div class="col-md-8">
+            <div class="bg-white p-4 rounded-3 border">
+              <h4>Our Mission</h4>
+              <p>Diary Nepal is committed to providing verified, up-to-date, and accessible information to the citizens of Nepal. Our platform brings together directories of essential services, community-driven articles, and practical online tools — all in one trustworthy place.</p>
+              <h4 class="mt-4">What We Offer</h4>
+              <ul>
+                <li>Comprehensive directories of hospitals, blood banks, and government offices</li>
+                <li>Emergency contact information for all provinces</li>
+                <li>Community platform for sharing verified information</li>
+                <li>Free professional tools and calculators</li>
+              </ul>
+              <h4 class="mt-4">Verified Information</h4>
+              <p>Every listing on Diary Nepal is verified by our editorial team before being published. We work closely with government agencies and community volunteers to keep information accurate.</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="bg-white p-4 rounded-3 border">
+              <h5>Contact Us</h5>
+              <p class="small mb-1"><i class="bi bi-geo-alt-fill text-primary"></i> Kathmandu, Nepal</p>
+              <p class="small mb-1"><i class="bi bi-telephone-fill text-primary"></i> +977-1-4123456</p>
+              <p class="small mb-3"><i class="bi bi-envelope-fill text-primary"></i> info@diarynepal.gov.np</p>
+              <button class="btn btn-primary w-100">Send Message</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================== ADMIN DASHBOARD ================== -->
+      <section class="page-section" id="page-admin">
+        <div class="row g-3">
+          <div class="col-lg-3">
+            <div class="admin-sidebar">
+              <div class="text-center mb-3 pb-3 border-bottom border-secondary">
+                <div class="author-avatar mx-auto mb-2" style="width:56px;height:56px;font-size:18px">AD</div>
+                <div class="text-white fw-bold small">Admin User</div>
+                <div class="small" style="color:#94a3b8">Super Administrator</div>
+              </div>
+              <h6>Main</h6>
+              <div class="admin-nav">
+                <a class="active" data-admin="dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                <a data-admin="directory-mgmt"><i class="bi bi-collection"></i> Directory Management</a>
+                <a data-admin="category-mgmt"><i class="bi bi-tags"></i> Category Management</a>
+              </div>
+              <h6>Content</h6>
+              <div class="admin-nav">
+                <a data-admin="article-mgmt"><i class="bi bi-file-earmark-text"></i> Article Management</a>
+                <a data-admin="pending"><i class="bi bi-hourglass-split"></i> Pending Articles</a>
+                <a data-admin="approved"><i class="bi bi-check2-circle"></i> Approved Articles</a>
+              </div>
+              <h6>Users</h6>
+              <div class="admin-nav">
+                <a data-admin="user-mgmt"><i class="bi bi-people"></i> User Management</a>
+                <a data-admin="donor-mgmt"><i class="bi bi-droplet"></i> Blood Donors</a>
+                <a data-admin="request-mgmt"><i class="bi bi-clipboard-heart"></i> Blood Requests</a>
+              </div>
+              <h6>System</h6>
+              <div class="admin-nav">
+                <a data-admin="tools-mgmt"><i class="bi bi-tools"></i> Tools Management</a>
+                <a data-admin="emergency-mgmt"><i class="bi bi-telephone"></i> Emergency Contacts</a>
+                <a data-admin="reports"><i class="bi bi-graph-up"></i> Reports</a>
+                <a data-admin="settings"><i class="bi bi-gear"></i> Settings</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-9">
+            <div id="admin-content">
+              <!-- Dashboard -->
+              <div class="admin-view" data-view="dashboard">
+                <div class="d-flex justify-content-between align-items-center mb-3"><h3 class="mb-0">Dashboard Overview</h3><span class="text-muted small">Last updated: Just now</span></div>
+                <div class="row g-3 mb-4">
+                  <div class="col-md-3 col-6"><div class="kpi-card"><i class="bi bi-collection-fill kpi-icon"></i><div class="kpi-label">Total Listings</div><div class="kpi-value">3,458</div><div class="kpi-trend">↑ 12% this month</div></div></div>
+                  <div class="col-md-3 col-6"><div class="kpi-card"><i class="bi bi-people-fill kpi-icon"></i><div class="kpi-label">Total Users</div><div class="kpi-value">45,278</div><div class="kpi-trend">↑ 8% this month</div></div></div>
+                  <div class="col-md-3 col-6"><div class="kpi-card"><i class="bi bi-file-earmark-text kpi-icon"></i><div class="kpi-label">Articles</div><div class="kpi-value">1,290</div><div class="kpi-trend">↑ 24 pending</div></div></div>
+                  <div class="col-md-3 col-6"><div class="kpi-card"><i class="bi bi-droplet-fill kpi-icon"></i><div class="kpi-label">Blood Donors</div><div class="kpi-value">12,845</div><div class="kpi-trend">↑ 5% this month</div></div></div>
+                </div>
+                <div class="row g-3">
+                  <div class="col-md-8">
+                    <div class="bg-white p-3 rounded-3 border">
+                      <div class="d-flex justify-content-between mb-3"><h6 class="mb-0">Recent Activity</h6><a class="see-all">View all</a></div>
+                      <div class="table-responsive"><table class="table table-sm mb-0">
+                        <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Status</th></tr></thead>
+                        <tbody>
+                          <tr><td>2m ago</td><td>Ram Sharma</td><td>Submitted article</td><td><span class="badge badge-pending">Pending</span></td></tr>
+                          <tr><td>15m ago</td><td>Sita KC</td><td>Registered as donor</td><td><span class="badge badge-verified">Verified</span></td></tr>
+                          <tr><td>1h ago</td><td>Admin</td><td>Approved article</td><td><span class="badge badge-verified">Approved</span></td></tr>
+                          <tr><td>3h ago</td><td>Bikash T.</td><td>Posted blood request</td><td><span class="badge badge-pending">Urgent</span></td></tr>
+                        </tbody>
+                      </table></div>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="bg-white p-3 rounded-3 border">
+                      <h6 class="mb-3">Quick Actions</h6>
+                      <button class="btn btn-primary w-100 mb-2 text-start"><i class="bi bi-plus-circle"></i> Add Listing</button>
+                      <button class="btn btn-outline-primary w-100 mb-2 text-start"><i class="bi bi-check2"></i> Review Articles (24)</button>
+                      <button class="btn btn-outline-primary w-100 mb-2 text-start"><i class="bi bi-megaphone"></i> Post Notice</button>
+                      <button class="btn btn-outline-primary w-100 text-start"><i class="bi bi-download"></i> Export Reports</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Directory Management -->
+              <div class="admin-view d-none" data-view="directory-mgmt">
+                <div class="d-flex justify-content-between align-items-center mb-3"><h3 class="mb-0">Directory Management</h3><button class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Listing</button></div>
+                <div class="filter-card"><div class="row g-3"><div class="col-md-6"><input class="form-control" placeholder="Search listings..."></div><div class="col-md-3"><select class="form-select"><option>All Categories</option></select></div><div class="col-md-3"><select class="form-select"><option>All Status</option></select></div></div></div>
+                <div class="table-card"><div class="table-responsive"><table class="table mb-0">
+                  <thead><tr><th>#</th><th>Name</th><th>Category</th><th>Location</th><th>Status</th><th>Actions</th></tr></thead>
+                  <tbody>
+                    <tr><td>1</td><td>TU Teaching Hospital</td><td>Hospital</td><td>Maharajgunj</td><td><span class="badge badge-verified">Active</span></td><td><button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button> <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></td></tr>
+                    <tr><td>2</td><td>Bir Hospital</td><td>Hospital</td><td>Kathmandu</td><td><span class="badge badge-verified">Active</span></td><td><button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button> <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></td></tr>
+                    <tr><td>3</td><td>NRB Blood Bank</td><td>Blood Bank</td><td>Kathmandu</td><td><span class="badge badge-pending">Pending</span></td><td><button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button> <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></td></tr>
+                  </tbody>
+                </table></div></div>
+              </div>
+
+              <!-- Category Management -->
+              <div class="admin-view d-none" data-view="category-mgmt">
+                <div class="d-flex justify-content-between align-items-center mb-3"><h3 class="mb-0">Category Management</h3><button class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Category</button></div>
+                <div class="row g-3">
+                  <div class="col-md-4"><div class="bg-white p-3 rounded-3 border d-flex justify-content-between align-items-center"><div><div class="fw-bold">Hospital</div><small class="text-muted">312 listings</small></div><div><button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button></div></div></div>
+                  <div class="col-md-4"><div class="bg-white p-3 rounded-3 border d-flex justify-content-between align-items-center"><div><div class="fw-bold">Blood Bank</div><small class="text-muted">142 listings</small></div><div><button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button></div></div></div>
+                  <div class="col-md-4"><div class="bg-white p-3 rounded-3 border d-flex justify-content-between align-items-center"><div><div class="fw-bold">Ambulance</div><small class="text-muted">86 services</small></div><div><button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button></div></div></div>
+                  <div class="col-md-4"><div class="bg-white p-3 rounded-3 border d-flex justify-content-between align-items-center"><div><div class="fw-bold">Schools</div><small class="text-muted">589 schools</small></div><div><button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button></div></div></div>
+                  <div class="col-md-4"><div class="bg-white p-3 rounded-3 border d-flex justify-content-between align-items-center"><div><div class="fw-bold">Police</div><small class="text-muted">98 stations</small></div><div><button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button></div></div></div>
+                  <div class="col-md-4"><div class="bg-white p-3 rounded-3 border d-flex justify-content-between align-items-center"><div><div class="fw-bold">Tools</div><small class="text-muted">14 tools</small></div><div><button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button></div></div></div>
+                </div>
+              </div>
+
+              <!-- Pending Articles -->
+              <div class="admin-view d-none" data-view="pending">
+                <h3 class="mb-3">Pending Articles Review</h3>
+                <div class="row g-3">
+                  <div class="col-12"><div class="bg-white p-3 rounded-3 border d-flex justify-content-between align-items-center flex-wrap gap-2"><div><div class="fw-bold">Nepal Government Holiday Calendar 2081</div><small class="text-muted">By Ram Sharma • Submitted 2 hours ago • Category: Public</small></div><div class="d-flex gap-2"><button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i> View</button><button class="btn btn-sm btn-success"><i class="bi bi-check"></i> Approve</button><button class="btn btn-sm btn-danger"><i class="bi bi-x"></i> Reject</button></div></div></div>
+                  <div class="col-12"><div class="bg-white p-3 rounded-3 border d-flex justify-content-between align-items-center flex-wrap gap-2"><div><div class="fw-bold">List of Cardiac Hospitals in Nepal</div><small class="text-muted">By Sita KC • Submitted 5 hours ago • Category: Health</small></div><div class="d-flex gap-2"><button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i> View</button><button class="btn btn-sm btn-success"><i class="bi bi-check"></i> Approve</button><button class="btn btn-sm btn-danger"><i class="bi bi-x"></i> Reject</button></div></div></div>
+                  <div class="col-12"><div class="bg-white p-3 rounded-3 border d-flex justify-content-between align-items-center flex-wrap gap-2"><div><div class="fw-bold">EMI Calculator — Complete Tutorial</div><small class="text-muted">By Bikash Thapa • Submitted 1 day ago • Category: Finance</small></div><div class="d-flex gap-2"><button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i> View</button><button class="btn btn-sm btn-success"><i class="bi bi-check"></i> Approve</button><button class="btn btn-sm btn-danger"><i class="bi bi-x"></i> Reject</button></div></div></div>
+                </div>
+              </div>
+
+              <!-- User Management -->
+              <div class="admin-view d-none" data-view="user-mgmt">
+                <div class="d-flex justify-content-between align-items-center mb-3"><h3 class="mb-0">User Management</h3><button class="btn btn-primary"><i class="bi bi-person-plus"></i> Add User</button></div>
+                <div class="filter-card"><div class="row g-3"><div class="col-md-6"><input class="form-control" placeholder="Search users..."></div><div class="col-md-3"><select class="form-select"><option>All Roles</option><option>Admin</option><option>Author</option><option>User</option></select></div><div class="col-md-3"><select class="form-select"><option>All Status</option></select></div></div></div>
+                <div class="table-card"><div class="table-responsive"><table class="table mb-0">
+                  <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+                  <tbody>
+                    <tr><td>1</td><td>Ram Sharma</td><td>ram@example.com</td><td><span class="badge bg-primary">Author</span></td><td><span class="badge badge-verified">Active</span></td><td><button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button></td></tr>
+                    <tr><td>2</td><td>Sita KC</td><td>sita@example.com</td><td><span class="badge bg-primary">Author</span></td><td><span class="badge badge-verified">Active</span></td><td><button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button></td></tr>
+                    <tr><td>3</td><td>Admin User</td><td>admin@diarynepal.gov.np</td><td><span class="badge bg-danger">Admin</span></td><td><span class="badge badge-verified">Active</span></td><td><button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button></td></tr>
+                  </tbody>
+                </table></div></div>
+              </div>
+
+              <!-- Reports -->
+              <div class="admin-view d-none" data-view="reports">
+                <h3 class="mb-3">Reports & Analytics</h3>
+                <div class="row g-3">
+                  <div class="col-md-6"><div class="bg-white p-3 rounded-3 border"><h6>Monthly Growth</h6><div style="height:220px;display:flex;align-items:end;gap:8px;padding-top:20px">
+                    <div style="flex:1;background:linear-gradient(var(--dn-blue),var(--dn-blue-light));height:40%;border-radius:6px 6px 0 0"></div>
+                    <div style="flex:1;background:linear-gradient(var(--dn-blue),var(--dn-blue-light));height:55%;border-radius:6px 6px 0 0"></div>
+                    <div style="flex:1;background:linear-gradient(var(--dn-blue),var(--dn-blue-light));height:70%;border-radius:6px 6px 0 0"></div>
+                    <div style="flex:1;background:linear-gradient(var(--dn-blue),var(--dn-blue-light));height:60%;border-radius:6px 6px 0 0"></div>
+                    <div style="flex:1;background:linear-gradient(var(--dn-red),#fdecef);height:85%;border-radius:6px 6px 0 0"></div>
+                    <div style="flex:1;background:linear-gradient(var(--dn-red),#fdecef);height:95%;border-radius:6px 6px 0 0"></div>
+                  </div></div></div>
+                  <div class="col-md-6"><div class="bg-white p-3 rounded-3 border"><h6>Category Distribution</h6>
+                    <div class="mt-3"><div class="d-flex justify-content-between small"><span>Hospitals</span><span>312</span></div><div class="progress mb-2" style="height:8px"><div class="progress-bar" style="width:75%;background:var(--dn-blue)"></div></div></div>
+                    <div><div class="d-flex justify-content-between small"><span>Schools</span><span>589</span></div><div class="progress mb-2" style="height:8px"><div class="progress-bar" style="width:90%;background:var(--dn-red)"></div></div></div>
+                    <div><div class="d-flex justify-content-between small"><span>Municipality</span><span>753</span></div><div class="progress mb-2" style="height:8px"><div class="progress-bar" style="width:100%;background:#16a34a"></div></div></div>
+                    <div><div class="d-flex justify-content-between small"><span>Financial</span><span>185</span></div><div class="progress" style="height:8px"><div class="progress-bar" style="width:55%;background:#f59e0b"></div></div></div>
+                  </div></div>
+                </div>
+              </div>
+
+              <!-- Settings -->
+              <div class="admin-view d-none" data-view="settings">
+                <h3 class="mb-3">Settings</h3>
+                <div class="bg-white p-4 rounded-3 border">
+                  <h5>Site Configuration</h5>
+                  <div class="row g-3 mt-1">
+                    <div class="col-md-6"><label class="form-label">Site Name</label><input class="form-control" value="Diary Nepal"></div>
+                    <div class="col-md-6"><label class="form-label">Site Tagline</label><input class="form-control" value="National Information Directory"></div>
+                    <div class="col-md-6"><label class="form-label">Admin Email</label><input class="form-control" value="admin@diarynepal.gov.np"></div>
+                    <div class="col-md-6"><label class="form-label">Support Phone</label><input class="form-control" value="+977-1-4123456"></div>
+                    <div class="col-12"><label class="form-label">Public Notice</label><textarea class="form-control" rows="3">Weather Alert: Heavy rainfall expected in Kathmandu Valley from Nov 20 to Nov 22</textarea></div>
+                    <div class="col-12"><button class="btn btn-primary">Save Settings</button></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Default generic placeholders for other admin pages -->
+              <div class="admin-view d-none" data-view="article-mgmt"><h3 class="mb-3">Article Management</h3><div class="filter-card"><input class="form-control" placeholder="Search articles..."></div><div class="table-card"><div class="table-responsive"><table class="table mb-0"><thead><tr><th>#</th><th>Title</th><th>Author</th><th>Category</th><th>Status</th><th>Action</th></tr></thead><tbody><tr><td>1</td><td>Nepal Healthcare Guide</td><td>Ram Sharma</td><td>Health</td><td><span class="badge badge-verified">Published</span></td><td><button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button></td></tr><tr><td>2</td><td>Top Schools Ranked</td><td>Bikash T.</td><td>Education</td><td><span class="badge badge-verified">Published</span></td><td><button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button></td></tr></tbody></table></div></div></div>
+              <div class="admin-view d-none" data-view="approved"><h3 class="mb-3">Approved Articles</h3><div class="row g-3"><div class="col-md-6"><div class="article-card"><div class="article-thumb"><i class="bi bi-check-circle"></i><span class="article-cat">Approved</span></div><div class="article-body"><div class="article-title">Nepal Healthcare Guide</div><div class="article-meta"><span>Approved Nov 15</span></div></div></div></div><div class="col-md-6"><div class="article-card"><div class="article-thumb t3"><i class="bi bi-check-circle"></i><span class="article-cat">Approved</span></div><div class="article-body"><div class="article-title">Top Schools Ranked</div><div class="article-meta"><span>Approved Nov 12</span></div></div></div></div></div></div>
+              <div class="admin-view d-none" data-view="donor-mgmt"><h3 class="mb-3">Blood Donor Management</h3><div class="table-card"><div class="table-responsive"><table class="table mb-0"><thead><tr><th>#</th><th>Donor</th><th>Group</th><th>District</th><th>Status</th><th>Action</th></tr></thead><tbody><tr><td>1</td><td>Ram Sharma</td><td>O+</td><td>Kathmandu</td><td><span class="badge badge-verified">Active</span></td><td><button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button></td></tr></tbody></table></div></div></div>
+              <div class="admin-view d-none" data-view="request-mgmt"><h3 class="mb-3">Blood Request Management</h3><div class="table-card"><div class="table-responsive"><table class="table mb-0"><thead><tr><th>#</th><th>Group</th><th>Hospital</th><th>Units</th><th>Status</th><th>Action</th></tr></thead><tbody><tr><td>1</td><td>O-</td><td>TU Teaching</td><td>2</td><td><span class="badge badge-pending">Active</span></td><td><button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button></td></tr></tbody></table></div></div></div>
+              <div class="admin-view d-none" data-view="tools-mgmt"><div class="d-flex justify-content-between align-items-center mb-3"><h3 class="mb-0">Tools Management</h3><button class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Tool</button></div><div class="row g-3"><div class="col-md-4"><div class="bg-white p-3 rounded-3 border d-flex justify-content-between"><span>VAT Calculator</span><button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button></div></div><div class="col-md-4"><div class="bg-white p-3 rounded-3 border d-flex justify-content-between"><span>Age Calculator</span><button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button></div></div><div class="col-md-4"><div class="bg-white p-3 rounded-3 border d-flex justify-content-between"><span>EMI Calculator</span><button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button></div></div></div></div>
+              <div class="admin-view d-none" data-view="emergency-mgmt"><div class="d-flex justify-content-between align-items-center mb-3"><h3 class="mb-0">Emergency Contacts</h3><button class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Contact</button></div><div class="table-card"><div class="table-responsive"><table class="table mb-0"><thead><tr><th>Service</th><th>Number</th><th>Coverage</th><th>Action</th></tr></thead><tbody><tr><td>Police</td><td>100</td><td>National</td><td><button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button></td></tr><tr><td>Ambulance</td><td>102</td><td>National</td><td><button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button></td></tr><tr><td>Fire Brigade</td><td>101</td><td>National</td><td><button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button></td></tr></tbody></table></div></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <div class="brand-logo">D</div>
+          <div><div class="brand-name text-white">Diary Nepal</div><div class="brand-tag" style="color:#94a3b8">National Directory</div></div>
+        </div>
+        <p style="color:#94a3b8;font-size:13.5px">Nepal's trusted national information directory bringing verified public data, community articles, and free tools to every citizen.</p>
+        <div class="mt-3">
+          <a href="#" class="social-btn"><i class="bi bi-facebook"></i></a>
+          <a href="#" class="social-btn"><i class="bi bi-twitter-x"></i></a>
+          <a href="#" class="social-btn"><i class="bi bi-instagram"></i></a>
+          <a href="#" class="social-btn"><i class="bi bi-youtube"></i></a>
+        </div>
+      </div>
+      <div class="col-md-2 col-6"><h5>Directory</h5><a onclick="showPage('directory-hospital')">Hospital</a><a onclick="showPage('directory-bloodbank')">Blood Bank</a><a onclick="showPage('directory-schools')">Schools</a><a onclick="showPage('directory-police')">Police</a><a onclick="showPage('directory-government')">Government</a></div>
+      <div class="col-md-2 col-6"><h5>Community</h5><a onclick="showPage('login')">Login</a><a onclick="showPage('register')">Register</a><a onclick="showPage('submit-article')">Submit Article</a><a onclick="showPage('articles')">Articles</a></div>
+      <div class="col-md-2 col-6"><h5>Tools</h5><a onclick="showPage('tools')">All Tools</a><a onclick="showPage('tool-vat')">VAT Calculator</a><a onclick="showPage('tool-age')">Age Calculator</a></div>
+      <div class="col-md-2 col-6"><h5>Support</h5><a onclick="showPage('about')">About Us</a><a onclick="showPage('emergency')">Emergency</a><a href="#">Contact</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+    </div>
+    <div class="footer-bottom" style="color:#94a3b8">
+      © 2024 Diary Nepal — All Rights Reserved • Designed with 🇳🇵 for the people of Nepal
+    </div>
+  </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Date
+  document.getElementById('dateNow').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  // Directory data
+  const dirData = {
+    'bloodbank':{title:'Blood Bank Directory',crumb:'Blood Bank',rows:[
+      ['NRB Central Blood Bank','Soaltee Mode, Kathmandu','01-4227545'],
+      ['Nepal Red Cross Blood Bank','Kalimati, Kathmandu','01-4270650'],
+      ['Bhaktapur Blood Bank','Bhaktapur','01-6612345'],
+      ['Pokhara Blood Bank','Pokhara-8','061-522445'],
+      ['Butwal Blood Center','Butwal','071-547833'],
+      ['Biratnagar Blood Bank','Biratnagar','021-527788'],
+    ]},
+    'ambulance':{title:'Ambulance Directory',crumb:'Ambulance',rows:[
+      ['Nepal Ambulance Service','Kathmandu','102'],
+      ['NRCS Ambulance','Kalimati','01-4270650'],
+      ['Green Ambulance','Lalitpur','9841234567'],
+      ['Chitwan Ambulance','Chitwan','056-570123'],
+      ['Pokhara Ambulance','Pokhara','061-540000'],
+      ['Biratnagar Ambulance Service','Biratnagar','021-500123'],
+    ]},
+    'redcross':{title:'Red Cross Directory',crumb:'Red Cross',rows:[
+      ['NRCS Headquarters','Kalimati, Kathmandu','01-4270650'],
+      ['Bagmati Provincial Office','Kathmandu','01-4222345'],
+      ['Gandaki Provincial Office','Pokhara','061-520123'],
+      ['Lumbini Provincial Office','Butwal','071-540456'],
+    ]},
+    'hospital':{title:'Hospital Directory',crumb:'Hospital',rows:[
+      ['TU Teaching Hospital','Maharajgunj','01-4412303'],
+      ['Bir Hospital','Kanti Path, Kathmandu','01-4221119'],
+      ['Patan Hospital','Lagankhel, Lalitpur','01-5522266'],
+      ['Kanti Children\'s Hospital','Maharajgunj','01-4411550'],
+      ['Norvic Hospital','Thapathali','01-4258554'],
+      ['Grande International','Dhapasi','01-5159266'],
+    ]},
+    'municipality':{title:'Municipality Offices Directory',crumb:'Municipality',rows:[
+      ['Kathmandu Metropolitan City','Kathmandu','01-4231481'],
+      ['Lalitpur Metropolitan City','Pulchowk','01-5521101'],
+      ['Bhaktapur Municipality','Bhaktapur','01-6610126'],
+      ['Pokhara Metropolitan City','Pokhara','061-465100'],
+      ['Biratnagar Metropolitan City','Biratnagar','021-525161'],
+    ]},
+    'government':{title:'Government Institution Directory',crumb:'Government',rows:[
+      ['Singha Durbar','Kathmandu','01-4211000'],
+      ['Ministry of Home Affairs','Singha Durbar','01-4211261'],
+      ['Ministry of Health','Ram Shah Path','01-4262543'],
+      ['Election Commission','Kantipath','01-4227645'],
+      ['Department of Immigration','Kalikasthan','01-4429659'],
+    ]},
+    'financial':{title:'Financial Institution Directory',crumb:'Financial',rows:[
+      ['Nepal Rastra Bank','Baluwatar','01-4410158'],
+      ['Nepal Bank Limited','Dharmapath','01-4229771'],
+      ['Rastriya Banijya Bank','Singh Durbar','01-4252595'],
+      ['Nabil Bank','Durbar Marg','01-4227181'],
+      ['Nepal Investment Mega Bank','Durbar Marg','01-4228229'],
+    ]},
+    'police':{title:'Police Directory',crumb:'Police',rows:[
+      ['Nepal Police Headquarters','Naxal, Kathmandu','01-4411549'],
+      ['Metropolitan Police Office','Ranipokhari','01-4227732'],
+      ['Traffic Police','Ramshahpath','01-4210566'],
+      ['Tourist Police','Bhrikutimandap','01-4247041'],
+      ['Bhaktapur Police','Bhaktapur','01-6610063'],
+    ]},
+    'healthcare':{title:'Health Care Directory',crumb:'Health Care',rows:[
+      ['CIWEC Clinic','Lazimpat','01-4424111'],
+      ['Nepal Medical College','Jorpati','01-4914109'],
+      ['Om Hospital','Chabahil','01-4485556'],
+      ['Vayodha Hospital','Balkhu','01-4286428'],
+    ]},
+    'travel':{title:'Travel Agency Directory',crumb:'Travel',rows:[
+      ['Himalayan Travels','Kamaladi','01-4223045'],
+      ['Nepal Travel Info','Thamel','01-4700123'],
+      ['Everest Trek Nepal','Thamel','01-4700456'],
+      ['Annapurna Adventures','Pokhara','061-465789'],
+    ]},
+    'airlines':{title:'Airlines Directory',crumb:'Airlines',rows:[
+      ['Nepal Airlines','New Baneshwor','01-4780401'],
+      ['Buddha Air','Jawalakhel','01-5542494'],
+      ['Yeti Airlines','Lazimpat','01-4464878'],
+      ['Shree Airlines','Kamaladi','01-4247707'],
+    ]},
+    'schools':{title:'Schools Directory',crumb:'Schools',rows:[
+      ['Budhanilkantha School','Budhanilkantha','01-4372068'],
+      ['St. Xavier\'s School','Jawalakhel','01-5521608'],
+      ['Rato Bangala School','Patan','01-5522614'],
+      ['Kathmandu World School','Suryabinayak','01-6634666'],
+      ['GEMS School','Dhapakhel','01-5570034'],
+    ]},
+    'broker':{title:'Broker Office Directory',crumb:'Broker Office',rows:[
+      ['Nepal Stock Exchange','Singha Durbar','01-4250735'],
+      ['NIBL Ace Capital','Lazimpat','01-4441577'],
+      ['Siddhartha Capital','Naxal','01-4444429'],
+      ['Global IME Capital','Panipokhari','01-4413467'],
+    ]},
+  };
+
+  function buildDirTable(key){
+    const d = dirData[key]; if(!d) return;
+    document.getElementById('dirTitle').textContent = d.title;
+    document.getElementById('dirCrumb').textContent = d.crumb;
+    document.getElementById('dirSub').textContent = 'Browse and search verified '+d.crumb.toLowerCase()+' listings across Nepal';
+    const tbody = document.getElementById('dirTable');
+    tbody.innerHTML = '';
+    d.rows.forEach((r,i)=>{
+      tbody.insertAdjacentHTML('beforeend',`
+        <tr>
+          <td>${i+1}</td>
+          <td><strong>${r[0]}</strong></td>
+          <td>${r[1]}</td>
+          <td>${r[2]}</td>
+          <td><span class="badge badge-verified"><i class="bi bi-check-circle"></i> Verified</span></td>
+          <td><button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-outline-primary"><i class="bi bi-telephone"></i></button></td>
+        </tr>
+      `);
+    });
+  }
+
+  // Page routing
+  function showPage(page){
+    document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));
+    // Directory pages route
+    if(page.startsWith('directory-')){
+      const key = page.replace('directory-','');
+      buildDirTable(key);
+      document.getElementById('page-directory').classList.add('active');
+    } else {
+      const el = document.getElementById('page-'+page);
+      if(el){ el.classList.add('active'); }
+      else { document.getElementById('page-home').classList.add('active'); }
+    }
+    window.scrollTo({top:0,behavior:'smooth'});
+
+    // Update main nav active state
+    document.querySelectorAll('.main-nav .nav-link').forEach(l=>l.classList.remove('active'));
+  }
+
+  // Admin sub-nav
+  document.querySelectorAll('.admin-nav a').forEach(a=>{
+    a.addEventListener('click',e=>{
+      e.preventDefault();
+      document.querySelectorAll('.admin-nav a').forEach(x=>x.classList.remove('active'));
+      a.classList.add('active');
+      const view = a.dataset.admin;
+      document.querySelectorAll('.admin-view').forEach(v=>v.classList.add('d-none'));
+      const target = document.querySelector(`.admin-view[data-view="${view}"]`);
+      if(target) target.classList.remove('d-none');
+    });
+  });
+
+  // Tools
+  function calcVat(){
+    const amt = parseFloat(document.getElementById('vatAmt').value)||0;
+    const rate = parseFloat(document.getElementById('vatRate').value)||0;
+    const vat = amt*rate/100;
+    const total = amt+vat;
+    document.getElementById('vatOut').innerHTML = `
+      <div class="d-flex justify-content-between py-1 border-bottom"><span>Base Amount</span><strong>NPR ${amt.toFixed(2)}</strong></div>
+      <div class="d-flex justify-content-between py-1 border-bottom"><span>VAT (${rate}%)</span><strong style="color:var(--dn-red)">NPR ${vat.toFixed(2)}</strong></div>
+      <div class="d-flex justify-content-between py-2"><span class="fw-bold">Total</span><strong class="text-primary fs-5">NPR ${total.toFixed(2)}</strong></div>
+    `;
+  }
+
+  function calcAge(){
+    const dob = document.getElementById('dobInp').value;
+    if(!dob){document.getElementById('ageOut').textContent='Please select a date.';return}
+    const b = new Date(dob); const n = new Date();
+    let y = n.getFullYear()-b.getFullYear();
+    let m = n.getMonth()-b.getMonth();
+    let d = n.getDate()-b.getDate();
+    if(d<0){m--;d+=30}
+    if(m<0){y--;m+=12}
+    const days = Math.floor((n-b)/(1000*60*60*24));
+    document.getElementById('ageOut').innerHTML = `
+      <div class="fs-3 fw-bold text-primary">${y} years, ${m} months, ${d} days</div>
+      <div class="text-muted small mt-2">Total days: ${days}</div>
+      <div class="text-muted small">Total weeks: ${Math.floor(days/7)}</div>
+    `;
+  }
+</script>
 </body>
 </html>
+```
