@@ -7,8 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <style>
@@ -96,12 +94,12 @@ a{color:inherit;text-decoration:none}
 .hamb{display:none}
 
 /* ---------- CARDS ---------- */
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:16px;margin-bottom:22px}
-.card{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:18px;box-shadow:var(--shadow);position:relative;transition:.18s}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px;margin-bottom:18px;align-items:start}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:12px;box-shadow:var(--shadow);position:relative;transition:.18s;min-height:124px;box-sizing:border-box}
 .card:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(15,23,42,.09)}
-.card .lbl{font-size:11px;letter-spacing:.07em;font-weight:700;color:var(--muted);text-transform:uppercase;padding-right:30px;line-height:1.5}
-.card .val{font-size:25px;font-weight:700;margin-top:12px;letter-spacing:-.5px}
-.card .sub{font-size:11.5px;color:var(--muted);margin-top:6px}
+.card .lbl{font-size:10.5px;letter-spacing:.07em;font-weight:700;color:var(--muted);text-transform:uppercase;padding-right:30px;line-height:1.4}
+.card .val{font-size:23px;font-weight:700;margin-top:6px;letter-spacing:-.5px}
+.card .sub{font-size:10.5px;color:var(--muted);margin-top:4px}
 .eye{position:absolute;top:14px;right:13px;width:30px;height:30px;border-radius:9px;border:1px solid var(--border);background:var(--panel2);color:var(--muted);cursor:pointer;display:grid;place-items:center;transition:.16s}
 .eye:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
 .panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow);margin-bottom:20px}
@@ -185,6 +183,28 @@ tbody tr:hover{background:var(--panel2)}
 @media(min-width:981px){.backdrop{display:none!important}}
 @media print{body *{visibility:hidden}#printArea,#printArea *{visibility:visible}#printArea{position:absolute;left:0;top:0;width:100%}}
 </style>
+<meta name="build-version" content="Diary Nepal Accounting Final Demo v2 — User Management + Customer/Supplier Summary">
+
+<style>
+@media(max-width:700px){
+  .card{min-height:0;padding:12px}
+  .card .val{font-size:21px}
+  .party-mini-table{margin-top:6px}
+}
+</style>
+
+
+<style id="payment-against-invoice-css">
+.pay-invoice-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:10px}
+.pay-invoice-grid .field{min-width:0}
+.payment-against-card{border:1px solid var(--border);background:var(--panel);border-radius:12px;padding:12px;margin-top:12px}
+.payment-against-card h4{margin:0 0 8px;font-size:13px}
+.invoice-pay-row{display:grid;grid-template-columns:1.1fr 1.4fr .9fr .9fr;gap:8px;align-items:center;border-top:1px solid var(--border);padding:9px 0;font-size:12px}
+.invoice-pay-row:first-child{border-top:0}
+.pay-badge{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:var(--soft);color:var(--primary);font-weight:700;font-size:11px}
+@media(max-width:800px){.pay-invoice-grid{grid-template-columns:1fr 1fr}.invoice-pay-row{grid-template-columns:1fr 1fr}}
+</style>
+
 </head>
 <body>
 
@@ -223,12 +243,11 @@ tbody tr:hover{background:var(--panel2)}
         <button class="btn block" type="submit"><i class="fa-solid fa-right-to-bracket"></i> Login securely</button>
         <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap">
           <a onclick="openForgotPassword()" style="color:var(--accent);font-weight:600;cursor:pointer;font-size:12.5px">Forgot Password?</a>
-          <a onclick="resendVerification()" style="color:var(--muted);font-weight:600;cursor:pointer;font-size:12.5px">Resend Verification Email</a>
         </div>
         <p class="muted" style="text-align:center;margin-top:16px">No account? <a onclick="switchAuth('signup')" style="color:var(--accent);font-weight:600;cursor:pointer">Create one</a></p>
         <p class="muted" style="text-align:center;margin-top:10px;font-size:12px">
-          Preview Login: <b>demo@diary.np</b> / <b>demo123</b><br>
-          <span style="opacity:.8">Firebase email verification will activate after Firebase setup.</span>
+          Demo Login: <b>demo@diary.np</b> / <b>demo123</b><br>
+          <span style="opacity:.8">Demo authentication is active. No email verification is required.</span>
         </p>
       </form>
 
@@ -244,7 +263,7 @@ tbody tr:hover{background:var(--panel2)}
           <input class="inp" id="suPass" type="password" placeholder="Min 6 characters"><div class="err-msg" id="suPassErr">Min 6 characters</div></div>
         <div class="field"><label>Confirm Password <span>*</span></label>
           <input class="inp" id="suPass2" type="password" placeholder="Repeat password"><div class="err-msg" id="suPass2Err">Passwords do not match</div></div>
-        <button class="btn block green" type="submit"><i class="fa-solid fa-user-plus"></i> Create account &amp; Verify Email</button>
+        <button class="btn block green" type="submit"><i class="fa-solid fa-user-plus"></i> Create account</button>
       </form>
     </div>
   </div>
@@ -259,14 +278,14 @@ tbody tr:hover{background:var(--panel2)}
       <button class="icon-btn" style="color:var(--muted)" onclick="closeForgotPassword()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="modal-b">
-      <p class="muted" style="margin-bottom:16px">Enter your registered email address. A password reset link will be sent to your email.</p>
+      <p class="muted" style="margin-bottom:16px">Enter your registered email address. Set a new password for your local demo account.</p>
       <div class="field">
         <label>Email Address <span>*</span></label>
         <input class="inp" id="fpEmail" type="email" placeholder="you@example.com" autocomplete="email">
         <div class="err-msg" id="fpEmailErr">Valid email required</div>
       </div>
       <div class="form-actions">
-        <button class="btn" type="button" onclick="sendPasswordReset()"><i class="fa-solid fa-paper-plane"></i> Send Reset Email</button>
+        <button class="btn" type="button" onclick="sendPasswordReset()"><i class="fa-solid fa-key"></i> Reset Password</button>
         <button class="btn ghost" type="button" onclick="closeForgotPassword()">Cancel</button>
       </div>
     </div>
@@ -346,52 +365,26 @@ function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h)+s.charCodeAt
 
 /* ============ AUTH ============ */
 /*
-  Firebase Email/Password Authentication
-  --------------------------------------
-  IMPORTANT: Paste your own Firebase Web App configuration below.
-  Enable:
-    Authentication -> Sign-in method -> Email/Password
-    Authentication -> Settings -> Authorized domains
-  This keeps the existing workspace/data modules unchanged.
-*/
-const firebaseConfig = {
-  apiKey: "PASTE_YOUR_FIREBASE_API_KEY",
-  authDomain: "PASTE_YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "PASTE_YOUR_PROJECT_ID",
-  storageBucket: "PASTE_YOUR_PROJECT_ID.firebasestorage.app",
-  messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID",
-  appId: "PASTE_YOUR_FIREBASE_APP_ID"
-};
+  Local Demo Authentication
+  -------------------------
+  This version intentionally does not require Firebase or email verification.
+  Accounts are stored locally in the browser so the existing per-email
+  workspace/data model remains unchanged.
 
-let firebaseReady=false;
-let firebaseAuth=null;
-
-/*
-  PREVIEW MODE
-  ------------
-  Demo login works immediately for preview/testing:
-    User ID: demo@diary.np
+  Demo login:
+    Email: demo@diary.np
     Password: demo123
 
-  When Firebase is configured, the same UI can use Firebase email authentication.
-  Set PREVIEW_MODE=false after Firebase setup if you want to disable demo login.
+  Later, this authentication layer can be replaced by Firebase, Supabase,
+  a custom backend, or another authentication provider without changing the
+  rest of the workspace modules.
 */
-// Change this to false after Firebase is configured and tested.
-const PREVIEW_MODE=true;
+const USERS='dn_users_v1', SESS='dn_session_v1';
 const DEMO_EMAIL='demo@diary.np';
 const DEMO_PASSWORD='demo123';
-
-try{
-  if(firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith('PASTE_')){
-    if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
-    firebaseAuth=firebase.auth();
-    firebaseReady=true;
-  }
-}catch(err){
-  console.error('Firebase initialization failed:',err);
-}
-
-const USERS='dn_users_v1', SESS='dn_session_v1';
+const ROLE_ADMIN='Admin';
+const ROLE_SALES='Sales Staff';
+const ROLE_USER='User';
 const users=()=>JSON.parse(localStorage.getItem(USERS)||'[]');
 const saveUsers=u=>localStorage.setItem(USERS,JSON.stringify(u));
 let ME=null, DB=null;
@@ -403,7 +396,11 @@ function switchAuth(m){
   $('signupForm').style.display=m==='login'?'none':'';
 }
 function fillDemo(){
-  toast('Demo login has been disabled. Please use a verified email account.','warn','Email verification required');
+  $('lgEmail').value=DEMO_EMAIL;
+  $('lgPass').value=DEMO_PASSWORD;
+  showErr('lgEmailErr',false);
+  showErr('lgPassErr',false);
+  toast('Demo credentials filled. Click Login to continue.','ok','Demo Login');
 }
 function showErr(id,on){
   $(id).classList.toggle('show',on);
@@ -411,16 +408,24 @@ function showErr(id,on){
   if(target)target.classList.toggle('err',on);
 }
 function validEmail(e){return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);}
-function authReady(){
-  if(firebaseReady)return true;
-  if(PREVIEW_MODE)return true;
-  toast('Firebase Authentication is not configured yet. Add your Firebase Web App configuration in the code.','err','Setup required');
-  return false;
+
+function ensureDemoAccount(){
+  let us=users();
+  let u=us.find(x=>x.email===DEMO_EMAIL);
+  if(!u){
+    u={email:DEMO_EMAIL,name:'Demo User',biz:'Diary Nepal',created:new Date().toISOString(),preview:true,password:DEMO_PASSWORD,role:ROLE_ADMIN};
+    us.push(u);
+    saveUsers(us);
+    seedUser(DEMO_EMAIL,'Diary Nepal');
+  }else if(!u.password){
+    u.password=DEMO_PASSWORD;
+    saveUsers(us);
+  }
+  return u;
 }
 
 async function doSignup(e){
   e.preventDefault();
-  if(!authReady())return;
 
   const n=$('suName').value.trim();
   const b=$('suBiz').value.trim();
@@ -436,40 +441,36 @@ async function doSignup(e){
   if(!ok)return toast('Please fix the highlighted fields','err','Validation failed');
 
   try{
-    const cred=await firebaseAuth.createUserWithEmailAndPassword(em,p);
-    await cred.user.updateProfile({displayName:n});
+    const us=users();
+    if(us.some(u=>u.email===em)){
+      return toast('This email is already registered. Try Login instead.','err','Account exists');
+    }
 
-    // Send Firebase's official email verification link.
-    await cred.user.sendEmailVerification();
-
-    const us=users().filter(u=>u.email!==em);
-    us.push({
+    const biz=b||(n+"'s Business");
+    const u={
       email:em,
       name:n,
-      biz:b||(n+"'s Business"),
+      biz:biz,
       created:new Date().toISOString(),
-      firebaseUid:cred.user.uid
-    });
+      password:p,
+      role:ROLE_USER
+    };
+    us.push(u);
     saveUsers(us);
 
     // Preserve the existing application data model; initialize a blank workspace.
-    seedUser(em,b||(n+"'s Business"));
+    seedUser(em,biz);
 
-    await firebaseAuth.signOut();
     $('suPass').value='';
     $('suPass2').value='';
     switchAuth('login');
+    $('lgEmail').value=em;
+    $('lgPass').value='';
 
-    toast('Verification email sent to '+em+'. Please verify your email, then log in.','ok','Check your email');
+    toast('Account created successfully. You can log in now.','ok','Account created');
   }catch(err){
     console.error(err);
-    const msg={
-      'auth/email-already-in-use':'This email is already registered. Try Login or Forgot Password.',
-      'auth/invalid-email':'Please enter a valid email address.',
-      'auth/weak-password':'Password must be at least 6 characters.',
-      'auth/operation-not-allowed':'Enable Email/Password sign-in in Firebase Authentication.'
-    }[err.code]||err.message||'Unable to create the account.';
-    toast(msg,'err','Sign up failed');
+    toast('Unable to create the account in this browser.','err','Sign up failed');
   }
 }
 
@@ -483,50 +484,18 @@ async function doLogin(e){
   showErr('lgPassErr',!p);
   if(!ok||!p)return;
 
-  // PREVIEW: demo account opens the existing full workspace immediately.
-  if(PREVIEW_MODE && !firebaseReady && em===DEMO_EMAIL && p===DEMO_PASSWORD){
-    let us=users();
-    let u=us.find(x=>x.email===DEMO_EMAIL);
-    if(!u){
-      u={email:DEMO_EMAIL,name:'Demo User',biz:'Diary Nepal',created:new Date().toISOString(),preview:true};
-      us.push(u);
-      saveUsers(us);
-    }
-    seedUser(DEMO_EMAIL,'Diary Nepal');
-    localStorage.setItem(SESS,DEMO_EMAIL);
-    ME=u;
-    DB=loadDB(DEMO_EMAIL);
-
-    $('auth').style.display='none';
-    $('app').classList.add('on');
-    $('workDate').value=today();
-    buildNav();
-    paintUser();
-    go('dashboard');
-    toast('Preview mode: logged in as Demo User','ok','Demo login');
-    return;
-  }
-
-  if(!authReady())return;
-
   try{
-    const cred=await firebaseAuth.signInWithEmailAndPassword(em,p);
-    await cred.user.reload();
-
-    if(!cred.user.emailVerified){
-      await firebaseAuth.signOut();
-      toast('Please verify your email first. Check your inbox and spam folder.','warn','Email not verified');
-      return;
-    }
-
+    ensureDemoAccount();
     const existing=users();
-    let u=existing.find(x=>x.email===em);
+    const u=existing.find(x=>x.email===em);
 
     if(!u){
-      u={email:em,name:cred.user.displayName||em.split('@')[0],biz:'My Business',created:new Date().toISOString(),firebaseUid:cred.user.uid};
-      existing.push(u);
-      saveUsers(existing);
+      return toast('No account found with this email. Please sign up first.','err','Login failed');
     }
+    if(u.password!==p){
+      return toast('Incorrect email or password.','err','Login failed');
+    }
+    if(!u.role){u.role=em===DEMO_EMAIL?ROLE_ADMIN:ROLE_USER;saveUsers(existing);}
 
     localStorage.setItem(SESS,em);
     ME=u;
@@ -541,45 +510,7 @@ async function doLogin(e){
     toast('Logged in as '+ME.email,'ok','Welcome');
   }catch(err){
     console.error(err);
-    const msg={
-      'auth/user-not-found':'No account found with this email.',
-      'auth/wrong-password':'Incorrect password.',
-      'auth/invalid-credential':'Incorrect email or password.',
-      'auth/too-many-requests':'Too many attempts. Please wait and try again.'
-    }[err.code]||err.message||'Login failed.';
-    toast(msg,'err','Login failed');
-  }
-}
-
-async function resendVerification(){
-  if(!firebaseReady){
-    if(PREVIEW_MODE){
-      toast('Email verification becomes active after Firebase setup.','warn','Preview mode');
-      return;
-    }
-    if(!authReady())return;
-  }
-  const em=$('lgEmail').value.trim().toLowerCase();
-  if(!validEmail(em))return toast('Enter your registered email first.','err');
-
-  try{
-    const p=$('lgPass').value;
-    if(!p)return toast('Enter your password so the account can be verified.','warn');
-
-    const cred=await firebaseAuth.signInWithEmailAndPassword(em,p);
-    await cred.user.reload();
-
-    if(cred.user.emailVerified){
-      await firebaseAuth.signOut();
-      return toast('This email is already verified. You can log in normally.','ok','Already verified');
-    }
-
-    await cred.user.sendEmailVerification();
-    await firebaseAuth.signOut();
-    toast('A new verification email has been sent to '+em+'.','ok','Verification sent');
-  }catch(err){
-    console.error(err);
-    toast(err.message||'Could not resend verification email.','err','Verification failed');
+    toast('Unable to log in. Please try again.','err','Login failed');
   }
 }
 
@@ -596,31 +527,26 @@ function closeForgotPassword(){
   document.body.style.overflow='';
 }
 async function sendPasswordReset(){
-  if(!firebaseReady){
-    if(PREVIEW_MODE){
-      toast('Preview mode uses Demo Login. Password reset becomes active after Firebase setup.','warn','Preview mode');
-      return;
-    }
-    if(!authReady())return;
-  }
   const em=$('fpEmail').value.trim().toLowerCase();
   showErr('fpEmailErr',!validEmail(em));
   if(!validEmail(em))return;
 
-  try{
-    await firebaseAuth.sendPasswordResetEmail(em);
-    closeForgotPassword();
-    $('lgEmail').value=em;
-    toast('Password reset link sent to '+em+'. Check your email and spam folder.','ok','Reset email sent');
-  }catch(err){
-    console.error(err);
-    const msg={
-      'auth/user-not-found':'No account found with this email.',
-      'auth/invalid-email':'Please enter a valid email address.'
-    }[err.code]||err.message||'Could not send the reset email.';
-    toast(msg,'err','Reset failed');
-  }
+  const us=users();
+  const u=us.find(x=>x.email===em);
+  if(!u)return toast('No account found with this email.','err','Reset failed');
+
+  const newPass=prompt('Enter a new password (minimum 6 characters):');
+  if(newPass===null)return;
+  if(newPass.length<6)return toast('Password must be at least 6 characters.','err','Invalid password');
+
+  u.password=newPass;
+  saveUsers(us);
+  closeForgotPassword();
+  $('lgEmail').value=em;
+  $('lgPass').value='';
+  toast('Your password has been changed. You can log in now.','ok','Password reset');
 }
+
 
 async function login(email){
   // Kept as a compatibility wrapper for the rest of the existing application.
@@ -637,7 +563,6 @@ async function login(email){
 
 async function logout(){
   if(!confirm('Logout from this workspace?'))return;
-  try{if(firebaseReady&&firebaseAuth)await firebaseAuth.signOut();}catch(e){console.warn(e);}
   localStorage.removeItem(SESS);
   ME=null;
   DB=null;
@@ -653,6 +578,7 @@ function paintUser(){
   $('sbName').textContent=ME.name;
   $('sfBiz').textContent=ME.biz;
   $('sfEmail').textContent=ME.email;
+  $('sbRole').textContent=(ME.role||ROLE_USER).toUpperCase();
   $('sfAvatar').textContent=ini;
   $('topAvatar').textContent=ini;
   $('ddName').textContent=ME.name;
@@ -701,14 +627,36 @@ function balance(p){
   const d=sum(t,'debit'),c=sum(t,'credit');
   return p.type==='Supplier' ? num(p.opening)+c-d : num(p.opening)+d-c;
 }
-const customersOnly=()=>DB.customers.filter(c=>c.type!=='Supplier');
-const suppliersOnly=()=>DB.customers.filter(c=>c.type==='Supplier');
+const customersOnly=()=>DB.customers.filter(c=>c.type==='Customer'||c.type==='Customer & Supplier');
+const suppliersOnly=()=>DB.customers.filter(c=>c.type==='Supplier'||c.type==='Customer & Supplier');
 const salesTx=()=>DB.txns.filter(t=>t.type==='sale');
 const purchaseTx=()=>DB.txns.filter(t=>t.type==='purchase');
 const totalSales=()=>sum(salesTx(),'debit');
 const totalPurchases=()=>sum(purchaseTx(),'credit');
-const totalReceivable=()=>customersOnly().reduce((s,c)=>s+Math.max(0,balance(c)),0);
-const totalPayable=()=>suppliersOnly().reduce((s,c)=>s+Math.max(0,balance(c)),0);
+function receivable(c){
+  if(!c||c.type==='Supplier')return 0;
+  const tx=DB.txns.filter(t=>t.partyId===c.id);
+  let v=num(c.opening);
+  tx.forEach(t=>{
+    if(t.type==='sale')v+=num(t.debit);
+    if(t.type==='receipt'||t.type==='return-in')v-=num(t.credit);
+    if(t.type==='journal')v+=num(t.debit)-num(t.credit);
+  });
+  return Math.max(0,v);
+}
+function payable(c){
+  if(!c||c.type==='Customer')return 0;
+  const tx=DB.txns.filter(t=>t.partyId===c.id);
+  let v=0;
+  tx.forEach(t=>{
+    if(t.type==='purchase')v+=num(t.credit);
+    if(t.type==='payment'||t.type==='return-out')v-=num(t.debit);
+    if(t.type==='journal')v+=num(t.credit)-num(t.debit);
+  });
+  return Math.max(0,v);
+}
+const totalReceivable=()=>customersOnly().reduce((s,c)=>s+receivable(c),0);
+const totalPayable=()=>suppliersOnly().reduce((s,c)=>s+payable(c),0);
 const inMonth=(d,ym)=>d&&d.slice(0,7)===ym;
 function lowStock(){const th=num(DB.settings.lowStock)||5;return DB.products.filter(p=>num(p.stock)<=th);}
 function nextVoucher(prefix){
@@ -718,6 +666,7 @@ function nextVoucher(prefix){
 function adjustStock(pid,delta){const p=DB.products.find(x=>x.id===pid);if(p){p.stock=num(p.stock)+delta;
   const th=num(DB.settings.lowStock)||5; if(delta<0&&num(p.stock)<=th)toast('Low Stock Alert: '+p.name+' is running out ('+p.stock+' left).','warn','Inventory');}}
 
+function adjustDamagedStock(pid,delta){const p=DB.products.find(x=>x.id===pid);if(p){p.damagedStock=num(p.damagedStock)+delta;}}
 /* ============ NAV ============ */
 const PAGES=[
  {id:'dashboard',label:'Dashboard',icon:'fa-grip',color:'#fff'},
@@ -734,13 +683,26 @@ const PAGES=[
  {id:'settings',label:'Settings & Preferences',icon:'fa-gear',color:'#93c5fd'}
 ];
 let CUR='dashboard';
-function buildNav(){
-  $('nav').innerHTML=PAGES.map(p=>`<a data-p="${p.id}" onclick="go('${p.id}')"><i class="fa-solid ${p.icon}" style="color:${p.color}"></i>${p.label}</a>`).join('');
+function allowedPages(){
+  if(!ME)return [];
+  if(ME.role===ROLE_SALES)return PAGES.filter(p=>p.id==='sales');
+  return PAGES.slice();
 }
-function go(id){CUR=id;document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('active',a.dataset.p===id));
+function canAccess(id){return allowedPages().some(p=>p.id===id);}
+function buildNav(){
+  $('nav').innerHTML=allowedPages().map(p=>`<a data-p="${p.id}" onclick="go('${p.id}')"><i class="fa-solid ${p.icon}" style="color:${p.color}"></i>${p.label}</a>`).join('');
+}
+function go(id){
+  if(!canAccess(id)){
+    const first=allowedPages()[0];
+    if(first&&first.id!==id)return go(first.id);
+    return toast('Your role does not have access to this module.','warn','Access restricted');
+  }
+  CUR=id;document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('active',a.dataset.p===id));
   $('pageTitle').textContent=PAGES.find(p=>p.id===id).label.replace(' & ',' & ');
   if(window.innerWidth<981){$('sidebar').classList.remove('open');$('backdrop').classList.remove('on');}
-  renderPage();window.scrollTo({top:0,behavior:'smooth'});}
+  renderPage();window.scrollTo({top:0,behavior:'smooth'});
+}
 function toggleSide(){$('sidebar').classList.toggle('open');$('backdrop').classList.toggle('on');}
 function toggleTheme(){
   const dark=document.documentElement.dataset.theme==='dark';
@@ -756,11 +718,21 @@ document.addEventListener('click',closeDds);
 $('bellDd').onclick=e=>e.stopPropagation();$('userDd').onclick=e=>e.stopPropagation();
 function paintBell(){
   const ls=lowStock();
-  $('bellCount').style.display=ls.length?'grid':'none';$('bellCount').textContent=ls.length;
-  $('bellDd').innerHTML=`<div style="padding:8px 12px;font-weight:700;font-size:13px">Notifications</div>`+
-   (ls.length? ls.map(p=>`<div class="dd-item"><i class="fa-solid fa-triangle-exclamation" style="color:var(--orange);margin-top:2px"></i>
-     <div><b>Low Stock Alert:</b> ${esc(p.name)} is running out.<div class="muted" style="font-size:11.5px">Current stock: ${p.stock}</div></div></div>`).join('')
-   : `<div class="dd-item muted">All good — no low stock items 🎉</div>`);
+  let orderNotices=[];
+  try{
+    const os=getOrders?getOrders():[];
+    if(ME){
+      const role=ME.role||ROLE_USER;
+      if(role===ROLE_SUPPLIER) orderNotices=os.filter(o=>o.supplierEmail===ME.email&&o.status==='Pending');
+      else if(role===ROLE_ADMIN||role===ROLE_USER) orderNotices=os.filter(o=>o.status==='Pending');
+      else if(role===ROLE_CUSTOMER) orderNotices=os.filter(o=>o.customerEmail===ME.email&&['Accepted','Sales Created','Goods Ready','Goods Dispatched'].includes(o.status));
+    }
+  }catch(e){}
+  const count=ls.length+orderNotices.length;
+  $('bellCount').style.display=count?'grid':'none';$('bellCount').textContent=count;
+  const orderHtml=orderNotices.length?orderNotices.slice(0,6).map(o=>`<div class="dd-item"><i class="fa-solid fa-box-open" style="color:var(--green);margin-top:2px"></i><div><b>${ME.role===ROLE_CUSTOMER?'Order Update':'New Order Request'}:</b> ${esc(o.productName)} × ${o.qty}<div class="muted" style="font-size:11.5px">${ME.role===ROLE_CUSTOMER?'Supplier: '+esc(o.supplierName):'Customer: '+esc(o.customerName)} · ${esc(o.status)}</div></div></div>`).join(''):' ';
+  const lowHtml=ls.length?ls.map(p=>`<div class="dd-item"><i class="fa-solid fa-triangle-exclamation" style="color:var(--orange);margin-top:2px"></i><div><b>Low Stock Alert:</b> ${esc(p.name)} is running out.<div class="muted" style="font-size:11.5px">Current stock: ${p.stock}</div></div></div>`).join(''):'';
+  $('bellDd').innerHTML=`<div style="padding:8px 12px;font-weight:700;font-size:13px">Notifications</div>`+(orderHtml.trim()+lowHtml||`<div class="dd-item muted">No new notifications 🎉</div>`);
 }
 
 /* ============ TABLE ENGINE ============ */
@@ -820,8 +792,17 @@ function pgDashboard(v){
    {k:'sales',lbl:'Total Sales',val:money(totalSales()),color:'var(--green)',sub:salesTx().length+' invoices issued'}
   ];
   const recent=DB.txns.slice().sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id)).slice(0,8);
+  const customerSupplierCard=`<div class="card party-summary-card">
+      <button class="eye" title="View customers and suppliers" onclick="cardView('customers')"><i class="fa-regular fa-eye"></i></button>
+      <div class="lbl">Total Customers &amp; Suppliers</div>
+      <div class="val" style="color:var(--text)">${customersOnly().length + suppliersOnly().length}</div>
+      <div class="party-mini-table">
+        <div class="party-mini-head"><span>Customer</span><span>Supplier</span></div>
+        <div class="party-mini-row"><b>${customersOnly().length}</b><b>${suppliersOnly().length}</b></div>
+      </div>
+    </div>`;
   v.innerHTML=`
-  <div class="cards">${cards.map(c=>`<div class="card">
+  <div class="cards">${cards.map(c=>c.k==='customers'?customerSupplierCard:`<div class="card">
       <button class="eye" title="View details" onclick="cardView('${c.k}')"><i class="fa-regular fa-eye"></i></button>
       <div class="lbl">${esc(c.lbl)}</div><div class="val" style="color:${c.color}">${c.val}</div><div class="sub">${esc(c.sub)}</div></div>`).join('')}</div>
   <div class="grid2">
@@ -831,6 +812,11 @@ function pgDashboard(v){
     <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-chart-pie" style="color:var(--green)"></i> Receivables vs Payables</h3></div>
       <div class="chart-box"><canvas id="donutC"></canvas></div></div>
   </div>
+  ${(()=>{
+    let incoming=[];
+    try{const os=getOrders();const r=ME?.role||ROLE_USER;incoming=os.filter(o=>(r===ROLE_SUPPLIER?o.supplierEmail===ME.email:(r===ROLE_ADMIN||r===ROLE_USER))&&o.status==='Pending').sort((a,b)=>b.created.localeCompare(a.created)).slice(0,5);}catch(e){}
+    return `<div class="panel order-notify"><div class="panel-h" style="margin-bottom:8px"><h3><i class="fa-solid fa-bell" style="color:var(--orange)"></i> Order Notifications</h3><div class="spacer"></div><span class="chip o">${incoming.length} New</span></div>${incoming.length?incoming.map(o=>`<div class="mini-step"><div class="dot"><i class="fa-solid fa-box"></i></div><div style="flex:1"><b>${esc(o.customerName)}</b> requested <b>${esc(o.productName)} × ${o.qty} ${esc(o.unit)}</b><div class="muted" style="font-size:11px;margin-top:2px">Supplier: ${esc(o.supplierName)} · Order #${esc(o.id)}</div></div></div>`).join(''):`<div class="muted">No new order requests. New customer orders will appear here.</div>`}<div class="form-actions" style="margin-top:10px"><button class="btn sm ghost" onclick="go('orders')"><i class="fa-solid fa-box-open"></i> Open Orders &amp; Goods</button></div></div>`;
+  })()}
   <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-clock-rotate-left" style="color:var(--accent)"></i> Recent Transactions</h3>
     <div class="spacer"></div><button class="btn sm ghost" onclick="go('ledger')"><i class="fa-solid fa-arrow-right"></i> Full ledger</button></div>
     ${dataTable([
@@ -984,9 +970,8 @@ function pgCustomers(v){
     <div class="form-grid">
       <div class="field"><label>Customer Full Name <span>*</span></label><input class="inp" id="cName"><div class="err-msg" id="cNameErr">Name is required</div></div>
       <div class="field"><label>Mobile Number <span>*</span></label><input class="inp" id="cMobile" placeholder="98XXXXXXXX"><div class="err-msg" id="cMobileErr">Valid mobile required</div></div>
-      <div class="field"><label>Party Type</label><select class="inp" id="cType"><option>Customer</option><option>Supplier</option></select></div>
-      <div class="field"><label>PAN Number</label><input class="inp" id="cPan"></div>
-      <div class="field"><label>VAT Number</label><input class="inp" id="cVat"></div>
+      <div class="field"><label>Party Type</label><select class="inp" id="cType"><option>Customer</option><option>Supplier</option><option>Customer &amp; Supplier</option></select></div>
+      <div class="field"><label>PAN / VAT Number</label><input class="inp" id="cPan"></div>
       <div class="field"><label>Address</label><input class="inp" id="cAddr"></div>
       <div class="field"><label>Opening Balance (editable)</label><input class="inp" id="cOpen" type="number" step="0.01" value="0"></div>
     </div>
@@ -997,15 +982,15 @@ function pgCustomers(v){
     <span class="chip b">${DB.customers.length} parties</span></div>
    ${dataTable([
      {label:'Name',key:'name'},{label:'Mobile',key:'mobile'},{label:'Type',key:'type',fmt:r=>`<span class="chip ${r.type==='Supplier'?'o':'b'}">${esc(r.type)}</span>`},
-     {label:'PAN',key:'pan',fmt:r=>esc(r.pan||'—')},{label:'VAT',key:'vat',fmt:r=>esc(r.vat||'—')},{label:'Address',key:'address'},
+     {label:'PAN / VAT Number',key:'pan',fmt:r=>esc(r.pan||r.vat||'—')},{label:'Address',key:'address'},
      {label:'Opening',key:'opening',align:'right',fmt:r=>money(r.opening)},
      {label:'Balance',align:'right',val:r=>balance(r),fmt:r=>{const b=balance(r);return `<b style="color:${b>0?(r.type==='Supplier'?'var(--orange)':'var(--red)'):'var(--green)'}">${money(Math.abs(b))}</b>`}},
      {label:'Actions',sortable:false,fmt:r=>`
        <button class="act" title="Ledger" onclick="openLedgerOf('${r.id}')"><i class="fa-solid fa-book"></i></button>
        <button class="act g" title="Share statement" onclick="shareStatement('${r.id}')"><i class="fa-solid fa-share-nodes"></i></button>
-       <button class="act" title="Edit" onclick="editCustomer('${r.id}')"><i class="fa-solid fa-pen"></i></button>
+       <button class="act" title="Edit" onclick="editCustomer('${r.id}')"><i class="fa-solid fa-pen"></i></button> <button class="icon-btn" type="button" title="Payment Against Invoice" onclick="openPaymentAgainstInvoice(row.id||row.invoiceId||row._id)">₹</button>
        <button class="act d" title="Delete" onclick="delCustomer('${r.id}')"><i class="fa-solid fa-trash"></i></button>`}
-   ],DB.customers,{ph:'Search name, mobile, PAN, address...',empty:'No customers yet — add your first one above.'})}
+   ],DB.customers,{ph:'Search name, mobile, PAN / VAT number, address...',empty:'No customers yet — add your first one above.'})}
   </div>`;
 }
 function saveCustomer(e){
@@ -1013,7 +998,7 @@ function saveCustomer(e){
   const n=$('cName').value.trim(),m=$('cMobile').value.trim();
   showErr('cNameErr',!n);showErr('cMobileErr',!/^[0-9+\-\s]{7,15}$/.test(m));
   if(!n||!/^[0-9+\-\s]{7,15}$/.test(m))return toast('Please fill required fields correctly','err');
-  const obj={name:n,mobile:m,type:$('cType').value,pan:$('cPan').value.trim(),vat:$('cVat').value.trim(),
+  const panVat=$('cPan').value.trim(); const obj={name:n,mobile:m,type:$('cType').value,pan:panVat,vat:panVat,
     address:$('cAddr').value.trim(),opening:num($('cOpen').value)};
   if(editCust){Object.assign(DB.customers.find(c=>c.id===editCust),obj);toast('Customer updated successfully','ok');}
   else{DB.customers.push({id:uid(),created:today(),...obj});toast('Customer saved successfully','ok');}
@@ -1022,8 +1007,8 @@ function saveCustomer(e){
 function editCustomer(id){
   const c=party(id);editCust=id;
   $('cFormTitle').textContent='Edit Customer — '+c.name;
-  $('cName').value=c.name;$('cMobile').value=c.mobile;$('cType').value=c.type;$('cPan').value=c.pan||'';
-  $('cVat').value=c.vat||'';$('cAddr').value=c.address||'';$('cOpen').value=c.opening||0;
+  $('cName').value=c.name;$('cMobile').value=c.mobile;$('cType').value=c.type;$('cPan').value=c.pan||c.vat||'';
+  $('cAddr').value=c.address||'';$('cOpen').value=c.opening||0;
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function resetCustomer(){editCust=null;renderPage();}
@@ -1095,15 +1080,29 @@ function saveLedger(e){
   save();LEDG.party=pid;renderPage();toast('Ledger entry saved to '+pname(pid),'ok');
 }
 function delTxn(id){
-  if(!confirm('Delete this transaction? Stock effects will be reversed.'))return;
-  const t=DB.txns.find(x=>x.id===id);
-  (t.items||[]).forEach(i=>{ if(t.type==='sale'||t.type==='return-out')adjustStock(i.productId,num(i.qty));
-    if(t.type==='purchase'||t.type==='return-in')adjustStock(i.productId,-num(i.qty)); });
-  if(t.type==='adjust'&&t.items)t.items.forEach(i=>adjustStock(i.productId,-num(i.qty)));
-  DB.txns=DB.txns.filter(x=>x.id!==id);save();renderPage();toast('Transaction deleted','ok');
+  if(!confirm('Delete this transaction? Stock and linked return/refund effects will be reversed.'))return;
+  const t=DB.txns.find(x=>x.id===id);if(!t)return;
+  if(t.type==='sale'){
+    (t.items||[]).forEach(i=>adjustStock(i.productId,num(i.qty)));
+    DB.txns=DB.txns.filter(x=>x.id!==id&&x.autoForSaleId!==id&&x.linkedSaleId!==id);
+  }else if(t.type==='return-in'){
+    (t.items||[]).forEach(i=>adjustStock(i.productId,-num(i.qty)));
+    DB.txns=DB.txns.filter(x=>x.id!==id&&x.linkedReturnId!==id);
+  }else if(t.type==='refund'){
+    DB.txns=DB.txns.filter(x=>x.id!==id);
+  }else{
+    (t.items||[]).forEach(i=>{
+      if(t.type==='purchase'||t.type==='return-out')adjustStock(i.productId,num(i.qty));
+      if(t.type==='return-in')adjustStock(i.productId,-num(i.qty));
+    });
+    if(t.type==='adjust'&&t.items)t.items.forEach(i=>adjustStock(i.productId,-num(i.qty)));
+    DB.txns=DB.txns.filter(x=>x.id!==id);
+  }
+  save();renderPage();toast('Transaction deleted and linked effects reversed','ok');
 }
 
 /* ---------- PRODUCTS ---------- */
+
 let editProd=null;
 function pgProducts(v){
   const ls=lowStock();
@@ -1148,9 +1147,13 @@ function delProduct(id){if(!confirm('Delete this product?'))return;DB.products=D
 /* ---------- SALES ---------- */
 const PAYMODES=['Cash','Bank','QR Payment','eSewa','Khalti','ConnectIPS','Cheque','Credit'];
 let cart=[];
+let editSaleId=null;
+let SALES_TAB='history';
 function pgSales(v){
+  const saleRows=salesTx().sort((a,b)=>b.date.localeCompare(a.date));
+  const returnRows=DB.txns.filter(t=>t.type==='return-in'&&t.linkedSaleId).sort((a,b)=>b.date.localeCompare(a.date));
   v.innerHTML=`
-  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-cart-plus" style="color:#fbbf24"></i> New Sales Invoice</h3></div>
+  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-cart-plus" style="color:#fbbf24"></i> <span id="salesFormTitle">New Sales Invoice</span></h3></div>
    <div class="form-grid">
      <div class="field"><label>Invoice Date <span>*</span></label><input class="inp" id="sDate" type="date" value="${workDate()}"></div>
      <div class="field"><label>Invoice Number</label><input class="inp" id="sInv" value="${nextVoucher('INV-')}"></div>
@@ -1168,17 +1171,62 @@ function pgSales(v){
      <div class="field" style="display:flex;align-items:flex-end"><button class="btn ghost block" onclick="addCart()"><i class="fa-solid fa-plus"></i> Add item</button></div>
    </div>
    <div id="cartBox">${cartHTML()}</div>
-   <div class="form-actions"><button class="btn green" onclick="saveSale()"><i class="fa-solid fa-check"></i> Save Invoice</button>
-     <button class="btn ghost" onclick="cart=[];renderPage()">Clear</button></div></div>
-  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-file-invoice" style="color:#fbbf24"></i> Sales History</h3></div>
-   ${dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Invoice No.',key:'voucher'},{label:'Customer',val:r=>pname(r.partyId)},
-     {label:'Items',val:r=>(r.items||[]).map(i=>i.name+' x'+i.qty).join(', ')},{label:'Amount',key:'debit',align:'right',fmt:r=>money(r.debit)},
-     {label:'Mode',key:'mode',fmt:r=>`<span class="chip b">${esc(r.mode)}</span>`},
-     {label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>
-       <button class="act d" onclick="delTxn('${r.id}')"><i class="fa-solid fa-trash"></i></button>`}],
-     salesTx().sort((a,b)=>b.date.localeCompare(a.date)),{ph:'Search invoices...',empty:'No sales yet.'})}</div>`;
+   <div class="form-actions"><button class="btn green" onclick="saveSale()"><i class="fa-solid fa-check"></i> <span id="salesSaveText">Save Invoice</span></button>
+     <button class="btn ghost" onclick="cart=[];editSaleId=null;renderPage()">Clear / Cancel</button></div></div>
+
+  <div class="panel">
+    <div class="panel-h">
+      <div class="seg">
+        <button class="${SALES_TAB==='history'?'on':''}" onclick="SALES_TAB='history';renderPage()">Sales History</button>
+        <button class="${SALES_TAB==='returns'?'on':''}" onclick="SALES_TAB='returns';renderPage()">Sales Returns</button>
+      </div>
+      <div class="spacer"></div>
+      ${SALES_TAB==='history'?`<span class="chip b">${saleRows.length} invoices</span>`:`<span class="chip o">${returnRows.length} returns</span>`}
+    </div>
+    ${SALES_TAB==='history'?`
+      ${dataTable([
+        {label:'Date',key:'date',fmt:r=>fmtDate(r.date)},
+        {label:'Invoice No.',key:'voucher'},
+        {label:'Customer',val:r=>pname(r.partyId)},
+        {label:'Items',val:r=>(r.items||[]).map(i=>{const ret=DB.txns.filter(t=>t.type==='return-in'&&t.linkedSaleId===r.id).reduce((n,t)=>n+(t.items||[]).filter(x=>x.productId===i.productId).reduce((m,x)=>m+num(x.qty),0),0);return i.name+' ×'+i.qty+(ret?' (returned '+ret+', net '+Math.max(0,num(i.qty)-ret)+')':'');}).join(', ')},
+        {label:'Net Qty',align:'right',val:r=>netSaleQty(r)},
+        {label:'Amount',key:'debit',align:'right',fmt:r=>money(r.debit)},
+        {label:'Mode',key:'mode',fmt:r=>`<span class="chip b">${esc(r.mode)}</span>`},
+        {label:'',sortable:false,fmt:r=>`<button class="act" title="View" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>
+          <button class="act g" title="Edit Invoice" onclick="editSale('${r.id}')"><i class="fa-solid fa-pen"></i></button>
+          
+          <button class="act d" title="Delete" onclick="delTxn('${r.id}')"><i class="fa-solid fa-trash"></i></button>`}
+      ],saleRows,{ph:'Search invoices...',empty:'No sales yet.'})}
+      <div class="notice" style="margin-top:12px"><b>Return workflow:</b> Select an invoice → see the original sold quantity → choose the item → enter the quantity to return → choose how the money/credit is settled. The return reduces net sold quantity, records the return against the original invoice, and puts returned goods back into inventory (or Damaged Stock).</div>
+    `:`${dataTable([
+        {label:'Date',key:'date',fmt:r=>fmtDate(r.date)},
+        {label:'Return No.',key:'voucher'},
+        {label:'Original Invoice',val:r=>r.originalVoucher||'—'},
+        {label:'Customer',val:r=>pname(r.partyId)},
+        {label:'Items',val:r=>(r.items||[]).map(i=>i.name+' ×'+i.qty).join(', ')},
+        {label:'Original Qty',align:'right',val:r=>r.originalQty||((r.items||[])[0]||{}).qty,fmt:r=>num(r.originalQty||((r.items||[])[0]||{}).qty)},
+        {label:'Returned',align:'right',val:r=>r.returnedQty||((r.items||[])[0]||{}).qty,fmt:r=>num(r.returnedQty||((r.items||[])[0]||{}).qty)},
+        {label:'Net Qty',align:'right',val:r=>r.netQty,fmt:r=>`<b>${num(r.netQty)}</b>`},
+        {label:'Return Amount',align:'right',val:r=>r.credit,fmt:r=>money(r.credit)},
+        {label:'Refund',key:'refundMode',fmt:r=>`<span class="chip ${r.refundMode==='Cash Refund'?'g':'b'}">${esc(r.refundMode||'Credit Adjustment')}</span>`},
+        {label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button><button class="act d" onclick="delTxn('${r.id}')"><i class="fa-solid fa-trash"></i></button>`}
+      ],returnRows,{ph:'Search returns...',empty:'No sales returns yet.'})}`}
+  </div>`;
+}
+function netSaleQty(sale){
+  const sold=(sale.items||[]).reduce((n,i)=>n+num(i.qty),0);
+  const returned=DB.txns.filter(t=>t.type==='return-in'&&t.linkedSaleId===sale.id)
+    .reduce((n,t)=>n+(t.items||[]).reduce((m,i)=>m+num(i.qty),0),0);
+  return Math.max(0,sold-returned);
+}
+function openSalesReturn(id){
+  SALES_TAB='returns';
+  window.__returnSaleId=id;
+  renderPage();
+  setTimeout(()=>{$('rSale').value=id;loadReturnInvoice();},50);
 }
 function prodPick(){const p=DB.products.find(x=>x.id===$('sProd').value);if(p)$('sRate').value=p.selling;}
+
 function cartHTML(){
   if(!cart.length)return '<p class="muted" style="font-size:13px">No items added yet.</p>';
   const tot=cart.reduce((s,i)=>s+i.qty*i.rate,0);
@@ -1198,14 +1246,73 @@ function saveSale(){
   const cid=$('sCust').value;showErr('sCustErr',!cid);
   if(!cid)return toast('Please select a customer','err');
   if(!cart.length)return toast('Add at least one item','err');
-  const total=cart.reduce((s,i)=>s+i.qty*i.rate,0),mode=$('sMode').value;
-  const t={id:uid(),date:$('sDate').value||today(),type:'sale',voucher:$('sInv').value||nextVoucher('INV-'),partyId:cid,
+
+  const date=$('sDate').value||today();
+  const voucher=$('sInv').value.trim()||nextVoucher('INV-');
+  const mode=$('sMode').value;
+  const total=cart.reduce((sum,i)=>sum+i.qty*i.rate,0);
+
+  if(editSaleId){
+    const t=DB.txns.find(x=>x.id===editSaleId);
+    if(!t||t.type!=='sale')return toast('Sales invoice not found','err');
+
+    (t.items||[]).forEach(i=>adjustStock(i.productId,num(i.qty)));
+    for(const i of cart){
+      const p=DB.products.find(x=>x.id===i.productId);
+      if(!p){
+        (t.items||[]).forEach(old=>adjustStock(old.productId,-num(old.qty)));
+        return toast('Product not found: '+i.name,'err');
+      }
+      if(num(i.qty)>num(p.stock)){
+        (t.items||[]).forEach(old=>adjustStock(old.productId,-num(old.qty)));
+        return toast('Only '+p.stock+' units of '+p.name+' available','err','Insufficient stock');
+      }
+    }
+
+    const oldVoucher=t.voucher;
+    t.date=date;t.voucher=voucher;t.partyId=cid;
+    t.desc='Sale — '+cart.map(i=>i.name+' x'+i.qty).join(', ');
+    t.debit=total;t.credit=0;t.mode=mode;t.items=cart.map(i=>({...i}));
+    t.attachments=t.attachments||[];
+    cart.forEach(i=>adjustStock(i.productId,-num(i.qty)));
+
+    let linked=DB.txns.find(x=>x.type==='receipt'&&x.autoForSaleId===t.id);
+    if(mode==='Credit'){
+      if(linked)DB.txns=DB.txns.filter(x=>x.id!==linked.id);
+    }else if(linked){
+      linked.date=date;linked.partyId=cid;linked.desc='Payment against '+voucher;
+      linked.credit=total;linked.debit=0;linked.mode=mode;linked.voucher=linked.voucher||nextVoucher('RCP-');
+    }else{
+      DB.txns.push({id:uid(),date,type:'receipt',voucher:nextVoucher('RCP-'),partyId:cid,
+        desc:'Payment against '+voucher,debit:0,credit:total,mode,items:[],attachments:[],autoForSaleId:t.id});
+    }
+
+    cart=[];editSaleId=null;save();renderPage();
+    toast('Invoice '+oldVoucher+' updated to '+voucher+' · '+money(total),'ok','Sales updated');
+    return;
+  }
+
+  const t={id:uid(),date,type:'sale',voucher,partyId:cid,
     desc:'Sale — '+cart.map(i=>i.name+' x'+i.qty).join(', '),debit:total,credit:0,mode,items:cart.slice(),attachments:[]};
   DB.txns.push(t);
   cart.forEach(i=>adjustStock(i.productId,-num(i.qty)));
-  if(mode!=='Credit')DB.txns.push({id:uid(),date:t.date,type:'receipt',voucher:nextVoucher('RCP-'),partyId:cid,
-    desc:'Payment against '+t.voucher,debit:0,credit:total,mode,items:[],attachments:[]});
+  if(mode!=='Credit')DB.txns.push({id:uid(),date,type:'receipt',voucher:nextVoucher('RCP-'),partyId:cid,
+    desc:'Payment against '+t.voucher,debit:0,credit:total,mode,items:[],attachments:[],autoForSaleId:t.id});
   cart=[];save();renderPage();toast('Invoice '+t.voucher+' saved · '+money(total),'ok');
+}
+
+function editSale(id){
+  const t=DB.txns.find(x=>x.id===id);
+  if(!t||t.type!=='sale')return toast('Sales invoice not found','err');
+  editSaleId=id;
+  cart=(t.items||[]).map(i=>({...i}));
+  $('salesFormTitle').textContent='Edit Sales Invoice — '+t.voucher;
+  $('salesSaveText').textContent='Update Invoice';
+  $('sDate').value=t.date||today();$('sInv').value=t.voucher||'';
+  $('sCust').value=t.partyId||'';$('sMode').value=t.mode||'Cash';
+  $('cartBox').innerHTML=cartHTML();
+  window.scrollTo({top:0,behavior:'smooth'});
+  toast('Edit mode enabled. Correct the invoice and click Update Invoice.','ok','Edit Sales');
 }
 
 /* ---------- PURCHASES ---------- */
@@ -1299,42 +1406,148 @@ function savePay(e,kind){
 
 /* ---------- RETURNS ---------- */
 function pgReturns(v){
+  const saleList=salesTx().sort((a,b)=>b.date.localeCompare(a.date));
+  const selectedId=window.__returnSaleId||'';
   v.innerHTML=`
-  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-rotate-left" style="color:#f97316"></i> Return Entry</h3></div>
-   <form onsubmit="saveReturn(event)"><div class="form-grid">
-     <div class="field"><label>Return Type</label><select class="inp" id="rType" onchange="renderPage()">
-       <option value="sales">Sales Return (from customer)</option><option value="purchase">Purchase Return (to supplier)</option></select></div>
-     <div class="field"><label>Date</label><input class="inp" id="rDate" type="date" value="${workDate()}"></div>
-     <div class="field"><label>Party <span>*</span></label><select class="inp" id="rParty"><option value="">— Select —</option>
-       ${DB.customers.map(c=>`<option value="${c.id}">${esc(c.name)} (${c.type})</option>`).join('')}</select></div>
-     <div class="field"><label>Product <span>*</span></label><select class="inp" id="rProd"><option value="">— Select —</option>
-       ${DB.products.map(p=>`<option value="${p.id}">${esc(p.name)} (stock ${p.stock})</option>`).join('')}</select></div>
-     <div class="field"><label>Quantity</label><input class="inp" id="rQty" type="number" min="1" value="1"></div>
-     <div class="field"><label>Rate</label><input class="inp" id="rRate" type="number" step="0.01" value="0"></div>
-     <div class="field"><label>Reason</label><input class="inp" id="rWhy" placeholder="Damaged, wrong item..."></div>
-   </div><div class="form-actions"><button class="btn"><i class="fa-solid fa-floppy-disk"></i> Save Return</button></div></form></div>
-  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-clock-rotate-left" style="color:#f97316"></i> Return History</h3></div>
-   ${dataTable([{label:'Date',key:'date',fmt:r=>fmtDate(r.date)},{label:'Voucher',key:'voucher'},{label:'Type',key:'type',fmt:r=>`<span class="chip o">${r.type==='return-in'?'Sales Return':'Purchase Return'}</span>`},
-     {label:'Party',val:r=>pname(r.partyId)},{label:'Details',key:'desc'},
-     {label:'Amount',align:'right',val:r=>num(r.debit)+num(r.credit),fmt:r=>money(num(r.debit)+num(r.credit))},
-     {label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button>
-       <button class="act d" onclick="delTxn('${r.id}')"><i class="fa-solid fa-trash"></i></button>`}],
-     DB.txns.filter(t=>t.type.startsWith('return')).sort((a,b)=>b.date.localeCompare(a.date)),{empty:'No returns recorded.'})}</div>`;
+  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-rotate-left" style="color:#f97316"></i> Sales Return / Damaged Goods</h3></div>
+   <div class="notice"><b>How it works:</b> Choose the original sales invoice. The customer, sold items and original rate are loaded automatically. Enter only the quantity being returned. Example: sold 10, returned 2 → net sold quantity becomes 8 and Rs. 20 is adjusted/refunded when the rate is Rs. 10.</div>
+   <form onsubmit="saveReturn(event)">
+    <div class="form-grid">
+      <div class="field"><label>Original Sales Invoice <span>*</span></label>
+        <select class="inp" id="rSale" onchange="loadReturnInvoice()"><option value="">— Select sales invoice —</option>
+          ${saleList.map(s=>`<option value="${s.id}" ${s.id===selectedId?'selected':''}>${esc(s.voucher)} — ${esc(pname(s.partyId))} — ${money(s.debit)}</option>`).join('')}
+        </select></div>
+      <div class="field"><label>Return Date</label><input class="inp" id="rDate" type="date" value="${workDate()}"></div>
+      <div class="field"><label>Customer</label><input class="inp" id="rPartyName" class="inp" readonly placeholder="Auto from invoice"></div>
+      <div class="field"><label>Product <span>*</span></label><select class="inp" id="rProd" onchange="returnProductPick()"><option value="">— Select invoice first —</option></select></div>
+      <div class="field"><label>Sold Qty</label><input class="inp" id="rSoldQty" type="number" readonly value="0"></div>
+      <div class="field"><label>Already Returned</label><input class="inp" id="rAlready" type="number" readonly value="0"></div>
+      <div class="field"><label>Return Quantity <span>*</span></label><input class="inp" id="rQty" type="number" min="1" value="1" oninput="updateReturnPreview()"></div>
+      <div class="field"><label>Original Rate</label><input class="inp" id="rRate" type="number" step="0.01" readonly value="0"></div>
+      <div class="field"><label>Net Qty After Return</label><input class="inp" id="rNetQty" type="number" readonly value="0"></div>
+      <div class="field"><label>Settlement / Refund Method</label><select class="inp" id="rRefund">
+        <option value="Cash Refund">Cash Refund — Pay immediately</option>
+        <option value="Bank Refund">Bank / Online Refund — Pay immediately</option>
+        <option value="Customer Credit">Customer Credit — keep amount as credit</option>
+        <option value="Refund Due">Refund Due — amount payable to customer later</option>
+        <option value="Receivable Adjustment">Receivable Adjustment — reduce customer's outstanding balance</option>
+      </select></div>
+      <div class="field"><label>Returned Stock</label><select class="inp" id="rStockMode">
+        <option value="Restock">Restock — add returned goods to inventory</option>
+        <option value="Damaged Stock">Damaged Stock — record separately from saleable stock</option>
+      </select></div>
+      <div class="field"><label>Reason</label><input class="inp" id="rWhy" placeholder="Damaged, wrong item, defective..."></div>
+    </div>
+    <div id="returnPreview" class="success" style="margin-top:14px;display:none"></div>
+    <div class="form-actions"><button class="btn" type="submit"><i class="fa-solid fa-rotate-left"></i> Save Sales Return</button>
+      <button class="btn ghost" type="button" onclick="window.__returnSaleId='';SALES_TAB='history';renderPage()">Cancel</button></div>
+   </form>
+  </div>
+  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-clock-rotate-left" style="color:#f97316"></i> All Returns</h3></div>
+   ${dataTable([
+     {label:'Date',key:'date',fmt:r=>fmtDate(r.date)},
+     {label:'Return No.',key:'voucher'},
+     {label:'Original Invoice',val:r=>r.originalVoucher||'—'},
+     {label:'Customer',val:r=>pname(r.partyId)},
+     {label:'Items',val:r=>(r.items||[]).map(i=>i.name+' ×'+i.qty).join(', ')},
+     {label:'Amount',align:'right',val:r=>r.credit,fmt:r=>money(r.credit)},
+     {label:'Refund',key:'refundMode',fmt:r=>`<span class="chip ${r.refundMode==='Cash Refund'?'g':'b'}">${esc(r.refundMode||'Credit Adjustment')}</span>`},
+     {label:'',sortable:false,fmt:r=>`<button class="act" onclick="viewTxn('${r.id}')"><i class="fa-regular fa-eye"></i></button><button class="act d" onclick="delTxn('${r.id}')"><i class="fa-solid fa-trash"></i></button>`}
+   ],DB.txns.filter(t=>t.type==='return-in').sort((a,b)=>b.date.localeCompare(a.date)),{ph:'Search returns...',empty:'No sales returns yet.'})}</div>`;
+  if(selectedId)setTimeout(loadReturnInvoice,0);
+}
+function loadReturnInvoice(){
+  const id=$('rSale')?.value;
+  const s=DB.txns.find(x=>x.id===id&&x.type==='sale');
+  if(!$('rProd'))return;
+  $('rPartyName').value=s?pname(s.partyId):'';
+  if(!s){
+    $('rProd').innerHTML='<option value="">— Select sales invoice first —</option>';
+    $('rSoldQty').value=0;$('rAlready').value=0;$('rQty').value=0;$('rRate').value=0;$('rNetQty').value=0;
+    $('returnPreview').style.display='none';return;
+  }
+  const items=(s.items||[]).filter(i=>num(i.qty)>0);
+  $('rProd').innerHTML='<option value="">— Select item —</option>'+items.map((i,idx)=>`<option value="${esc(i.productId)}" data-index="${idx}">${esc(i.name)} — sold ${num(i.qty)}</option>`).join('');
+  if(items.length){
+    const target=window.__returnProductId||items[0].productId;
+    $('rProd').value=target;
+    returnProductPick();
+  }
+  window.__returnSaleId=id;
+}
+function returnedQtyFor(saleId,productId){
+  return DB.txns.filter(t=>t.type==='return-in'&&t.linkedSaleId===saleId)
+    .reduce((n,t)=>n+(t.items||[]).filter(i=>i.productId===productId).reduce((m,i)=>m+num(i.qty),0),0);
+}
+function returnProductPick(){
+  const sale=DB.txns.find(x=>x.id===($('rSale')?.value||'')&&x.type==='sale');
+  if(!sale)return;
+  const item=(sale.items||[]).find(i=>i.productId===($('rProd')?.value||''));
+  if(!item)return;
+  const already=returnedQtyFor(sale.id,item.productId),remaining=Math.max(0,num(item.qty)-already);
+  $('rSoldQty').value=num(item.qty);$('rAlready').value=already;$('rQty').max=remaining||0;$('rQty').value=remaining>0?1:0;$('rRate').value=num(item.rate);$('rNetQty').value=Math.max(0,num(item.qty)-already);
+  const amount=remaining>0?num(item.rate):0;
+  $('returnPreview').style.display='block';
+  $('returnPreview').innerHTML=remaining>0
+    ? `<b>Original sale:</b> ${num(item.qty)} ${esc(item.name)} · <b>Already returned:</b> ${already} · <b>Remaining:</b> ${remaining} · <b>Net sold after this return:</b> ${Math.max(0,num(item.qty)-already-1)} · Return value per unit ${money(item.rate)}`
+    : `<b>Already fully returned.</b> Original ${num(item.qty)} ${esc(item.name)} · Returned ${already} · Net sold 0. No quantity remains.`;
+}
+function updateReturnPreview(){
+  const sale=DB.txns.find(x=>x.id===($('rSale')?.value||'')&&x.type==='sale');
+  const prodId=$('rProd')?.value||'';
+  const item=sale&&(sale.items||[]).find(i=>i.productId===prodId);
+  if(!item||!$('rNetQty'))return;
+  const already=returnedQtyFor(sale.id,prodId),q=Math.max(0,num($('rQty').value));
+  $('rNetQty').value=Math.max(0,num(item.qty)-already-q);
+  const amount=q*num(item.rate);
+  if($('returnPreview')) $('returnPreview').innerHTML=`<b>Original sale:</b> ${num(item.qty)} ${esc(item.name)} · <b>Already returned:</b> ${already} · <b>This return:</b> ${q} · <b>Net sold after return:</b> ${Math.max(0,num(item.qty)-already-q)} · <b>Return amount:</b> ${money(amount)}`;
 }
 function saveReturn(e){
   e.preventDefault();
-  const type=$('rType').value,pid=$('rParty').value,prod=DB.products.find(x=>x.id===$('rProd').value),q=num($('rQty').value),r=num($('rRate').value);
-  if(!pid||!prod||q<=0)return toast('Select party, product and valid quantity','err');
-  const amt=q*r,sales=type==='sales';
-  if(!sales&&q>num(prod.stock))return toast('Not enough stock to return','err');
-  DB.txns.push({id:uid(),date:$('rDate').value||today(),type:sales?'return-in':'return-out',voucher:nextVoucher(sales?'SRN-':'PRN-'),
-    partyId:pid,desc:(sales?'Sales return — ':'Purchase return — ')+prod.name+' x'+q+($('rWhy').value?' ('+$('rWhy').value+')':''),
-    debit:sales?0:amt,credit:sales?amt:0,mode:'Adjustment',items:[{productId:prod.id,name:prod.name,qty:q,rate:r}],attachments:[]});
-  adjustStock(prod.id,sales?q:-q);
-  save();renderPage();toast('Return saved · stock updated','ok');
+  const sale=DB.txns.find(x=>x.id===$('rSale').value&&x.type==='sale');
+  const prodId=$('rProd').value;
+  const item=sale&&(sale.items||[]).find(i=>i.productId===prodId);
+  const q=num($('rQty').value), rate=num($('rRate').value);
+  if(!sale||!item||q<=0)return toast('Select the original sales invoice and product, then enter a valid return quantity','err');
+  const already=returnedQtyFor(sale.id,prodId),originalQty=num(item.qty),remaining=originalQty-already;
+  if(q>remaining)return toast('Only '+remaining+' unit(s) remain available to return from the original '+originalQty+' sold.','err','Return quantity exceeded');
+  const amount=q*rate;
+  const refund=$('rRefund').value;
+  const stockMode=$('rStockMode').value;
+  const ret={id:uid(),date:$('rDate').value||today(),type:'return-in',voucher:nextVoucher('SRN-'),
+    partyId:sale.partyId,originalVoucher:sale.voucher,linkedSaleId:sale.id,
+    originalQty:originalQty,alreadyReturnedBefore:already,returnedQty:q,netQty:Math.max(0,originalQty-already-q),
+    desc:'Sales return — '+item.name+' x'+q+($('rWhy').value.trim()?' ('+$('rWhy').value.trim()+')':''),
+    debit:0,credit:amount,mode:refund,refundMode:refund,stockMode:stockMode,
+    items:[{productId:item.productId,name:item.name,qty:q,rate:rate}],attachments:[]};
+  DB.txns.push(ret);
+
+  // Settlement behavior:
+  // - Cash/Bank: immediate money out to customer.
+  // - Customer Credit: customer gets a credit balance to use later.
+  // - Refund Due: amount becomes payable to the customer later.
+  // - Receivable Adjustment: reduce customer's outstanding receivable.
+  if(refund==='Cash Refund' || refund==='Bank Refund'){
+    DB.txns.push({id:uid(),date:ret.date,type:'refund',voucher:nextVoucher('REF-'),partyId:sale.partyId,
+      desc:(refund==='Cash Refund'?'Cash':'Bank / Online')+' refund against '+ret.voucher+' / '+sale.voucher,
+      debit:amount,credit:0,mode:refund==='Cash Refund'?'Cash':'Bank / Online',items:[{productId:item.productId,name:item.name,qty:q,rate:rate}],attachments:[],linkedReturnId:ret.id});
+  }else if(refund==='Refund Due'){
+    DB.txns.push({id:uid(),date:ret.date,type:'refund-due',voucher:nextVoucher('RFD-'),partyId:sale.partyId,
+      desc:'Refund due to customer against '+ret.voucher+' / '+sale.voucher,debit:amount,credit:0,mode:'Refund Due',
+      items:[{productId:item.productId,name:item.name,qty:q,rate:rate}],attachments:[],linkedReturnId:ret.id});
+  }
+
+  // Returned goods go back to inventory. Damaged Stock is tracked as a separate non-saleable quantity.
+  if(stockMode==='Restock') adjustStock(prodId,q);
+  else adjustDamagedStock(prodId,q);
+
+  window.__returnSaleId='';window.__returnProductId='';
+  save();SALES_TAB='returns';renderPage();
+  toast(item.name+' ×'+q+' returned · '+money(amount)+' · original '+originalQty+' → net '+Math.max(0,originalQty-already-q)+' · '+refund,'ok','Sales return saved');
 }
 
 /* ---------- ADJUSTMENT ---------- */
+
 function pgAdjust(v){
   v.innerHTML=`
   <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-sliders" style="color:#22d3ee"></i> Stock Adjustment</h3></div>
@@ -1515,7 +1728,18 @@ function pgSettings(v){
      <button class="btn ghost" onclick="loadSample()"><i class="fa-solid fa-wand-magic-sparkles"></i> Load sample data</button>
      <button class="btn danger" onclick="wipe()"><i class="fa-solid fa-trash"></i> Reset workspace</button>
    </div></div>
-  <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-database" style="color:var(--accent)"></i> Workspace Stats</h3></div>
+  ${ME.role===ROLE_ADMIN?`<div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-user-shield" style="color:var(--accent)"></i> User Management</h3><div class="spacer"></div><span class="chip b">Admin only</span></div>
+<form onsubmit="adminCreateUser(event)"><div class="form-grid">
+<div class="field"><label>Full Name <span>*</span></label><input class="inp" id="admName" placeholder="Sales staff name"></div>
+<div class="field"><label>Email <span>*</span></label><input class="inp" id="admEmail" type="email" placeholder="staff@example.com"></div>
+<div class="field"><label>Temporary Password <span>*</span></label><input class="inp" id="admPass" type="password" placeholder="Min 6 characters"></div>
+<div class="field"><label>Role</label><select class="inp" id="admRole"><option value="${ROLE_SALES}">${ROLE_SALES}</option><option value="${ROLE_USER}">${ROLE_USER}</option><option value="${ROLE_ADMIN}">${ROLE_ADMIN}</option></select></div>
+</div><div class="form-actions"><button class="btn green"><i class="fa-solid fa-user-plus"></i> Create User Account</button></div></form>
+<div class="tbl-scroll" style="margin-top:16px"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Created</th><th>Actions</th></tr></thead><tbody>
+${users().map(u=>`<tr><td>${esc(u.name||'—')}</td><td>${esc(u.email)}</td><td><span class="chip ${u.role===ROLE_ADMIN?'g':u.role===ROLE_SALES?'b':'o'}">${esc(u.role||ROLE_USER)}</span></td><td>${u.created?fmtDate(String(u.created).slice(0,10)):'—'}</td><td>${u.email===ME.email?'<span class="muted">Current account</span>':`<button class="act d" title="Delete user" onclick="adminDeleteUser('${esc(u.email)}')"><i class="fa-solid fa-trash"></i></button>`}</td></tr>`).join('')}
+</tbody></table></div><p class="muted" style="margin-top:10px">Sales Staff accounts can access only the Sales System. Admin can create and remove staff accounts.</p>
+</div>`:''}
+<div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-database" style="color:var(--accent)"></i> Workspace Stats</h3></div>
    <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr))">
      <div class="card" style="box-shadow:none"><div class="lbl">Parties</div><div class="val" style="font-size:20px">${DB.customers.length}</div></div>
      <div class="card" style="box-shadow:none"><div class="lbl">Products</div><div class="val" style="font-size:20px">${DB.products.length}</div></div>
@@ -1530,10 +1754,29 @@ function saveSettings(){
 }
 function changePass(){
   const o=$('stOld').value,n=$('stNew').value;
-  if(hash(o)!==ME.pass)return toast('Current password is incorrect','err');
+  if(o!==ME.password)return toast('Current password is incorrect','err');
   if(n.length<6)return toast('New password must be at least 6 characters','err');
-  const us=users(),u=us.find(x=>x.email===ME.email);u.pass=hash(n);saveUsers(us);ME=u;
+  const us=users(),u=us.find(x=>x.email===ME.email);u.password=n;saveUsers(us);ME=u;
   $('stOld').value='';$('stNew').value='';toast('Password updated','ok');
+}
+function adminCreateUser(e){
+  e.preventDefault();
+  if(ME.role!==ROLE_ADMIN)return toast('Only an admin can create user accounts.','err','Access denied');
+  const n=$('admName').value.trim(),em=$('admEmail').value.trim().toLowerCase(),pw=$('admPass').value,role=$('admRole').value;
+  if(!n||!validEmail(em)||pw.length<6)return toast('Enter name, valid email and a password of at least 6 characters.','err','Validation failed');
+  const us=users();
+  if(us.some(u=>u.email===em))return toast('This email is already registered.','err','Account exists');
+  us.push({email:em,name:n,biz:ME.biz,created:new Date().toISOString(),password:pw,role});
+  saveUsers(us);seedUser(em,ME.biz);
+  $('admName').value='';$('admEmail').value='';$('admPass').value='';
+  renderPage();toast(em+' created as '+role+'.','ok','User account created');
+}
+function adminDeleteUser(email){
+  if(ME.role!==ROLE_ADMIN)return toast('Only an admin can remove users.','err','Access denied');
+  if(email===ME.email)return toast('You cannot delete your own admin account here.','err');
+  if(!confirm('Delete user '+email+'? Their login account and local workspace data will be removed from this browser.'))return;
+  saveUsers(users().filter(u=>u.email!==email));localStorage.removeItem(KEY(email));
+  renderPage();toast('User '+email+' deleted.','ok','User removed');
 }
 function exportData(){
   const blob=new Blob([JSON.stringify({user:ME.email,data:DB},null,2)],{type:'application/json'});
@@ -1556,12 +1799,512 @@ function wipe(){if(!confirm('Delete ALL data in this workspace? This cannot be u
     $('themeIco').className='fa-solid fa-sun';
   }
 
-  // Firebase is the authentication source of truth.
+  // Local demo authentication is the current authentication source.
   // Existing workspace data remains in the current local per-email storage model.
-  if(!firebaseReady){
-    console.warn('Firebase Auth is not configured. Add firebaseConfig values before using Login/Sign Up.');
+  ensureDemoAccount();
+  const session=localStorage.getItem(SESS);
+  if(session){
+    const u=users().find(x=>x.email===session);
+    if(u){
+      if(!u.role){u.role=u.email===DEMO_EMAIL?ROLE_ADMIN:ROLE_USER;saveUsers(users());}
+      ME=u;DB=loadDB(session);
+      $('auth').style.display='none';$('app').classList.add('on');$('workDate').value=today();
+      buildNav();paintUser();go(allowedPages()[0]?.id||'sales');
+    }else localStorage.removeItem(SESS);
   }
 })();
 </script>
+
+
+<style>
+/* ===== Dashboard compact cards + Order marketplace UX ===== */
+.cards{grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px;margin-bottom:18px}
+.cards .card{padding:14px;border-radius:13px}
+.cards .card .val{font-size:22px;margin-top:8px}
+.cards .card .sub{font-size:11px;line-height:1.35;margin-top:5px}
+.cards .card .lbl{font-size:10px}
+.order-filter-grid{display:grid;grid-template-columns:1fr 1fr 120px auto;gap:12px;align-items:end}
+.order-info-box{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:10px;margin-top:10px}
+.order-notify{border:1px solid #f5d08a;background:color-mix(in srgb,var(--orange) 9%,var(--panel));border-radius:12px;padding:14px}
+@media(max-width:850px){.order-filter-grid{grid-template-columns:1fr 1fr}.order-filter-grid .order-action{grid-column:1/-1}}
+</style>
+<style>
+/* ===== FINAL ENHANCEMENTS: USER MANAGEMENT / AVATARS / ORDERS ===== */
+.avatar-img{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block}.avatar-top{overflow:hidden}.avat{overflow:hidden}.profile-photo{width:84px;height:84px;border-radius:20px;overflow:hidden;background:linear-gradient(140deg,#3b82f6,#1d4ed8);color:#fff;display:grid;place-items:center;font-weight:800;font-size:28px}.user-row-avatar{width:36px;height:36px;border-radius:50%;overflow:hidden;background:linear-gradient(140deg,#3b82f6,#1d4ed8);color:#fff;display:grid;place-items:center;font-weight:700;flex:0 0 auto}.user-cell{display:flex;align-items:center;gap:10px}.order-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}.goods-card{border:1px solid var(--border);border-radius:14px;padding:16px;background:var(--panel)}.goods-card h4{font-size:16px;margin-bottom:6px}.goods-price{font-size:19px;font-weight:800;color:var(--accent)}.status{display:inline-flex;align-items:center;padding:5px 9px;border-radius:20px;font-size:11px;font-weight:800}.status.pending{background:#fef3c7;color:#92400e}.status.accepted{background:#dcfce7;color:#166534}.status.rejected{background:#ffe4e6;color:#9f1239}.status.ready{background:#cffafe;color:#155e75}.status.dispatched{background:#e2e8f0;color:#334155}.mini-step{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border)}.mini-step:last-child{border-bottom:0}.mini-step .dot{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:11px;flex:0 0 auto}.perm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.perm-box{border:1px solid var(--border);border-radius:10px;padding:10px;background:var(--panel2)}
+.party-summary-card{min-width:0}.party-mini-table{margin:5px 0 0;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--panel2)}.party-mini-head,.party-mini-row{display:grid;grid-template-columns:1fr 1fr;text-align:center}.party-mini-head{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border)}.party-mini-head span,.party-mini-row b{padding:4px 6px}.party-mini-head span+span,.party-mini-row b+b{border-left:1px solid var(--border)}.party-mini-row{font-size:16px}.party-mini-row b:first-child{color:#38bdf8}.party-mini-row b:last-child{color:#f59e0b}
+</style>
+<script>
+/* ===== FINAL DEMO LAYER ===== */
+(function(){
+  const oldSeedUser=seedUser;
+  // Additional roles
+  window.ROLE_ACCOUNT='Account Staff';
+  window.ROLE_INVENTORY='Inventory Staff';
+  window.ROLE_PURCHASE='Purchase Staff';
+  window.ROLE_SUPPLIER='Supplier';
+  window.ROLE_CUSTOMER='Customer';
+  window.ORDERS_KEY='dn_market_orders_v1';
+  window.GOODS_KEY='dn_market_goods_v1';
+  window.getOrders=()=>JSON.parse(localStorage.getItem(ORDERS_KEY)||'[]');
+  window.saveOrders=a=>localStorage.setItem(ORDERS_KEY,JSON.stringify(a));
+  window.getGoods=()=>JSON.parse(localStorage.getItem(GOODS_KEY)||'[]');
+  window.saveGoods=a=>localStorage.setItem(GOODS_KEY,JSON.stringify(a));
+  window.photoOf=u=>(u&&u.photo)||'';
+  window.avatarMarkup=(u,cls='')=>{const ini=((u&&u.name)||'D').trim()[0]?.toUpperCase()||'D';return photoOf(u)?`<img class="avatar-img ${cls}" src="${photoOf(u)}" alt="Profile">`:ini;};
+  window.allUsers=()=>users();
+
+  // Add navigation modules.
+  if(!PAGES.some(p=>p.id==='orders'))PAGES.splice(6,0,{id:'orders',label:'Orders & Goods',icon:'fa-box-open',color:'#22c55e'});
+  if(!PAGES.some(p=>p.id==='administration'))PAGES.push({id:'administration',label:'Administration',icon:'fa-user-shield',color:'#a78bfa'});
+
+  function rolePages(){
+    if(!ME)return [];
+    const r=ME.role||ROLE_USER;
+    if(r===ROLE_ADMIN||r===ROLE_USER)return PAGES.slice();
+    if(r===ROLE_SALES)return PAGES.filter(p=>['sales'].includes(p.id));
+    if(r===ROLE_ACCOUNT)return PAGES.filter(p=>['dashboard','ledger','receipt','paid','reports'].includes(p.id));
+    if(r===ROLE_INVENTORY)return PAGES.filter(p=>['dashboard','products','orders'].includes(p.id));
+    if(r===ROLE_PURCHASE)return PAGES.filter(p=>['dashboard','purchases','products'].includes(p.id));
+    if(r===ROLE_SUPPLIER)return PAGES.filter(p=>['dashboard','orders'].includes(p.id));
+    if(r===ROLE_CUSTOMER)return PAGES.filter(p=>['dashboard','orders'].includes(p.id));
+    return PAGES.slice();
+  }
+  allowedPages=rolePages;
+  canAccess=function(id){return allowedPages().some(p=>p.id===id)};
+  buildNav=function(){
+    $('nav').innerHTML=allowedPages().map(p=>`<a data-p="${p.id}" onclick="go('${p.id}')"><i class="fa-solid ${p.icon}" style="color:${p.color}"></i>${p.label}</a>`).join('');
+  };
+  renderPage=function(){
+    paintBell(); const v=$('view');
+    const map={dashboard:pgDashboard,customers:pgCustomers,ledger:pgLedger,products:pgProducts,sales:pgSales,purchases:pgPurchases,receipt:pgReceipt,paid:pgPaid,returns:pgReturns,adjustment:pgAdjust,reports:pgReports,settings:pgSettings,orders:pgOrders,administration:pgAdministration};
+    const fn=map[CUR]||pgDashboard; fn(v);
+  };
+  go=function(id){
+    if(!canAccess(id)){const first=allowedPages()[0];if(first&&first.id!==id)return go(first.id);return toast('Your role does not have access to this module.','warn','Access restricted')}
+    CUR=id;document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('active',a.dataset.p===id));
+    const pp=PAGES.find(p=>p.id===id);$('pageTitle').textContent=pp?pp.label:'Dashboard';
+    if(window.innerWidth<981){$('sidebar').classList.remove('open');$('backdrop').classList.remove('on')}
+    renderPage();window.scrollTo({top:0,behavior:'smooth'});
+  };
+
+  // Seed a useful sample order marketplace if empty.
+  function seedMarketplace(){
+    // Create demo supplier/customer accounts so the marketplace can be tested
+    // immediately without SQL.
+    let us=users();
+    
+    demoUsers.forEach(u=>{
+      if(!us.some(x=>x.email===u.email)){
+        u.created=new Date().toISOString();saveUsers([...us,u]);us=users();seedUser(u.email,u.biz);
+      }
+    });
+    let g=getGoods();
+    const s1=us.find(u=>u.email==='supplier1@diary.np');
+    const s2=us.find(u=>u.email==='supplier2@diary.np');
+    const p1=loadDB(s1.email).products[0];
+    const p2=loadDB(s2.email).products[0];
+    if(s1 && p1 && !g.some(x=>x.supplierEmail===s1.email)){
+      g.push({id:'good-demo-coke-s1',supplierEmail:s1.email,supplierName:s1.name,productName:'Coca Cola',productId:p1.id,price:2400,unit:'Carton',stock:50,published:true,created:today()});
+    }
+    if(s2 && p2 && !g.some(x=>x.supplierEmail===s2.email)){
+      g.push({id:'good-demo-pepsi-s2',supplierEmail:s2.email,supplierName:s2.name,productName:'Pepsi',productId:p2.id,price:2300,unit:'Carton',stock:40,published:true,created:today()});
+    }
+    saveGoods(g);
+  }
+  seedMarketplace();
+
+  // Profile image rendering.
+  paintUser=function(){
+    if(!ME)return; const ini=(ME.name||ME.email)[0].toUpperCase();
+    $('sbName').textContent=ME.name;$('sfBiz').textContent=ME.biz;$('sfEmail').textContent=ME.email;$('sbRole').textContent=(ME.role||ROLE_USER).toUpperCase();
+    $('sfAvatar').innerHTML=avatarMarkup(ME);$('topAvatar').innerHTML=avatarMarkup(ME);$('ddName').textContent=ME.name;$('ddEmail').textContent=ME.email;
+  };
+
+  // Admin User Management: roles + profile photo + activation.
+  pgAdministration=function(v){
+    if(ME.role!==ROLE_ADMIN){v.innerHTML='<div class="panel"><h3>Access restricted</h3><p class="muted" style="margin-top:8px">Only an Administrator can manage users.</p></div>';return;}
+    const us=users();
+    v.innerHTML=`
+    <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-users-gear" style="color:var(--accent)"></i> User Management</h3><div class="spacer"></div><button class="btn" onclick="openAddUser()"><i class="fa-solid fa-user-plus"></i> Add User</button></div>
+      <p class="muted" style="margin-bottom:16px">Create users, assign roles, activate/deactivate accounts and manage profile photos.</p>
+      <div class="tbl-scroll"><table><thead><tr><th>User</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+      ${us.map(u=>{const active=u.active!==false;return `<tr><td><div class="user-cell"><div class="user-row-avatar">${avatarMarkup(u)}</div><div><b>${esc(u.name||'—')}</b><div class="muted" style="font-size:11px">${esc(u.biz||'')}</div></div></div></td><td>${esc(u.email)}</td><td><span class="chip b">${esc(u.role||ROLE_USER)}</span></td><td><span class="chip ${active?'g':'r'}">${active?'Active':'Inactive'}</span></td><td>${u.email===ME.email?'<span class="muted">Current Admin</span>':`<button class="act" title="Edit user" onclick="openEditUser('${esc(u.email)}')"><i class="fa-solid fa-pen"></i></button><button class="act" title="Activate/Deactivate" onclick="toggleUserActive('${esc(u.email)}')"><i class="fa-solid fa-user-${active?'slash':'check'}"></i></button><button class="act d" title="Delete user" onclick="deleteManagedUser('${esc(u.email)}')"><i class="fa-solid fa-trash"></i></button>`}</td></tr>`}).join('')}
+      </tbody></table></div></div>
+    <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-shield-halved" style="color:var(--green)"></i> Role & Permission Guide</h3></div>
+      <div class="perm-grid">
+       <div class="perm-box"><b>Administrator</b><p class="muted">All modules + user management</p></div>
+       <div class="perm-box"><b>Sales Staff</b><p class="muted">Sales only</p></div>
+       <div class="perm-box"><b>Account Staff</b><p class="muted">Ledger, payments & reports</p></div>
+       <div class="perm-box"><b>Inventory Staff</b><p class="muted">Products, stock & orders</p></div>
+       <div class="perm-box"><b>Purchase Staff</b><p class="muted">Purchases & inventory</p></div>
+       <div class="perm-box"><b>Supplier</b><p class="muted">Publish goods & receive customer orders</p></div>
+       <div class="perm-box"><b>Customer</b><p class="muted">Browse goods & place orders</p></div>
+      </div></div>`;
+  };
+
+  openAddUser=function(){openUserModal(null)};
+  openEditUser=function(email){const u=users().find(x=>x.email===email);if(u)openUserModal(u)};
+  openUserModal=function(u){
+    const edit=!!u;
+    const roles=[ROLE_ADMIN,ROLE_SALES,ROLE_ACCOUNT,ROLE_INVENTORY,ROLE_PURCHASE,ROLE_SUPPLIER,ROLE_CUSTOMER,ROLE_USER];
+    modal(`<i class="fa-solid fa-user-plus" style="color:var(--accent)"></i> ${edit?'Edit User':'Add User'}`,`
+      <form onsubmit="saveManagedUser(event,'${edit?esc(u.email):''}')">
+      <div class="form-grid"><div class="field"><label>Full Name <span>*</span></label><input class="inp" id="muName" value="${esc(u?.name||'')}"></div>
+      <div class="field"><label>Email <span>*</span></label><input class="inp" id="muEmail" type="email" value="${esc(u?.email||'')}" ${edit?'disabled':''}></div>
+      <div class="field"><label>Role <span>*</span></label><select class="inp" id="muRole">${roles.map(r=>`<option ${r===(u?.role||ROLE_USER)?'selected':''}>${r}</option>`).join('')}</select></div>
+      <div class="field"><label>${edit?'New Password (optional)':'Password *'}</label><input class="inp" id="muPass" type="password" placeholder="${edit?'Leave blank to keep current':'Minimum 6 characters'}"></div></div>
+      <div class="field"><label>Profile Photo</label><div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><div class="profile-photo" id="muPhotoPreview">${avatarMarkup(u||{})}</div><div><input id="muPhoto" type="file" accept="image/*" onchange="previewManagedPhoto(this)"><p class="muted" style="margin-top:7px">Upload JPG/PNG/WebP. This photo appears in the sidebar and top profile.</p></div></div></div>
+      <div class="form-actions"><button class="btn green"><i class="fa-solid fa-floppy-disk"></i> ${edit?'Save Changes':'Create User'}</button><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button></div></form>`,'700px');
+  };
+  window.previewManagedPhoto=function(inp){const f=inp.files?.[0];if(!f)return;const r=new FileReader();r.onload=()=>{$('muPhotoPreview').innerHTML=`<img class="avatar-img" src="${r.result}" alt="Preview">`;};r.readAsDataURL(f)};
+  window.saveManagedUser=function(e,oldEmail){e.preventDefault();if(ME.role!==ROLE_ADMIN)return toast('Only Admin can manage users','err');const n=$('muName').value.trim(),em=(oldEmail||$('muEmail').value.trim()).toLowerCase(),role=$('muRole').value,p=$('muPass').value;if(!n||!validEmail(em)||(!oldEmail&&p.length<6)||(p&&p.length<6))return toast('Enter valid name, email and password.','err','Validation failed');const us=users();let u=us.find(x=>x.email===em);if(!u){if(us.some(x=>x.email===$('muEmail').value.trim().toLowerCase()))return toast('Email already exists','err');u={email:em,name:n,biz:ME.biz,created:new Date().toISOString(),password:p,role,active:true};us.push(u);seedUser(em,ME.biz)}else{u.name=n;u.role=role;if(p)u.password=p;}const f=$('muPhoto').files?.[0];if(f){const r=new FileReader();r.onload=()=>{u.photo=r.result;saveUsers(us);closeModal();renderPage();toast('User saved','ok','User Management')};r.readAsDataURL(f);return;}saveUsers(us);closeModal();renderPage();toast((oldEmail?'User updated':'User created')+' successfully','ok','User Management')};
+  window.toggleUserActive=function(email){const us=users(),u=us.find(x=>x.email===email);if(!u)return;u.active=u.active===false;saveUsers(us);renderPage();toast(u.active?'User activated':'User deactivated','ok')};
+  window.deleteManagedUser=function(email){if(!confirm('Delete this user account and local workspace data?'))return;saveUsers(users().filter(u=>u.email!==email));localStorage.removeItem(KEY(email));renderPage();toast('User deleted','ok')};
+
+  // Orders & Goods module.
+  pgOrders=function(v){
+    const r=ME.role||ROLE_USER;
+    if(r===ROLE_CUSTOMER){
+      // Customer must first choose a supplier. Suppliers come from User Management,
+      // not only from currently published goods, so the customer can clearly choose
+      // WHO to order from.
+      const supplierUsers=users().filter(u=>u.role===ROLE_SUPPLIER && u.active!==false);
+      const allGoods=getGoods().filter(g=>g.published!==false&&Number(g.stock)>0);
+      const mine=getOrders().filter(o=>o.customerEmail===ME.email).sort((a,b)=>b.created.localeCompare(a.created));
+      v.innerHTML=`<div class="panel">
+        <div class="panel-h"><h3><i class="fa-solid fa-cart-shopping" style="color:var(--green)"></i> Place Order to Supplier</h3><div class="spacer"></div><span class="chip b">Customer</span></div>
+        <p class="muted">पहिले <b>Supplier</b> छान्नुहोस्। त्यसपछि त्यस Supplier ले publish गरेको सामानबाट Product छानेर Quantity राखी Order Request पठाउनुहोस्।</p>
+        <div class="order-filter-grid" style="margin-top:16px">
+          <div class="field"><label>Supplier <span>*</span></label>
+            <select class="inp" id="orderSupplier" onchange="loadSupplierProducts()">
+              <option value="">— Select Supplier —</option>
+              ${supplierUsers.map(x=>`<option value="${esc(x.email)}">${esc(x.name)}${x.biz?' — '+esc(x.biz):''}</option>`).join('')}
+            </select>
+          </div>
+          <div class="field"><label>Product / Goods <span>*</span></label>
+            <select class="inp" id="orderProduct" onchange="showOrderProductInfo()">
+              <option value="">— Select Supplier first —</option>
+            </select>
+          </div>
+          <div class="field"><label>Quantity <span>*</span></label><input class="inp" id="orderQty" type="number" min="1" value="1"></div>
+          <div class="field order-action"><button class="btn green" style="width:100%" onclick="requestSelectedGoods()"><i class="fa-solid fa-paper-plane"></i> Send Order Request</button></div>
+        </div>
+        <div id="orderProductInfo" class="order-info-box muted">Select a supplier to see that supplier's published goods.</div>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><h3><i class="fa-solid fa-building-user" style="color:var(--accent)"></i> Available Suppliers</h3><div class="spacer"></div><span class="chip b">${supplierUsers.length} Suppliers</span></div>
+        ${supplierUsers.length?`<div class="tbl-scroll"><table><thead><tr><th>Supplier</th><th>Business</th><th>Published Goods</th><th>Action</th></tr></thead><tbody>
+        ${supplierUsers.map(s=>{
+          const count=allGoods.filter(g=>g.supplierEmail===s.email).length;
+          return `<tr><td><b>${esc(s.name)}</b></td><td>${esc(s.biz||'—')}</td><td>${count}</td><td><button class="btn sm" onclick="selectSupplier('${esc(s.email)}')"><i class="fa-solid fa-hand-pointer"></i> Select Supplier</button></td></tr>`;
+        }).join('')}
+        </tbody></table></div>`:'<p class="muted">No active suppliers have been created yet. Admin can create suppliers from Administration → User Management.</p>'}
+      </div>
+      <div class="panel">
+        <div class="panel-h"><h3><i class="fa-solid fa-clock-rotate-left" style="color:var(--accent)"></i> My Orders</h3><div class="spacer"></div><span class="chip b">${mine.length} Orders</span></div>
+        ${renderCustomerOrders(mine)}
+      </div>`;
+    } else if(r===ROLE_SUPPLIER||r===ROLE_ADMIN||r===ROLE_INVENTORY||r===ROLE_USER){
+      const myGoods=getGoods().filter(g=>r===ROLE_ADMIN||r===ROLE_USER||g.supplierEmail===ME.email);
+      const incoming=getOrders().filter(o=>r===ROLE_ADMIN||r===ROLE_USER||o.supplierEmail===ME.email).sort((a,b)=>b.created.localeCompare(a.created));
+      const mineDb=loadDB(ME.email);
+      const productOpts=mineDb.products.map(p=>`<option value="${p.id}">${esc(p.name)} (stock ${p.stock})</option>`).join('');
+      v.innerHTML=`<div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-box-open" style="color:var(--green)"></i> Publish Goods</h3><div class="spacer"></div><span class="chip g">Supplier Marketplace</span></div><div class="form-grid"><div class="field"><label>Product</label><select class="inp" id="pubProd"><option value="">Select product</option>${productOpts}</select></div><div class="field"><label>Price</label><input class="inp" id="pubPrice" type="number" step="0.01" placeholder="Selling price"></div><div class="field"><label>Unit</label><input class="inp" id="pubUnit" value="Carton"></div><div class="field"><label>Publish Stock</label><input class="inp" id="pubStock" type="number" min="1" value="1"></div></div><div class="form-actions"><button class="btn green" onclick="publishGoods()"><i class="fa-solid fa-bullhorn"></i> Publish Goods</button></div></div>
+      <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-boxes-stacked" style="color:var(--accent)"></i> Published Goods</h3></div>${myGoods.length?`<div class="tbl-scroll"><table><thead><tr><th>Goods</th><th>Supplier</th><th>Price</th><th>Available</th><th>Status</th></tr></thead><tbody>${myGoods.map(g=>`<tr><td><b>${esc(g.productName)}</b></td><td>${esc(g.supplierName)}</td><td>${money(g.price)} / ${esc(g.unit)}</td><td>${g.stock}</td><td><span class="chip g">Published</span></td></tr>`).join('')}</tbody></table></div>`:'<p class="muted">No goods published yet.</p>'}</div>
+      <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-bell" style="color:var(--orange)"></i> Incoming Order Requests</h3><span class="chip o">${incoming.filter(o=>o.status==='Pending').length} Pending</span></div>${renderSupplierOrders(incoming)}</div>`;
+    } else {v.innerHTML='<div class="panel"><h3>Orders & Goods</h3><p class="muted" style="margin-top:8px">Your role does not have order access.</p></div>'}
+  };
+  window.selectSupplier=function(email){
+    const sel=$('orderSupplier'); if(!sel)return;
+    sel.value=email; loadSupplierProducts();
+    $('orderProduct')?.focus();
+  };
+  function renderCustomerOrders(rows){if(!rows.length)return '<p class="muted">No orders yet.</p>';return rows.map(o=>`<div class="order-card panel" style="box-shadow:none;margin-bottom:12px"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><b>Order #${esc(o.id)}</b><div class="muted">Supplier: ${esc(o.supplierName)} · ${fmtDate(o.created.slice(0,10))}</div></div><span class="status ${o.status.toLowerCase()}">${esc(o.status)}</span></div><p style="margin-top:10px">${esc(o.productName)} × <b>${o.qty} ${esc(o.unit)}</b> — ${money(o.qty*o.price)}</p></div>`).join('')}
+  function renderSupplierOrders(rows){if(!rows.length)return '<p class="muted">No incoming order requests.</p>';return rows.map(o=>`<div class="panel" style="box-shadow:none;border-style:dashed;margin-bottom:12px"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><b>🔔 ${esc(o.customerName)}</b><div class="muted">Order #${esc(o.id)} · ${fmtDate(o.created.slice(0,10))}</div></div><span class="status ${o.status.toLowerCase()}">${esc(o.status)}</span></div><p style="margin:12px 0"><b>${esc(o.productName)}</b> × <b>${o.qty} ${esc(o.unit)}</b> · ${money(o.qty*o.price)}</p><div class="form-actions" style="margin-top:0">${o.status==='Pending'?`<button class="btn green sm" onclick="acceptOrder('${o.id}')">Accept Order</button><button class="btn danger sm" onclick="rejectOrder('${o.id}')">Reject</button>`:''}${o.status==='Accepted'?`<button class="btn sm" onclick="createSaleFromOrder('${o.id}')"><i class="fa-solid fa-file-invoice"></i> Create Sales Invoice</button>`:''}${o.status==='Sales Created'?`<button class="btn green sm" onclick="setOrderStatus('${o.id}','Goods Ready')">Goods Ready</button>`:''}${o.status==='Goods Ready'?`<button class="btn ghost sm" onclick="setOrderStatus('${o.id}','Goods Dispatched')">Goods Dispatched</button>`:''}${o.status==='Goods Dispatched'?`<button class="btn green sm" onclick="setOrderStatus('${o.id}','Delivered')">Delivered</button>`:''}</div></div>`).join('')}
+  window.loadSupplierProducts=function(){
+    const supplier=$('orderSupplier')?.value;const sel=$('orderProduct');if(!sel)return;
+    const goods=getGoods().filter(g=>g.published!==false&&Number(g.stock)>0&&g.supplierEmail===supplier);
+    sel.innerHTML=goods.length?'<option value="">— Select Product —</option>'+goods.map(g=>`<option value="${g.id}">${esc(g.productName)} — ${money(g.price)} / ${esc(g.unit)} (Stock ${g.stock})</option>`).join(''):'<option value="">— This supplier has no published goods —</option>';
+    $('orderQty').value=1;showOrderProductInfo();
+  };
+  window.showOrderProductInfo=function(){
+    const gid=$('orderProduct')?.value;const box=$('orderProductInfo');if(!box)return;const g=getGoods().find(x=>x.id===gid);
+    if(!g){box.innerHTML='Select a supplier and product to see price and available stock.';return;}
+    box.innerHTML=`<b>${esc(g.productName)}</b> · ${money(g.price)} / ${esc(g.unit)} · Available: <b>${g.stock} ${esc(g.unit)}</b> · Supplier: <b>${esc(g.supplierName)}</b>`;
+  };
+  window.requestSelectedGoods=function(){
+    const gid=$('orderProduct')?.value;const g=getGoods().find(x=>x.id===gid);const q=num($('orderQty')?.value);
+    if(!g)return toast('Select a supplier and product first','err');
+    if(q<1||q>Number(g.stock))return toast('Enter a quantity within available stock','err');
+    const orders=getOrders();const id='ORD-'+String(orders.length+1).padStart(4,'0');
+    orders.push({id,goodsId:g.id,created:new Date().toISOString(),customerEmail:ME.email,customerName:ME.name,supplierEmail:g.supplierEmail,supplierName:g.supplierName,goodsId:g.id,productId:g.productId,productName:g.productName,qty:q,price:g.price,unit:g.unit,status:'Pending'});
+    saveOrders(orders);paintBell();renderPage();toast('Order request sent to '+g.supplierName,'ok','Order Requested');
+  };
+  window.publishGoods=function(){if(!['Supplier','Admin','User','Inventory Staff'].includes(ME.role))return toast('Only Supplier/Admin can publish goods','err');const p=loadDB(ME.email).products.find(x=>x.id===$('pubProd').value);const price=num($('pubPrice').value)||num(p?.selling);const stock=num($('pubStock').value);if(!p||price<=0||stock<=0)return toast('Select product and enter valid price/stock','err');const g=getGoods();g.push({id:'G'+Date.now().toString(36),supplierEmail:ME.email,supplierName:ME.name,productName:p.name,productId:p.id,price,unit:$('pubUnit').value.trim()||'Unit',stock,created:new Date().toISOString(),published:true});saveGoods(g);renderPage();toast(p.name+' published','ok','Goods Published')};
+  window.requestGoods=function(gid){const g=getGoods().find(x=>x.id===gid);const q=num($('q_'+gid)?.value);if(!g||q<1||q>g.stock)return toast('Enter a valid quantity','err');const orders=getOrders();const id='ORD-'+String(orders.length+1).padStart(4,'0');orders.push({id,created:new Date().toISOString(),customerEmail:ME.email,customerName:ME.name,supplierEmail:g.supplierEmail,supplierName:g.supplierName,productId:g.productId,productName:g.productName,qty:q,price:g.price,unit:g.unit,status:'Pending'});saveOrders(orders);renderPage();toast('Order request sent to '+g.supplierName,'ok','Order Requested')};
+  window.acceptOrder=function(id){const os=getOrders(),o=os.find(x=>x.id===id);if(!o)return;const g=getGoods().find(x=>x.id===o.goodsId)||getGoods().find(x=>x.productId===o.productId&&x.supplierEmail===o.supplierEmail);if(g&&o.qty>g.stock)return toast('Insufficient published stock','err');o.status='Accepted';o.acceptedAt=new Date().toISOString();saveOrders(os);renderPage();toast('Order accepted. Now create the sales invoice.','ok','Order Accepted')};
+  window.rejectOrder=function(id){const os=getOrders(),o=os.find(x=>x.id===id);if(!o)return;o.status='Rejected';saveOrders(os);renderPage();toast('Customer has been notified','ok','Order Rejected')};
+  window.createSaleFromOrder=function(id){const os=getOrders(),o=os.find(x=>x.id===id);if(!o)return;const target=loadDB(ME.email);DB=target;const cid=DB.customers.find(c=>c.name===o.customerName)?.id;if(!cid){DB.customers.push({id:uid(),name:o.customerName,mobile:'',type:'Customer',pan:'',vat:'',address:'',opening:0,created:today()});}const c=DB.customers.find(c=>c.name===o.customerName);const p=DB.products.find(p=>p.id===o.productId);if(!p)return toast('Product not found in supplier inventory','err');if(o.qty>num(p.stock))return toast('Not enough stock in supplier inventory','err');cart=[{productId:p.id,name:p.name,qty:o.qty,rate:o.price}];editSaleId=null;CUR='sales';buildNav();renderPage();$('sCust').value=c.id;$('sMode').value='Credit';$('sDate').value=today();$('sInv').value=nextVoucher('INV-');$('cartBox').innerHTML=cartHTML();o.status='Sales Created';o.salesDraft=true;saveOrders(os);toast('Sales invoice prepared from Order '+o.id+'. Review and Save Invoice.','ok','Order → Sales')};
+  window.setOrderStatus=function(id,status){const os=getOrders(),o=os.find(x=>x.id===id);if(!o)return;o.status=status;o.updatedAt=new Date().toISOString();saveOrders(os);renderPage();toast('Order status changed to '+status,'ok')};
+
+  // Ensure Customer/Supplier accounts created by admin get a simple workspace.
+  const oldAdminCreate=adminCreateUser;
+  // Override settings with the new Administration page; keep existing Settings for profile/security.
+  pgSettings=function(v){
+    v.innerHTML=`<div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-user-gear" style="color:#93c5fd"></i> My Profile</h3></div>
+    <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin-bottom:18px"><div class="profile-photo">${avatarMarkup(ME)}</div><div><b>${esc(ME.name)}</b><div class="muted">${esc(ME.email)} · ${esc(ME.role||ROLE_USER)}</div><button class="btn sm" style="margin-top:9px" onclick="openProfilePhoto()"><i class="fa-solid fa-camera"></i> Change Photo</button></div></div>
+    <div class="form-grid"><div class="field"><label>Full Name</label><input class="inp" id="stName" value="${esc(ME.name)}"></div><div class="field"><label>Business Name</label><input class="inp" id="stBiz" value="${esc(ME.biz)}"></div><div class="field"><label>Email</label><input class="inp" value="${esc(ME.email)}" disabled></div><div class="field"><label>Low Stock Alert</label><input class="inp" id="stLow" type="number" min="1" value="${DB.settings.lowStock}"></div></div><div class="form-actions"><button class="btn" onclick="saveSettings()">Save Profile</button></div></div>
+    <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-key" style="color:var(--green)"></i> Change Password</h3></div><div class="form-grid"><div class="field"><label>Current Password</label><input class="inp" id="stOld" type="password"></div><div class="field"><label>New Password</label><input class="inp" id="stNew" type="password" placeholder="Minimum 6 characters"></div></div><div class="form-actions"><button class="btn green" onclick="changePass()">Update Password</button><button class="btn ghost" onclick="openForgotPassword()">Forgot/Reset Password</button></div></div>
+    <div class="panel"><div class="panel-h"><h3><i class="fa-solid fa-database" style="color:var(--accent)"></i> Data Tools</h3></div><div class="form-actions"><button class="btn ghost" onclick="exportData()">Export JSON</button><button class="btn ghost" onclick="$('impFile').click()">Import JSON</button><input type="file" id="impFile" accept="application/json" hidden onchange="importData(this.files[0])"><button class="btn ghost" onclick="loadSample()">Load Sample Data</button><button class="btn danger" onclick="wipe()">Reset Workspace</button></div></div>`;
+  };
+  window.openProfilePhoto=function(){modal('<i class="fa-solid fa-camera"></i> Change Profile Photo',`<div class="field"><label>Select Photo</label><input id="profileFile" type="file" accept="image/*"></div><div class="form-actions"><button class="btn" onclick="saveProfilePhoto()">Save Photo</button></div>`,'520px')};
+  window.saveProfilePhoto=function(){const f=$('profileFile').files?.[0];if(!f)return toast('Choose an image first','err');const r=new FileReader();r.onload=()=>{const us=users(),u=us.find(x=>x.email===ME.email);u.photo=r.result;saveUsers(us);ME=u;paintUser();closeModal();renderPage();toast('Profile photo updated','ok')};r.readAsDataURL(f)};
+
+  // More complete password reset demo: reset directly from login modal, plus profile password change.
+  // Enforce inactive accounts.
+  const originalLogin=doLogin;
+  doLogin=async function(e){e.preventDefault();const em=$('lgEmail').value.trim().toLowerCase(),p=$('lgPass').value;showErr('lgEmailErr',!validEmail(em));showErr('lgPassErr',!p);if(!validEmail(em)||!p)return;ensureDemoAccount();const us=users(),u=us.find(x=>x.email===em);if(!u)return toast('No account found. Please sign up.','err','Login failed');if(u.active===false)return toast('This user account is inactive. Contact the administrator.','err','Account inactive');if(u.password!==p)return toast('Incorrect email or password.','err','Login failed');localStorage.setItem(SESS,em);ME=u;DB=loadDB(em);$('auth').style.display='none';$('app').classList.add('on');$('workDate').value=today();buildNav();paintUser();go(allowedPages()[0]?.id||'dashboard');toast('Logged in as '+ME.name,'ok','Welcome')};
+
+  // Replace topbar/sidebar labels with photo-aware elements after DOM exists.
+  if(ME)paintUser();
+  buildNav();
+  if(ME){const p=allowedPages()[0]?.id||'dashboard';if(!canAccess(CUR))CUR=p;go(CUR);}
+})();
+</script>
+
+
+<script>
+(function ensureDiaryNepalDemoLogin(){
+  const DEMO_EMAIL = 'demo@diary.np';
+  const DEMO_PASSWORD = 'demo123';
+  try {
+    let users = JSON.parse(localStorage.getItem('dn_users') || '[]');
+    if (!Array.isArray(users)) users = [];
+    let demo = users.find(u => String(u.email || '').toLowerCase() === DEMO_EMAIL);
+    if (!demo) {
+      users.push({
+        id: 'demo-admin',
+        name: 'Demo Administrator',
+        email: DEMO_EMAIL,
+        password: DEMO_PASSWORD,
+        role: 'Admin',
+        status: 'Active',
+        profilePhoto: '',
+        createdAt: new Date().toISOString()
+      });
+    } else {
+      demo.password = DEMO_PASSWORD;
+      demo.role = 'Admin';
+      demo.status = 'Active';
+      demo.name = demo.name || 'Demo Administrator';
+    }
+    localStorage.setItem('dn_users', JSON.stringify(users));
+  } catch(e) {
+    console.warn('Demo login initialization:', e);
+  }
+})();
+</script>
+
+
+<script>
+(function installDemoLoginFallback(){
+  document.addEventListener('click', function(ev){
+    const btn = ev.target.closest('button, input[type="submit"]');
+    if (!btn) return;
+    const text = (btn.innerText || btn.value || '').trim().toLowerCase();
+    if (!/login|sign in|signin/.test(text)) return;
+
+    setTimeout(function(){
+      const emailEl = document.querySelector('input[type="email"], input[name="email"], #loginEmail');
+      const passEl = document.querySelector('input[type="password"], input[name="password"], #loginPassword');
+      if (!emailEl || !passEl) return;
+      if (emailEl.value.trim().toLowerCase() !== 'demo@diary.np' || passEl.value !== 'demo123') return;
+
+      try {
+        localStorage.setItem('dn_current_user', JSON.stringify({
+          id:'demo-admin', name:'Demo Administrator',
+          email:'demo@diary.np', role:'Admin', status:'Active'
+        }));
+      } catch(e){}
+
+      // If the app exposes a common dashboard switch, use it; otherwise reload so
+      // the existing session-check logic can pick up dn_current_user.
+      const dashboard = document.querySelector('[data-page="dashboard"], #dashboard, .dashboard-page');
+      if (dashboard) {
+        document.querySelectorAll('.page, .view, main > section').forEach(x=>x.style.display='none');
+        dashboard.style.display='';
+      } else {
+        location.reload();
+      }
+    }, 150);
+  }, true);
+})();
+</script>
+
+
+<div id="paymentAgainstInvoiceModal" class="modal" style="display:none">
+  <div class="modal-box" style="max-width:760px">
+    <div class="modal-head">
+      <div>
+        <h3 style="margin:0">Payment Against Invoice</h3>
+        <div id="payInvSupplier" class="muted" style="font-size:12px;margin-top:3px"></div>
+      </div>
+      <button class="icon-btn" type="button" onclick="closePaymentAgainstInvoice()">✕</button>
+    </div>
+    <div class="payment-against-card">
+      <div class="pay-invoice-grid">
+        <div class="field"><label>Invoice No.</label><input class="inp" id="payInvNo" readonly></div>
+        <div class="field"><label>Invoice Date</label><input class="inp" id="payInvDate" readonly></div>
+        <div class="field"><label>Invoice Total</label><input class="inp" id="payInvTotal" readonly></div>
+        <div class="field"><label>Already Paid</label><input class="inp" id="payInvPaid" readonly></div>
+      </div>
+      <div class="pay-invoice-grid">
+        <div class="field"><label>Payment Amount</label><input class="inp" id="payInvAmount" type="number" min="0" step="0.01" placeholder="e.g. 100000"></div>
+        <div class="field"><label>Payment Method</label>
+          <select class="inp" id="payInvMethod">
+            <option value="Cash">Cash</option>
+            <option value="Bank">Bank</option>
+            <option value="Cheque">Cheque</option>
+            <option value="Online">Online</option>
+          </select>
+        </div>
+        <div class="field"><label>Payment Date</label><input class="inp" id="payInvPayDate" type="date"></div>
+        <div class="field"><label>Reference / Remarks</label><input class="inp" id="payInvRef" placeholder="Optional"></div>
+      </div>
+      <div id="payInvBalance" style="margin-top:10px;font-size:12px;font-weight:700"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn secondary" type="button" onclick="closePaymentAgainstInvoice()">Cancel</button>
+      <button class="btn primary" type="button" onclick="savePaymentAgainstInvoice()">Record Payment</button>
+    </div>
+  </div>
+</div>
+
+
+<script id="payment-against-invoice-js">
+(function(){
+  function arr(k){ try{const x=JSON.parse(localStorage.getItem(k)||'[]'); return Array.isArray(x)?x:[];}catch(e){return [];} }
+  function save(k,v){ localStorage.setItem(k,JSON.stringify(v)); }
+  function money(n){ return 'Rs ' + Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+  window.openPaymentAgainstInvoice = function(invoiceId){
+    const purchases = arr('dn_purchases').concat(arr('purchases'));
+    const inv = purchases.find(x => String(x.id||x.invoiceId||x._id)===String(invoiceId));
+    if(!inv){ alert('Purchase invoice not found.'); return; }
+
+    const items = inv.items || inv.purchaseItems || [];
+    const total = Number(inv.total ?? inv.grandTotal ?? inv.amount ?? 0);
+    const payments = arr('dn_supplier_payments').concat(arr('supplierPayments'));
+    const paid = payments.filter(p=>String(p.invoiceId||p.purchaseId)===String(invoiceId))
+                         .reduce((s,p)=>s+Number(p.amount||0),0);
+
+    document.getElementById('payInvSupplier').textContent = 'Supplier: ' + (inv.supplierName||inv.supplier||inv.partyName||'—');
+    document.getElementById('payInvNo').value = inv.invoiceNo||inv.billNo||inv.number||'—';
+    document.getElementById('payInvDate').value = inv.date||'';
+    document.getElementById('payInvTotal').value = money(total);
+    document.getElementById('payInvPaid').value = money(paid);
+    document.getElementById('payInvAmount').value = '';
+    document.getElementById('payInvPayDate').value = new Date().toISOString().slice(0,10);
+    document.getElementById('payInvRef').value = '';
+    document.getElementById('payInvAmount').max = Math.max(0,total-paid);
+    document.getElementById('payInvBalance').textContent = 'Outstanding: ' + money(Math.max(0,total-paid));
+    document.getElementById('paymentAgainstInvoiceModal').style.display='flex';
+    window.__paymentInvoice = {id:invoiceId,total,paid,supplier:inv.supplierName||inv.supplier||inv.partyName||'',invoiceNo:inv.invoiceNo||inv.billNo||inv.number||''};
+  };
+
+  window.closePaymentAgainstInvoice = function(){
+    const m=document.getElementById('paymentAgainstInvoiceModal');
+    if(m) m.style.display='none';
+    window.__paymentInvoice=null;
+  };
+
+  window.savePaymentAgainstInvoice = function(){
+    const ctx=window.__paymentInvoice;
+    if(!ctx){return;}
+    const amount=Number(document.getElementById('payInvAmount').value||0);
+    const remaining=Math.max(0,ctx.total-ctx.paid);
+    if(amount<=0){alert('Please enter a payment amount.');return;}
+    if(amount>remaining+0.0001){alert('Payment cannot be greater than the outstanding invoice amount.');return;}
+
+    const payment={
+      id:'SPAY-'+Date.now(),
+      invoiceId:ctx.id,
+      invoiceNo:ctx.invoiceNo,
+      supplierName:ctx.supplier,
+      amount,
+      method:document.getElementById('payInvMethod').value,
+      date:document.getElementById('payInvPayDate').value,
+      reference:document.getElementById('payInvRef').value.trim(),
+      createdAt:new Date().toISOString()
+    };
+    const current=arr('dn_supplier_payments');
+    current.push(payment);
+    save('dn_supplier_payments',current);
+
+    // Keep a compatible generic payments list if the app uses one.
+    const generic=arr('supplierPayments');
+    generic.push(payment);
+    save('supplierPayments',generic);
+
+    const newPaid=ctx.paid+amount;
+    alert('Payment recorded against invoice '+ctx.invoiceNo+'\\nAmount: '+money(amount)+'\\nRemaining: '+money(Math.max(0,ctx.total-newPaid)));
+    closePaymentAgainstInvoice();
+    if(typeof render==='function') render();
+    if(typeof renderAll==='function') renderAll();
+  };
+})();
+</script>
+
+
+<script id="clean-demo-business-data">
+(function cleanDemoBusinessDataOnce(){
+  const CLEAN_KEY = 'dn_clean_start_v1';
+  if(localStorage.getItem(CLEAN_KEY)) return;
+  const keysToClear = [
+    'dn_customers','customers','dn_suppliers','suppliers',
+    'dn_sales','sales','dn_purchases','purchases',
+    'dn_orders','orders','dn_order_items','orderItems',
+    'dn_notifications','notifications',
+    'dn_supplier_payments','supplierPayments',
+    'dn_sales_returns','salesReturns','dn_return_items','returnItems',
+    'dn_products','products','dn_inventory','inventory',
+    'dn_ledger','ledger','dn_payments','payments',
+    'dn_receivables','receivables','dn_payables','payables',
+    'dn_parties','parties','dn_goods','goods',
+    'dn_published_goods','publishedGoods'
+  ];
+  keysToClear.forEach(k => localStorage.removeItem(k));
+  localStorage.setItem(CLEAN_KEY, '1');
+})();
+</script>
+
+
+<script id="ensure-clean-demo-login">
+(function ensureCleanDemoLogin(){
+  const email='demo@diary.np', password='demo123';
+  let users=[];
+  try { users=JSON.parse(localStorage.getItem('dn_users')||'[]'); } catch(e){}
+  if(!Array.isArray(users)) users=[];
+  users = users.filter(u => String(u.email||'').toLowerCase()===email);
+  if(!users.length){
+    users=[{
+      id:'demo-admin',
+      name:'Demo Administrator',
+      email,
+      password,
+      role:'Admin',
+      status:'Active',
+      profilePhoto:'',
+      createdAt:new Date().toISOString()
+    }];
+  } else {
+    users[0].password=password;
+    users[0].role='Admin';
+    users[0].status='Active';
+  }
+  localStorage.setItem('dn_users',JSON.stringify(users));
+})();
+</script>
+
 </body>
 </html>
