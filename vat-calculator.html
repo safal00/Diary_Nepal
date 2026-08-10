@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <style>
@@ -219,8 +221,15 @@ tbody tr:hover{background:var(--panel2)}
           <input class="inp" id="lgPass" type="password" placeholder="••••••••" autocomplete="current-password">
           <div class="err-msg" id="lgPassErr">Password required</div></div>
         <button class="btn block" type="submit"><i class="fa-solid fa-right-to-bracket"></i> Login securely</button>
+        <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap">
+          <a onclick="openForgotPassword()" style="color:var(--accent);font-weight:600;cursor:pointer;font-size:12.5px">Forgot Password?</a>
+          <a onclick="resendVerification()" style="color:var(--muted);font-weight:600;cursor:pointer;font-size:12.5px">Resend Verification Email</a>
+        </div>
         <p class="muted" style="text-align:center;margin-top:16px">No account? <a onclick="switchAuth('signup')" style="color:var(--accent);font-weight:600;cursor:pointer">Create one</a></p>
-        <p class="muted" style="text-align:center;margin-top:10px;font-size:12px">Demo: <b>demo@diary.np</b> / <b>demo123</b> <a onclick="fillDemo()" style="color:var(--accent);cursor:pointer">(fill)</a></p>
+        <p class="muted" style="text-align:center;margin-top:10px;font-size:12px">
+          Preview Login: <b>demo@diary.np</b> / <b>demo123</b><br>
+          <span style="opacity:.8">Firebase email verification will activate after Firebase setup.</span>
+        </p>
       </form>
 
       <form id="signupForm" onsubmit="doSignup(event)" style="display:none">
@@ -235,8 +244,31 @@ tbody tr:hover{background:var(--panel2)}
           <input class="inp" id="suPass" type="password" placeholder="Min 6 characters"><div class="err-msg" id="suPassErr">Min 6 characters</div></div>
         <div class="field"><label>Confirm Password <span>*</span></label>
           <input class="inp" id="suPass2" type="password" placeholder="Repeat password"><div class="err-msg" id="suPass2Err">Passwords do not match</div></div>
-        <button class="btn block green" type="submit"><i class="fa-solid fa-user-plus"></i> Create account</button>
+        <button class="btn block green" type="submit"><i class="fa-solid fa-user-plus"></i> Create account &amp; Verify Email</button>
       </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- FORGOT PASSWORD -->
+<div class="modal-bd" id="forgotBd" onclick="if(event.target===this)closeForgotPassword()">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-h">
+      <h3><i class="fa-solid fa-key" style="color:var(--accent)"></i> Forgot Password</h3>
+      <button class="icon-btn" style="color:var(--muted)" onclick="closeForgotPassword()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-b">
+      <p class="muted" style="margin-bottom:16px">Enter your registered email address. A password reset link will be sent to your email.</p>
+      <div class="field">
+        <label>Email Address <span>*</span></label>
+        <input class="inp" id="fpEmail" type="email" placeholder="you@example.com" autocomplete="email">
+        <div class="err-msg" id="fpEmailErr">Valid email required</div>
+      </div>
+      <div class="form-actions">
+        <button class="btn" type="button" onclick="sendPasswordReset()"><i class="fa-solid fa-paper-plane"></i> Send Reset Email</button>
+        <button class="btn ghost" type="button" onclick="closeForgotPassword()">Cancel</button>
+      </div>
     </div>
   </div>
 </div>
@@ -313,66 +345,320 @@ function toast(msg,type='ok',title){
 function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h)+s.charCodeAt(i);return String(h>>>0);}
 
 /* ============ AUTH ============ */
+/*
+  Firebase Email/Password Authentication
+  --------------------------------------
+  IMPORTANT: Paste your own Firebase Web App configuration below.
+  Enable:
+    Authentication -> Sign-in method -> Email/Password
+    Authentication -> Settings -> Authorized domains
+  This keeps the existing workspace/data modules unchanged.
+*/
+const firebaseConfig = {
+  apiKey: "PASTE_YOUR_FIREBASE_API_KEY",
+  authDomain: "PASTE_YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "PASTE_YOUR_PROJECT_ID",
+  storageBucket: "PASTE_YOUR_PROJECT_ID.firebasestorage.app",
+  messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID",
+  appId: "PASTE_YOUR_FIREBASE_APP_ID"
+};
+
+let firebaseReady=false;
+let firebaseAuth=null;
+
+/*
+  PREVIEW MODE
+  ------------
+  Demo login works immediately for preview/testing:
+    User ID: demo@diary.np
+    Password: demo123
+
+  When Firebase is configured, the same UI can use Firebase email authentication.
+  Set PREVIEW_MODE=false after Firebase setup if you want to disable demo login.
+*/
+// Change this to false after Firebase is configured and tested.
+const PREVIEW_MODE=true;
+const DEMO_EMAIL='demo@diary.np';
+const DEMO_PASSWORD='demo123';
+
+try{
+  if(firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith('PASTE_')){
+    if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
+    firebaseAuth=firebase.auth();
+    firebaseReady=true;
+  }
+}catch(err){
+  console.error('Firebase initialization failed:',err);
+}
+
 const USERS='dn_users_v1', SESS='dn_session_v1';
 const users=()=>JSON.parse(localStorage.getItem(USERS)||'[]');
 const saveUsers=u=>localStorage.setItem(USERS,JSON.stringify(u));
 let ME=null, DB=null;
 
 function switchAuth(m){
-  $('tabLogin').classList.toggle('on',m==='login');$('tabSignup').classList.toggle('on',m!=='login');
-  $('loginForm').style.display=m==='login'?'':'none';$('signupForm').style.display=m==='login'?'none':'';
+  $('tabLogin').classList.toggle('on',m==='login');
+  $('tabSignup').classList.toggle('on',m!=='login');
+  $('loginForm').style.display=m==='login'?'':'none';
+  $('signupForm').style.display=m==='login'?'none':'';
 }
-function fillDemo(){$('lgEmail').value='demo@diary.np';$('lgPass').value='demo123';}
-function showErr(id,on){$(id).classList.toggle('show',on);$(id.replace('Err','')).classList.toggle('err',on);}
+function fillDemo(){
+  toast('Demo login has been disabled. Please use a verified email account.','warn','Email verification required');
+}
+function showErr(id,on){
+  $(id).classList.toggle('show',on);
+  const target=$(id.replace('Err',''));
+  if(target)target.classList.toggle('err',on);
+}
 function validEmail(e){return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);}
+function authReady(){
+  if(firebaseReady)return true;
+  if(PREVIEW_MODE)return true;
+  toast('Firebase Authentication is not configured yet. Add your Firebase Web App configuration in the code.','err','Setup required');
+  return false;
+}
 
-function doSignup(e){
+async function doSignup(e){
   e.preventDefault();
-  const n=$('suName').value.trim(),b=$('suBiz').value.trim(),em=$('suEmail').value.trim().toLowerCase(),p=$('suPass').value,p2=$('suPass2').value;
+  if(!authReady())return;
+
+  const n=$('suName').value.trim();
+  const b=$('suBiz').value.trim();
+  const em=$('suEmail').value.trim().toLowerCase();
+  const p=$('suPass').value;
+  const p2=$('suPass2').value;
+
   let ok=true;
-  showErr('suNameErr',!n); ok=ok&&n;
+  showErr('suNameErr',!n); ok=ok&&!!n;
   showErr('suEmailErr',!validEmail(em)); ok=ok&&validEmail(em);
   showErr('suPassErr',p.length<6); ok=ok&&p.length>=6;
-  showErr('suPass2Err',p!==p2||!p2); ok=ok&&p===p2&&p2;
+  showErr('suPass2Err',p!==p2||!p2); ok=ok&&p===p2&&!!p2;
   if(!ok)return toast('Please fix the highlighted fields','err','Validation failed');
-  const us=users();
-  if(us.find(u=>u.email===em))return toast('This email is already registered. Please login.','err');
-  us.push({email:em,name:n,biz:b||(n+"'s Business"),pass:hash(p),created:new Date().toISOString()});
-  saveUsers(us);
-  seedUser(em,b||(n+"'s Business"));
-  toast('Account created. Welcome, '+n+'!','ok');
-  login(em);
+
+  try{
+    const cred=await firebaseAuth.createUserWithEmailAndPassword(em,p);
+    await cred.user.updateProfile({displayName:n});
+
+    // Send Firebase's official email verification link.
+    await cred.user.sendEmailVerification();
+
+    const us=users().filter(u=>u.email!==em);
+    us.push({
+      email:em,
+      name:n,
+      biz:b||(n+"'s Business"),
+      created:new Date().toISOString(),
+      firebaseUid:cred.user.uid
+    });
+    saveUsers(us);
+
+    // Preserve the existing application data model; initialize a blank workspace.
+    seedUser(em,b||(n+"'s Business"));
+
+    await firebaseAuth.signOut();
+    $('suPass').value='';
+    $('suPass2').value='';
+    switchAuth('login');
+
+    toast('Verification email sent to '+em+'. Please verify your email, then log in.','ok','Check your email');
+  }catch(err){
+    console.error(err);
+    const msg={
+      'auth/email-already-in-use':'This email is already registered. Try Login or Forgot Password.',
+      'auth/invalid-email':'Please enter a valid email address.',
+      'auth/weak-password':'Password must be at least 6 characters.',
+      'auth/operation-not-allowed':'Enable Email/Password sign-in in Firebase Authentication.'
+    }[err.code]||err.message||'Unable to create the account.';
+    toast(msg,'err','Sign up failed');
+  }
 }
-function doLogin(e){
+
+async function doLogin(e){
   e.preventDefault();
-  const em=$('lgEmail').value.trim().toLowerCase(),p=$('lgPass').value;
-  let ok=validEmail(em); showErr('lgEmailErr',!ok); showErr('lgPassErr',!p);
+
+  const em=$('lgEmail').value.trim().toLowerCase();
+  const p=$('lgPass').value;
+  let ok=validEmail(em);
+  showErr('lgEmailErr',!ok);
+  showErr('lgPassErr',!p);
   if(!ok||!p)return;
-  const u=users().find(u=>u.email===em);
-  if(!u)return toast('No account found with this email','err');
-  if(u.pass!==hash(p))return toast('Incorrect password','err');
-  login(em);
+
+  // PREVIEW: demo account opens the existing full workspace immediately.
+  if(PREVIEW_MODE && !firebaseReady && em===DEMO_EMAIL && p===DEMO_PASSWORD){
+    let us=users();
+    let u=us.find(x=>x.email===DEMO_EMAIL);
+    if(!u){
+      u={email:DEMO_EMAIL,name:'Demo User',biz:'Diary Nepal',created:new Date().toISOString(),preview:true};
+      us.push(u);
+      saveUsers(us);
+    }
+    seedUser(DEMO_EMAIL,'Diary Nepal');
+    localStorage.setItem(SESS,DEMO_EMAIL);
+    ME=u;
+    DB=loadDB(DEMO_EMAIL);
+
+    $('auth').style.display='none';
+    $('app').classList.add('on');
+    $('workDate').value=today();
+    buildNav();
+    paintUser();
+    go('dashboard');
+    toast('Preview mode: logged in as Demo User','ok','Demo login');
+    return;
+  }
+
+  if(!authReady())return;
+
+  try{
+    const cred=await firebaseAuth.signInWithEmailAndPassword(em,p);
+    await cred.user.reload();
+
+    if(!cred.user.emailVerified){
+      await firebaseAuth.signOut();
+      toast('Please verify your email first. Check your inbox and spam folder.','warn','Email not verified');
+      return;
+    }
+
+    const existing=users();
+    let u=existing.find(x=>x.email===em);
+
+    if(!u){
+      u={email:em,name:cred.user.displayName||em.split('@')[0],biz:'My Business',created:new Date().toISOString(),firebaseUid:cred.user.uid};
+      existing.push(u);
+      saveUsers(existing);
+    }
+
+    localStorage.setItem(SESS,em);
+    ME=u;
+    DB=loadDB(em);
+
+    $('auth').style.display='none';
+    $('app').classList.add('on');
+    $('workDate').value=today();
+    buildNav();
+    paintUser();
+    go('dashboard');
+    toast('Logged in as '+ME.email,'ok','Welcome');
+  }catch(err){
+    console.error(err);
+    const msg={
+      'auth/user-not-found':'No account found with this email.',
+      'auth/wrong-password':'Incorrect password.',
+      'auth/invalid-credential':'Incorrect email or password.',
+      'auth/too-many-requests':'Too many attempts. Please wait and try again.'
+    }[err.code]||err.message||'Login failed.';
+    toast(msg,'err','Login failed');
+  }
 }
-function login(email){
+
+async function resendVerification(){
+  if(!firebaseReady){
+    if(PREVIEW_MODE){
+      toast('Email verification becomes active after Firebase setup.','warn','Preview mode');
+      return;
+    }
+    if(!authReady())return;
+  }
+  const em=$('lgEmail').value.trim().toLowerCase();
+  if(!validEmail(em))return toast('Enter your registered email first.','err');
+
+  try{
+    const p=$('lgPass').value;
+    if(!p)return toast('Enter your password so the account can be verified.','warn');
+
+    const cred=await firebaseAuth.signInWithEmailAndPassword(em,p);
+    await cred.user.reload();
+
+    if(cred.user.emailVerified){
+      await firebaseAuth.signOut();
+      return toast('This email is already verified. You can log in normally.','ok','Already verified');
+    }
+
+    await cred.user.sendEmailVerification();
+    await firebaseAuth.signOut();
+    toast('A new verification email has been sent to '+em+'.','ok','Verification sent');
+  }catch(err){
+    console.error(err);
+    toast(err.message||'Could not resend verification email.','err','Verification failed');
+  }
+}
+
+function openForgotPassword(){
+  const current=$('lgEmail').value.trim().toLowerCase();
+  $('fpEmail').value=validEmail(current)?current:'';
+  showErr('fpEmailErr',false);
+  $('forgotBd').classList.add('on');
+  document.body.style.overflow='hidden';
+  setTimeout(()=>$('fpEmail').focus(),80);
+}
+function closeForgotPassword(){
+  $('forgotBd').classList.remove('on');
+  document.body.style.overflow='';
+}
+async function sendPasswordReset(){
+  if(!firebaseReady){
+    if(PREVIEW_MODE){
+      toast('Preview mode uses Demo Login. Password reset becomes active after Firebase setup.','warn','Preview mode');
+      return;
+    }
+    if(!authReady())return;
+  }
+  const em=$('fpEmail').value.trim().toLowerCase();
+  showErr('fpEmailErr',!validEmail(em));
+  if(!validEmail(em))return;
+
+  try{
+    await firebaseAuth.sendPasswordResetEmail(em);
+    closeForgotPassword();
+    $('lgEmail').value=em;
+    toast('Password reset link sent to '+em+'. Check your email and spam folder.','ok','Reset email sent');
+  }catch(err){
+    console.error(err);
+    const msg={
+      'auth/user-not-found':'No account found with this email.',
+      'auth/invalid-email':'Please enter a valid email address.'
+    }[err.code]||err.message||'Could not send the reset email.';
+    toast(msg,'err','Reset failed');
+  }
+}
+
+async function login(email){
+  // Kept as a compatibility wrapper for the rest of the existing application.
   localStorage.setItem(SESS,email);
   ME=users().find(u=>u.email===email);
   DB=loadDB(email);
-  $('auth').style.display='none';$('app').classList.add('on');
+  $('auth').style.display='none';
+  $('app').classList.add('on');
   $('workDate').value=today();
-  buildNav();paintUser();go('dashboard');
-  toast('Logged in as '+ME.email,'ok','Welcome');
+  buildNav();
+  paintUser();
+  go('dashboard');
 }
-function logout(){
+
+async function logout(){
   if(!confirm('Logout from this workspace?'))return;
-  localStorage.removeItem(SESS);ME=null;DB=null;
-  $('app').classList.remove('on');$('auth').style.display='flex';
-  $('lgPass').value='';closeDds();
+  try{if(firebaseReady&&firebaseAuth)await firebaseAuth.signOut();}catch(e){console.warn(e);}
+  localStorage.removeItem(SESS);
+  ME=null;
+  DB=null;
+  $('app').classList.remove('on');
+  $('auth').style.display='flex';
+  $('lgPass').value='';
+  closeDds();
 }
+
 function paintUser(){
+  if(!ME)return;
   const ini=(ME.name||ME.email)[0].toUpperCase();
-  $('sbName').textContent=ME.name;$('sfBiz').textContent=ME.biz;$('sfEmail').textContent=ME.email;
-  $('sfAvatar').textContent=ini;$('topAvatar').textContent=ini;$('ddName').textContent=ME.name;$('ddEmail').textContent=ME.email;
+  $('sbName').textContent=ME.name;
+  $('sfBiz').textContent=ME.biz;
+  $('sfEmail').textContent=ME.email;
+  $('sfAvatar').textContent=ini;
+  $('topAvatar').textContent=ini;
+  $('ddName').textContent=ME.name;
+  $('ddEmail').textContent=ME.email;
 }
+
 /* ============ DATA (isolated per user) ============ */
 const KEY=e=>'dn_data_'+e;
 function blank(biz){return {biz:biz||'My Business',customers:[],products:[],txns:[],settings:{lowStock:5,currency:'₨'}};}
@@ -1265,11 +1551,16 @@ function wipe(){if(!confirm('Delete ALL data in this workspace? This cannot be u
 /* ============ BOOT ============ */
 (function(){
   const th=localStorage.getItem('dn_theme');
-  if(th==='dark'){document.documentElement.dataset.theme='dark';$('themeIco').className='fa-solid fa-sun';}
-  if(!users().length){saveUsers([{email:'demo@diary.np',name:'demo user',biz:'Diary Nepal',pass:hash('demo123'),created:new Date().toISOString()}]);
-    if(!localStorage.getItem(KEY('demo@diary.np')))seedUser('demo@diary.np','Diary Nepal');}
-  const s=localStorage.getItem(SESS);
-  if(s&&users().find(u=>u.email===s))login(s);
+  if(th==='dark'){
+    document.documentElement.dataset.theme='dark';
+    $('themeIco').className='fa-solid fa-sun';
+  }
+
+  // Firebase is the authentication source of truth.
+  // Existing workspace data remains in the current local per-email storage model.
+  if(!firebaseReady){
+    console.warn('Firebase Auth is not configured. Add firebaseConfig values before using Login/Sign Up.');
+  }
 })();
 </script>
 </body>
