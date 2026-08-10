@@ -416,7 +416,7 @@ function ensureDemoAccount(){
     u={email:DEMO_EMAIL,name:'Demo User',biz:'Diary Nepal',created:new Date().toISOString(),preview:true,password:DEMO_PASSWORD,role:ROLE_ADMIN};
     us.push(u);
     saveUsers(us);
-    seedUser(DEMO_EMAIL,'Diary Nepal');
+    localStorage.setItem(KEY(DEMO_EMAIL),JSON.stringify(blank('Diary Nepal')));
   }else if(!u.password){
     u.password=DEMO_PASSWORD;
     saveUsers(us);
@@ -459,7 +459,7 @@ async function doSignup(e){
     saveUsers(us);
 
     // Preserve the existing application data model; initialize a blank workspace.
-    seedUser(em,biz);
+    localStorage.setItem(KEY(em),JSON.stringify(blank(biz)));
 
     $('suPass').value='';
     $('suPass2').value='';
@@ -1767,7 +1767,7 @@ function adminCreateUser(e){
   const us=users();
   if(us.some(u=>u.email===em))return toast('This email is already registered.','err','Account exists');
   us.push({email:em,name:n,biz:ME.biz,created:new Date().toISOString(),password:pw,role});
-  saveUsers(us);seedUser(em,ME.biz);
+  saveUsers(us);localStorage.setItem(KEY(em),JSON.stringify(blank(ME.biz)));
   $('admName').value='';$('admEmail').value='';$('admPass').value='';
   renderPage();toast(em+' created as '+role+'.','ok','User account created');
 }
@@ -1892,7 +1892,13 @@ function wipe(){if(!confirm('Delete ALL data in this workspace? This cannot be u
     // Create demo supplier/customer accounts so the marketplace can be tested
     // immediately without SQL.
     let us=users();
-    
+    const demoUsers=[
+      {email:'supplier1@diary.np',name:'Everest Suppliers',biz:'Everest Trading Pvt. Ltd.',password:'supplier123',role:ROLE_SUPPLIER,active:true},
+      {email:'supplier2@diary.np',name:'Himalayan Distributors',biz:'Himalayan Distributors',password:'supplier123',role:ROLE_SUPPLIER,active:true},
+      {email:'customer1@diary.np',name:'ABC Traders',biz:'ABC Traders',password:'customer123',role:ROLE_CUSTOMER,active:true},
+      {email:'customer2@diary.np',name:'Nepal Mart',biz:'Nepal Mart',password:'customer123',role:ROLE_CUSTOMER,active:true},
+      {email:'customer3@diary.np',name:'City Store',biz:'City Store',password:'customer123',role:ROLE_CUSTOMER,active:true}
+    ];
     demoUsers.forEach(u=>{
       if(!us.some(x=>x.email===u.email)){
         u.created=new Date().toISOString();saveUsers([...us,u]);us=users();seedUser(u.email,u.biz);
@@ -1911,7 +1917,8 @@ function wipe(){if(!confirm('Delete ALL data in this workspace? This cannot be u
     }
     saveGoods(g);
   }
-  seedMarketplace();
+  // Demo marketplace seeding is intentionally disabled in the clean-start build.
+  // Suppliers/customers and goods are created by the Admin/User workflow.
 
   // Profile image rendering.
   paintUser=function(){
@@ -1957,7 +1964,7 @@ function wipe(){if(!confirm('Delete ALL data in this workspace? This cannot be u
       <div class="form-actions"><button class="btn green"><i class="fa-solid fa-floppy-disk"></i> ${edit?'Save Changes':'Create User'}</button><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button></div></form>`,'700px');
   };
   window.previewManagedPhoto=function(inp){const f=inp.files?.[0];if(!f)return;const r=new FileReader();r.onload=()=>{$('muPhotoPreview').innerHTML=`<img class="avatar-img" src="${r.result}" alt="Preview">`;};r.readAsDataURL(f)};
-  window.saveManagedUser=function(e,oldEmail){e.preventDefault();if(ME.role!==ROLE_ADMIN)return toast('Only Admin can manage users','err');const n=$('muName').value.trim(),em=(oldEmail||$('muEmail').value.trim()).toLowerCase(),role=$('muRole').value,p=$('muPass').value;if(!n||!validEmail(em)||(!oldEmail&&p.length<6)||(p&&p.length<6))return toast('Enter valid name, email and password.','err','Validation failed');const us=users();let u=us.find(x=>x.email===em);if(!u){if(us.some(x=>x.email===$('muEmail').value.trim().toLowerCase()))return toast('Email already exists','err');u={email:em,name:n,biz:ME.biz,created:new Date().toISOString(),password:p,role,active:true};us.push(u);seedUser(em,ME.biz)}else{u.name=n;u.role=role;if(p)u.password=p;}const f=$('muPhoto').files?.[0];if(f){const r=new FileReader();r.onload=()=>{u.photo=r.result;saveUsers(us);closeModal();renderPage();toast('User saved','ok','User Management')};r.readAsDataURL(f);return;}saveUsers(us);closeModal();renderPage();toast((oldEmail?'User updated':'User created')+' successfully','ok','User Management')};
+  window.saveManagedUser=function(e,oldEmail){e.preventDefault();if(ME.role!==ROLE_ADMIN)return toast('Only Admin can manage users','err');const n=$('muName').value.trim(),em=(oldEmail||$('muEmail').value.trim()).toLowerCase(),role=$('muRole').value,p=$('muPass').value;if(!n||!validEmail(em)||(!oldEmail&&p.length<6)||(p&&p.length<6))return toast('Enter valid name, email and password.','err','Validation failed');const us=users();let u=us.find(x=>x.email===em);if(!u){if(us.some(x=>x.email===$('muEmail').value.trim().toLowerCase()))return toast('Email already exists','err');u={email:em,name:n,biz:ME.biz,created:new Date().toISOString(),password:p,role,active:true};us.push(u);localStorage.setItem(KEY(em),JSON.stringify(blank(ME.biz)))}else{u.name=n;u.role=role;if(p)u.password=p;}const f=$('muPhoto').files?.[0];if(f){const r=new FileReader();r.onload=()=>{u.photo=r.result;saveUsers(us);closeModal();renderPage();toast('User saved','ok','User Management')};r.readAsDataURL(f);return;}saveUsers(us);closeModal();renderPage();toast((oldEmail?'User updated':'User created')+' successfully','ok','User Management')};
   window.toggleUserActive=function(email){const us=users(),u=us.find(x=>x.email===email);if(!u)return;u.active=u.active===false;saveUsers(us);renderPage();toast(u.active?'User activated':'User deactivated','ok')};
   window.deleteManagedUser=function(email){if(!confirm('Delete this user account and local workspace data?'))return;saveUsers(users().filter(u=>u.email!==email));localStorage.removeItem(KEY(email));renderPage();toast('User deleted','ok')};
 
@@ -2256,53 +2263,75 @@ function wipe(){if(!confirm('Delete ALL data in this workspace? This cannot be u
 </script>
 
 
-<script id="clean-demo-business-data">
-(function cleanDemoBusinessDataOnce(){
-  const CLEAN_KEY = 'dn_clean_start_v1';
-  if(localStorage.getItem(CLEAN_KEY)) return;
-  const keysToClear = [
-    'dn_customers','customers','dn_suppliers','suppliers',
-    'dn_sales','sales','dn_purchases','purchases',
-    'dn_orders','orders','dn_order_items','orderItems',
-    'dn_notifications','notifications',
+<script id="clean-working-start">
+(function cleanWorkingStart(){
+  const FLAG='dn_clean_working_all_features_v1';
+  if(localStorage.getItem(FLAG)) return;
+
+  const keepEmail='demo@diary.np';
+
+  // Remove all per-user workspace data.
+  Object.keys(localStorage).forEach(k=>{
+    if(k.startsWith('dn_data_')) localStorage.removeItem(k);
+  });
+
+  // Remove marketplace/demo data.
+  [
+    'dn_market_orders_v1','dn_market_goods_v1',
     'dn_supplier_payments','supplierPayments',
     'dn_sales_returns','salesReturns','dn_return_items','returnItems',
+    'dn_notifications','notifications',
     'dn_products','products','dn_inventory','inventory',
+    'dn_sales','sales','dn_purchases','purchases',
+    'dn_orders','orders','dn_order_items','orderItems',
+    'dn_customers','customers','dn_suppliers','suppliers',
     'dn_ledger','ledger','dn_payments','payments',
     'dn_receivables','receivables','dn_payables','payables',
     'dn_parties','parties','dn_goods','goods',
     'dn_published_goods','publishedGoods'
-  ];
-  keysToClear.forEach(k => localStorage.removeItem(k));
-  localStorage.setItem(CLEAN_KEY, '1');
-})();
-</script>
+  ].forEach(k=>localStorage.removeItem(k));
 
+  // Keep only the one working Admin demo login. All other example users are removed.
+  let us=[];
+  try{us=JSON.parse(localStorage.getItem('dn_users')||'[]');}catch(e){}
+  if(!Array.isArray(us)) us=[];
+  us=us.filter(u=>String(u.email||'').toLowerCase()===keepEmail);
 
-<script id="ensure-clean-demo-login">
-(function ensureCleanDemoLogin(){
-  const email='demo@diary.np', password='demo123';
-  let users=[];
-  try { users=JSON.parse(localStorage.getItem('dn_users')||'[]'); } catch(e){}
-  if(!Array.isArray(users)) users=[];
-  users = users.filter(u => String(u.email||'').toLowerCase()===email);
-  if(!users.length){
-    users=[{
-      id:'demo-admin',
-      name:'Demo Administrator',
-      email,
-      password,
+  if(!us.length){
+    us=[{
+      email:keepEmail,
+      name:'Demo User',
+      biz:'Diary Nepal',
+      created:new Date().toISOString(),
+      password:'demo123',
+      preview:true,
       role:'Admin',
-      status:'Active',
-      profilePhoto:'',
-      createdAt:new Date().toISOString()
+      active:true
     }];
-  } else {
-    users[0].password=password;
-    users[0].role='Admin';
-    users[0].status='Active';
+  }else{
+    us[0].password='demo123';
+    us[0].role='Admin';
+    us[0].active=true;
   }
-  localStorage.setItem('dn_users',JSON.stringify(users));
+  localStorage.setItem('dn_users',JSON.stringify(us));
+
+  // Create an empty demo workspace; no sample customers/products/transactions.
+  localStorage.setItem('dn_data_'+keepEmail, JSON.stringify({
+    biz:'Diary Nepal',
+    customers:[],
+    products:[],
+    txns:[],
+    settings:{lowStock:5,currency:'₨'}
+  }));
+
+  // Force a clean login rather than reopening an old session.
+  const hadOldSession=!!localStorage.getItem('dn_session');
+  localStorage.removeItem('dn_session');
+  localStorage.setItem(FLAG,'1');
+  // The main app boot script appears earlier in the file. If it already opened
+  // an old session before this clean-start routine ran, reload once so the
+  // login screen is shown with the cleaned account list.
+  if(hadOldSession) location.reload();
 })();
 </script>
 
